@@ -9,10 +9,10 @@
  */
 import type { PoolConnection } from "mysql2/promise"
 import type { RowDataPacket } from "mysql2"
-import { db, transaction } from "../shared/db.ts"
-import { leerConfigNumero } from "../shared/configuracion.ts"
-import { obtenerOCrearCliente, partirNombre } from "../shared/clientes.ts"
-import { badRequest, conflict, notFound } from "../shared/errors.ts"
+import { pool, enTransaccion } from "../shared/db.js"
+import { leerConfigNumero } from "../shared/configuracion.js"
+import { buscarOCrearCliente } from "../shared/models/clientes.js"
+import { conflicto, malaPeticion, noExiste } from "../shared/errors.js"
 import {
   aDateTime,
   aHora,
@@ -22,8 +22,8 @@ import {
   minutosAhora,
   seSolapan,
   type FechaISO,
-} from "./tiempo.ts"
-import type { NuevoTurno } from "./schemas.ts"
+} from "./tiempo.js"
+import type { NuevoTurno } from "./validacion.js"
 
 /** Estados que siguen ocupando lugar en la agenda. Un turno cancelado libera el horario. */
 const ESTADOS_OCUPAN = ["reservado", "confirmado", "completado"] as const
@@ -51,7 +51,7 @@ function aServicioDTO(row: RowDataPacket): ServicioDTO {
     id: row.id,
     name: row.nombre,
     category: row.categoria,
-    price: Number(row.precio),
+    price: row.precio,
     durationMin: row.duracion_min,
     image: row.imagen_url,
     shortDescription: row.descripcion_corta,
@@ -65,7 +65,7 @@ function aServicioDTO(row: RowDataPacket): ServicioDTO {
 }
 
 export async function listarServicios(): Promise<ServicioDTO[]> {
-  const [rows] = await db.query<RowDataPacket[]>(
+  const [rows] = await pool.query<RowDataPacket[]>(
     `SELECT id, nombre, categoria, descripcion_corta, descripcion, imagen_url,
             incluye, profesional, badge, sesiones_recomendadas, duracion_min, precio
        FROM servicios
@@ -76,14 +76,14 @@ export async function listarServicios(): Promise<ServicioDTO[]> {
 }
 
 export async function obtenerServicio(id: number): Promise<ServicioDTO> {
-  const [rows] = await db.query<RowDataPacket[]>(
+  const [rows] = await pool.query<RowDataPacket[]>(
     `SELECT id, nombre, categoria, descripcion_corta, descripcion, imagen_url,
             incluye, profesional, badge, sesiones_recomendadas, duracion_min, precio
        FROM servicios
       WHERE id = ? AND activo = 1`,
     [id],
   )
-  if (rows.length === 0) throw notFound(`No existe el servicio ${id}.`)
+  if (rows.length === 0) throw noExiste(`No existe el servicio ${id}.`)
   return aServicioDTO(rows[0])
 }
 
@@ -98,7 +98,7 @@ export type HorarioDTO = {
 
 /** La agenda semanal. Los días que no aparecen están cerrados. */
 export async function listarHorarios(): Promise<HorarioDTO[]> {
-  const [rows] = await db.query<RowDataPacket[]>(
+  const [rows] = await pool.query<RowDataPacket[]>(
     `SELECT dia_semana, hora_inicio, hora_fin
        FROM horarios_atencion
       ORDER BY dia_semana, hora_inicio`,
@@ -122,7 +122,7 @@ async function turnosDelDia(
   conn?: PoolConnection,
   bloquear = false,
 ): Promise<Ocupado[]> {
-  const ejecutor = conn ?? db
+  const ejecutor = conn ?? pool
   const [rows] = await ejecutor.query<RowDataPacket[]>(
     `SELECT fecha_hora_inicio, fecha_hora_fin
        FROM turnos
@@ -140,7 +140,7 @@ async function turnosDelDia(
 
 /** Bloqueos (vacaciones, feriados, un rato puntual) que pisan ese día. */
 async function bloqueosDelDia(fecha: FechaISO, conn?: PoolConnection): Promise<Ocupado[]> {
-  const ejecutor = conn ?? db
+  const ejecutor = conn ?? pool
   const [rows] = await ejecutor.query<RowDataPacket[]>(
     `SELECT fecha_hora_inicio, fecha_hora_fin
        FROM bloqueos
@@ -225,37 +225,40 @@ export async function crearTurno(input: NuevoTurno): Promise<TurnoCreadoDTO> {
 
   // No se puede reservar en el pasado.
   if (input.fecha < hoy() || (input.fecha === hoy() && inicio <= minutosAhora())) {
-    throw badRequest("Ese horario ya pasó.")
+    throw malaPeticion("Ese horario ya pasó.")
   }
 
   const horarios = (await listarHorarios()).filter((h) => h.diaSemana === diaSemanaISO(input.fecha))
   if (horarios.length === 0) {
-    throw conflict("Ese día el local no atiende.")
+    throw conflicto("Ese día el local no atiende.")
   }
   const entraEnAlgunHorario = horarios.some(
     (h) => inicio >= aMinutos(h.desde) && fin <= aMinutos(h.hasta),
   )
   if (!entraEnAlgunHorario) {
-    throw conflict(
+    throw conflicto(
       `El turno de ${servicio.durationMin} minutos no entra en el horario de atención de ese día.`,
     )
   }
 
-  return transaction(async (conn) => {
+  return enTransaccion(async (conn) => {
     const ocupados = [
       ...(await turnosDelDia(input.fecha, conn, true)),
       ...(await bloqueosDelDia(input.fecha, conn)),
     ]
     if (ocupados.some((o) => seSolapan(inicio, fin, o.desde, o.hasta))) {
-      throw conflict("Ese horario ya fue reservado. Elegí otro.")
+      throw conflicto("Ese horario ya fue reservado. Elegí otro.")
     }
 
-    const { nombre, apellido } = partirNombre(input.contacto.nombreCompleto)
-    const clienteId = await obtenerOCrearCliente(conn, {
-      nombre,
-      apellido,
+    // Alta/reuso del cliente con la funcion COMPARTIDA con la tienda
+    // (shared/models/clientes.ts): la misma persona que reserva un turno y
+    // despues compra un producto tiene que ser una sola fila en `clientes`.
+    const partes = input.contacto.nombreCompleto.trim().split(/\s+/)
+    const clienteId = await buscarOCrearCliente(conn, {
+      nombre: partes.length > 1 ? partes.slice(0, -1).join(" ") : partes[0],
+      apellido: partes.length > 1 ? partes[partes.length - 1] : undefined,
       telefono: input.contacto.telefono,
-      email: input.contacto.email ?? null,
+      email: input.contacto.email,
     })
 
     const [result] = await conn.query(

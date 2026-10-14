@@ -1,17 +1,21 @@
 # backend
 
-**Todavía no arrancó.** Esta carpeta es el esqueleto acordado, para que cuando
-empiece nadie tenga que decidir dónde va su código.
+API de Dp.belleza. **Node + Express 5 + TypeScript + MySQL** (la propuesta del equipo).
+
+Están hechos los dos módulos: **ecommerce** (tienda + su parte del panel) y
+**turnera** (servicios, disponibilidad y reserva de turnos), más lo compartido
+(conexión, login, models).
 
 ## Regla principal: UNA sola app, módulos adentro
 
 `src/turnera/` y `src/ecommerce/` **no son dos servidores**. Son dos grupos de
-rutas que se montan en la misma aplicación, con una sola conexión a la base y un
-solo login:
+rutas que se montan en la misma aplicación (`src/app.ts`), con una sola conexión
+a la base y un solo login:
 
 ```
-/api/turnos/*     ->  src/turnera/
-/api/tienda/*     ->  src/ecommerce/
+/api/auth/*       ->  src/shared/auth/   login del panel
+/api/tienda/*     ->  src/ecommerce/     (sub-equipo B)
+/api/turnos/*     ->  src/turnera/       (sub-equipo A)
 /api/admin/*      ->  src/admin/
 ```
 
@@ -31,39 +35,201 @@ Un cliente es la misma persona en los dos lados: se identifica por teléfono
 (`uq_clientes_telefono`). Si alguien reservó un turno y después compra un
 producto, el checkout tiene que **encontrar** ese cliente, no crear otro.
 
-Por eso la operación "dado un teléfono, dame el cliente o creálo" se escribe
-**una vez** en `shared/` y la llaman los dos módulos. Si cada equipo la escribe
-por su lado:
-
-- ecommerce hace `INSERT` y revienta contra el UNIQUE cuando el cliente ya existe, o
-- cada uno normaliza el teléfono distinto (`5492231234567` vs `0223 123-4567`),
-  la base guarda dos clientes, **ninguna constraint se queja** y la dueña termina
-  con la misma persona duplicada: los turnos en un registro y las compras en el otro.
+Por eso la operación "dado un teléfono, dame el cliente o creálo" está escrita
+**una vez**, en `shared/models/clientes.ts` (`buscarOCrearCliente`), y la llaman
+los dos módulos. El teléfono se normaliza siempre igual en `shared/models/telefono.ts`
+(`0223 15-123-4567` → `5492231234567`). Si cada equipo lo hiciera por su lado, la
+base terminaría con la misma persona duplicada: los turnos en un registro y las
+compras en el otro.
 
 Regla: **una tabla = un model = un dueño.** Lo mismo para `usuarios` y `configuracion`.
 
 ## Estructura
 
 ```
-src/
-├── shared/
-│   ├── models/      todas las tablas (SQLAlchemy / Prisma / lo que se elija)
-│   ├── db            conexión, una sola
-│   ├── auth          login, JWT, roles
-│   └── config
-├── turnera/         routes + service + validación   (sub-equipo A)
-├── ecommerce/       routes + service + validación   (sub-equipo B)
-└── admin/           endpoints del panel
+backend/
+├── src/
+│   ├── index.ts              arranca el servidor
+│   ├── app.ts                monta los módulos, CORS y manejo de errores
+│   │
+│   ├── shared/               lo que usan todos los módulos
+│   │   ├── config.ts         variables de entorno (.env.local)
+│   │   ├── db.ts             conexión a MySQL (una sola) y transacciones
+│   │   ├── errors.ts         errores -> respuestas HTTP (400, 401, 404, 409…)
+│   │   ├── configuracion.ts  lee la tabla `configuracion`
+│   │   ├── auth/
+│   │   │   ├── routes.ts     POST /api/auth/login, GET /api/auth/yo
+│   │   │   └── middleware.ts requiereLogin (JWT)
+│   │   └── models/
+│   │       ├── clientes.ts   buscarOCrearCliente (tienda y turnera)
+│   │       ├── telefono.ts   normalización de teléfonos
+│   │       ├── productos.ts  consulta y formato de productos
+│   │       └── pedidos.ts    estados del pedido y transiciones permitidas
+│   │
+│   ├── ecommerce/            /api/tienda
+│   │   ├── routes.ts         catálogo y checkout
+│   │   ├── service.ts        crearPedido (precios, stock, transacción)
+│   │   └── validacion.ts     qué datos se aceptan (zod)
+│   │
+│   ├── turnera/              /api/turnos — pendiente (sub-equipo A)
+│   │
+│   └── admin/                /api/admin — todo pide login
+│       ├── index.ts          exige login y junta los routers del panel
+│       └── tienda.ts         categorías, productos y pedidos
+│
+├── test/                     tests unitarios (npm test)
+├── scripts/crear-admin.ts    crea un usuario del panel
+├── .env.example
+└── package.json
 ```
 
-## Pendiente de decidir, antes del primer endpoint
+El SQL **no** está acá: las tablas se crean con `database/migrations/` y los
+datos de ejemplo están en `database/seeds/`.
+
+## Puesta en marcha
+
+Requisitos: Node 20+ y MySQL 8.
+
+```bash
+# Desde la raíz del repo: un solo npm install para todo el monorepo
+npm install
+cp backend/.env.example backend/.env.local    # completar JWT_SECRET
+
+# Base de datos. El primer comando es el UNICO que pide la clave de root:
+# crea la base, el usuario de la API (dp_app) y el de migraciones (dp_dev).
+mysql -u root -p < database/setup.sql
+
+mysql -u dp_dev -p dp_belleza < database/migrations/V1_scriptInicial.sql
+mysql -u dp_dev -p dp_belleza < database/migrations/V2_servicios_campos_del_front.sql
+mysql -u dp_dev -p dp_belleza < database/seeds/seed_01_servicios.sql
+mysql -u dp_dev -p dp_belleza < database/seeds/seed_02_horarios.sql
+mysql -u dp_dev -p dp_belleza < database/seeds/ecommerce-datos-ejemplo.sql
+
+# Usuario para el panel
+npm run crear-admin -w @dp/backend -- "Nombre" email@ejemplo.com "clave-segura"
+
+npm run dev:api                 # http://localhost:3000
+```
+
+Las variables locales van en **`.env.local`**, no en `.env`: el frontend usa Vite,
+que solo lee `.env.local`, así que el backend sigue la misma regla y hay una sola
+convención en todo el repo.
+
+| Script | Qué hace |
+|---|---|
+| `npm run dev` | Levanta la API y se reinicia sola al guardar |
+| `npm run build` / `npm start` | Compila a `dist/` y corre la versión compilada |
+| `npm run typecheck` | Chequea tipos |
+| `npm test` | Tests unitarios |
+
+## Endpoints
+
+Todas las respuestas son JSON. Los errores tienen la forma `{ "error": "mensaje", "detalle"?: ... }`.
+
+### Tienda (públicos) — `/api/tienda`
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/api/salud` | Chequeo de que la API está viva |
+| GET | `/api/tienda/categorias` | Categorías activas |
+| GET | `/api/tienda/productos?categoria=1&q=serum` | Productos activos (filtros opcionales) |
+| GET | `/api/tienda/productos/:id` | Un producto activo |
+| POST | `/api/tienda/pedidos` | Crea un pedido (checkout) |
+
+**POST `/api/tienda/pedidos`**
+
+```json
+{
+  "cliente": { "nombre": "Ana", "apellido": "Pérez", "telefono": "223 15-123-4567", "email": "ana@mail.com" },
+  "items": [{ "productoId": 1, "cantidad": 2 }],
+  "notas": "Retiro en el local"
+}
+```
+
+- El cliente no tiene cuenta: se busca o se crea por **teléfono** (`buscarOCrearCliente`).
+- Los **precios salen de la base**, no del navegador. Se congelan en `pedido_items.precio_unitario`.
+- Se **descuenta el stock** en la misma transacción. Si dos personas compran a la vez, no se vende más de lo que hay.
+- Respuestas: `201` con el pedido creado, `400` si faltan datos, `409` si algún producto no está disponible o no tiene stock
+  (en `detalle` viene cuál y por qué).
+
+### Turnera (públicos) — `/api/turnos`
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/api/turnos/servicios` | Servicios activos |
+| GET | `/api/turnos/servicios/:id` | Un servicio activo |
+| GET | `/api/turnos/horarios` | Agenda semanal. **Los días que no aparecen están cerrados** |
+| GET | `/api/turnos/disponibilidad?servicioId=1&fecha=2026-10-19` | Horarios libres de ese servicio ese día |
+| POST | `/api/turnos` | Reserva un turno |
+
+**POST `/api/turnos`**
+
+```json
+{
+  "servicioId": 1,
+  "fecha": "2026-10-19",
+  "hora": "10:00",
+  "contacto": { "nombreCompleto": "Ana María Pérez", "telefono": "0223 15 456-7890", "email": "ana@mail.com", "notas": "Primera vez" }
+}
+```
+
+- Igual que la tienda: el cliente no tiene cuenta y se identifica por **teléfono**,
+  con el mismo `buscarOCrearCliente`. Si Ana reservó un turno y después compra un
+  producto, es **una sola fila** en `clientes`.
+- La disponibilidad **se revalida dentro de la transacción** con `FOR UPDATE`. No se
+  confía en la que consultó el navegador: entre consultar y confirmar pasa tiempo, y
+  sin eso dos clientas que reservan a la vez pasan las dos la validación.
+- Un slot está libre si entra completo en el horario de atención, no se solapa con
+  ningún turno (estados `reservado`, `confirmado`, `completado`) ni con un `bloqueo`,
+  y todavía no pasó. El paso entre horarios sale de `configuracion.intervalo_turnos_min`.
+- Deja el recordatorio programado en `recordatorios`, según
+  `configuracion.recordatorio_horas_antes`. Mandarlos es otro proceso, todavía no existe.
+- Respuestas: `201` con el turno, `400` datos inválidos o fecha pasada,
+  `404` servicio inexistente, `409` horario ocupado / día cerrado / no entra antes del cierre.
+
+**Días de la semana:** `horarios_atencion.dia_semana` usa **ISO 8601** (1 = lunes …
+7 = domingo), porque el CHECK de V1 es `BETWEEN 1 AND 7` y descarta el 0. **No** es la
+convención de JavaScript, donde `getDay()` devuelve 0 para domingo. La conversión está
+en un solo lugar: `diaSemanaISO()` en `src/turnera/tiempo.ts`.
+
+**Fechas y horas:** el pool usa `dateStrings: true` y las cuentas se hacen en minutos
+desde medianoche. Con `dateStrings: false` + `timezone: "Z"`, mysql2 lee un DATETIME
+como UTC y lo pasa a hora local: un turno guardado a las 10:00 se lee 07:00 en
+Argentina. Medido. No cambiar sin entender esto.
+
+### Login — `/api/auth`
+
+`POST /api/auth/login` con `{ "email", "password" }` → devuelve `{ token, usuario }`.
+Se valida contra `usuarios.password_hash` (bcrypt). El resto de las rutas del panel piden
+el header `Authorization: Bearer <token>` (dura 8 horas). `GET /api/auth/yo` devuelve el usuario de la sesión.
+
+### Panel — `/api/admin`
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/api/admin/categorias` | Todas las categorías (incluye inactivas) |
+| POST | `/api/admin/categorias` | Crea una categoría `{ nombre }` |
+| PATCH | `/api/admin/categorias/:id` | Modifica `{ nombre?, activo? }` |
+| GET | `/api/admin/productos` | Todos los productos (incluye dados de baja) |
+| GET | `/api/admin/productos/:id` | Un producto |
+| POST | `/api/admin/productos` | Crea `{ nombre, precio, stock, descripcion?, imagenUrl?, categoriaId?, activo? }` |
+| PATCH | `/api/admin/productos/:id` | Modifica cualquiera de esos campos. Para dar de baja: `{ "activo": false }` |
+| GET | `/api/admin/pedidos?estado=pendiente&desde=2026-10-01&hasta=2026-10-31` | Lista de pedidos (filtros opcionales) |
+| GET | `/api/admin/pedidos/:id` | Pedido con cliente e items |
+| PATCH | `/api/admin/pedidos/:id/estado` | Cambia el estado `{ "estado": "confirmado" }` |
+
+- Los productos **no se borran**: se dan de baja con `activo: false`, porque los pedidos viejos los siguen referenciando.
+- Estados de pedido: `pendiente → confirmado → entregado`, y `pendiente`/`confirmado → cancelado`.
+  Al **cancelar**, el stock vuelve a los productos.
+
+## Pendiente de decidir
 
 | Tema | Estado |
 |---|---|
-| **Stack: Node o Python** | Sin decidir. El equipo propuso Node. **Hay que cerrarlo y escribirlo acá**, el peor escenario es dos personas arrancando en dos stacks |
-| Contrato de la API | Sin escribir. Los endpoints de arriba son la propuesta |
-| CORS | Tiene que permitir los dos orígenes: `dpbelleza.com.ar` y `admin.dpbelleza.com.ar` |
-| Sesión | Si se comparte entre los dos dominios, la cookie va al dominio padre (`.dpbelleza.com.ar`) |
-
-La arquitectura de carpetas es la misma en Node o en Python: lo que la define es
-un deployable con módulos por dominio y los models compartidos, no el lenguaje.
+| **Stack** | El ecommerce arrancó en Node + Express + TypeScript (la propuesta del equipo). Confirmarlo para que la turnera use lo mismo |
+| CORS | Configurado para los dos orígenes con `CORS_ORIGINS` (en desarrollo `:5173` web y `:5174` panel). En producción: `https://dpbelleza.com.ar,https://admin.dpbelleza.com.ar` |
+| Sesión | Hoy es un token JWT en el header `Authorization`, no una cookie, así que no depende del dominio |
+| Envío | El checkout del frontend calcula envío (gratis desde $30.000, si no $2.500), pero `pedidos` no tiene columnas de envío ni de dirección. Hoy `total` es solo la suma de los productos |
+| Datos extra del frontend | `oldPrice`, `badge`, `rating`, `reviews` y `sizes` no existen en la tabla `productos` |
+| Pagos | No hay integración (por ejemplo Mercado Pago); el pedido queda `pendiente` |
+| Fotos | Se cargan como link (`imagenUrl`), no hay subida de archivos |

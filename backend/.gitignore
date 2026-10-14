@@ -1,0 +1,8 @@
+node_modules
+dist
+
+# Variables de entorno locales (claves de la base, secreto de JWT).
+# Nunca se suben: cada uno tiene su copia a partir de .env.example
+.env
+.env.local
+.env.*.local

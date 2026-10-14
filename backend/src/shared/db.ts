@@ -1,41 +1,36 @@
-/**
- * Conexión a MySQL. UNA sola para toda la app: los módulos turnera, ecommerce y
- * admin usan este mismo pool.
- */
 import mysql from "mysql2/promise"
-import { config } from "./config.ts"
+import { config } from "./config.js"
 
-export const db = mysql.createPool({
+export const pool = mysql.createPool({
   ...config.db,
-  waitForConnections: true,
   connectionLimit: 10,
-  // Las fechas se manejan como string: así un DATETIME de MySQL no pasa por el
-  // Date de JavaScript, que le aplicaría la zona horaria del servidor y correría
-  // los turnos de hora.
+  charset: "utf8mb4",
+  // DECIMAL llega como number en vez de string (los precios entran sin problema en un double)
+  decimalNumbers: true,
+  // Los DATETIME llegan como string "YYYY-MM-DD HH:MM:SS" y NO como Date.
+  //
+  // Con `dateStrings: false` + `timezone: "Z"`, mysql2 interpreta el DATETIME
+  // como UTC y lo pasa a hora local: un turno guardado a las 10:00 se lee como
+  // 07:00 en Argentina. Medido contra esta misma base. Para `pedidos.created_at`
+  // casi no se nota, pero en la turnera la clienta reserva a las 10 y el panel
+  // le muestra 07:00.
+  //
+  // Dejándolos como string, la hora que se guarda es la que se lee. Las cuentas
+  // de la agenda se hacen en minutos desde medianoche (src/turnera/tiempo.ts).
   dateStrings: true,
-  timezone: "local",
 })
 
-/** Corre una función dentro de una transacción. Si lanza, hace rollback. */
-export async function transaction<T>(fn: (conn: mysql.PoolConnection) => Promise<T>): Promise<T> {
-  const conn = await db.getConnection()
+// Corre `fn` dentro de una transacción: commit si termina bien, rollback si tira error.
+export async function enTransaccion<T>(fn: (conn: mysql.PoolConnection) => Promise<T>): Promise<T> {
+  const conn = await pool.getConnection()
   try {
     await conn.beginTransaction()
-    const result = await fn(conn)
+    const resultado = await fn(conn)
     await conn.commit()
-    return result
-  } catch (error) {
+    return resultado
+  } catch (err) {
     await conn.rollback()
-    throw error
-  } finally {
-    conn.release()
-  }
-}
-
-export async function checkConnection() {
-  const conn = await db.getConnection()
-  try {
-    await conn.query("SELECT 1")
+    throw err
   } finally {
     conn.release()
   }

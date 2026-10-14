@@ -1,12 +1,14 @@
 {
-  "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    "tsBuildInfoFile": "../node_modules/.tmp/backend.tsbuildinfo",
-    "lib": ["ES2023"],
-    "types": ["node"],
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
-    "jsx": "preserve"
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "rootDir": "src",
+    "outDir": "dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "types": ["node"]
   },
   "include": ["src"]
 }

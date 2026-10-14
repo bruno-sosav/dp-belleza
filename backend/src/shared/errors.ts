@@ -1,24 +1,47 @@
-/**
- * Errores con status HTTP, para no devolver 500 ante un dato mal mandado.
- *
- * Los campos se asignan en el cuerpo del constructor y no como propiedades de
- * parámetro (`constructor(readonly status: number)`) porque el proyecto usa
- * `erasableSyntaxOnly`: Node ejecuta los .ts borrando los tipos, sin
- * transformarlos, así que solo se puede usar sintaxis que desaparezca sola.
- */
+import type { ErrorRequestHandler } from "express"
+import { ZodError } from "zod"
 
 export class HttpError extends Error {
-  status: number
-  details?: unknown
-
-  constructor(status: number, message: string, details?: unknown) {
+  constructor(
+    public status: number,
+    message: string,
+    public detalle?: unknown,
+  ) {
     super(message)
-    this.name = "HttpError"
-    this.status = status
-    this.details = details
   }
 }
 
-export const badRequest = (message: string, details?: unknown) => new HttpError(400, message, details)
-export const notFound = (message: string) => new HttpError(404, message)
-export const conflict = (message: string) => new HttpError(409, message)
+export const noEncontrado = (que: string) => new HttpError(404, `${que} no encontrado`)
+export const noExiste = (mensaje: string) => new HttpError(404, mensaje)
+export const malaPeticion = (mensaje: string, detalle?: unknown) => new HttpError(400, mensaje, detalle)
+export const conflicto = (mensaje: string) => new HttpError(409, mensaje)
+
+export const manejarErrores: ErrorRequestHandler = (err, _req, res, _next) => {
+  if (err instanceof ZodError) {
+    res.status(400).json({
+      error: "Datos inválidos",
+      detalle: err.issues.map((i) => ({ campo: i.path.join("."), mensaje: i.message })),
+    })
+    return
+  }
+  if (err instanceof HttpError) {
+    res.status(err.status).json({ error: err.message, ...(err.detalle ? { detalle: err.detalle } : {}) })
+    return
+  }
+  // JSON mal formado en el body
+  if (err?.type === "entity.parse.failed") {
+    res.status(400).json({ error: "El cuerpo de la petición no es JSON válido" })
+    return
+  }
+  // Errores de MySQL que son culpa de los datos enviados, no del servidor
+  if (err?.code === "ER_DUP_ENTRY") {
+    res.status(409).json({ error: "Ya existe un registro con ese valor" })
+    return
+  }
+  if (err?.code === "ER_NO_REFERENCED_ROW_2") {
+    res.status(400).json({ error: "Se hace referencia a un registro que no existe (por ejemplo, la categoría)" })
+    return
+  }
+  console.error(err)
+  res.status(500).json({ error: "Error interno del servidor" })
+}

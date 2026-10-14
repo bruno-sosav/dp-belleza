@@ -4,10 +4,10 @@
  * recordatorio, teléfono del local, etc.).
  */
 import type { RowDataPacket } from "mysql2"
-import { db } from "./db.ts"
+import { pool } from "./db.js"
 
 export async function leerConfig(clave: string): Promise<string | null> {
-  const [rows] = await db.query<RowDataPacket[]>(
+  const [rows] = await pool.query<RowDataPacket[]>(
     "SELECT valor FROM configuracion WHERE clave = ?",
     [clave],
   )

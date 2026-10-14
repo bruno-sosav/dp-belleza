@@ -15,7 +15,8 @@
     "build": "npm run build -w @dp/cliente && npm run build -w @dp/admin",
     "lint": "oxlint",
     "admin:hash": "node -e \"console.log(require('node:crypto').createHash('sha256').update(process.argv[1] ?? '').digest('hex'))\"",
-    "dev:api": "npm run dev -w @dp/backend"
+    "dev:api": "npm run dev -w @dp/backend",
+    "test": "npm run test -w @dp/backend"
   },
   "dependencies": {
     "react": "^19.2.8",

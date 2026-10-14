@@ -1,52 +1,37 @@
-/**
- * Rutas de la turnera. Se montan bajo /api/turnos (ver src/server.ts).
- *
- * Las rutas no tienen lógica: validan la entrada, llaman al service y devuelven.
- * Así el service se puede probar sin levantar un servidor.
- */
 import { Router } from "express"
-import * as service from "./service.ts"
-import { parsearId, parsearNuevoTurno } from "./schemas.ts"
-import { validarFecha } from "./tiempo.ts"
-import { badRequest } from "../shared/errors.ts"
+import { z } from "zod"
+import * as service from "./service.js"
+import { consultaDisponibilidad, nuevoTurno } from "./validacion.js"
 
-export const turneraRouter = Router()
+// Rutas de la turnera, montadas en /api/turnos. Las rutas no tienen lógica:
+// validan la entrada, llaman al service y devuelven. Así el service se puede
+// probar sin levantar un servidor.
+export const turnos = Router()
 
-/** GET /api/turnos/servicios — catálogo de servicios activos. */
-turneraRouter.get("/servicios", async (_req, res) => {
+// Catálogo de servicios activos.
+turnos.get("/servicios", async (_req, res) => {
   res.json(await service.listarServicios())
 })
 
-/** GET /api/turnos/servicios/:id */
-turneraRouter.get("/servicios/:id", async (req, res) => {
-  res.json(await service.obtenerServicio(parsearId(req.params.id, "El servicio")))
+turnos.get("/servicios/:id", async (req, res) => {
+  const id = z.coerce.number().int().positive().parse(req.params.id)
+  res.json(await service.obtenerServicio(id))
 })
 
-/**
- * GET /api/turnos/horarios — agenda semanal del local.
- * El front lo usa para saber qué días deshabilitar en el calendario.
- */
-turneraRouter.get("/horarios", async (_req, res) => {
+// Agenda semanal del local. El front la usa para saber qué días deshabilitar en
+// el calendario: los días que no aparecen están cerrados.
+turnos.get("/horarios", async (_req, res) => {
   res.json(await service.listarHorarios())
 })
 
-/**
- * GET /api/turnos/disponibilidad?servicioId=1&fecha=2026-10-20
- * Horarios libres para ese servicio ese día. Si el local no atiende, va vacío.
- */
-turneraRouter.get("/disponibilidad", async (req, res) => {
-  const { servicioId, fecha } = req.query
-  if (typeof fecha !== "string") throw badRequest("Falta el parámetro fecha (YYYY-MM-DD).")
-  res.json(
-    await service.calcularDisponibilidad(
-      parsearId(servicioId, "El servicio"),
-      validarFecha(fecha),
-    ),
-  )
+// Horarios libres para un servicio en un día. Si el local no atiende, va vacío.
+turnos.get("/disponibilidad", async (req, res) => {
+  const { servicioId, fecha } = consultaDisponibilidad.parse(req.query)
+  res.json(await service.calcularDisponibilidad(servicioId, fecha))
 })
 
-/** POST /api/turnos — reserva un turno. */
-turneraRouter.post("/", async (req, res) => {
-  const turno = await service.crearTurno(parsearNuevoTurno(req.body))
+// Reserva. El cliente no tiene cuenta: se identifica por teléfono.
+turnos.post("/", async (req, res) => {
+  const turno = await service.crearTurno(nuevoTurno.parse(req.body))
   res.status(201).json(turno)
 })

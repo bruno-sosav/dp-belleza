@@ -6,31 +6,11 @@
  * JavaScript aplica la zona horaria del proceso, y eso corre los turnos de hora
  * según dónde esté corriendo el servidor.
  */
-import { badRequest } from "../shared/errors.ts"
 
 /** "2026-10-20" */
 export type FechaISO = string
 /** "14:30" */
 export type HoraHM = string
-
-const RE_FECHA = /^\d{4}-\d{2}-\d{2}$/
-const RE_HORA = /^([01]\d|2[0-3]):([0-5]\d)$/
-
-export function validarFecha(fecha: string): FechaISO {
-  if (!RE_FECHA.test(fecha)) throw badRequest("La fecha tiene que venir como YYYY-MM-DD.")
-  const [y, m, d] = fecha.split("-").map(Number)
-  // Se verifica que la fecha exista de verdad: el regex acepta 2026-02-31.
-  const probe = new Date(y, m - 1, d)
-  if (probe.getFullYear() !== y || probe.getMonth() !== m - 1 || probe.getDate() !== d) {
-    throw badRequest(`La fecha ${fecha} no existe.`)
-  }
-  return fecha
-}
-
-export function validarHora(hora: string): HoraHM {
-  if (!RE_HORA.test(hora)) throw badRequest("La hora tiene que venir como HH:MM en 24hs.")
-  return hora
-}
 
 /** "14:30" -> 870 */
 export function aMinutos(hora: string): number {
