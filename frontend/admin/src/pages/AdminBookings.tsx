@@ -1,6 +1,6 @@
 import { useState } from "react"
-import { formatPrice } from "../../ecommerce/lib/format"
-import { services } from "../../turnera/data/services"
+import { formatPrice } from "@dp/shared/lib/format"
+import { services } from "@dp/shared/data/services"
 import PageHeader from "../components/PageHeader"
 import Panel from "../components/Panel"
 import StatTile from "../components/StatTile"

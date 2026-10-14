@@ -1,9 +1,9 @@
 import { useState } from "react"
 import type { FormEvent, ReactNode } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { categories, productBadges } from "../../ecommerce/data/products"
-import type { Product } from "../../ecommerce/data/products"
-import { addProduct } from "../../ecommerce/data/productStore"
+import { categories, productBadges } from "@dp/shared/data/products"
+import type { Product } from "@dp/shared/data/products"
+import { addProduct } from "../data/productStore"
 import { cardClass, inputClass, labelClass, primaryButtonClass, secondaryButtonClass } from "../lib/styles"
 
 type FormState = {
@@ -81,12 +81,12 @@ export default function AdminProductNew() {
       badge: form.badge || undefined,
       sizes: sizes.length > 0 ? sizes : undefined,
     })
-    navigate("/admin/productos", { state: { added: product.name } })
+    navigate("/productos", { state: { added: product.name } })
   }
 
   return (
     <div>
-      <Link to="/admin/productos" className="text-sm text-ink-soft hover:text-ink">
+      <Link to="/productos" className="text-sm text-ink-soft hover:text-ink">
         ← Volver a productos
       </Link>
       <h1 className="mt-3 font-display text-3xl font-semibold text-ink">Agregar producto</h1>
@@ -137,7 +137,7 @@ export default function AdminProductNew() {
           </Field>
 
           <div className="flex flex-wrap justify-end gap-3 border-t border-cream-dark pt-5">
-            <Link to="/admin/productos" className={secondaryButtonClass}>
+            <Link to="/productos" className={secondaryButtonClass}>
               Cancelar
             </Link>
             <button type="submit" className={primaryButtonClass}>

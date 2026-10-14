@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Link, useParams } from "react-router-dom"
 import { useAllProducts } from "../data/productStore"
-import { formatPrice } from "../lib/format"
+import { formatPrice } from "@dp/shared/lib/format"
 import StarRating from "../components/StarRating"
 import ProductCard from "../components/ProductCard"
 import { useCart } from "../context/CartContext"

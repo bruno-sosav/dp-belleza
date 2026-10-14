@@ -1,5 +1,5 @@
-import { formatPrice } from "../../ecommerce/lib/format"
-import { useAllProducts } from "../../ecommerce/data/productStore"
+import { formatPrice } from "@dp/shared/lib/format"
+import { useAllProducts } from "../data/productStore"
 import PageHeader from "../components/PageHeader"
 import Panel from "../components/Panel"
 import StatTile from "../components/StatTile"

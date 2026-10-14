@@ -1,5 +1,5 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react"
-import type { Product } from "../data/products"
+import type { Product } from "@dp/shared/data/products"
 
 export type CartItem = {
   product: Product

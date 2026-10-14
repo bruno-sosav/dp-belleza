@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom"
 import { useCart } from "../context/CartContext"
-import { formatPrice } from "../lib/format"
+import { formatPrice } from "@dp/shared/lib/format"
 
 export default function Cart() {
   const { items, removeItem, updateQuantity, subtotal } = useCart()

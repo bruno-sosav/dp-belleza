@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react"
 import { Link, useLocation } from "react-router-dom"
-import { setProductActive, useAllProducts } from "../../ecommerce/data/productStore"
-import { formatPrice } from "../../ecommerce/lib/format"
+import { setProductActive, useAllProducts } from "../data/productStore"
+import { formatPrice } from "@dp/shared/lib/format"
 import { cardClass, inputClass, primaryButtonClass } from "../lib/styles"
 
 type Filter = "active" | "inactive" | "all"
@@ -43,7 +43,7 @@ export default function AdminProducts() {
             Los productos dados de baja no se muestran en la tienda, pero no se borran: podés reactivarlos cuando vuelvas a tenerlos.
           </p>
         </div>
-        <Link to="/admin/productos/nuevo" className={primaryButtonClass}>
+        <Link to="/productos/nuevo" className={primaryButtonClass}>
           + Agregar producto
         </Link>
       </div>

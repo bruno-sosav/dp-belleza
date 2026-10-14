@@ -1,0 +1,11 @@
+{
+  "name": "@dp/shared",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    "./lib/*": "./lib/*.ts",
+    "./data/*": "./data/*.ts",
+    "./styles/theme.css": "./styles/theme.css"
+  }
+}

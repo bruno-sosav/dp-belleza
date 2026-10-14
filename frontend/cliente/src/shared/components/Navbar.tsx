@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Link, NavLink, useLocation } from "react-router-dom"
-import { categories } from "../data/products"
-import { useCart } from "../context/CartContext"
+import { categories } from "@dp/shared/data/products"
+import { useCart } from "../../ecommerce/context/CartContext"
 
 const links = [
   { to: "/", label: "Inicio" },

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom"
-import type { Product } from "../data/products"
-import { formatPrice } from "../lib/format"
+import type { Product } from "@dp/shared/data/products"
+import { formatPrice } from "@dp/shared/lib/format"
 import StarRating from "./StarRating"
 import { useCart } from "../context/CartContext"
 

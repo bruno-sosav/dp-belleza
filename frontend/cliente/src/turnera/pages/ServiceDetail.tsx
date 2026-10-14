@@ -1,6 +1,6 @@
 import { Link, useParams } from "react-router-dom"
-import { getServiceById, services } from "../data/services"
-import { formatPrice } from "../../ecommerce/lib/format"
+import { getServiceById, services } from "@dp/shared/data/services"
+import { formatPrice } from "@dp/shared/lib/format"
 import { formatDuration } from "../lib/format"
 import DurationPill from "../components/DurationPill"
 import SectionHeader from "../components/SectionHeader"

@@ -1,105 +1,144 @@
-# Dp.belleza — Frontend
+# dp-belleza
 
-Sitio de Dp.belleza: tienda online (e-commerce) + turnera para reservar servicios.
+Sistema de gestión para la estética **Dp.belleza**: web pública con turnera y
+tienda online, más un panel de administración para la dueña del local.
 
-Stack: React 19 · TypeScript · Vite · Tailwind CSS 4 · React Router 7.
+Monorepo con las tres partes del sistema: `database/`, `backend/`, `frontend/`.
+
+Stack del frontend: React 19 · TypeScript · Vite · Tailwind CSS 4 · React Router 7.
 
 ## Cómo correrlo
 
 ```bash
-npm install
-npm run dev      # servidor de desarrollo
-npm run build    # typecheck + build de producción (dist/)
-npm run lint     # oxlint
+npm install          # instala las dos apps de una sola vez (npm workspaces)
+
+npm run dev          # web pública   -> http://localhost:5173
+npm run dev:admin    # panel         -> http://localhost:5174
+
+npm run build        # typecheck + build de las dos apps
+npm run lint         # oxlint
 ```
 
-### Panel de administración
+Para entrar al panel hay que configurar la contraseña primero:
 
-- Se entra desde `/admin` (no hay ningún link en el sitio público).
-- La contraseña se configura en `.env.local` (no se sube a git; ver `.env.example`):
-  ```bash
-  npm run admin:hash -- "nueva-clave"   # imprime el hash
-  # pegarlo en .env.local como VITE_ADMIN_PASSWORD_HASH=... y reiniciar npm run dev
-  ```
-- Los productos **no se borran**: se dan de baja (`active: false`, igual que `productos.activo` en la base) y se pueden reactivar.
-- Secciones: **Resumen** (ganancias, días movidos, lo más vendido), **Turnos**, **Ventas tienda** y **Productos**.
-- ⚠️ Las estadísticas usan un historial de demostración (`admin/data/history.ts`) con la misma forma que las tablas `pedidos`, `pedido_items` y `turnos`. Con backend, se reemplaza ese archivo por la API.
-- ⚠️ Mientras no haya backend, los cambios se guardan en el navegador (localStorage) y la contraseña se valida en el navegador. Cuando exista la API hay que reemplazar `ecommerce/data/productStore.ts` y `admin/lib/auth.ts`.
+```bash
+cp frontend/admin/.env.example frontend/admin/.env.local
+npm run admin:hash -- "tu-clave"    # pegar el hash en .env.local
+```
 
-## Estructura del proyecto
-
-El proyecto está dividido en **cinco carpetas principales**, una por cada parte del sistema:
+## Estructura
 
 ```
-DP-Belleza-Frontend/
-├── landing/                 PÁGINA DE INICIO (/) — presenta toda la marca
-│   ├── data/                content.ts (textos, nosotros, pasos, testimonios, contacto)
-│   └── pages/               Landing.tsx (usa productos de ecommerce y servicios de turnera)
+dp-belleza/
+├── database/                 BASE DE DATOS
+│   └── migrations/           Scripts SQL versionados (V1_, V2_, ...)
 │
-├── ecommerce/               TIENDA ONLINE (y la base del sitio)
-│   ├── main.tsx             Punto de entrada de la app
-│   ├── App.tsx              Rutas: qué URL muestra qué página (incluye las de la turnera)
-│   ├── index.css            Estilos globales y colores
-│   ├── components/          Navbar, Footer, Layout, ProductCard, CartDrawer, ...
-│   ├── context/             CartContext (estado del carrito)
-│   ├── data/                products.ts (catálogo inicial), productStore.ts (altas y bajas)
-│   ├── lib/                 format.ts (formatPrice)
-│   └── pages/               Shop, ProductDetail, Cart, Checkout, Contact, NotFound
+├── backend/                  API  — todavía no arrancó, ver backend/README.md
+│   └── src/
+│       ├── shared/           models de TODAS las tablas, db, auth, config
+│       ├── turnera/          rutas /api/turnos       (sub-equipo A)
+│       ├── ecommerce/        rutas /api/tienda       (sub-equipo B)
+│       └── admin/            rutas /api/admin
 │
-├── turnera/                 RESERVA DE TURNOS
-│   ├── components/          Calendar, TimeSlotPicker, BookingForm, ServiceCard, ...
-│   ├── data/                services, availability, booking
-│   ├── lib/                 format.ts (duraciones/fechas), styles.ts
-│   └── pages/               Services, ServiceDetail, Booking, BookingConfirmed
-│
-├── admin/                   PANEL DE ADMINISTRACIÓN (/admin, con contraseña)
-│   ├── components/          AdminLayout (menú + login), Panel, PageHeader, StatTile, DayDetail, BusiestDays
-│   │   └── charts/          ColumnChart, CalendarHeatmap (días movidos en rojo), RankingList, theme (colores)
-│   ├── data/                history.ts (historial de pedidos y turnos — DEMO hasta que haya backend)
-│   ├── lib/                 auth.ts, stats.ts (cálculos), format.ts, usePeriod.ts, styles.ts
-│   └── pages/               AdminDashboard (Resumen), AdminBookings (Turnos), AdminSales (Ventas),
-│                            AdminProducts, AdminProductNew, AdminLogin
-│
-├── base-de-datos/           BASE DE DATOS
-│   └── migrations/          Scripts SQL versionados (V1_, V2_, ...)
-│
-├── public/                  Archivos estáticos (favicon, imágenes)
-└── index.html, package.json, vite.config.ts, tsconfig*.json   Configuración
+└── frontend/
+    ├── shared/               @dp/shared — lo que usan las DOS apps
+    │   ├── data/             MOCK: catálogo de productos y servicios
+    │   ├── lib/              formatPrice
+    │   └── styles/           theme.css (colores y tipografías)
+    │
+    ├── cliente/              WEB PÚBLICA  ->  dpbelleza.com.ar
+    │   └── src/
+    │       ├── App.tsx       rutas públicas
+    │       ├── shared/       Layout, Navbar, Footer, 404
+    │       ├── home/         página de inicio, Nosotros y Contacto
+    │       ├── turnera/      reserva de turnos
+    │       └── ecommerce/    tienda
+    │
+    └── admin/                PANEL  ->  admin.dpbelleza.com.ar
+        └── src/
+            ├── App.tsx       rutas del panel
+            ├── components/   AdminLayout (menú + login), charts/
+            ├── data/         history.ts (MOCK), productStore.ts
+            ├── lib/          auth, stats, format, usePeriod, styles
+            └── pages/        Resumen, Turnos, Ventas, Productos
 ```
+
+### Por qué dos apps y no una
+
+- La web pública es **un solo sitio**: la clienta pasa de reservar un turno a
+  comprar un producto con el mismo navbar y sin recargar. Turnera y tienda son
+  módulos de la misma app.
+- El panel es **otra app**: otro usuario, otro login, y no corresponde mandarle
+  su JavaScript a cada visitante de la tienda.
 
 ### Qué va en cada subcarpeta
 
-| Carpeta       | Contenido                                                             |
-|---------------|-----------------------------------------------------------------------|
-| `pages/`      | Una pantalla completa, asociada a una ruta en `ecommerce/App.tsx`.    |
-| `components/` | Piezas de UI reutilizables dentro de las páginas.                     |
-| `context/`    | Estado global compartido con React Context.                           |
-| `data/`       | Tipos, datos mock y funciones de acceso (a futuro, llamadas a la API).|
-| `lib/`        | Funciones auxiliares (formateo, constantes de estilos).               |
+| Carpeta | Contenido |
+|---|---|
+| `pages/` | Una pantalla completa, asociada a una ruta en el `App.tsx` de su app |
+| `components/` | Piezas de UI reutilizables dentro de las páginas |
+| `context/` | Estado global compartido con React Context |
+| `data/` | Tipos, datos mock y acceso a datos (a futuro, llamadas a la API) |
+| `lib/` | Funciones auxiliares (formateo, constantes de estilos) |
 
 ### Reglas para mantener el orden
 
-- Todo lo de la página de inicio va en `landing/`, lo de la tienda en `ecommerce/`, lo de turnos en `turnera/`, todo SQL en `base-de-datos/`.
-- Toda página nueva (de cualquier módulo, incluido admin) se registra en `ecommerce/App.tsx`.
-- La turnera usa `formatPrice` de `ecommerce/lib/format.ts` para mostrar precios igual que la tienda.
+- **Las dos apps no se importan entre sí.** Si el panel y la web necesitan lo
+  mismo, va en `frontend/shared/`. Si no, va en la app que lo usa.
+- **En `frontend/shared/` no va nada que use `localStorage`**: el navegador aísla
+  el almacenamiento por dominio, y las dos apps viven en dominios distintos.
+- Toda página nueva se registra en el `App.tsx` **de su app**.
+- Todo SQL va en `database/migrations/`, nunca duplicado en `backend/`.
+- Un módulo nuevo del front va dentro de la app que lo usa, no en la raíz.
 
-### Rutas
+## Rutas
 
-| URL                    | Página             | Módulo    |
-|------------------------|--------------------|-----------|
-| `/`                    | Landing            | landing   |
-| `/tienda`              | Shop               | ecommerce |
-| `/producto/:id`        | ProductDetail      | ecommerce |
-| `/carrito`             | Cart               | ecommerce |
-| `/checkout`            | Checkout           | ecommerce |
-| `/servicios`           | Services           | turnera   |
-| `/servicios/:id`       | ServiceDetail      | turnera   |
-| `/reservar/:id`        | Booking            | turnera   |
-| `/reserva-confirmada`  | BookingConfirmed   | turnera   |
-| `/nosotros`            | Redirige a `/#nosotros` (sección de la landing) | landing |
-| `/contacto`            | Contact            | ecommerce |
-| `/admin`               | AdminDashboard (Resumen) | admin |
-| `/admin/turnos`        | AdminBookings      | admin     |
-| `/admin/ventas`        | AdminSales         | admin     |
-| `/admin/productos`     | AdminProducts      | admin     |
-| `/admin/productos/nuevo` | AdminProductNew  | admin     |
+### Web pública — `dpbelleza.com.ar`
+
+| URL | Página | Módulo |
+|---|---|---|
+| `/` | Home | home |
+| `/nosotros` | Redirige a `/#nosotros` | home |
+| `/contacto` | Contact | home |
+| `/tienda` | Shop | ecommerce |
+| `/producto/:id` | ProductDetail | ecommerce |
+| `/carrito` | Cart | ecommerce |
+| `/checkout` | Checkout | ecommerce |
+| `/servicios` | Services | turnera |
+| `/servicios/:id` | ServiceDetail | turnera |
+| `/reservar/:id` | Booking | turnera |
+| `/reserva-confirmada` | BookingConfirmed | turnera |
+
+### Panel — `admin.dpbelleza.com.ar`
+
+| URL | Página |
+|---|---|
+| `/` | Resumen |
+| `/turnos` | Turnos |
+| `/ventas` | Ventas tienda |
+| `/productos` | Productos |
+| `/productos/nuevo` | Alta de producto |
+
+No hay ningún link al panel desde el sitio público.
+
+## Estado actual: falta el backend
+
+Todo el frontend está hardcodeado. Nada persiste, no hay una sola llamada HTTP.
+
+| Tema | Hoy | Cuando haya API |
+|---|---|---|
+| Catálogo de productos y servicios | Constantes en `frontend/shared/data/` | `GET /api/productos`, `GET /api/servicios` |
+| Estadísticas del panel | 6 meses de datos de demo en `admin/src/data/history.ts`, con la forma de las tablas `pedidos`, `pedido_items` y `turnos` | Reemplazar ese archivo por las llamadas reales |
+| Alta de productos del panel | `admin/src/data/productStore.ts` (localStorage) | `POST /api/admin/productos` |
+| Login del panel | Hash SHA-256 comparado en el navegador. Evita entradas casuales; **no es seguridad real** | Validar en el servidor contra `usuarios.password_hash` |
+| Reserva de turno | No persiste nada | `POST /api/turnos` |
+| Fotos de productos | Se cargan como link | Subida de archivos |
+
+> ⚠️ **Un producto cargado en el panel no aparece en la web.** El panel guarda en
+> el `localStorage` de su propio dominio, y el navegador no lo comparte con
+> `dpbelleza.com.ar`. No es un bug que se pueda arreglar desde el frontend: el
+> canal entre el panel y la web es la base de datos.
+
+> ⚠️ Los textos de la página de inicio (`frontend/cliente/src/home/data/content.ts`)
+> son de relleno: testimonios, métricas y dirección inventados. Hay que
+> reemplazarlos por los datos reales antes de mostrar el sitio.

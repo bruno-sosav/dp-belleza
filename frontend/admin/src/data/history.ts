@@ -8,8 +8,8 @@
  * Los datos son deterministas: cada día se genera a partir de su fecha, así que
  * recargar la página no cambia los números.
  */
-import { initialProducts } from "../../ecommerce/data/products"
-import { services } from "../../turnera/data/services"
+import { initialProducts } from "@dp/shared/data/products"
+import { services } from "@dp/shared/data/services"
 
 export type OrderItem = { productId: string; quantity: number; unitPrice: number }
 export type Order = { id: string; date: string; items: OrderItem[]; total: number }

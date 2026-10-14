@@ -12,15 +12,21 @@ const icon = (d: ReactNode) => (
   </svg>
 )
 
+/**
+ * La web pública es otra app en otro dominio, así que el link "Ver sitio" no
+ * puede ser un <Link> de react-router. En desarrollo apunta al Vite del cliente.
+ */
+const siteUrl = import.meta.env.VITE_SITE_URL ?? "http://localhost:5173"
+
 const navItems = [
-  { to: "/admin", end: true, label: "Resumen", icon: icon(<path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />) },
-  { to: "/admin/turnos", label: "Turnos", icon: icon(<><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></>) },
-  { to: "/admin/ventas", label: "Ventas tienda", short: "Ventas", icon: icon(<><path d="M6 7h12l-1 12.5a1.5 1.5 0 01-1.5 1.5h-7A1.5 1.5 0 017 19.5L6 7z" /><path d="M9 7a3 3 0 016 0" /></>) },
-  { to: "/admin/productos", label: "Productos", icon: icon(<><path d="M4 7l8-4 8 4-8 4-8-4z" /><path d="M4 7v10l8 4 8-4V7M12 11v10" /></>) },
+  { to: "/", end: true, label: "Resumen", icon: icon(<path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />) },
+  { to: "/turnos", label: "Turnos", icon: icon(<><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></>) },
+  { to: "/ventas", label: "Ventas tienda", short: "Ventas", icon: icon(<><path d="M6 7h12l-1 12.5a1.5 1.5 0 01-1.5 1.5h-7A1.5 1.5 0 017 19.5L6 7z" /><path d="M9 7a3 3 0 016 0" /></>) },
+  { to: "/productos", label: "Productos", icon: icon(<><path d="M4 7l8-4 8 4-8 4-8-4z" /><path d="M4 7v10l8 4 8-4V7M12 11v10" /></>) },
 ]
 
 /**
- * Marco de todas las pantallas /admin: menú lateral (arriba en el celular),
+ * Marco de todas las pantallas del panel: menú lateral (arriba en el celular),
  * login si no hay sesión y el período elegido, compartido entre secciones.
  * No usa el Layout de la tienda: sin navbar, carrito ni footer públicos.
  */
@@ -45,7 +51,7 @@ export default function AdminLayout() {
     <div className="min-h-screen bg-cream lg:flex">
       <aside className="border-b border-cream-dark bg-surface lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-60 lg:shrink-0 lg:flex-col lg:border-b-0 lg:border-r">
         <div className="flex items-center justify-between px-4 py-4 lg:px-6 lg:py-6">
-          <Link to="/admin" className="font-display text-xl font-semibold text-ink">
+          <Link to="/" className="font-display text-xl font-semibold text-ink">
             Dp.belleza <span className="ml-1 font-sans text-[11px] font-medium uppercase tracking-wide text-rose-dark">Admin</span>
           </Link>
           <button
@@ -80,9 +86,14 @@ export default function AdminLayout() {
         </nav>
 
         <div className="hidden space-y-1 border-t border-cream-dark px-3 py-4 lg:block">
-          <Link to="/" target="_blank" className="block rounded-lg px-3 py-2 text-sm text-ink-soft hover:bg-cream-dark/50 hover:text-ink">
+          <a
+            href={siteUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block rounded-lg px-3 py-2 text-sm text-ink-soft hover:bg-cream-dark/50 hover:text-ink"
+          >
             Ver sitio ↗
-          </Link>
+          </a>
           <button
             type="button"
             onClick={() => {

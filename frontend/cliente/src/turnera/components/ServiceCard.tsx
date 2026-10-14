@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom"
-import type { Service } from "../data/services"
-import { formatPrice } from "../../ecommerce/lib/format"
+import type { Service } from "@dp/shared/data/services"
+import { formatPrice } from "@dp/shared/lib/format"
 import DurationPill from "./DurationPill"
 
 const badgeStyles: Record<string, string> = {

@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react"
 import { useSearchParams } from "react-router-dom"
-import { categories } from "../data/products"
+import { categories } from "@dp/shared/data/products"
 import { useProducts } from "../data/productStore"
 import ProductCard from "../components/ProductCard"
 

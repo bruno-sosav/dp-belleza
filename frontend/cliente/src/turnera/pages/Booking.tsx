@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react"
 import { Link, useNavigate, useParams } from "react-router-dom"
-import { getServiceById } from "../data/services"
+import { getServiceById } from "@dp/shared/data/services"
 import { getSlotsForDate, toDateKey } from "../data/availability"
 import type { BookingRequest } from "../data/booking"
 import { emptyContact, isContactComplete } from "../data/booking"

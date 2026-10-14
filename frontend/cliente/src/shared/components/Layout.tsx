@@ -2,7 +2,7 @@ import { Outlet } from "react-router-dom"
 import AnnouncementBar from "./AnnouncementBar"
 import Navbar from "./Navbar"
 import Footer from "./Footer"
-import CartDrawer from "./CartDrawer"
+import CartDrawer from "../../ecommerce/components/CartDrawer"
 
 /** Marco de las páginas públicas (tienda, turnera, landing). El panel /admin usa el suyo. */
 export default function Layout() {

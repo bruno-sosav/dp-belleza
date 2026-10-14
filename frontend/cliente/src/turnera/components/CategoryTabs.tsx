@@ -1,4 +1,4 @@
-import type { ServiceCategory } from "../data/services"
+import type { ServiceCategory } from "@dp/shared/data/services"
 
 type Props = {
   categories: ServiceCategory[]

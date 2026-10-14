@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom"
 import { useProducts } from "../../ecommerce/data/productStore"
 import ProductCard from "../../ecommerce/components/ProductCard"
-import { services } from "../../turnera/data/services"
+import { services } from "@dp/shared/data/services"
 import ServiceCard from "../../turnera/components/ServiceCard"
 import { about, bookingSteps, contactInfo, pillars, stats, testimonials } from "../data/content"
 

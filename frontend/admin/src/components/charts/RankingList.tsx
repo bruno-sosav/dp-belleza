@@ -1,4 +1,4 @@
-import { formatPrice } from "../../../ecommerce/lib/format"
+import { formatPrice } from "@dp/shared/lib/format"
 
 export type RankingItem = { id: string; name: string; count: number; revenue: number; inactive?: boolean }
 

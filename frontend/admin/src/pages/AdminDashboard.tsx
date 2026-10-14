@@ -1,8 +1,8 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
-import { formatPrice } from "../../ecommerce/lib/format"
-import { useAllProducts } from "../../ecommerce/data/productStore"
-import { services } from "../../turnera/data/services"
+import { formatPrice } from "@dp/shared/lib/format"
+import { useAllProducts } from "../data/productStore"
+import { services } from "@dp/shared/data/services"
 import PageHeader from "../components/PageHeader"
 import Panel from "../components/Panel"
 import StatTile from "../components/StatTile"
@@ -69,7 +69,7 @@ export default function AdminDashboard() {
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Panel
           title="Productos más vendidos"
-          action={<Link to="/admin/ventas" className="text-sm text-rose-dark hover:underline">Ver todos →</Link>}
+          action={<Link to="/ventas" className="text-sm text-rose-dark hover:underline">Ver todos →</Link>}
         >
           <RankingList
             color={chartColors.shop}
@@ -79,7 +79,7 @@ export default function AdminDashboard() {
         </Panel>
         <Panel
           title="Servicios más pedidos"
-          action={<Link to="/admin/turnos" className="text-sm text-rose-dark hover:underline">Ver todos →</Link>}
+          action={<Link to="/turnos" className="text-sm text-rose-dark hover:underline">Ver todos →</Link>}
         >
           <RankingList
             color={chartColors.services}

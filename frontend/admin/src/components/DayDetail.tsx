@@ -1,5 +1,5 @@
-import { formatPrice } from "../../ecommerce/lib/format"
-import { services } from "../../turnera/data/services"
+import { formatPrice } from "@dp/shared/lib/format"
+import { services } from "@dp/shared/data/services"
 import type { DayMetric, DayStats } from "../lib/stats"
 import { metricLabels, rankOfDay, sameDayLastWeek, servicesOnDay } from "../lib/stats"
 import { formatLongDate, formatShortDate, weekdayName } from "../lib/format"
