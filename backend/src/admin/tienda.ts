@@ -1,15 +1,13 @@
 import { Router } from "express"
 import type { ResultSetHeader, RowDataPacket } from "mysql2"
 import { z } from "zod"
-import { enTransaccion, pool } from "../db.js"
-import { HttpError, noEncontrado } from "../errors.js"
-import { requiereLogin } from "../middleware/auth.js"
-import { aProducto, SELECT_PRODUCTO } from "../lib/productos.js"
-import { ESTADOS_PEDIDO, puedeCambiarEstado, type EstadoPedido } from "../lib/pedidos.js"
+import { enTransaccion, pool } from "../shared/db.js"
+import { HttpError, noEncontrado } from "../shared/errors.js"
+import { aProducto, SELECT_PRODUCTO } from "../shared/models/productos.js"
+import { ESTADOS_PEDIDO, puedeCambiarEstado, type EstadoPedido } from "../shared/models/pedidos.js"
 
-// Todo lo de /admin requiere sesión iniciada.
-export const admin = Router()
-admin.use(requiereLogin)
+// Panel: categorías, productos y pedidos de la tienda. El login lo exige admin/index.ts.
+export const adminTienda = Router()
 
 const idParam = z.coerce.number().int().positive()
 
@@ -20,12 +18,12 @@ const categoriaBody = z.object({
   activo: z.boolean().optional(),
 })
 
-admin.get("/categorias", async (_req, res) => {
+adminTienda.get("/categorias", async (_req, res) => {
   const [rows] = await pool.query<RowDataPacket[]>("SELECT id, nombre, activo FROM categorias ORDER BY nombre")
   res.json(rows.map((r) => ({ ...r, activo: Boolean(r.activo) })))
 })
 
-admin.post("/categorias", async (req, res) => {
+adminTienda.post("/categorias", async (req, res) => {
   const { nombre, activo = true } = categoriaBody.parse(req.body)
   const [r] = await pool.query<ResultSetHeader>("INSERT INTO categorias (nombre, activo) VALUES (?, ?)", [
     nombre,
@@ -34,7 +32,7 @@ admin.post("/categorias", async (req, res) => {
   res.status(201).json({ id: r.insertId, nombre, activo })
 })
 
-admin.patch("/categorias/:id", async (req, res) => {
+adminTienda.patch("/categorias/:id", async (req, res) => {
   const id = idParam.parse(req.params.id)
   const cambios = categoriaBody.partial().parse(req.body)
   const [r] = await pool.query<ResultSetHeader>("UPDATE categorias SET ? WHERE id = ?", [cambios, id])
@@ -76,22 +74,22 @@ async function buscarProducto(id: number) {
   return aProducto(rows[0])
 }
 
-admin.get("/productos", async (_req, res) => {
+adminTienda.get("/productos", async (_req, res) => {
   const [rows] = await pool.query<RowDataPacket[]>(`${SELECT_PRODUCTO} ORDER BY p.activo DESC, p.nombre`)
   res.json(rows.map(aProducto))
 })
 
-admin.get("/productos/:id", async (req, res) => {
+adminTienda.get("/productos/:id", async (req, res) => {
   res.json(await buscarProducto(idParam.parse(req.params.id)))
 })
 
-admin.post("/productos", async (req, res) => {
+adminTienda.post("/productos", async (req, res) => {
   const datos = productoBody.parse(req.body)
   const [r] = await pool.query<ResultSetHeader>("INSERT INTO productos SET ?", [aColumnas(datos)])
   res.status(201).json(await buscarProducto(r.insertId))
 })
 
-admin.patch("/productos/:id", async (req, res) => {
+adminTienda.patch("/productos/:id", async (req, res) => {
   const id = idParam.parse(req.params.id)
   const columnas = aColumnas(productoBody.partial().parse(req.body))
   if (!Object.keys(columnas).length) throw new HttpError(400, "No se envió ningún campo para modificar")
@@ -108,7 +106,7 @@ const filtrosPedidos = z.object({
   hasta: z.iso.date().optional(),
 })
 
-admin.get("/pedidos", async (req, res) => {
+adminTienda.get("/pedidos", async (req, res) => {
   const { estado, desde, hasta } = filtrosPedidos.parse(req.query)
   const condiciones: string[] = []
   const params: unknown[] = []
@@ -178,11 +176,11 @@ async function buscarPedido(id: number) {
   }
 }
 
-admin.get("/pedidos/:id", async (req, res) => {
+adminTienda.get("/pedidos/:id", async (req, res) => {
   res.json(await buscarPedido(idParam.parse(req.params.id)))
 })
 
-admin.patch("/pedidos/:id/estado", async (req, res) => {
+adminTienda.patch("/pedidos/:id/estado", async (req, res) => {
   const id = idParam.parse(req.params.id)
   const { estado } = z.object({ estado: z.enum(ESTADOS_PEDIDO) }).parse(req.body)
 

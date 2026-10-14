@@ -1,48 +1,16 @@
-import { Router } from "express"
 import type { ResultSetHeader, RowDataPacket } from "mysql2"
-import { z } from "zod"
-import { enTransaccion } from "../db.js"
-import { HttpError } from "../errors.js"
-import { normalizarTelefono } from "../lib/telefono.js"
-import { agruparItems, redondear } from "../lib/pedidos.js"
+import { enTransaccion } from "../shared/db.js"
+import { HttpError } from "../shared/errors.js"
+import { buscarOCrearCliente } from "../shared/models/clientes.js"
+import { agruparItems, redondear } from "../shared/models/pedidos.js"
+import type { NuevoPedido } from "./validacion.js"
 
-// Checkout público: el cliente no tiene cuenta, se identifica por teléfono.
-export const pedidos = Router()
-
-const nuevoPedido = z.object({
-  cliente: z.object({
-    nombre: z.string().trim().min(1).max(100),
-    apellido: z.string().trim().max(100).optional(),
-    telefono: z.string().trim().min(6).max(30),
-    email: z.email().max(150).optional(),
-  }),
-  items: z
-    .array(
-      z.object({
-        productoId: z.number().int().positive(),
-        cantidad: z.number().int().positive().max(100),
-      }),
-    )
-    .min(1, "El pedido no tiene productos")
-    .max(50),
-  notas: z.string().trim().max(1000).optional(),
-})
-
-pedidos.post("/pedidos", async (req, res) => {
-  const datos = nuevoPedido.parse(req.body)
-  const telefono = normalizarTelefono(datos.cliente.telefono)
-  if (!telefono) throw new HttpError(400, "El teléfono no es válido")
+// Checkout: crea el pedido, toma los precios de la base y descuenta stock, todo en una transacción.
+export async function crearPedido(datos: NuevoPedido) {
   const items = agruparItems(datos.items)
 
-  const pedido = await enTransaccion(async (conn) => {
-    // Si el teléfono ya existe se reutiliza el cliente (y se actualizan sus datos).
-    const [cliente] = await conn.query<ResultSetHeader>(
-      `INSERT INTO clientes (nombre, apellido, telefono, email) VALUES (?, ?, ?, ?)
-       ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID(id), nombre = VALUES(nombre),
-         apellido = COALESCE(VALUES(apellido), apellido), email = COALESCE(VALUES(email), email)`,
-      [datos.cliente.nombre, datos.cliente.apellido ?? null, telefono, datos.cliente.email ?? null],
-    )
-    const clienteId = cliente.insertId
+  return enTransaccion(async (conn) => {
+    const clienteId = await buscarOCrearCliente(conn, datos.cliente)
 
     // FOR UPDATE bloquea las filas hasta el commit, así dos compras simultáneas no venden el mismo stock.
     const ids = items.map((i) => i.productoId)
@@ -63,8 +31,8 @@ pedidos.post("/pedidos", async (req, res) => {
 
     // El precio sale siempre de la base, nunca del navegador.
     const lineas = items.map((item) => {
-      const precioUnitario = porId.get(item.productoId)!.precio as number
-      return { ...item, nombre: porId.get(item.productoId)!.nombre as string, precioUnitario }
+      const p = porId.get(item.productoId)!
+      return { ...item, nombre: p.nombre as string, precioUnitario: p.precio as number }
     })
     const total = redondear(lineas.reduce((suma, l) => suma + l.precioUnitario * l.cantidad, 0))
 
@@ -95,6 +63,4 @@ pedidos.post("/pedidos", async (req, res) => {
       })),
     }
   })
-
-  res.status(201).json(pedido)
-})
+}

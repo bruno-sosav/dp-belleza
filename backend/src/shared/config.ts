@@ -8,7 +8,11 @@ function requerida(nombre: string): string {
 
 export const config = {
   port: Number(process.env.PORT ?? 3000),
-  corsOrigin: process.env.CORS_ORIGIN ?? "http://localhost:5173",
+  // Orígenes que pueden llamar a la API: la web pública y el panel, separados por coma
+  corsOrigins: (process.env.CORS_ORIGINS ?? "http://localhost:5173,http://localhost:5174")
+    .split(",")
+    .map((o) => o.trim())
+    .filter(Boolean),
   jwtSecret: requerida("JWT_SECRET"),
   db: {
     host: process.env.DB_HOST ?? "localhost",

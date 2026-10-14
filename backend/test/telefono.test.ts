@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { normalizarTelefono } from "../src/lib/telefono.js"
+import { normalizarTelefono } from "../src/shared/models/telefono.js"
 
 describe("normalizarTelefono", () => {
   it.each([

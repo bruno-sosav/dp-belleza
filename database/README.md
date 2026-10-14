@@ -6,6 +6,7 @@ en `backend/`: dos copias se desincronizan.
 | | |
 |---|---|
 | `migrations/` | Scripts versionados. `V1_scriptInicial.sql` crea las 12 tablas |
+| `seeds/` | Datos de ejemplo para desarrollo. **No se corren en producción.** `ecommerce-datos-ejemplo.sql` carga categorías y los productos que muestra hoy la tienda |
 
 ## Tablas
 

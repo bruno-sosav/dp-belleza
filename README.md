@@ -31,13 +31,14 @@ npm run admin:hash -- "tu-clave"    # pegar el hash en .env.local
 ```
 dp-belleza/
 ├── database/                 BASE DE DATOS
-│   └── migrations/           Scripts SQL versionados (V1_, V2_, ...)
+│   ├── migrations/           Scripts SQL versionados (V1_, V2_, ...)
+│   └── seeds/                Datos de ejemplo para desarrollo
 │
-├── backend/                  API  — todavía no arrancó, ver backend/README.md
+├── backend/                  API (Node + Express) — ver backend/README.md
 │   └── src/
 │       ├── shared/           models de TODAS las tablas, db, auth, config
-│       ├── turnera/          rutas /api/turnos       (sub-equipo A)
-│       ├── ecommerce/        rutas /api/tienda       (sub-equipo B)
+│       ├── turnera/          rutas /api/turnos       (sub-equipo A, pendiente)
+│       ├── ecommerce/        rutas /api/tienda       (sub-equipo B, hecho)
 │       └── admin/            rutas /api/admin
 │
 └── frontend/
@@ -127,10 +128,10 @@ Todo el frontend está hardcodeado. Nada persiste, no hay una sola llamada HTTP.
 
 | Tema | Hoy | Cuando haya API |
 |---|---|---|
-| Catálogo de productos y servicios | Constantes en `frontend/shared/data/` | `GET /api/productos`, `GET /api/servicios` |
+| Catálogo de productos y servicios | Constantes en `frontend/shared/data/` | Productos: `GET /api/tienda/productos` (ya existe). Servicios: `GET /api/servicios` |
 | Estadísticas del panel | 6 meses de datos de demo en `admin/src/data/history.ts`, con la forma de las tablas `pedidos`, `pedido_items` y `turnos` | Reemplazar ese archivo por las llamadas reales |
-| Alta de productos del panel | `admin/src/data/productStore.ts` (localStorage) | `POST /api/admin/productos` |
-| Login del panel | Hash SHA-256 comparado en el navegador. Evita entradas casuales; **no es seguridad real** | Validar en el servidor contra `usuarios.password_hash` |
+| Alta de productos del panel | `admin/src/data/productStore.ts` (localStorage) | `POST /api/admin/productos` (ya existe) |
+| Login del panel | Hash SHA-256 comparado en el navegador. Evita entradas casuales; **no es seguridad real** | `POST /api/auth/login` contra `usuarios.password_hash` (ya existe) |
 | Reserva de turno | No persiste nada | `POST /api/turnos` |
 | Fotos de productos | Se cargan como link | Subida de archivos |
 

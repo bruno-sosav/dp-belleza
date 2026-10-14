@@ -1,5 +1,6 @@
 -- Datos de ejemplo para la tienda (los mismos productos que muestra hoy el frontend).
--- Uso: mysql dp_belleza < seed-ecommerce.sql
+-- Solo para desarrollo, no correr en producción.
+-- Uso (desde la raíz del repo): mysql dp_belleza < database/seeds/ecommerce-datos-ejemplo.sql
 
 SET NAMES utf8mb4;
 
