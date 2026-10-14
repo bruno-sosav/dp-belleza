@@ -3,11 +3,17 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "workspaces": [
+    "frontend/shared",
+    "frontend/cliente",
+    "frontend/admin"
+  ],
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "dev": "npm run dev -w @dp/cliente",
+    "dev:admin": "npm run dev -w @dp/admin",
+    "build": "npm run build -w @dp/cliente && npm run build -w @dp/admin",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "admin:hash": "node -e \"console.log(require('node:crypto').createHash('sha256').update(process.argv[1] ?? '').digest('hex'))\""
   },
   "dependencies": {
     "react": "^19.2.8",

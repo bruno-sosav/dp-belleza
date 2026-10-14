@@ -1,3 +1,7 @@
 node_modules
 dist
 .DS_Store
+
+# Variables de entorno locales (contraseña del panel, etc.)
+.env.local
+.env.*.local
