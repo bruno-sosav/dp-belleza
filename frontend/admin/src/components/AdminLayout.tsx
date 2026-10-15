@@ -2,7 +2,8 @@ import { useEffect, useState } from "react"
 import type { ReactNode } from "react"
 import { Link, NavLink, Outlet } from "react-router-dom"
 import AdminLogin from "../pages/AdminLogin"
-import { hasSession, logout } from "../lib/auth"
+import { cerrarSesion, haySesion, usuarioActual } from "../lib/auth"
+import type { Usuario } from "../lib/auth"
 import type { Period } from "../lib/stats"
 import type { AdminOutletContext } from "../lib/usePeriod"
 
@@ -31,7 +32,7 @@ const navItems = [
  * No usa el Layout de la tienda: sin navbar, carrito ni footer públicos.
  */
 export default function AdminLayout() {
-  const [loggedIn, setLoggedIn] = useState(hasSession)
+  const [usuario, setUsuario] = useState<Usuario | null>(usuarioActual)
   const [period, setPeriod] = useState<Period>(30)
 
   // Que los buscadores no indexen el panel.
@@ -43,7 +44,8 @@ export default function AdminLayout() {
     return () => meta.remove()
   }, [])
 
-  if (!loggedIn) return <AdminLogin onSuccess={() => setLoggedIn(true)} />
+  // Sin token no renderiza ninguna ruta del panel.
+  if (!haySesion() || !usuario) return <AdminLogin onSuccess={setUsuario} />
 
   const context: AdminOutletContext = { period, setPeriod }
 
@@ -57,8 +59,8 @@ export default function AdminLayout() {
           <button
             type="button"
             onClick={() => {
-              logout()
-              setLoggedIn(false)
+              cerrarSesion()
+              setUsuario(null)
             }}
             className="text-sm text-ink-soft hover:text-ink lg:hidden"
           >
@@ -86,6 +88,9 @@ export default function AdminLayout() {
         </nav>
 
         <div className="hidden space-y-1 border-t border-cream-dark px-3 py-4 lg:block">
+          <p className="px-3 pb-2 text-xs text-ink-soft">
+            Sesión de <span className="font-medium text-ink">{usuario.nombre}</span>
+          </p>
           <a
             href={siteUrl}
             target="_blank"
@@ -97,8 +102,8 @@ export default function AdminLayout() {
           <button
             type="button"
             onClick={() => {
-              logout()
-              setLoggedIn(false)
+              cerrarSesion()
+              setUsuario(null)
             }}
             className="block w-full rounded-lg px-3 py-2 text-left text-sm text-ink-soft hover:bg-cream-dark/50 hover:text-ink"
           >

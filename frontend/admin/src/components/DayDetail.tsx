@@ -1,7 +1,7 @@
 import { formatPrice } from "@dp/shared/lib/format"
-import { services } from "@dp/shared/data/services"
 import type { DayMetric, DayStats } from "../lib/stats"
-import { metricLabels, rankOfDay, sameDayLastWeek, servicesOnDay } from "../lib/stats"
+import { metricLabels, rankOfDay, sameDayLastWeek } from "../lib/stats"
+import { useServiciosDelDia } from "../data/estadisticas"
 import { formatLongDate, formatShortDate, weekdayName } from "../lib/format"
 import { chartColors } from "./charts/theme"
 
@@ -9,14 +9,29 @@ import { chartColors } from "./charts/theme"
  * Detalle de un día elegido en el calendario: cuánto se hizo, en qué puesto quedó
  * dentro del período y cómo le fue contra el mismo día de la semana anterior.
  */
-export default function DayDetail({ day, days, metric }: { day: DayStats; days: DayStats[]; metric: DayMetric }) {
+export default function DayDetail({
+  day,
+  days,
+  allDays,
+  metric,
+}: {
+  day: DayStats
+  /** Los días del período, para el puesto dentro del período. */
+  days: DayStats[]
+  /** La serie completa, para poder mirar el mismo día de la semana anterior
+   *  aunque caiga fuera del período elegido. */
+  allDays: DayStats[]
+  metric: DayMetric
+}) {
+  // Qué se hizo ese día: lo trae la API, no se calcula acá.
+  const { datos: serviciosDelDia } = useServiciosDelDia(day.date)
+
   const closed = day.weekday === 0 && day.bookingCount === 0
   const rank = rankOfDay(day, days, metric)
   const isTop = day[metric] > 0 && rank <= 5
-  const lastWeek = sameDayLastWeek(day)
+  const lastWeek = sameDayLastWeek(allDays, day)
   const diff = lastWeek ? day[metric] - lastWeek[metric] : null
-  const topServicesOfDay = servicesOnDay(day.date).slice(0, 3)
-  const serviceName = (id: string) => services.find((s) => s.id === id)?.name ?? id
+  const topServicesOfDay = (serviciosDelDia ?? []).slice(0, 3)
   const unit = metricLabels[metric].unit
 
   return (
@@ -84,7 +99,7 @@ export default function DayDetail({ day, days, metric }: { day: DayStats; days: 
           <ul className="mt-1.5 space-y-1 text-sm">
             {topServicesOfDay.map((s) => (
               <li key={s.id} className="flex justify-between gap-3">
-                <span className="truncate text-ink">{serviceName(s.id)}</span>
+                <span className="truncate text-ink">{s.name}</span>
                 <span className="shrink-0 text-ink-soft">{s.count}</span>
               </li>
             ))}

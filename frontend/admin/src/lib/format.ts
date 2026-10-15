@@ -1,4 +1,4 @@
-import { fromDateKey } from "../data/history"
+import { fromDateKey } from "./fechas"
 
 export const weekdayShort = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"]
 const weekdayLong = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"]

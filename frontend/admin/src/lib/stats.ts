@@ -1,11 +1,23 @@
 /**
- * Cálculos de las estadísticas del panel: ganancias por día, rankings y
- * comparaciones. Trabaja sobre admin/data/history.ts.
+ * Cuentas de presentación sobre la serie diaria que devuelve la API.
+ *
+ * Los totales por día los calcula el backend en SQL (GROUP BY). Acá quedan solo
+ * las cuentas que se hacen sobre esa serie ya agregada: cortar el período,
+ * comparar con el anterior, ordenar los días más movidos, promediar por día de
+ * la semana. Son como máximo 180 puntos, no miles de filas.
+ *
+ * Los rankings (servicios más pedidos, qué se hizo tal día) son endpoints
+ * aparte: ver admin/data/estadisticas.ts.
+ *
+ * Todas las funciones reciben los días por parámetro. Antes había un `allDays`
+ * de módulo construido desde datos falsos; ahora los días llegan de la API y
+ * los provee el componente.
  *
  * Ganancia = ventas de la tienda + turnos completados (los cancelados y
  * ausentes no suman plata, pero se cuentan aparte).
  */
-import { bookings, fromDateKey, HISTORY_DAYS, orders, toDateKey } from "../data/history"
+
+import { fromDateKey, toDateKey } from "./fechas"
 
 export type Period = 7 | 30 | 90
 
@@ -36,48 +48,13 @@ export const metricLabels: Record<DayMetric, { short: string; unit: (n: number) 
   bookingCount: { short: "Turnos", unit: (n) => `${n} ${n === 1 ? "turno" : "turnos"}` },
 }
 
-function buildDays(): DayStats[] {
-  const byDate = new Map<string, DayStats>()
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-
-  for (let daysAgo = HISTORY_DAYS - 1; daysAgo >= 0; daysAgo--) {
-    const d = new Date(today)
-    d.setDate(today.getDate() - daysAgo)
-    const date = toDateKey(d)
-    byDate.set(date, { date, weekday: d.getDay(), shop: 0, services: 0, total: 0, orderCount: 0, bookingCount: 0, cancelledCount: 0 })
-  }
-
-  for (const o of orders) {
-    const day = byDate.get(o.date)
-    if (!day) continue
-    day.shop += o.total
-    day.orderCount += 1
-  }
-  for (const b of bookings) {
-    const day = byDate.get(b.date)
-    if (!day) continue
-    if (b.status === "completado") {
-      day.services += b.price
-      day.bookingCount += 1
-    } else if (b.status === "cancelado") {
-      day.cancelledCount += 1
-    }
-  }
-  for (const day of byDate.values()) day.total = day.shop + day.services
-
-  return [...byDate.values()]
-}
-
-const allDays = buildDays()
-
 /** Los días del período elegido, del más viejo al más nuevo (termina hoy). */
-export function daysInPeriod(period: Period) {
+export function daysInPeriod(allDays: DayStats[], period: Period) {
   return allDays.slice(-period)
 }
 
 /** El período anterior del mismo largo, para comparar. */
-export function previousPeriodDays(period: Period) {
+export function previousPeriodDays(allDays: DayStats[], period: Period) {
   return allDays.slice(-2 * period, -period)
 }
 
@@ -101,46 +78,8 @@ export function percentChange(current: number, previous: number) {
   return ((current - previous) / previous) * 100
 }
 
-function datesOf(days: DayStats[]) {
-  return new Set(days.map((d) => d.date))
-}
 
-export type RankingRow = { id: string; count: number; revenue: number }
 
-/** Productos más vendidos en esos días (por unidades). */
-export function topProducts(days: DayStats[]): RankingRow[] {
-  const dates = datesOf(days)
-  const rows = new Map<string, RankingRow>()
-  for (const o of orders) {
-    if (!dates.has(o.date)) continue
-    for (const it of o.items) {
-      const row = rows.get(it.productId) ?? { id: it.productId, count: 0, revenue: 0 }
-      row.count += it.quantity
-      row.revenue += it.quantity * it.unitPrice
-      rows.set(it.productId, row)
-    }
-  }
-  return [...rows.values()].sort((a, b) => b.count - a.count || b.revenue - a.revenue)
-}
-
-/** Servicios más reservados en esos días (turnos completados). */
-export function topServices(days: DayStats[]): RankingRow[] {
-  const dates = datesOf(days)
-  const rows = new Map<string, RankingRow>()
-  for (const b of bookings) {
-    if (!dates.has(b.date) || b.status !== "completado") continue
-    const row = rows.get(b.serviceId) ?? { id: b.serviceId, count: 0, revenue: 0 }
-    row.count += 1
-    row.revenue += b.price
-    rows.set(b.serviceId, row)
-  }
-  return [...rows.values()].sort((a, b) => b.count - a.count || b.revenue - a.revenue)
-}
-
-/** Servicios que se hicieron un día puntual. */
-export function servicesOnDay(date: string) {
-  return topServices(allDays.filter((d) => d.date === date))
-}
 
 /** Días ordenados del más movido al más tranquilo. */
 export function busiestDays(days: DayStats[], metric: DayMetric) {
@@ -153,7 +92,7 @@ export function rankOfDay(day: DayStats, days: DayStats[], metric: DayMetric) {
 }
 
 /** El mismo día de la semana anterior (ej: el lunes anterior). */
-export function sameDayLastWeek(day: DayStats) {
+export function sameDayLastWeek(allDays: DayStats[], day: DayStats) {
   const d = fromDateKey(day.date)
   d.setDate(d.getDate() - 7)
   return allDays.find((x) => x.date === toDateKey(d))

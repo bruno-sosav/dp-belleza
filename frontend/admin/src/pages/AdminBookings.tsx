@@ -1,6 +1,5 @@
 import { useState } from "react"
 import { formatPrice } from "@dp/shared/lib/format"
-import { services } from "@dp/shared/data/services"
 import PageHeader from "../components/PageHeader"
 import Panel from "../components/Panel"
 import StatTile from "../components/StatTile"
@@ -10,9 +9,11 @@ import ColumnChart from "../components/charts/ColumnChart"
 import CalendarHeatmap from "../components/charts/CalendarHeatmap"
 import RankingList from "../components/charts/RankingList"
 import { chartColors } from "../components/charts/theme"
-import { daysInPeriod, previousPeriodDays, topServices, totals, weekdayAverages } from "../lib/stats"
+import { Cargando, ErrorCarga } from "../components/EstadoCarga"
+import { daysInPeriod, previousPeriodDays, totals, weekdayAverages } from "../lib/stats"
 import { weekdayName, weekdayShort } from "../lib/format"
 import { usePeriod } from "../lib/usePeriod"
+import { useDias, useRankingServicios } from "../data/estadisticas"
 
 const oneDecimal = (n: number) => n.toLocaleString("es-AR", { maximumFractionDigits: 1 })
 
@@ -21,8 +22,33 @@ export default function AdminBookings() {
   const { period } = usePeriod()
   const [selected, setSelected] = useState<string | null>(null)
 
-  const days = daysInPeriod(period)
-  const prevDays = previousPeriodDays(period)
+  const { datos, cargando, error, recargar } = useDias()
+  const ranking = useRankingServicios(period)
+
+  if (cargando) {
+    return (
+      <div>
+        <PageHeader title="Turnos" description="Qué días hubo más movimiento y qué servicios se piden más." />
+        <Panel>
+          <Cargando alto="h-64" />
+        </Panel>
+      </div>
+    )
+  }
+  if (error || !datos) {
+    return (
+      <div>
+        <PageHeader title="Turnos" />
+        <Panel>
+          <ErrorCarga mensaje={error ?? "No se pudieron cargar los turnos."} onReintentar={recargar} alto="h-64" />
+        </Panel>
+      </div>
+    )
+  }
+
+  const allDays = datos.dias
+  const days = daysInPeriod(allDays, period)
+  const prevDays = previousPeriodDays(allDays, period)
   const now = totals(days)
   const before = totals(prevDays)
   const compareLabel = `vs los ${period} días anteriores`
@@ -31,7 +57,6 @@ export default function AdminBookings() {
 
   const byWeekday = weekdayAverages(days, "bookingCount")
   const strongest = [...byWeekday].sort((a, b) => b.average - a.average)[0]
-  const serviceName = (id: string) => services.find((s) => s.id === id)?.name ?? id
 
   return (
     <div>
@@ -59,7 +84,7 @@ export default function AdminBookings() {
               <BusiestDays days={days} metric="bookingCount" selected={selectedDay.date} onSelect={setSelected} />
             </div>
           </div>
-          <DayDetail day={selectedDay} days={days} metric="bookingCount" />
+          <DayDetail day={selectedDay} days={days} allDays={allDays} metric="bookingCount" />
         </div>
       </Panel>
 
@@ -86,11 +111,17 @@ export default function AdminBookings() {
         </Panel>
 
         <Panel title="Servicios más pedidos">
-          <RankingList
-            color={chartColors.services}
-            countLabel={(n) => `${n} turnos`}
-            items={topServices(days).map((r) => ({ ...r, name: serviceName(r.id) }))}
-          />
+          {ranking.cargando ? (
+            <Cargando />
+          ) : ranking.error ? (
+            <ErrorCarga mensaje={ranking.error} onReintentar={ranking.recargar} />
+          ) : (
+            <RankingList
+              color={chartColors.services}
+              countLabel={(n) => `${n} turnos`}
+              items={ranking.datos ?? []}
+            />
+          )}
         </Panel>
       </div>
     </div>

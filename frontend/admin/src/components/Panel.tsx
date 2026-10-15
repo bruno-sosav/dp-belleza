@@ -8,7 +8,8 @@ export default function Panel({
   children,
   className = "",
 }: {
-  title: string
+  /** Opcional: un panel puede ser solo un contenedor (carga, error). */
+  title?: string
   description?: string
   action?: ReactNode
   children: ReactNode
@@ -16,13 +17,15 @@ export default function Panel({
 }) {
   return (
     <section className={`rounded-2xl border border-cream-dark bg-surface p-5 sm:p-6 ${className}`}>
-      <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h2 className="font-display text-lg font-semibold text-ink">{title}</h2>
-          {description && <p className="mt-0.5 text-sm text-ink-soft">{description}</p>}
+      {(title || action) && (
+        <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
+          <div>
+            {title && <h2 className="font-display text-lg font-semibold text-ink">{title}</h2>}
+            {description && <p className="mt-0.5 text-sm text-ink-soft">{description}</p>}
+          </div>
+          {action}
         </div>
-        {action}
-      </div>
+      )}
       {children}
     </section>
   )

@@ -1,6 +1,6 @@
 import { formatPrice } from "@dp/shared/lib/format"
 
-export type RankingItem = { id: string; name: string; count: number; revenue: number; inactive?: boolean }
+export type RankingItem = { id: string | number; name: string; count: number; revenue: number; inactive?: boolean }
 
 /**
  * Ranking con barras horizontales (ej: productos más vendidos). Cada fila muestra
