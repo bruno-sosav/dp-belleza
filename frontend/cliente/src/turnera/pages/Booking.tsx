@@ -1,33 +1,41 @@
-import { useMemo, useState } from "react"
+import { useState } from "react"
 import { Link, useNavigate, useParams } from "react-router-dom"
-import { getServiceById } from "@dp/shared/data/services"
-import { getSlotsForDate, toDateKey } from "../data/availability"
-import type { BookingRequest } from "../data/booking"
-import { emptyContact, isContactComplete } from "../data/booking"
+import { toDateKey, useOpeningHours, useSlots } from "../data/availability"
+import type { ConfirmedBooking } from "../data/booking"
+import { contactProblem, createBooking, emptyContact } from "../data/booking"
+import { useService } from "../data/services"
+import { ApiError } from "../lib/api"
 import Calendar from "../components/Calendar"
 import TimeSlotPicker from "../components/TimeSlotPicker"
 import BookingForm from "../components/BookingForm"
 import BookingSummary from "../components/BookingSummary"
 import Stepper from "../components/Stepper"
+import { InlineError, PageError, PageLoading } from "../components/LoadState"
 import { formatLongDate, formatTime } from "../lib/format"
 import { cardClass, containerClass, primaryButtonClass, secondaryButtonClass } from "../lib/styles"
 
 export default function Booking() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const service = id ? getServiceById(id) : undefined
+  const service = useService(id)
+  const hours = useOpeningHours()
 
   const [step, setStep] = useState<2 | 3>(2)
   const [date, setDate] = useState<Date | null>(null)
   const [time, setTime] = useState<string | null>(null)
   const [contact, setContact] = useState(emptyContact)
+  const [sending, setSending] = useState(false)
+  const [sendError, setSendError] = useState<string | null>(null)
+  /** Aviso en el paso 2 cuando el horario elegido se ocupó mientras completaba los datos. */
+  const [slotTaken, setSlotTaken] = useState<string | null>(null)
 
-  const slots = useMemo(
-    () => (date && service ? getSlotsForDate(date, service.durationMin) : []),
-    [date, service]
-  )
+  const slots = useSlots(service.data?.id, date)
 
-  if (!service) {
+  if (service.error) return <PageError message={service.error} onRetry={service.reload} />
+  if (hours.error) return <PageError message={hours.error} onRetry={hours.reload} />
+  if (service.loading || hours.loading || !hours.data) return <PageLoading />
+
+  if (!service.data) {
     return (
       <div className={`${containerClass} py-24 text-center`}>
         <h1 className="font-display text-2xl text-ink">No encontramos ese servicio</h1>
@@ -39,32 +47,49 @@ export default function Booking() {
     )
   }
 
+  const current = service.data
+  const problem = contactProblem(contact)
   const canContinue = date !== null && time !== null
-  const canConfirm = canContinue && isContactComplete(contact)
+  const canConfirm = canContinue && problem === null && !sending
 
-  /** Visual: no se envía nada, solo pasamos los datos a la pantalla de confirmación. */
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!canConfirm || !date || !time) return
-
-    const booking: BookingRequest = {
-      serviceId: service.id,
-      date: toDateKey(date),
-      time,
-      contact,
+    setSending(true)
+    setSendError(null)
+    try {
+      const booking = await createBooking({ serviceId: current.id, date: toDateKey(date), time, contact })
+      const state: ConfirmedBooking = { booking, service: current, contact }
+      navigate("/reserva-confirmada", { state, replace: true })
+    } catch (err) {
+      setSending(false)
+      // 409: alguien reservó ese horario mientras ella completaba los datos (o
+      // el local lo bloqueó). Se la devuelve a elegir con la grilla actualizada.
+      if (err instanceof ApiError && err.status === 409) {
+        setSlotTaken(err.message)
+        setTime(null)
+        setStep(2)
+        slots.reload()
+        return
+      }
+      setSendError(err instanceof Error ? err.message : "No pudimos reservar el turno. Probá de nuevo.")
     }
-
-    navigate("/reserva-confirmada", { state: booking })
   }
 
   const pickDate = (next: Date) => {
     setDate(next)
     setTime(null)
+    setSlotTaken(null)
+  }
+
+  const pickTime = (next: string) => {
+    setTime(next)
+    setSlotTaken(null)
   }
 
   return (
     <div className={`${containerClass} py-10`}>
       <Link
-        to={`/servicios/${service.id}`}
+        to={`/servicios/${current.id}`}
         className="inline-flex items-center gap-1.5 text-sm text-ink-soft transition hover:text-rose-dark"
       >
         <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.8}>
@@ -88,10 +113,16 @@ export default function Booking() {
         <div>
           {step === 2 ? (
             <div className="space-y-8">
+              {slotTaken && (
+                <div className="rounded-2xl border border-rose/50 bg-rose/10 px-5 py-4 text-sm text-ink" role="alert">
+                  {slotTaken}
+                </div>
+              )}
+
               <section>
                 <h2 className="font-display text-lg font-semibold text-ink">1. Elegí el día</h2>
                 <div className="mt-4 max-w-md">
-                  <Calendar selected={date} onSelect={pickDate} />
+                  <Calendar selected={date} onSelect={pickDate} hours={hours.data} />
                 </div>
               </section>
 
@@ -107,7 +138,13 @@ export default function Booking() {
                       Horarios disponibles para el <span className="text-ink">{formatLongDate(date)}</span>
                     </p>
                     <div className="mt-4">
-                      <TimeSlotPicker slots={slots} selected={time} onSelect={setTime} />
+                      {slots.error ? (
+                        <InlineError message={slots.error} onRetry={slots.reload} />
+                      ) : slots.loading ? (
+                        <p className="py-10 text-center text-sm text-ink-soft">Buscando horarios libres…</p>
+                      ) : (
+                        <TimeSlotPicker slots={slots.data ?? []} selected={time} onSelect={pickTime} />
+                      )}
                     </div>
                   </>
                 )}
@@ -137,6 +174,7 @@ export default function Booking() {
                 <button
                   type="button"
                   onClick={() => setStep(2)}
+                  disabled={sending}
                   className="text-sm font-medium text-rose-dark underline transition hover:text-ink"
                 >
                   Cambiar
@@ -148,30 +186,38 @@ export default function Booking() {
                 <p className="mt-2 text-sm text-ink-soft">
                   Los usamos solo para confirmarte el turno y enviarte el recordatorio.
                 </p>
-                <form onSubmit={(e) => e.preventDefault()} className="mt-6">
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    void handleConfirm()
+                  }}
+                  className="mt-6"
+                >
                   <BookingForm value={contact} onChange={setContact} />
                 </form>
               </section>
 
+              {sendError && (
+                <div className="rounded-2xl border border-rose/50 bg-rose/10 px-5 py-4 text-sm text-ink" role="alert">
+                  {sendError}
+                </div>
+              )}
+
               <div className="flex flex-col gap-3 sm:flex-row">
-                <button type="button" onClick={() => setStep(2)} className={secondaryButtonClass}>
+                <button type="button" onClick={() => setStep(2)} disabled={sending} className={secondaryButtonClass}>
                   Volver
                 </button>
                 <button
                   type="button"
                   disabled={!canConfirm}
-                  onClick={handleConfirm}
+                  onClick={() => void handleConfirm()}
                   className={`${primaryButtonClass} flex-1`}
                 >
-                  Confirmar turno
+                  {sending ? "Reservando…" : "Confirmar turno"}
                 </button>
               </div>
 
-              {!canConfirm && (
-                <p className="text-xs text-ink-soft/80">
-                  Completá al menos tu nombre y tu teléfono para confirmar.
-                </p>
-              )}
+              {problem && <p className="text-xs text-ink-soft/80">{problem}</p>}
             </div>
           )}
         </div>
@@ -180,7 +226,7 @@ export default function Booking() {
           <p className="mb-3 text-xs font-medium uppercase tracking-[0.15em] text-ink-soft/70">
             Resumen del turno
           </p>
-          <BookingSummary service={service} date={date} time={time} />
+          <BookingSummary service={current} date={date} time={time} />
         </aside>
       </div>
     </div>

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom"
 import type { Service } from "@dp/shared/data/services"
 import { formatPrice } from "@dp/shared/lib/format"
 import DurationPill from "./DurationPill"
+import ServiceImage from "./ServiceImage"
 
 const badgeStyles: Record<string, string> = {
   Nuevo: "bg-ink text-cream",
@@ -13,11 +14,10 @@ export default function ServiceCard({ service }: { service: Service }) {
   return (
     <article className="group flex flex-col overflow-hidden rounded-2xl border border-cream-dark bg-surface transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_-24px_rgba(34,38,31,0.35)]">
       <Link to={`/servicios/${service.id}`} className="relative block overflow-hidden bg-cream-dark">
-        <img
-          src={service.image}
-          alt={service.name}
+        <ServiceImage
+          service={service}
           loading="lazy"
-          className="aspect-[4/3] w-full object-cover transition duration-700 group-hover:scale-105"
+          className="aspect-[4/3] w-full transition duration-700 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-ink/45 via-transparent to-transparent" />
 

@@ -6,7 +6,8 @@ Lo que usan **las dos** apps del frontend (`cliente/` y `admin/`).
 |---|---|---|
 | `lib/` | `formatPrice` | Se queda |
 | `styles/theme.css` | Tokens de Tailwind (colores, tipografías) y estilos base | Se queda |
-| `data/` | **MOCK.** Catálogo de productos y servicios | Se reemplaza por `GET /api/productos` y `GET /api/servicios` |
+| `data/products.ts` | **MOCK.** Catálogo de productos | Se reemplaza por `GET /api/tienda/productos` |
+| `data/services.ts` | Tipo `Service`: el contrato de `GET /api/turnos/servicios` (ya sin datos) | — |
 
 `data/` está acá porque productos y servicios son datos de dominio que las dos
 apps necesitan leer: la web para venderlos, el panel para hacer estadísticas.

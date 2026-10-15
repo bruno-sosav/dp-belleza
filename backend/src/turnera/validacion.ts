@@ -11,7 +11,7 @@ export const fechaISO = z
     return probe.getFullYear() === y && probe.getMonth() === m - 1 && probe.getDate() === d
   }, "Esa fecha no existe")
 
-const horaHM = z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "La hora tiene que venir como HH:MM en 24hs")
+export const horaHM = z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "La hora tiene que venir como HH:MM en 24hs")
 
 export const consultaDisponibilidad = z.object({
   servicioId: z.coerce.number().int().positive(),

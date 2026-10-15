@@ -9,6 +9,9 @@ import type { Horario } from "../../data/horarios"
 /** Alto de una hora en la grilla. Generoso a propósito: un turno de 30 minutos tiene que poder leerse. */
 const PX_POR_HORA = 80
 
+/** Al tocar un hueco, la hora se redondea para abajo a este intervalo. */
+const PASO_MIN = 15
+
 
 /**
  * Rango de horas a dibujar: del horario de apertura más temprano al cierre más
@@ -26,7 +29,9 @@ function rangoDeHoras(horarios: Horario[], turnos: Turno[]) {
  * La semana como en una agenda de papel: un día por columna, las horas para
  * abajo, y cada turno como un bloque del alto de lo que dura.
  *
- * Las horas en que el local está cerrado van en gris. Tocar un turno lo abre.
+ * Las horas en que el local está cerrado van en gris. Tocar un turno lo abre;
+ * tocar un espacio vacío de hoy en adelante abre "Nuevo turno" con ese día y
+ * esa hora ya puestos.
  */
 export default function SemanaGrilla({
   dias,
@@ -34,6 +39,7 @@ export default function SemanaGrilla({
   horarios,
   ahora,
   onElegir,
+  onHueco,
 }: {
   /** Las 7 fechas de la semana, de lunes a domingo. */
   dias: string[]
@@ -41,6 +47,8 @@ export default function SemanaGrilla({
   horarios: Horario[]
   ahora: Ahora
   onElegir: (turno: Turno) => void
+  /** Tocaron un espacio de la grilla: "2026-10-20", "14:30". */
+  onHueco: (fecha: string, hora: string) => void
 }) {
   const { desde, hasta } = rangoDeHoras(horarios, turnos)
   const alto = ((hasta - desde) / 60) * PX_POR_HORA
@@ -84,9 +92,21 @@ export default function SemanaGrilla({
           const carriles = asignarCarriles(delDia)
           const esHoy = fecha === ahora.fecha
           const ahoraMin = aMinutos(ahora.hora)
+          const sePuedeAgendar = fecha >= ahora.fecha
 
           return (
-            <div key={fecha} className="relative border-l border-cream-dark bg-cream-dark/60" style={{ height: alto }}>
+            <div
+              key={fecha}
+              className={`relative border-l border-cream-dark bg-cream-dark/60 ${sePuedeAgendar ? "cursor-copy" : ""}`}
+              style={{ height: alto }}
+              title={sePuedeAgendar ? "Tocá un espacio libre para dar un turno" : undefined}
+              onClick={(e) => {
+                if (!sePuedeAgendar) return
+                const offset = e.clientY - e.currentTarget.getBoundingClientRect().top
+                const minutos = desde + Math.floor((offset / PX_POR_HORA) * (60 / PASO_MIN)) * PASO_MIN
+                onHueco(fecha, `${String(Math.floor(minutos / 60)).padStart(2, "0")}:${String(minutos % 60).padStart(2, "0")}`)
+              }}
+            >
               {/* Franjas abiertas en blanco; lo que queda gris es "cerrado" */}
               {abierto.map((h) => (
                 <div
@@ -113,7 +133,11 @@ export default function SemanaGrilla({
                   <button
                     key={t.id}
                     type="button"
-                    onClick={() => onElegir(t)}
+                    onClick={(e) => {
+                      // Que no lo tome también la columna como "tocar un hueco".
+                      e.stopPropagation()
+                      onElegir(t)
+                    }}
                     title={`${t.horaInicio} a ${t.horaFin} · ${nombreCliente(t)} · ${t.servicio.nombre}`}
                     className={`absolute overflow-hidden rounded-lg border-l-4 px-2 py-1 text-left shadow-sm transition hover:z-10 hover:shadow-md focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-ink ${coloresBloque[t.estado]}`}
                     style={{

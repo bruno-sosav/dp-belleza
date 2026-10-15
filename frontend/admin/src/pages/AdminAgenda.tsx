@@ -3,15 +3,16 @@ import PageHeader from "../components/PageHeader"
 import Panel from "../components/Panel"
 import SemanaGrilla from "../components/agenda/SemanaGrilla"
 import ModalTurno from "../components/agenda/ModalTurno"
+import NuevoTurno from "../components/agenda/NuevoTurno"
 import TurnoFila from "../components/turnos/TurnoFila"
 import { Cargando, ErrorCarga } from "../components/EstadoCarga"
 import { fromDateKey, lunesDeSemana, sumarDias } from "../lib/fechas"
 import { formatRangoSemana, weekdayShort } from "../lib/format"
 import { coloresBloque } from "../lib/agenda"
-import { secondaryButtonClass } from "../lib/styles"
+import { primaryButtonClass, secondaryButtonClass } from "../lib/styles"
 import { useAhora } from "../lib/useAhora"
 import { useAgenda } from "../data/turnos"
-import type { EstadoTurno } from "../data/turnos"
+import type { EstadoTurno, Turno } from "../data/turnos"
 import { useHorarios } from "../data/horarios"
 
 const leyenda: { estado: EstadoTurno; label: string }[] = [
@@ -31,6 +32,9 @@ const botonNav = `${secondaryButtonClass} min-h-12 px-4 text-base`
  * se elige el día arriba y abajo se ven los turnos de ese día, con los mismos
  * botones que en la pantalla de Hoy.
  *
+ * Los turnos nuevos se dan desde acá: con el botón "Nuevo turno" o tocando un
+ * espacio vacío del calendario (que ya trae el día y la hora).
+ *
  * Los cancelados no se muestran por defecto: liberaron el horario y en la
  * grilla confunden. Se pueden mostrar con el botón de abajo.
  */
@@ -40,16 +44,28 @@ export default function AdminAgenda() {
   const [diaMovil, setDiaMovil] = useState(ahora.fecha)
   const [elegidoId, setElegidoId] = useState<number | null>(null)
   const [verCancelados, setVerCancelados] = useState(false)
+  /** Abierto = el modal de "Nuevo turno" con lo que ya se sabe (día y, si tocó la grilla, hora). */
+  const [nuevo, setNuevo] = useState<{ fecha: string; hora?: string } | null>(null)
 
   const dias = Array.from({ length: 7 }, (_, i) => sumarDias(lunes, i))
   const agenda = useAgenda(dias[0], dias[6])
   const horarios = useHorarios()
   const cerrarModal = useCallback(() => setElegidoId(null), [])
+  const cerrarNuevo = useCallback(() => setNuevo(null), [])
 
   function irASemana(nuevoLunes: string) {
     setLunes(nuevoLunes)
     // En el celular, al cambiar de semana se muestra hoy si cae en esa semana, si no el lunes.
     setDiaMovil(lunesDeSemana(ahora.fecha) === nuevoLunes ? ahora.fecha : nuevoLunes)
+  }
+
+  /** Recién creado: se va a su semana y se abre, así la dueña ve que quedó (y tiene el botón de WhatsApp a mano). */
+  function alCrear(turno: Turno) {
+    setNuevo(null)
+    setLunes(lunesDeSemana(turno.fecha))
+    setDiaMovil(turno.fecha)
+    setElegidoId(turno.id)
+    agenda.recargar()
   }
 
   const esEstaSemana = lunes === lunesDeSemana(ahora.fecha)
@@ -61,7 +77,11 @@ export default function AdminAgenda() {
 
   return (
     <div>
-      <PageHeader title="Turnos" description="Tu semana de un vistazo. Tocá un turno para ver el detalle o marcarlo." withPeriod={false} />
+      <PageHeader
+        title="Turnos"
+        description="Tu semana de un vistazo. Tocá un turno para verlo o marcarlo, o un espacio libre para dar uno nuevo."
+        withPeriod={false}
+      />
 
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <button type="button" onClick={() => irASemana(sumarDias(lunes, -7))} className={botonNav} aria-label="Semana anterior">
@@ -75,6 +95,13 @@ export default function AdminAgenda() {
         </button>
         <h2 className="ml-1 font-display text-2xl font-semibold text-ink">{formatRangoSemana(dias[0], dias[6])}</h2>
         {agenda.cargando && agenda.turnos && <span className="text-sm text-ink-soft">Actualizando…</span>}
+        <button
+          type="button"
+          onClick={() => setNuevo({ fecha: diaMovil > ahora.fecha ? diaMovil : ahora.fecha })}
+          className={`${primaryButtonClass} min-h-12 px-5 text-base sm:ml-auto`}
+        >
+          + Nuevo turno
+        </button>
       </div>
 
       <Panel>
@@ -86,7 +113,7 @@ export default function AdminAgenda() {
           <>
             {/* Computadora: la semana entera */}
             <div className="hidden md:block">
-              <SemanaGrilla dias={dias} turnos={visibles} horarios={horarios.datos ?? []} ahora={ahora} onElegir={(t) => setElegidoId(t.id)} />
+              <SemanaGrilla dias={dias} turnos={visibles} horarios={horarios.datos ?? []} ahora={ahora} onElegir={(t) => setElegidoId(t.id)} onHueco={(fecha, hora) => setNuevo({ fecha, hora })} />
             </div>
 
             {/* Celular: un día a la vez */}
@@ -141,6 +168,10 @@ export default function AdminAgenda() {
           </>
         )}
       </Panel>
+
+      {nuevo && (
+        <NuevoTurno fechaInicial={nuevo.fecha} horaInicial={nuevo.hora} ahora={ahora} onCreado={alCrear} onCerrar={cerrarNuevo} />
+      )}
 
       {elegido && (
         <ModalTurno

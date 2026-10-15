@@ -1,7 +1,9 @@
 import { useMemo, useState } from "react"
 import { Link } from "react-router-dom"
-import type { ServiceCategory } from "@dp/shared/data/services"
-import { serviceCategories, services } from "@dp/shared/data/services"
+import { categoriesOf } from "@dp/shared/data/services"
+import { describeOpenDays, useOpeningHours } from "../data/availability"
+import { useServices } from "../data/services"
+import { InlineError } from "../components/LoadState"
 import CategoryTabs from "../components/CategoryTabs"
 import SectionHeader from "../components/SectionHeader"
 import ServiceCard from "../components/ServiceCard"
@@ -23,11 +25,15 @@ const steps = [
 ]
 
 export default function Services() {
-  const [category, setCategory] = useState<ServiceCategory | null>(null)
+  const services = useServices()
+  const hours = useOpeningHours()
+  const [category, setCategory] = useState<string | null>(null)
 
+  const all = useMemo(() => services.data ?? [], [services.data])
+  const categories = useMemo(() => categoriesOf(all), [all])
   const filtered = useMemo(
-    () => (category ? services.filter((s) => s.category === category) : services),
-    [category]
+    () => (category ? all.filter((s) => s.category === category) : all),
+    [all, category]
   )
 
   return (
@@ -57,11 +63,13 @@ export default function Services() {
 
           <dl className="mt-14 grid max-w-2xl grid-cols-2 gap-6 border-t border-ink/10 pt-8 sm:grid-cols-4">
             <div>
-              <dt className="font-display text-2xl font-semibold text-ink">{services.length}</dt>
+              <dt className="font-display text-2xl font-semibold text-ink">{services.data ? all.length : "—"}</dt>
               <dd className="mt-0.5 text-xs text-ink-soft">Servicios</dd>
             </div>
             <div>
-              <dt className="font-display text-2xl font-semibold text-ink">Lun a Sáb</dt>
+              <dt className="font-display text-2xl font-semibold text-ink">
+                {hours.data ? describeOpenDays(hours.data) : "—"}
+              </dt>
               <dd className="mt-0.5 text-xs text-ink-soft">Atención</dd>
             </div>
             <div>
@@ -101,20 +109,32 @@ export default function Services() {
           description="Filtrá por categoría para encontrar el tratamiento que estás buscando."
         />
 
-        <div className="mt-8">
-          <CategoryTabs categories={serviceCategories} active={category} onChange={setCategory} />
-        </div>
+        {services.error ? (
+          <div className="mt-8">
+            <InlineError message={services.error} onRetry={services.reload} />
+          </div>
+        ) : services.loading && !services.data ? (
+          <p className="mt-8 text-sm text-ink-soft">Cargando servicios…</p>
+        ) : (
+          <>
+            {categories.length > 1 && (
+              <div className="mt-8">
+                <CategoryTabs categories={categories} active={category} onChange={setCategory} />
+              </div>
+            )}
 
-        <p className="mt-6 text-sm text-ink-soft">
-          {filtered.length} {filtered.length === 1 ? "servicio" : "servicios"}
-          {category ? ` en ${category}` : ""}
-        </p>
+            <p className="mt-6 text-sm text-ink-soft">
+              {filtered.length} {filtered.length === 1 ? "servicio" : "servicios"}
+              {category ? ` en ${category}` : ""}
+            </p>
 
-        <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((service) => (
-            <ServiceCard key={service.id} service={service} />
-          ))}
-        </div>
+            <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {filtered.map((service) => (
+                <ServiceCard key={service.id} service={service} />
+              ))}
+            </div>
+          </>
+        )}
       </section>
 
       <section className="bg-ink py-16 text-cream">

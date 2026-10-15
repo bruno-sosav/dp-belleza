@@ -1,9 +1,7 @@
-import type { ServiceCategory } from "@dp/shared/data/services"
-
 type Props = {
-  categories: ServiceCategory[]
-  active: ServiceCategory | null
-  onChange: (category: ServiceCategory | null) => void
+  categories: string[]
+  active: string | null
+  onChange: (category: string | null) => void
 }
 
 export default function CategoryTabs({ categories, active, onChange }: Props) {

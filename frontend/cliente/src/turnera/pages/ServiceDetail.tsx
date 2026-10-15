@@ -1,16 +1,23 @@
 import { Link, useParams } from "react-router-dom"
-import { getServiceById, services } from "@dp/shared/data/services"
 import { formatPrice } from "@dp/shared/lib/format"
 import { formatDuration } from "../lib/format"
+import { useService, useServices } from "../data/services"
 import DurationPill from "../components/DurationPill"
+import ServiceImage from "../components/ServiceImage"
+import { PageError, PageLoading } from "../components/LoadState"
 import SectionHeader from "../components/SectionHeader"
 import ServiceCard from "../components/ServiceCard"
 import { cardClass, containerClass, primaryButtonClass, secondaryButtonClass } from "../lib/styles"
 
 export default function ServiceDetail() {
   const { id } = useParams()
-  const service = id ? getServiceById(id) : undefined
+  const current = useService(id)
+  const catalog = useServices()
 
+  if (current.error) return <PageError message={current.error} onRetry={current.reload} />
+  if (current.loading) return <PageLoading />
+
+  const service = current.data
   if (!service) {
     return (
       <div className={`${containerClass} py-24 text-center`}>
@@ -23,7 +30,8 @@ export default function ServiceDetail() {
     )
   }
 
-  const related = services
+  // Si el catálogo no carga, simplemente no se muestran relacionados.
+  const related = (catalog.data ?? [])
     .filter((s) => s.category === service.category && s.id !== service.id)
     .slice(0, 3)
 
@@ -42,7 +50,7 @@ export default function ServiceDetail() {
 
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-14">
         <div className="overflow-hidden rounded-2xl bg-cream-dark">
-          <img src={service.image} alt={service.name} className="aspect-[4/5] w-full object-cover" />
+          <ServiceImage service={service} className="aspect-[4/5] w-full text-7xl" />
         </div>
 
         <div className="flex flex-col">
@@ -58,7 +66,7 @@ export default function ServiceDetail() {
             )}
           </div>
 
-          <p className="mt-6 leading-relaxed text-ink-soft">{service.description}</p>
+          <p className="mt-6 leading-relaxed text-ink-soft">{service.description ?? service.shortDescription}</p>
 
           <div className="mt-8 flex items-end justify-between gap-6 border-y border-cream-dark py-5">
             <div>

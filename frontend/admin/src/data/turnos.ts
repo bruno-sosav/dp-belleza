@@ -38,6 +38,23 @@ export function cambiarEstadoTurno(id: number, estado: EstadoTurno) {
   return api<Turno>(`/api/admin/turnos/${id}/estado`, { metodo: "PATCH", cuerpo: { estado } })
 }
 
+export type NuevoTurno = {
+  clienteId: number
+  servicioId: number
+  /** "2026-10-20" */
+  fecha: string
+  /** "14:30" */
+  hora: string
+  notas?: string
+  /** Para dar un turno fuera del horario de atención. Nunca deja pisar otro turno. */
+  fueraDeHorario?: boolean
+}
+
+/** Un turno que carga la dueña. Entra como "confirmado". */
+export function crearTurno(datos: NuevoTurno) {
+  return api<Turno>("/api/admin/turnos", { metodo: "POST", cuerpo: datos })
+}
+
 /**
  * Turnos de un rango + cómo cambiarles el estado.
  *

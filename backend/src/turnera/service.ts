@@ -208,7 +208,51 @@ export type TurnoCreadoDTO = {
 }
 
 /**
- * Reserva un turno.
+ * Reserva un turno desde la web. La clienta no tiene cuenta: se la busca por
+ * teléfono, o se la crea.
+ */
+export async function crearTurno(input: NuevoTurno): Promise<TurnoCreadoDTO> {
+  return agendarTurno({
+    servicioId: input.servicioId,
+    fecha: input.fecha,
+    hora: input.hora,
+    notas: input.contacto.notas,
+    estado: "reservado",
+    respetarHorario: true,
+    // Alta/reuso del cliente con la funcion COMPARTIDA con la tienda
+    // (shared/models/clientes.ts): la misma persona que reserva un turno y
+    // despues compra un producto tiene que ser una sola fila en `clientes`.
+    cliente: (conn) => {
+      const partes = input.contacto.nombreCompleto.trim().split(/\s+/)
+      return buscarOCrearCliente(conn, {
+        nombre: partes.length > 1 ? partes.slice(0, -1).join(" ") : partes[0],
+        apellido: partes.length > 1 ? partes[partes.length - 1] : undefined,
+        telefono: input.contacto.telefono,
+        email: input.contacto.email,
+      })
+    },
+  })
+}
+
+export type AgendarTurno = {
+  servicioId: number
+  fecha: FechaISO
+  hora: string
+  notas?: string
+  /** "reservado" si lo pidió la clienta por la web; "confirmado" si lo cargó la dueña. */
+  estado: "reservado" | "confirmado"
+  /**
+   * La web solo deja reservar dentro del horario de atención. La dueña puede
+   * dar un turno fuera de horario (un sábado a la tarde, un día cerrado), pero
+   * nunca encima de otro turno o de un bloqueo.
+   */
+  respetarHorario: boolean
+  /** Devuelve el id de la clienta. Corre dentro de la transacción. */
+  cliente: (conn: PoolConnection) => Promise<number>
+}
+
+/**
+ * Agenda un turno. Lo usan la web (crearTurno) y el panel (admin/turnos.ts).
  *
  * Todo pasa dentro de una transacción, y la verificación de solapamiento se hace
  * con `FOR UPDATE` sobre los turnos del día. Sin eso, dos personas que reservan
@@ -216,7 +260,7 @@ export type TurnoCreadoDTO = {
  * sobrevendido: la validación de disponibilidad del paso anterior no sirve como
  * garantía, porque entre que se consulta y se confirma pasa tiempo.
  */
-export async function crearTurno(input: NuevoTurno): Promise<TurnoCreadoDTO> {
+export async function agendarTurno(input: AgendarTurno): Promise<TurnoCreadoDTO> {
   const servicio = await obtenerServicio(input.servicioId)
   const inicio = aMinutos(input.hora)
   const fin = inicio + servicio.durationMin
@@ -225,18 +269,23 @@ export async function crearTurno(input: NuevoTurno): Promise<TurnoCreadoDTO> {
   if (input.fecha < hoy() || (input.fecha === hoy() && inicio <= minutosAhora())) {
     throw malaPeticion("Ese horario ya pasó.")
   }
-
-  const horarios = (await listarHorarios()).filter((h) => h.diaSemana === diaSemanaISO(input.fecha))
-  if (horarios.length === 0) {
-    throw conflicto("Ese día el local no atiende.")
+  if (fin > 24 * 60) {
+    throw malaPeticion(`El turno de ${servicio.durationMin} minutos terminaría pasada la medianoche.`)
   }
-  const entraEnAlgunHorario = horarios.some(
-    (h) => inicio >= aMinutos(h.desde) && fin <= aMinutos(h.hasta),
-  )
-  if (!entraEnAlgunHorario) {
-    throw conflicto(
-      `El turno de ${servicio.durationMin} minutos no entra en el horario de atención de ese día.`,
+
+  if (input.respetarHorario) {
+    const horarios = (await listarHorarios()).filter((h) => h.diaSemana === diaSemanaISO(input.fecha))
+    if (horarios.length === 0) {
+      throw conflicto("Ese día el local no atiende.")
+    }
+    const entraEnAlgunHorario = horarios.some(
+      (h) => inicio >= aMinutos(h.desde) && fin <= aMinutos(h.hasta),
     )
+    if (!entraEnAlgunHorario) {
+      throw conflicto(
+        `El turno de ${servicio.durationMin} minutos no entra en el horario de atención de ese día.`,
+      )
+    }
   }
 
   return enTransaccion(async (conn) => {
@@ -248,30 +297,22 @@ export async function crearTurno(input: NuevoTurno): Promise<TurnoCreadoDTO> {
       throw conflicto("Ese horario ya fue reservado. Elegí otro.")
     }
 
-    // Alta/reuso del cliente con la funcion COMPARTIDA con la tienda
-    // (shared/models/clientes.ts): la misma persona que reserva un turno y
-    // despues compra un producto tiene que ser una sola fila en `clientes`.
-    const partes = input.contacto.nombreCompleto.trim().split(/\s+/)
-    const clienteId = await buscarOCrearCliente(conn, {
-      nombre: partes.length > 1 ? partes.slice(0, -1).join(" ") : partes[0],
-      apellido: partes.length > 1 ? partes[partes.length - 1] : undefined,
-      telefono: input.contacto.telefono,
-      email: input.contacto.email,
-    })
+    const clienteId = await input.cliente(conn)
 
     const [result] = await conn.query(
       `INSERT INTO turnos
-           (cliente_id, servicio_id, fecha_hora_inicio, fecha_hora_fin, precio, notas)
-       VALUES (?, ?, ?, ?, ?, ?)`,
+           (cliente_id, servicio_id, fecha_hora_inicio, fecha_hora_fin, estado, precio, notas)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
         clienteId,
         servicio.id,
         aDateTime(input.fecha, inicio),
         aDateTime(input.fecha, fin),
+        input.estado,
         // Precio congelado: si mañana sube la lista, este turno conserva el que
         // la clienta vio al reservar.
         servicio.price,
-        input.contacto.notas ?? null,
+        input.notas ?? null,
       ],
     )
     const turnoId = (result as { insertId: number }).insertId
@@ -287,7 +328,7 @@ export async function crearTurno(input: NuevoTurno): Promise<TurnoCreadoDTO> {
       horaInicio: aHora(inicio),
       horaFin: aHora(fin),
       precio: servicio.price,
-      estado: "reservado",
+      estado: input.estado,
     }
   })
 }

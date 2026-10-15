@@ -1,22 +1,11 @@
 import { Link, useLocation } from "react-router-dom"
-import type { BookingRequest } from "../data/booking"
-import { getServiceById } from "@dp/shared/data/services"
+import type { ConfirmedBooking } from "../data/booking"
+import { bookingCode } from "../data/booking"
+import { parseDateKey } from "../data/availability"
 import { formatPrice } from "@dp/shared/lib/format"
 import { formatDuration, formatLongDate, formatTime } from "../lib/format"
 import Stepper from "../components/Stepper"
 import { cardClass, containerClass, primaryButtonClass, secondaryButtonClass } from "../lib/styles"
-
-/** "2026-09-22" → Date local, sin corrimiento por zona horaria. */
-function parseDateKey(key: string) {
-  const [year, month, day] = key.split("-").map(Number)
-  return new Date(year, month - 1, day)
-}
-
-/** Código visual del turno, derivado de los datos para que no cambie al re-renderizar. */
-function bookingCode(booking: BookingRequest) {
-  const raw = `${booking.serviceId}${booking.date}${booking.time}`.replace(/\D/g, "")
-  return `DP-${raw.slice(-6).padStart(6, "0")}`
-}
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
@@ -29,10 +18,11 @@ function Row({ label, value }: { label: string; value: string }) {
 
 export default function BookingConfirmed() {
   const location = useLocation()
-  const booking = location.state as BookingRequest | null
-  const service = booking ? getServiceById(booking.serviceId) : undefined
+  // Llega por `state` desde Booking. Si se entra directo a la URL (o se
+  // recarga en otro navegador) no hay nada que mostrar.
+  const confirmed = location.state as ConfirmedBooking | null
 
-  if (!booking || !service) {
+  if (!confirmed) {
     return (
       <div className={`${containerClass} py-24 text-center`}>
         <h1 className="font-display text-2xl text-ink">No hay un turno para mostrar</h1>
@@ -46,7 +36,8 @@ export default function BookingConfirmed() {
     )
   }
 
-  const date = parseDateKey(booking.date)
+  const { booking, service, contact } = confirmed
+  const date = parseDateKey(booking.fecha)
 
   return (
     <div className={`${containerClass} py-10`}>
@@ -63,11 +54,11 @@ export default function BookingConfirmed() {
           <h1 className="mt-6 font-display text-3xl font-semibold text-ink">¡Turno reservado!</h1>
           <p className="mx-auto mt-3 max-w-md text-ink-soft">
             Te esperamos el <span className="text-ink">{formatLongDate(date)}</span> a las{" "}
-            <span className="text-ink">{formatTime(booking.time)}</span>. Te confirmamos por WhatsApp
-            al {booking.contact.phone}.
+            <span className="text-ink">{formatTime(booking.horaInicio)}</span>. Te confirmamos por WhatsApp
+            al {contact.phone}.
           </p>
           <p className="mt-4 inline-flex items-center gap-2 rounded-full bg-cream-dark px-4 py-1.5 text-xs font-medium tracking-wide text-ink-soft">
-            Código de turno: {bookingCode(booking)}
+            Código de turno: {bookingCode(booking.id)}
           </p>
         </div>
 
@@ -78,17 +69,17 @@ export default function BookingConfirmed() {
             <Row label="Duración" value={formatDuration(service.durationMin)} />
             {service.professional && <Row label="Profesional" value={service.professional} />}
             <Row label="Día" value={formatLongDate(date)} />
-            <Row label="Horario" value={formatTime(booking.time)} />
-            <Row label="A nombre de" value={booking.contact.fullName} />
-            <Row label="Teléfono" value={booking.contact.phone} />
-            {booking.contact.email && <Row label="Email" value={booking.contact.email} />}
-            <Row label="Total a abonar" value={formatPrice(service.price)} />
+            <Row label="Horario" value={formatTime(booking.horaInicio)} />
+            <Row label="A nombre de" value={contact.fullName} />
+            <Row label="Teléfono" value={contact.phone} />
+            {contact.email && <Row label="Email" value={contact.email} />}
+            <Row label="Total a abonar" value={formatPrice(booking.precio)} />
           </div>
 
-          {booking.contact.notes && (
+          {contact.notes && (
             <div className="mt-5 rounded-lg bg-cream-dark/50 p-4">
               <p className="text-[11px] font-medium uppercase tracking-wide text-ink-soft">Tu comentario</p>
-              <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">{booking.contact.notes}</p>
+              <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">{contact.notes}</p>
             </div>
           )}
         </div>
@@ -110,10 +101,6 @@ export default function BookingConfirmed() {
             Volver al inicio
           </Link>
         </div>
-
-        <p className="mt-8 text-center text-[11px] text-ink-soft/70">
-          Pantalla de demostración — el turno todavía no se guarda en ningún sistema.
-        </p>
       </div>
     </div>
   )

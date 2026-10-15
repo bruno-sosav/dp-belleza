@@ -20,9 +20,9 @@ import {
   requiereHaberEmpezado,
   type EstadoTurno,
 } from "../turnera/estados.js"
-import { bloqueosDelDia, turnosDelDia } from "../turnera/service.js"
+import { agendarTurno, bloqueosDelDia, turnosDelDia } from "../turnera/service.js"
 import { aDateTime, aMinutos, hoy, minutosAhora, seSolapan } from "../turnera/tiempo.js"
-import { fechaISO } from "../turnera/validacion.js"
+import { fechaISO, horaHM } from "../turnera/validacion.js"
 
 export const adminTurnos = Router()
 
@@ -114,6 +114,47 @@ adminTurnos.get("/turnos", async (req, res) => {
 
 adminTurnos.get("/turnos/:id", async (req, res) => {
   res.json(await buscarTurno(idParam.parse(req.params.id)))
+})
+
+/**
+ * POST /api/admin/turnos
+ *   { "clienteId": 4, "servicioId": 2, "fecha": "2026-10-20", "hora": "14:30",
+ *     "notas": "Viene con la hija", "fueraDeHorario": false }
+ *
+ * Un turno que carga la dueña (le escribieron por WhatsApp, la llamaron, se
+ * lo pidieron en el local). Usa la misma función que la reserva de la web, así
+ * que tampoco puede pisar otro turno ni un bloqueo. Diferencias:
+ *   - la clienta ya existe: se elige de la lista (o se la da de alta antes con
+ *     POST /clientes), no se la busca por teléfono.
+ *   - entra como `confirmado`: lo arregló ella misma, no hay nada que confirmar.
+ *   - con `fueraDeHorario: true` se puede dar fuera del horario de atención.
+ *     Va explícito para que el panel pregunte antes, y no se cuele por error.
+ */
+const nuevoTurnoAdmin = z.object({
+  clienteId: z.number().int().positive(),
+  servicioId: z.number().int().positive(),
+  fecha: fechaISO,
+  hora: horaHM,
+  notas: z.string().trim().max(1000).optional(),
+  fueraDeHorario: z.boolean().default(false),
+})
+
+adminTurnos.post("/turnos", async (req, res) => {
+  const datos = nuevoTurnoAdmin.parse(req.body)
+  const creado = await agendarTurno({
+    servicioId: datos.servicioId,
+    fecha: datos.fecha,
+    hora: datos.hora,
+    notas: datos.notas || undefined,
+    estado: "confirmado",
+    respetarHorario: !datos.fueraDeHorario,
+    cliente: async (conn) => {
+      const [rows] = await conn.query<RowDataPacket[]>("SELECT id FROM clientes WHERE id = ?", [datos.clienteId])
+      if (!rows[0]) throw noEncontrado("Cliente")
+      return datos.clienteId
+    },
+  })
+  res.status(201).json(await buscarTurno(creado.id))
 })
 
 /**

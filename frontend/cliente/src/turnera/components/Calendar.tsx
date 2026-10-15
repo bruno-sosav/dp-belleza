@@ -1,7 +1,10 @@
 import { useState } from "react"
+import type { OpeningHours } from "../data/availability"
 import {
+  describeOpeningHours,
+  isOpen,
+  isPast,
   isSameDay,
-  isSelectable,
   monthLabels,
   startOfToday,
   weekDayLabels,
@@ -10,9 +13,11 @@ import {
 type Props = {
   selected: Date | null
   onSelect: (date: Date) => void
+  /** Agenda semanal del local: los días que no figuran salen tachados. */
+  hours: OpeningHours[]
 }
 
-export default function Calendar({ selected, onSelect }: Props) {
+export default function Calendar({ selected, onSelect, hours }: Props) {
   const today = startOfToday()
   const [view, setView] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1))
 
@@ -72,7 +77,7 @@ export default function Calendar({ selected, onSelect }: Props) {
 
         {Array.from({ length: daysInMonth }).map((_, i) => {
           const date = new Date(year, month, i + 1)
-          const selectable = isSelectable(date)
+          const selectable = !isPast(date) && isOpen(date, hours)
           const isSelected = selected !== null && isSameDay(date, selected)
           const isToday = isSameDay(date, today)
 
@@ -101,7 +106,7 @@ export default function Calendar({ selected, onSelect }: Props) {
       </div>
 
       <p className="mt-4 border-t border-cream-dark pt-3 text-[11px] leading-relaxed text-ink-soft/80">
-        Domingos cerrado. Sábados atendemos de 10 a 15 hs.
+        {describeOpeningHours(hours)}
       </p>
     </div>
   )

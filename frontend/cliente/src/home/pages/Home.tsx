@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom"
 import { useProducts } from "../../ecommerce/data/productStore"
 import ProductCard from "../../ecommerce/components/ProductCard"
-import { services } from "@dp/shared/data/services"
+import { useServices } from "../../turnera/data/services"
 import ServiceCard from "../../turnera/components/ServiceCard"
 import { about, bookingSteps, contactInfo, pillars, stats, testimonials } from "../data/content"
 
@@ -15,7 +15,9 @@ function Eyebrow({ children, light = false }: { children: string; light?: boolea
 
 export default function Landing() {
   const products = useProducts()
-  const featuredServices = services.filter((s) => s.badge).slice(0, 3)
+  // Los destacados son los que tienen etiqueta (Nuevo, Más elegido, Promo); si
+  // la API no responde, la sección queda vacía en vez de romper la portada.
+  const featuredServices = (useServices().data ?? []).filter((s) => s.badge).slice(0, 3)
   // Primero los Bestseller; si no llegan a 4, se completa con los mejor calificados.
   const bestsellers = [...products]
     .sort((a, b) => Number(b.badge === "Bestseller") - Number(a.badge === "Bestseller") || b.rating - a.rating)
