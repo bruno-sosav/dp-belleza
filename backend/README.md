@@ -75,7 +75,9 @@ backend/
 │   │
 │   └── admin/                /api/admin — todo pide login
 │       ├── index.ts          exige login y junta los routers del panel
-│       └── tienda.ts         categorías, productos y pedidos
+│       ├── tienda.ts         categorías, productos y pedidos
+│       ├── stats.ts          estadísticas (SQL)
+│       └── turnos.ts         agenda y cambio de estado de turnos
 │
 ├── test/                     tests unitarios (npm test)
 ├── scripts/crear-admin.ts    crea un usuario del panel
@@ -104,6 +106,8 @@ mysql -u dp_dev -p dp_belleza < database/migrations/V2_servicios_campos_del_fron
 mysql -u dp_dev -p dp_belleza < database/seeds/seed_01_servicios.sql
 mysql -u dp_dev -p dp_belleza < database/seeds/seed_02_horarios.sql
 mysql -u dp_dev -p dp_belleza < database/seeds/ecommerce-datos-ejemplo.sql
+mysql -u dp_dev -p dp_belleza < database/seeds/seed_03_turnos_demo.sql       # historial (para las estadísticas)
+mysql -u dp_dev -p dp_belleza < database/seeds/seed_04_turnos_proximos.sql   # agenda de hoy en adelante
 
 # Usuario para el panel
 npm run crear-admin -w @dp/backend -- "Nombre" email@ejemplo.com "clave-segura"
@@ -217,8 +221,17 @@ el header `Authorization: Bearer <token>` (dura 8 horas). `GET /api/auth/yo` dev
 | GET | `/api/admin/pedidos?estado=pendiente&desde=2026-10-01&hasta=2026-10-31` | Lista de pedidos (filtros opcionales) |
 | GET | `/api/admin/pedidos/:id` | Pedido con cliente e items |
 | PATCH | `/api/admin/pedidos/:id/estado` | Cambia el estado `{ "estado": "confirmado" }` |
+| GET | `/api/admin/turnos?desde=2026-10-15&hasta=2026-10-21&estado=reservado` | Turnos con cliente y servicio, por horario. Sin parámetros: los de hoy. Rango máximo 62 días |
+| GET | `/api/admin/turnos/:id` | Un turno |
+| PATCH | `/api/admin/turnos/:id/estado` | Cambia el estado `{ "estado": "completado" }` |
 
 - Los productos **no se borran**: se dan de baja con `activo: false`, porque los pedidos viejos los siguen referenciando.
+- Estados de turno (`src/turnera/estados.ts`): `reservado → confirmado → completado`, más
+  `ausente` y `cancelado`. Se puede completar sin confirmar antes. `completado` y `ausente`
+  se pueden deshacer (vuelven a `confirmado`); `cancelado` es final porque libera el horario.
+  `completado`/`ausente` solo una vez que el turno empezó. Al cancelar, el recordatorio
+  pendiente pasa a `cancelado`. **Las estadísticas solo cuentan los `completado`**: si la
+  dueña no los marca, la plata no aparece.
 - Estados de pedido: `pendiente → confirmado → entregado`, y `pendiente`/`confirmado → cancelado`.
   Al **cancelar**, el stock vuelve a los productos.
 

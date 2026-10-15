@@ -26,7 +26,7 @@ INSERT INTO clientes (nombre, apellido, telefono, email) VALUES
 --   - el turno entra completo en el horario de ese día
 --   - las franjas van cada 90 minutos y ningún servicio dura más que eso,
 --     así que no se solapan entre sí
---   - nada en el futuro
+--   - nada en el futuro, ni siquiera más tarde hoy (eso va en seed_04)
 --   - la mayoría quedan 'completado'; algunos 'cancelado' o 'ausente', para que
 --     el panel tenga qué mostrar en esa métrica
 INSERT INTO turnos (cliente_id, servicio_id, fecha_hora_inicio, fecha_hora_fin, precio, estado)
@@ -70,4 +70,5 @@ CROSS JOIN franjas f
 JOIN agenda a ON a.dia_semana = IF(DAYOFWEEK(d.fecha) = 1, 7, DAYOFWEEK(d.fecha) - 1)
 JOIN servicios srv ON srv.id = 1 + ((d.n * 5 + f.n * 3) % 14)
 WHERE a.inicio_min + f.n * 90 + srv.duracion_min <= a.fin_min
-  AND d.fecha <= CURDATE();
+  -- solo turnos que ya terminaron: los de más tarde hoy los carga seed_04
+  AND TIMESTAMP(d.fecha, SEC_TO_TIME((a.inicio_min + f.n * 90 + srv.duracion_min) * 60)) <= NOW();

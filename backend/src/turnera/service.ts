@@ -24,9 +24,7 @@ import {
   type FechaISO,
 } from "./tiempo.js"
 import type { NuevoTurno } from "./validacion.js"
-
-/** Estados que siguen ocupando lugar en la agenda. Un turno cancelado libera el horario. */
-const ESTADOS_OCUPAN = ["reservado", "confirmado", "completado"] as const
+import { ESTADOS_OCUPAN } from "./estados.js"
 
 // ---------------------------------------------------------------- servicios
 
@@ -117,7 +115,7 @@ export type SlotDTO = { time: string; available: boolean }
 type Ocupado = { desde: number; hasta: number }
 
 /** Turnos ya tomados ese día, como rangos de minutos. */
-async function turnosDelDia(
+export async function turnosDelDia(
   fecha: FechaISO,
   conn?: PoolConnection,
   bloquear = false,
@@ -139,7 +137,7 @@ async function turnosDelDia(
 }
 
 /** Bloqueos (vacaciones, feriados, un rato puntual) que pisan ese día. */
-async function bloqueosDelDia(fecha: FechaISO, conn?: PoolConnection): Promise<Ocupado[]> {
+export async function bloqueosDelDia(fecha: FechaISO, conn?: PoolConnection): Promise<Ocupado[]> {
   const ejecutor = conn ?? pool
   const [rows] = await ejecutor.query<RowDataPacket[]>(
     `SELECT fecha_hora_inicio, fecha_hora_fin

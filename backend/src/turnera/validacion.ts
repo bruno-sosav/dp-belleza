@@ -2,7 +2,7 @@ import { z } from "zod"
 
 // Fecha "YYYY-MM-DD" que ademas exista de verdad: el regex solo no alcanza,
 // acepta 2026-02-31.
-const fechaISO = z
+export const fechaISO = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}$/, "La fecha tiene que venir como YYYY-MM-DD")
   .refine((f) => {
