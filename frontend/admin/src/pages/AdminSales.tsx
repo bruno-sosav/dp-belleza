@@ -18,7 +18,7 @@ import { Pendiente } from "../components/EstadoCarga"
  *
  *  1. En `backend/src/admin/stats.ts`, completar el TODO de la query de
  *     `pedidos` y poner `tiendaConectada: true`. Con eso solo ya se encienden
- *     los tiles, el gráfico y el calendario del Resumen, sin tocar el front.
+ *     los tiles, el gráfico y el calendario de Finanzas, sin tocar el front.
  *
  *  2. Un endpoint de ranking de productos, por ejemplo
  *     `GET /api/admin/stats/productos?dias=30`, devolviendo

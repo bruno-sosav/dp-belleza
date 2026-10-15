@@ -15,8 +15,13 @@ import { formatCompactPrice, formatDayMonth, formatShortDate } from "../lib/form
 import { usePeriod } from "../lib/usePeriod"
 import { useDias, useRankingServicios } from "../data/estadisticas"
 
-/** Pantalla principal del panel: cuánto se ganó, qué días estuvieron movidos y qué se pide más. */
-export default function AdminDashboard() {
+/**
+ * Finanzas: cuánto se ganó, qué días estuvieron movidos y qué se pide más.
+ *
+ * Antes era la pantalla de inicio ("Resumen"). El inicio pasó a ser Hoy, que es
+ * lo que la dueña necesita al abrir el panel; esto queda para analizar.
+ */
+export default function AdminFinances() {
   const { period } = usePeriod()
   const [selected, setSelected] = useState<string | null>(null)
 
@@ -27,7 +32,7 @@ export default function AdminDashboard() {
   if (error || !datos) {
     return (
       <div>
-        <PageHeader title="Resumen" />
+        <PageHeader title="Finanzas" />
         <Panel>
           <ErrorCarga mensaje={error ?? "No se pudieron cargar las estadísticas."} onReintentar={recargar} alto="h-64" />
         </Panel>
@@ -44,7 +49,7 @@ export default function AdminDashboard() {
 
   return (
     <div>
-      <PageHeader title="Resumen" description="Cómo viene el negocio: ganancias de la tienda y de los turnos." />
+      <PageHeader title="Finanzas" description="Cómo viene el negocio: ganancias de la tienda y de los turnos." />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatTile
@@ -145,7 +150,7 @@ export default function AdminDashboard() {
 function PantallaCargando() {
   return (
     <div>
-      <PageHeader title="Resumen" description="Cómo viene el negocio: ganancias de la tienda y de los turnos." />
+      <PageHeader title="Finanzas" description="Cómo viene el negocio: ganancias de la tienda y de los turnos." />
       <Panel>
         <Cargando alto="h-64" />
       </Panel>

@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom"
 import AdminLayout from "./components/AdminLayout"
-import AdminDashboard from "./pages/AdminDashboard"
+import AdminToday from "./pages/AdminToday"
+import AdminFinances from "./pages/AdminFinances"
 import AdminBookings from "./pages/AdminBookings"
 import AdminSales from "./pages/AdminSales"
 import AdminProducts from "./pages/AdminProducts"
@@ -16,7 +17,8 @@ export default function App() {
   return (
     <Routes>
       <Route element={<AdminLayout />}>
-        <Route path="/" element={<AdminDashboard />} />
+        <Route path="/" element={<AdminToday />} />
+        <Route path="/finanzas" element={<AdminFinances />} />
         <Route path="/turnos" element={<AdminBookings />} />
         <Route path="/ventas" element={<AdminSales />} />
         <Route path="/productos" element={<AdminProducts />} />

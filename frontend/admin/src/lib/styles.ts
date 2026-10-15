@@ -12,3 +12,10 @@ export const secondaryButtonClass =
   "inline-flex items-center justify-center gap-2 rounded-lg border border-ink/20 px-5 py-2.5 text-sm font-medium text-ink transition hover:border-ink hover:bg-ink hover:text-cream"
 
 export const cardClass = "rounded-2xl border border-cream-dark bg-surface"
+
+/** Botones chicos de acción dentro de una fila (Confirmar, Completado, Cancelar…). */
+export const smallButtonClass =
+  "inline-flex items-center justify-center gap-1.5 rounded-md border border-ink/15 px-2.5 py-1.5 text-xs font-medium text-ink transition hover:border-ink hover:bg-ink hover:text-cream disabled:cursor-not-allowed disabled:opacity-40"
+
+export const smallPrimaryButtonClass =
+  "inline-flex items-center justify-center gap-1.5 rounded-md bg-ink px-2.5 py-1.5 text-xs font-medium text-cream transition hover:bg-rose-dark disabled:cursor-not-allowed disabled:bg-ink/30"

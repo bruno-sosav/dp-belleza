@@ -20,7 +20,8 @@ const icon = (d: ReactNode) => (
 const siteUrl = import.meta.env.VITE_SITE_URL ?? "http://localhost:5173"
 
 const navItems = [
-  { to: "/", end: true, label: "Resumen", icon: icon(<path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />) },
+  { to: "/", end: true, label: "Hoy", icon: icon(<><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>) },
+  { to: "/finanzas", label: "Finanzas", icon: icon(<path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />) },
   { to: "/turnos", label: "Turnos", icon: icon(<><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></>) },
   { to: "/ventas", label: "Ventas tienda", short: "Ventas", icon: icon(<><path d="M6 7h12l-1 12.5a1.5 1.5 0 01-1.5 1.5h-7A1.5 1.5 0 017 19.5L6 7z" /><path d="M9 7a3 3 0 016 0" /></>) },
   { to: "/productos", label: "Productos", icon: icon(<><path d="M4 7l8-4 8 4-8 4-8-4z" /><path d="M4 7v10l8 4 8-4V7M12 11v10" /></>) },
@@ -68,7 +69,7 @@ export default function AdminLayout() {
           </button>
         </div>
 
-        <nav className="grid grid-cols-4 gap-1 px-3 pb-3 lg:flex lg:flex-1 lg:flex-col lg:px-3 lg:pb-0">
+        <nav className="grid grid-cols-5 gap-1 px-3 pb-3 lg:flex lg:flex-1 lg:flex-col lg:px-3 lg:pb-0">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
