@@ -39,6 +39,8 @@ export type DayStats = {
   /** Turnos realizados (completados). */
   bookingCount: number
   cancelledCount: number
+  /** La clienta no vino sin avisar (estado `ausente`). */
+  noShowCount: number
 }
 
 export type DayMetric = "total" | "bookingCount"
@@ -67,8 +69,9 @@ export function totals(days: DayStats[]) {
       orderCount: acc.orderCount + d.orderCount,
       bookingCount: acc.bookingCount + d.bookingCount,
       cancelledCount: acc.cancelledCount + d.cancelledCount,
+      noShowCount: acc.noShowCount + d.noShowCount,
     }),
-    { total: 0, shop: 0, services: 0, orderCount: 0, bookingCount: 0, cancelledCount: 0 },
+    { total: 0, shop: 0, services: 0, orderCount: 0, bookingCount: 0, cancelledCount: 0, noShowCount: 0 },
   )
 }
 

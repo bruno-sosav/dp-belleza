@@ -5,7 +5,7 @@ import Panel from "../components/Panel"
 import StatTile from "../components/StatTile"
 import TurnoFila from "../components/turnos/TurnoFila"
 import { Cargando, ErrorCarga } from "../components/EstadoCarga"
-import { fromDateKey, toDateKey } from "../lib/fechas"
+import { sumarDias } from "../lib/fechas"
 import { formatLongDate, formatShortDate } from "../lib/format"
 import { useAhora } from "../lib/useAhora"
 import { estaAbierto, nombreCliente, useAgenda } from "../data/turnos"
@@ -21,11 +21,6 @@ const REFRESCO_MS = 2 * 60_000
 
 const capitalizar = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
 
-function sumarDias(fecha: string, dias: number) {
-  const d = fromDateKey(fecha)
-  d.setDate(d.getDate() + dias)
-  return toDateKey(d)
-}
 
 /**
  * Pantalla de inicio del panel: lo que la dueña tiene que atender HOY.
@@ -118,14 +113,14 @@ export default function AdminToday() {
           nota={siguiente ? `${nombreCliente(siguiente)} · ${siguiente.servicio.nombre}` : "No quedan turnos por hoy"}
         />
         <StatTile
-          label="Para marcar"
+          label="Falta marcar"
           value={String(paraMarcar)}
-          nota={paraMarcar ? "Ya pasaron y falta decir si se hicieron" : "Todo al día"}
+          nota={paraMarcar ? "Turnos que ya pasaron: marcá si se hicieron" : "Todo al día ✅"}
         />
       </div>
 
       {agenda.error && (
-        <p className="mt-4 text-sm text-[#a12b28]" role="alert">
+        <p className="mt-4 text-base text-[#a12b28]" role="alert">
           No se pudo actualizar la agenda: {agenda.error}
         </p>
       )}
@@ -133,19 +128,19 @@ export default function AdminToday() {
       {sinMarcar.length > 0 && (
         <Panel
           title="Quedaron sin marcar"
-          description="Turnos de días anteriores que siguen abiertos. Hasta que no se marquen como completados, no suman en Finanzas."
+          description="Son de días anteriores y nadie los marcó. Si no se marcan, esa plata no aparece en Finanzas."
           className="mt-6 border-[#e9b9b6]"
         >
-          <ul className="space-y-3">{sinMarcar.map((t) => fila(t, true))}</ul>
+          <ul className="space-y-4">{sinMarcar.map((t) => fila(t, true))}</ul>
         </Panel>
       )}
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_340px]">
-        <Panel title="Turnos de hoy">
+        <Panel title="Turnos de hoy" description="Cuando termina cada turno, tocá ✅ si se hizo o ❌ si no vino.">
           {deHoy.length ? (
-            <ul className="space-y-3">{deHoy.map((t) => fila(t))}</ul>
+            <ul className="space-y-4">{deHoy.map((t) => fila(t))}</ul>
           ) : (
-            <p className="py-10 text-center text-sm text-ink-soft">No hay turnos para hoy.</p>
+            <p className="py-10 text-center text-base text-ink-soft">No hay turnos para hoy.</p>
           )}
         </Panel>
 
@@ -156,12 +151,12 @@ export default function AdminToday() {
             {proximos.length ? (
               <ul className="divide-y divide-cream-dark">
                 {proximos.map((t) => (
-                  <li key={t.id} className="flex items-baseline gap-3 py-2.5 text-sm">
+                  <li key={t.id} className="flex items-baseline gap-3 py-3 text-base">
                     <span className="w-20 shrink-0 text-ink-soft">{formatShortDate(t.fecha)}</span>
-                    <span className="w-11 shrink-0 font-medium tabular-nums text-ink">{t.horaInicio}</span>
+                    <span className="w-12 shrink-0 font-semibold tabular-nums text-ink">{t.horaInicio}</span>
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-ink">{nombreCliente(t)}</span>
-                      <span className="block truncate text-xs text-ink-soft">
+                      <span className="block truncate font-medium text-ink">{nombreCliente(t)}</span>
+                      <span className="block truncate text-sm text-ink-soft">
                         {t.servicio.nombre}
                         {t.estado === "confirmado" && " · confirmado"}
                       </span>
@@ -170,7 +165,7 @@ export default function AdminToday() {
                 ))}
               </ul>
             ) : (
-              <p className="py-6 text-center text-sm text-ink-soft">No hay turnos en los próximos días.</p>
+              <p className="py-6 text-center text-base text-ink-soft">No hay turnos en los próximos días.</p>
             )}
           </Panel>
         </div>
@@ -187,16 +182,16 @@ function PanelPedidos({ pedidos }: { pedidos: ReturnType<typeof usePedidosPendie
       ) : !pedidos.datos ? (
         <ErrorCarga mensaje={pedidos.error ?? "No se pudieron cargar los pedidos."} onReintentar={pedidos.recargar} alto="h-24" />
       ) : pedidos.datos.length === 0 ? (
-        <p className="py-6 text-center text-sm text-ink-soft">No hay pedidos esperando.</p>
+        <p className="py-6 text-center text-base text-ink-soft">No hay pedidos esperando.</p>
       ) : (
         <ul className="divide-y divide-cream-dark">
           {pedidos.datos.map((p) => (
-            <li key={p.id} className="flex items-baseline justify-between gap-3 py-2.5 text-sm">
+            <li key={p.id} className="flex items-baseline justify-between gap-3 py-3 text-base">
               <span className="min-w-0">
-                <span className="block truncate text-ink">
+                <span className="block truncate font-medium text-ink">
                   #{p.id} · {[p.cliente.nombre, p.cliente.apellido].filter(Boolean).join(" ")}
                 </span>
-                <span className="block text-xs text-ink-soft">
+                <span className="block text-sm text-ink-soft">
                   {p.unidades} {p.unidades === 1 ? "producto" : "productos"} · {formatShortDate(p.creadoEn.slice(0, 10))}
                   {p.estado === "confirmado" && " · confirmado"}
                 </span>

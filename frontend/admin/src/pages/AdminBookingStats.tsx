@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { formatPrice } from "@dp/shared/lib/format"
 import PageHeader from "../components/PageHeader"
+import FinanzasTabs from "../components/FinanzasTabs"
 import Panel from "../components/Panel"
 import StatTile from "../components/StatTile"
 import DayDetail from "../components/DayDetail"
@@ -17,8 +18,13 @@ import { useDias, useRankingServicios } from "../data/estadisticas"
 
 const oneDecimal = (n: number) => n.toLocaleString("es-AR", { maximumFractionDigits: 1 })
 
-/** Estadísticas de la turnera: días movidos, días de la semana fuertes y servicios más pedidos. */
-export default function AdminBookings() {
+/**
+ * Finanzas › Turnos: días movidos, días de la semana fuertes y servicios más pedidos.
+ *
+ * Antes era la sección "Turnos" del menú. Esa ruta ahora es la agenda (el
+ * calendario para operar); el análisis vive acá, junto a las ganancias.
+ */
+export default function AdminBookingStats() {
   const { period } = usePeriod()
   const [selected, setSelected] = useState<string | null>(null)
 
@@ -28,7 +34,7 @@ export default function AdminBookings() {
   if (cargando) {
     return (
       <div>
-        <PageHeader title="Turnos" description="Qué días hubo más movimiento y qué servicios se piden más." />
+        <PageHeader title="Finanzas" description="Qué días hubo más turnos y qué servicios se piden más." action={<FinanzasTabs />} />
         <Panel>
           <Cargando alto="h-64" />
         </Panel>
@@ -38,7 +44,7 @@ export default function AdminBookings() {
   if (error || !datos) {
     return (
       <div>
-        <PageHeader title="Turnos" />
+        <PageHeader title="Finanzas" action={<FinanzasTabs />} />
         <Panel>
           <ErrorCarga mensaje={error ?? "No se pudieron cargar los turnos."} onReintentar={recargar} alto="h-64" />
         </Panel>
@@ -60,9 +66,9 @@ export default function AdminBookings() {
 
   return (
     <div>
-      <PageHeader title="Turnos" description="Qué días hubo más movimiento y qué servicios se piden más." />
+      <PageHeader title="Finanzas" description="Qué días hubo más turnos y qué servicios se piden más." action={<FinanzasTabs />} />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <StatTile label="Turnos realizados" value={String(now.bookingCount)} current={now.bookingCount} previous={before.bookingCount} compareLabel={compareLabel} />
         <StatTile label="Ganancia por turnos" value={formatPrice(now.services)} current={now.services} previous={before.services} compareLabel={compareLabel} accent={chartColors.services} />
         <StatTile
@@ -73,6 +79,7 @@ export default function AdminBookings() {
           compareLabel={compareLabel}
         />
         <StatTile label="Cancelados" value={String(now.cancelledCount)} current={now.cancelledCount} previous={before.cancelledCount} compareLabel={compareLabel} upIsGood={false} />
+        <StatTile label="No vinieron" value={String(now.noShowCount)} current={now.noShowCount} previous={before.noShowCount} compareLabel={compareLabel} upIsGood={false} />
       </div>
 
       <Panel title="¿Qué días estuvo movido?" description="Cada cuadradito es un día: cuanto más rojo, más turnos hubo. Tocá uno para ver el detalle." className="mt-6">

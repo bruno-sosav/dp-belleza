@@ -51,6 +51,7 @@ export default function DayDetail({
           <dt className="text-xs text-ink-soft">Turnos realizados</dt>
           <dd className="mt-0.5 text-2xl font-semibold text-ink">{closed ? "Cerrado" : day.bookingCount}</dd>
           {day.cancelledCount > 0 && <dd className="text-xs text-ink-soft">{day.cancelledCount} cancelado{day.cancelledCount > 1 ? "s" : ""}</dd>}
+          {day.noShowCount > 0 && <dd className="text-xs text-ink-soft">{day.noShowCount} no vino{day.noShowCount > 1 ? "eron" : ""}</dd>}
         </div>
         <div>
           <dt className="text-xs text-ink-soft">Ganancia del día</dt>

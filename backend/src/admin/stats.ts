@@ -41,6 +41,8 @@ type DiaStats = {
   orderCount: number
   bookingCount: number
   cancelledCount: number
+  /** Turnos en estado `ausente`: la clienta no vino sin avisar. */
+  noShowCount: number
 }
 
 const consultaDias = z.object({
@@ -85,6 +87,7 @@ function diasVacios(dias: number): Map<string, DiaStats> {
       orderCount: 0,
       bookingCount: 0,
       cancelledCount: 0,
+      noShowCount: 0,
     })
   }
   return mapa
@@ -108,7 +111,8 @@ adminStats.get("/stats/dias", async (req, res) => {
     `SELECT DATE(fecha_hora_inicio)                                      AS fecha,
             SUM(CASE WHEN estado = 'completado' THEN precio ELSE 0 END)  AS ganancia,
             SUM(estado = 'completado')                                   AS realizados,
-            SUM(estado = 'cancelado')                                    AS cancelados
+            SUM(estado = 'cancelado')                                    AS cancelados,
+            SUM(estado = 'ausente')                                      AS ausentes
        FROM turnos
       WHERE fecha_hora_inicio >= ? AND fecha_hora_inicio < ?
       GROUP BY fecha`,
@@ -122,6 +126,7 @@ adminStats.get("/stats/dias", async (req, res) => {
     dia.services = Number(f.ganancia)
     dia.bookingCount = Number(f.realizados)
     dia.cancelledCount = Number(f.cancelados)
+    dia.noShowCount = Number(f.ausentes)
     dia.total = dia.shop + dia.services
   }
 

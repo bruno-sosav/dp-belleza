@@ -37,7 +37,7 @@ export default function StatTile({
       </p>
       <p className="mt-2 text-3xl font-semibold tracking-tight text-ink">{value}</p>
       {nota ? (
-        <p className="mt-2 text-xs text-ink-soft">{nota}</p>
+        <p className="mt-2 text-sm text-ink-soft">{nota}</p>
       ) : rounded !== null ? (
         <p className="mt-2 text-xs text-ink-soft">
           <span className="font-semibold" style={{ color: good ? chartColors.up : chartColors.down }}>

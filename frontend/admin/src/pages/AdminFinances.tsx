@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Link } from "react-router-dom"
 import { formatPrice } from "@dp/shared/lib/format"
 import PageHeader from "../components/PageHeader"
+import FinanzasTabs from "../components/FinanzasTabs"
 import Panel from "../components/Panel"
 import StatTile from "../components/StatTile"
 import DayDetail from "../components/DayDetail"
@@ -32,7 +33,7 @@ export default function AdminFinances() {
   if (error || !datos) {
     return (
       <div>
-        <PageHeader title="Finanzas" />
+        <PageHeader title="Finanzas" action={<FinanzasTabs />} />
         <Panel>
           <ErrorCarga mensaje={error ?? "No se pudieron cargar las estadísticas."} onReintentar={recargar} alto="h-64" />
         </Panel>
@@ -49,7 +50,7 @@ export default function AdminFinances() {
 
   return (
     <div>
-      <PageHeader title="Finanzas" description="Cómo viene el negocio: ganancias de la tienda y de los turnos." />
+      <PageHeader title="Finanzas" description="Cómo viene el negocio: ganancias de la tienda y de los turnos." action={<FinanzasTabs />} />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatTile
@@ -128,7 +129,7 @@ export default function AdminFinances() {
         </Panel>
         <Panel
           title="Servicios más pedidos"
-          action={<Link to="/turnos" className="text-sm text-rose-dark hover:underline">Ver todos →</Link>}
+          action={<Link to="/finanzas/turnos" className="text-sm text-rose-dark hover:underline">Ver todos →</Link>}
         >
           {ranking.cargando ? (
             <Cargando />
@@ -150,7 +151,7 @@ export default function AdminFinances() {
 function PantallaCargando() {
   return (
     <div>
-      <PageHeader title="Finanzas" description="Cómo viene el negocio: ganancias de la tienda y de los turnos." />
+      <PageHeader title="Finanzas" description="Cómo viene el negocio: ganancias de la tienda y de los turnos." action={<FinanzasTabs />} />
       <Panel>
         <Cargando alto="h-64" />
       </Panel>
