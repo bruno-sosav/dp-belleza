@@ -11,7 +11,7 @@ import { inputClass, labelClass, primaryButtonClass, secondaryButtonClass } from
 import type { Ahora } from "../../lib/useAhora"
 import { nombreCompleto, useClientes } from "../../data/clientes"
 import type { Cliente } from "../../data/clientes"
-import { useHorariosLibres, useServicios } from "../../data/servicios"
+import { formatDuracion, useHorariosLibres, useServicios } from "../../data/servicios"
 import { crearTurno } from "../../data/turnos"
 import type { Turno } from "../../data/turnos"
 
@@ -19,13 +19,6 @@ const opcionClass =
   "flex min-h-14 w-full items-center justify-between gap-3 rounded-xl border border-cream-dark bg-surface px-4 py-3 text-left text-base text-ink transition hover:border-rose-dark hover:bg-rose/10"
 const campo = `${inputClass} py-3 text-base`
 
-/** "75" → "1 h 15 min" */
-function duracion(minutos: number) {
-  const h = Math.floor(minutos / 60)
-  const m = minutos % 60
-  if (!h) return `${m} min`
-  return m ? `${h} h ${m} min` : `${h} h`
-}
 
 /**
  * Dar un turno desde el panel: le escribieron por WhatsApp, la llamaron, o se
@@ -143,7 +136,7 @@ export default function NuevoTurno({
               {servicio ? (
                 <Elegido onCambiar={() => setServicio(null)}>
                   <span className="font-semibold">{servicio.name}</span>
-                  <span className="text-ink-soft"> · {duracion(servicio.durationMin)} · {formatPrice(servicio.price)}</span>
+                  <span className="text-ink-soft"> · {formatDuracion(servicio.durationMin)} · {formatPrice(servicio.price)}</span>
                 </Elegido>
               ) : (
                 <ElegirServicio onElegir={setServicio} />
@@ -177,7 +170,7 @@ export default function NuevoTurno({
                     className={`${campo} max-w-[10rem]`}
                   />
                   <p className="mt-2 text-sm text-ink-soft">
-                    Igual no deja pisar otro turno. Dura {duracion(servicio.durationMin)}.
+                    Igual no deja pisar otro turno. Dura {formatDuracion(servicio.durationMin)}.
                   </p>
                   <button type="button" onClick={() => setFueraDeHorario(false)} className="mt-3 text-base text-rose-dark underline underline-offset-4 hover:text-ink">
                     Volver a los horarios libres
@@ -378,7 +371,7 @@ function ElegirServicio({ onElegir }: { onElegir: (servicio: Service) => void })
                 <button key={s.id} type="button" onClick={() => onElegir(s)} className={opcionClass}>
                   <span className="font-semibold">{s.name}</span>
                   <span className="shrink-0 text-ink-soft">
-                    {duracion(s.durationMin)} · {formatPrice(s.price)}
+                    {formatDuracion(s.durationMin)} · {formatPrice(s.price)}
                   </span>
                 </button>
               ))}

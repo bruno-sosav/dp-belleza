@@ -44,7 +44,7 @@ export type ServicioDTO = {
   recommendedSessions?: number
 }
 
-function aServicioDTO(row: RowDataPacket): ServicioDTO {
+export function aServicioDTO(row: RowDataPacket): ServicioDTO {
   return {
     id: row.id,
     name: row.nombre,
