@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react"
-import { Link } from "react-router-dom"
 import PageHeader from "../components/PageHeader"
+import TurnosTabs from "../components/TurnosTabs"
 import Panel from "../components/Panel"
 import SemanaGrilla from "../components/agenda/SemanaGrilla"
 import ModalTurno from "../components/agenda/ModalTurno"
@@ -87,6 +87,7 @@ export default function AdminAgenda() {
         title="Turnos"
         description="Tu semana de un vistazo. Tocá un turno para verlo o marcarlo, o un espacio libre para dar uno nuevo."
         withPeriod={false}
+        action={<TurnosTabs />}
       />
 
       <div className="mb-5 flex flex-wrap items-center gap-3">
@@ -102,9 +103,6 @@ export default function AdminAgenda() {
         <h2 className="ml-1 font-display text-2xl font-semibold text-ink">{formatRangoSemana(dias[0], dias[6])}</h2>
         {agenda.cargando && agenda.turnos && <span className="text-sm text-ink-soft">Actualizando…</span>}
         <div className="flex flex-wrap gap-3 sm:ml-auto">
-          <Link to="/turnos/horario" className={botonNav}>
-            Horario y días cerrados
-          </Link>
           <button
             type="button"
             onClick={() => setFormulario({ fecha: diaMovil > ahora.fecha ? diaMovil : ahora.fecha })}

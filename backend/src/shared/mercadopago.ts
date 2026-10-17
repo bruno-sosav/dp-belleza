@@ -64,7 +64,7 @@ export async function llamarMP<T>(token: string, ruta: string, init: RequestInit
 
 async function tokenConfigurado(): Promise<string> {
   const cuenta = await cuentaMercadoPago()
-  if (!cuenta) throw new HttpError(409, "Mercado Pago no está configurado. Cargá las credenciales en Ajustes.")
+  if (!cuenta) throw new HttpError(409, "Mercado Pago no está configurado. Cargá las credenciales en Ajustes → Mercado Pago.")
   return cuenta.accessToken
 }
 
@@ -92,7 +92,7 @@ export async function crearPreferencia(datos: {
   urlNotificacion?: string
 }): Promise<{ id: string; link: string }> {
   const cuenta = await cuentaMercadoPago()
-  if (!cuenta) throw new HttpError(409, "Mercado Pago no está configurado. Cargá las credenciales en Ajustes.")
+  if (!cuenta) throw new HttpError(409, "Mercado Pago no está configurado. Cargá las credenciales en Ajustes → Mercado Pago.")
   const pref = await llamarMP<{ id: string; init_point: string; sandbox_init_point: string }>(cuenta.accessToken, "/checkout/preferences", {
     method: "POST",
     body: JSON.stringify({

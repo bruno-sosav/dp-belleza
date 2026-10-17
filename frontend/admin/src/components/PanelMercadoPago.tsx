@@ -66,7 +66,7 @@ export default function PanelMercadoPago() {
   const datos = estado.datos
 
   return (
-    <Panel title="Mercado Pago" description="Conectá la cuenta del local para cobrar online.">
+    <Panel>
       {estado.error ? (
         <ErrorCarga mensaje={estado.error} onReintentar={estado.recargar} alto="h-24" />
       ) : !datos ? (

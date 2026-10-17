@@ -1,26 +1,14 @@
-import { NavLink } from "react-router-dom"
+import Pestanas from "./Pestanas"
 
-const tabs = [
-  { to: "/recordatorios", end: true, label: "📨 Para mandar" },
-  { to: "/recordatorios/mensajes", label: "✏️ Mensajes" },
-]
-
-/** Las dos pestañas de Recordatorios. Van como `action` del PageHeader de cada una. */
+/** Recordatorios: a quién hay que mandarle hoy, y qué mensajes hay configurados. */
 export default function RecordatoriosTabs() {
   return (
-    <nav className="flex gap-1 rounded-xl bg-cream-dark p-1" aria-label="Secciones de Recordatorios">
-      {tabs.map((t) => (
-        <NavLink
-          key={t.to}
-          to={t.to}
-          end={t.end}
-          className={({ isActive }) =>
-            `rounded-lg px-4 py-2.5 text-base transition ${isActive ? "bg-surface font-semibold text-ink shadow-sm" : "text-ink-soft hover:text-ink"}`
-          }
-        >
-          {t.label}
-        </NavLink>
-      ))}
-    </nav>
+    <Pestanas
+      etiqueta="Secciones de Recordatorios"
+      pestanas={[
+        { to: "/recordatorios", end: true, label: "📨 Para mandar" },
+        { to: "/recordatorios/mensajes", label: "✏️ Mensajes" },
+      ]}
+    />
   )
 }

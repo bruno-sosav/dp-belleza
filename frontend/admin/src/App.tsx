@@ -12,7 +12,9 @@ import AdminProductNew from "./pages/AdminProductNew"
 import AdminServices from "./pages/AdminServices"
 import AdminServiceForm from "./pages/AdminServiceForm"
 import AdminSchedule from "./pages/AdminSchedule"
+import AdminClosedDays from "./pages/AdminClosedDays"
 import AdminSettings from "./pages/AdminSettings"
+import AdminSettingsMercadoPago from "./pages/AdminSettingsMercadoPago"
 import AdminReminders from "./pages/AdminReminders"
 import AdminReminderTypes from "./pages/AdminReminderTypes"
 
@@ -35,12 +37,14 @@ export default function App() {
         <Route path="/finanzas/turnos" element={<AdminBookingStats />} />
         <Route path="/turnos" element={<AdminAgenda />} />
         <Route path="/turnos/horario" element={<AdminSchedule />} />
+        <Route path="/turnos/dias-cerrados" element={<AdminClosedDays />} />
         <Route path="/ventas" element={<AdminSales />} />
         <Route path="/productos" element={<AdminProducts />} />
         <Route path="/productos/nuevo" element={<AdminProductNew />} />
         <Route path="/recordatorios" element={<AdminReminders />} />
         <Route path="/recordatorios/mensajes" element={<AdminReminderTypes />} />
         <Route path="/ajustes" element={<AdminSettings />} />
+        <Route path="/ajustes/mercadopago" element={<AdminSettingsMercadoPago />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

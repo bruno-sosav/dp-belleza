@@ -2,7 +2,7 @@ import { useState } from "react"
 import type { FormEvent, ReactNode } from "react"
 import PageHeader from "../components/PageHeader"
 import Panel from "../components/Panel"
-import PanelMercadoPago from "../components/PanelMercadoPago"
+import AjustesTabs from "../components/AjustesTabs"
 import { Cargando, ErrorCarga } from "../components/EstadoCarga"
 import { ApiError } from "../lib/api"
 import { formatTelefono } from "../lib/format"
@@ -12,19 +12,18 @@ import type { CambiosConfiguracion, Configuracion } from "../data/configuracion"
 
 const campo = `${inputClass} py-3 text-base`
 
-const intervalos = [10, 15, 20, 30, 60]
-
 /**
- * Ajustes (/ajustes): datos del local que muestra la web y cada cuánto se
- * ofrecen turnos. Todo lo que antes había que cambiar en el código. Los
- * mensajes de recordatorio tienen su propia sección (Recordatorios → Mensajes).
+ * Ajustes → Tu negocio (/ajustes): los datos del local que muestra la web
+ * (Contacto, pie de página, botón de WhatsApp). Antes estaban escritos en el
+ * código. Mercado Pago es la otra pestaña de Ajustes; cada cuánto se ofrecen
+ * turnos está en Turnos → Horario.
  */
 export default function AdminSettings() {
   const config = useConfiguracion()
 
   return (
     <div>
-      <PageHeader title="Ajustes" description="Tus datos de contacto, cómo se dan los turnos en la web y Mercado Pago. Los mensajes de recordatorio están en Recordatorios." withPeriod={false} />
+      <PageHeader title="Ajustes" description="Tus datos de contacto: así aparecen en la web." withPeriod={false} action={<AjustesTabs />} />
       {config.error ? (
         <Panel>
           <ErrorCarga mensaje={config.error} onReintentar={config.recargar} />
@@ -37,9 +36,6 @@ export default function AdminSettings() {
         <Formulario config={config.datos} />
       )}
 
-      <div className="mt-6">
-        <PanelMercadoPago />
-      </div>
     </div>
   )
 }
@@ -49,7 +45,6 @@ function Formulario({ config }: { config: Configuracion }) {
   const [telefono, setTelefono] = useState(config.telefono_negocio ? formatTelefono(config.telefono_negocio) : "")
   const [direccion, setDireccion] = useState(config.direccion_negocio ?? "")
   const [email, setEmail] = useState(config.email_negocio ?? "")
-  const [intervalo, setIntervalo] = useState(Number(config.intervalo_turnos_min) || 15)
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [guardado, setGuardado] = useState(false)
@@ -64,7 +59,6 @@ function Formulario({ config }: { config: Configuracion }) {
       telefono_negocio: telefono.trim(),
       direccion_negocio: direccion.trim(),
       email_negocio: email.trim(),
-      intervalo_turnos_min: intervalo,
     }
     try {
       const nueva = await guardarConfiguracion(cambios)
@@ -79,7 +73,7 @@ function Formulario({ config }: { config: Configuracion }) {
 
   return (
     <form onSubmit={guardar} onChange={() => setGuardado(false)} className="space-y-6">
-      <Panel title="Tu negocio" description="Así aparece en la web: en Contacto, en el pie de página y en el botón de WhatsApp.">
+      <Panel description="Así aparece en la web: en Contacto, en el pie de página y en el botón de WhatsApp.">
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <Campo label="Nombre del local" htmlFor="aj-nombre">
             <input id="aj-nombre" required maxLength={100} value={nombre} onChange={(e) => setNombre(e.target.value)} className={campo} />
@@ -96,19 +90,6 @@ function Formulario({ config }: { config: Configuracion }) {
         </div>
       </Panel>
 
-      <Panel title="Turnos en la web">
-        <Campo label="Ofrecer horarios cada" htmlFor="aj-intervalo" ayuda="Con 15 minutos, la web ofrece 9:00, 9:15, 9:30… Con 30, 9:00, 9:30…">
-          <select id="aj-intervalo" value={intervalo} onChange={(e) => setIntervalo(Number(e.target.value))} className={`${campo} max-w-xs`}>
-            {intervalos.map((m) => (
-              <option key={m} value={m}>
-                {m === 60 ? "1 hora" : `${m} minutos`}
-              </option>
-            ))}
-            {!intervalos.includes(intervalo) && <option value={intervalo}>{intervalo} minutos</option>}
-          </select>
-        </Campo>
-      </Panel>
-
       {error && (
         <p className="rounded-lg bg-[#fbe4e2] px-4 py-3 text-base text-[#a12b28]" role="alert">
           {error}
@@ -116,12 +97,12 @@ function Formulario({ config }: { config: Configuracion }) {
       )}
       {guardado && (
         <p className="rounded-xl bg-cream-dark px-4 py-3 text-base text-ink" role="status">
-          ✅ Se guardaron los ajustes.
+          ✅ Se guardaron tus datos.
         </p>
       )}
 
       <button type="submit" disabled={guardando} className={`${primaryButtonClass} min-h-12 px-8 text-base`}>
-        {guardando ? "Guardando…" : "Guardar ajustes"}
+        {guardando ? "Guardando…" : "Guardar"}
       </button>
     </form>
   )
