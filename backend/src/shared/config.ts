@@ -20,6 +20,11 @@ export const config = {
     .map((o) => o.trim())
     .filter(Boolean),
   jwtSecret: requerida("JWT_SECRET"),
+  // Dirección de la web pública: a dónde vuelve la clienta después de pagar en Mercado Pago.
+  siteUrl: (process.env.SITE_URL ?? "http://localhost:5173").replace(/\/$/, ""),
+  // Dirección pública de ESTA API, si la tiene (en producción). Mercado Pago avisa
+  // los pagos a <apiPublicUrl>/api/mercadopago/webhook. En local no existe.
+  apiPublicUrl: process.env.API_PUBLIC_URL?.replace(/\/$/, "") || null,
   db: {
     host: process.env.DB_HOST ?? "127.0.0.1",
     port: Number(process.env.DB_PORT ?? 3306),

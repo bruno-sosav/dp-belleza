@@ -4,7 +4,8 @@ import Panel from "./Panel"
 import { Cargando, ErrorCarga } from "./EstadoCarga"
 import { ApiError } from "../lib/api"
 import { inputClass, labelClass, primaryButtonClass, secondaryButtonClass } from "../lib/styles"
-import { desconectar, guardarCredenciales, probarConexion, useMercadoPago } from "../data/mercadopago"
+import { desconectar, guardarCredenciales, probarConexion } from "../data/mercadopago"
+import type { useMercadoPago } from "../data/mercadopago"
 
 const campo = `${inputClass} py-3 text-base font-mono`
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000"
@@ -16,8 +17,7 @@ const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000"
  * antes de guardarlas y las guarda cifradas. Después solo se ve la cuenta y
  * los últimos 4 caracteres; para cambiarlas se cargan de nuevo.
  */
-export default function PanelMercadoPago() {
-  const estado = useMercadoPago()
+export default function PanelMercadoPago({ estado }: { estado: ReturnType<typeof useMercadoPago> }) {
   const [cargando, setCargando] = useState(false)
   const [accessToken, setAccessToken] = useState("")
   const [publicKey, setPublicKey] = useState("")

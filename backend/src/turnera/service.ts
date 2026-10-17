@@ -12,7 +12,7 @@ import type { RowDataPacket } from "mysql2"
 import { pool, enTransaccion } from "../shared/db.js"
 import { leerConfigNumero } from "../shared/configuracion.js"
 import { buscarOCrearCliente } from "../shared/models/clientes.js"
-import { conflicto, malaPeticion, noExiste } from "../shared/errors.js"
+import { conflicto, HttpError, malaPeticion, noExiste } from "../shared/errors.js"
 import {
   aDateTime,
   aHora,
@@ -25,6 +25,7 @@ import {
 } from "./tiempo.js"
 import type { NuevoTurno } from "./validacion.js"
 import { ESTADOS_OCUPAN } from "./estados.js"
+import { linkDePago, montoSena, nuevoTokenSena, porcentajeSena, SENA_MINUTOS, SQL_SENA_NO_VENCIDA } from "./sena.js"
 
 // ---------------------------------------------------------------- servicios
 
@@ -128,6 +129,7 @@ export async function turnosDelDia(
        FROM turnos
       WHERE DATE(fecha_hora_inicio) = ?
         AND estado IN (?)
+        AND ${SQL_SENA_NO_VENCIDA}
         AND id <> ?
       ORDER BY fecha_hora_inicio
       ${bloquear ? "FOR UPDATE" : ""}`,
@@ -226,6 +228,8 @@ export type TurnoCreadoDTO = {
   horaFin: string
   precio: number
   estado: string
+  /** Solo si se cobra seña: a dónde mandar a la clienta a pagar. */
+  sena?: { monto: number; porcentaje: number; link: string; token: string; venceEnMinutos: number }
 }
 
 /**
@@ -233,7 +237,12 @@ export type TurnoCreadoDTO = {
  * teléfono, o se la crea.
  */
 export async function crearTurno(input: NuevoTurno): Promise<TurnoCreadoDTO> {
-  return agendarTurno({
+  // Seña: solo si la dueña puso un porcentaje y Mercado Pago está conectado.
+  const porcentaje = await porcentajeSena()
+  const token = porcentaje > 0 ? nuevoTokenSena() : null
+
+  const creado = await agendarTurno({
+    sena: token ? { porcentaje, token } : undefined,
     servicioId: input.servicioId,
     fecha: input.fecha,
     hora: input.hora,
@@ -254,6 +263,18 @@ export async function crearTurno(input: NuevoTurno): Promise<TurnoCreadoDTO> {
       })
     },
   })
+  if (!token) return creado
+
+  // El link de pago se pide fuera de la transacción (es una llamada a Mercado
+  // Pago). Si falla, el turno no puede quedar tomado sin forma de pagar.
+  const monto = montoSena(creado.precio, porcentaje)
+  try {
+    const link = await linkDePago({ id: creado.id, servicio: creado.servicio, fecha: creado.fecha, hora: creado.horaInicio, monto, token })
+    return { ...creado, sena: { monto, porcentaje, link, token, venceEnMinutos: SENA_MINUTOS } }
+  } catch (err) {
+    await pool.query("UPDATE turnos SET estado = 'cancelado', cancelado_por = 'sistema', cancelado_at = NOW(), sena_estado = 'vencida' WHERE id = ?", [creado.id])
+    throw new HttpError(502, "No pudimos iniciar el pago de la seña con Mercado Pago. Probá de nuevo en un rato o escribinos por WhatsApp.", err instanceof HttpError ? err.message : undefined)
+  }
 }
 
 export type AgendarTurno = {
@@ -274,6 +295,8 @@ export type AgendarTurno = {
   respetarHorario: boolean
   /** Devuelve el id de la clienta. Corre dentro de la transacción. */
   cliente: (conn: PoolConnection) => Promise<number>
+  /** Solo reservas de la web con seña: el turno nace esperando el pago (ver sena.ts). */
+  sena?: { porcentaje: number; token: string }
 }
 
 /**
@@ -320,8 +343,9 @@ export async function agendarTurno(input: AgendarTurno): Promise<TurnoCreadoDTO>
 
     const [result] = await conn.query(
       `INSERT INTO turnos
-           (cliente_id, servicio_id, fecha_hora_inicio, fecha_hora_fin, estado, precio, notas)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+           (cliente_id, servicio_id, fecha_hora_inicio, fecha_hora_fin, estado, precio, notas,
+            sena_monto, sena_estado, sena_vence_at, sena_token)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ${input.sena ? `NOW() + INTERVAL ${SENA_MINUTOS} MINUTE` : "NULL"}, ?)`,
       [
         clienteId,
         servicio.id,
@@ -332,6 +356,9 @@ export async function agendarTurno(input: AgendarTurno): Promise<TurnoCreadoDTO>
         // la clienta vio al reservar.
         servicio.price,
         input.notas ?? null,
+        input.sena ? montoSena(servicio.price, input.sena.porcentaje) : null,
+        input.sena ? "pendiente" : null,
+        input.sena?.token ?? null,
       ],
     )
     const turnoId = (result as { insertId: number }).insertId

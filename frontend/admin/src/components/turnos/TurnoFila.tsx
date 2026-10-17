@@ -82,6 +82,18 @@ export default function TurnoFila({
           <p className="text-xl font-semibold text-ink">{nombre}</p>
           <p className="mt-0.5 text-base text-ink">{turno.servicio.nombre}</p>
           <p className="text-base text-ink-soft">{formatPrice(turno.precio)}</p>
+          {turno.sena && (
+            <p className="mt-1 text-base text-ink">
+              {turno.sena.estado === "pagada"
+                ? `💳 Seña pagada: ${formatPrice(turno.sena.monto)} · resta ${formatPrice(turno.precio - turno.sena.monto)}`
+                : turno.sena.estado === "pendiente"
+                  ? `⏳ Esperando el pago de la seña (${formatPrice(turno.sena.monto)})`
+                  : "Seña no pagada"}
+            </p>
+          )}
+          {turno.estado === "cancelado" && turno.sena?.estado === "pagada" && (
+            <p className="mt-2 rounded-lg bg-[#fdf3dc] px-3 py-2 text-sm text-ink">⚠️ Pagó la seña y el turno está cancelado: devolvésela o ofrecele otro horario.</p>
+          )}
           {turno.notas && <p className="mt-2 rounded-lg bg-cream-dark/60 px-3 py-2 text-sm text-ink">Nota: {turno.notas}</p>}
         </div>
 
@@ -129,6 +141,7 @@ export default function TurnoFila({
           <div className="flex flex-wrap items-center gap-4">
             <EstadoBadge estado={turno.estado} grande />
             {turno.canceladoPor === "clienta" && <span className="text-base text-ink-soft">Lo canceló la clienta desde la web</span>}
+            {turno.canceladoPor === "sistema" && <span className="text-base text-ink-soft">No pagó la seña a tiempo</span>}
             {(turno.estado === "completado" || turno.estado === "ausente") && (
               <button
                 type="button"

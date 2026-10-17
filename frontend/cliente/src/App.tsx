@@ -13,6 +13,7 @@ import ServiceDetail from "./turnera/pages/ServiceDetail"
 import Booking from "./turnera/pages/Booking"
 import BookingConfirmed from "./turnera/pages/BookingConfirmed"
 import MiTurno from "./turnera/pages/MiTurno"
+import PagoSena from "./turnera/pages/PagoSena"
 
 /** Al cambiar de página vuelve arriba; si la URL trae #ancla, baja hasta esa sección. */
 function ScrollToTop() {
@@ -52,6 +53,7 @@ export default function App() {
           <Route path="/reservar/:id" element={<Booking />} />
           <Route path="/reserva-confirmada" element={<BookingConfirmed />} />
           <Route path="/mi-turno" element={<MiTurno />} />
+          <Route path="/reserva/pago" element={<PagoSena />} />
 
           <Route path="*" element={<NotFound />} />
         </Route>

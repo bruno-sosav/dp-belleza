@@ -2,6 +2,7 @@ import { createHmac } from "node:crypto"
 import { describe, expect, it } from "vitest"
 import { cifrar, descifrar } from "../src/shared/cifrado.js"
 import { firmaValida } from "../src/shared/mercadopago.js"
+import { montoSena } from "../src/turnera/sena.js"
 
 describe("cifrado de credenciales", () => {
   it("lo cifrado se descifra igual", () => {
@@ -37,5 +38,17 @@ describe("firma del webhook", () => {
     expect(firmaValida(secreto, `ts=1700000000,v1=${v1}`, "abc-1", "999999")).toBe(false)
     expect(firmaValida(secreto, undefined, "abc-1", "123456")).toBe(false)
     expect(firmaValida("otra-clave", `ts=1700000000,v1=${v1}`, "abc-1", "123456")).toBe(false)
+  })
+})
+
+describe("montoSena", () => {
+  it("es el porcentaje del precio, en pesos enteros", () => {
+    expect(montoSena(24000, 30)).toBe(7200)
+    expect(montoSena(19999, 5)).toBe(1000)
+  })
+  it("con 0 % no hay seña; con 100 % es el precio entero; nunca más", () => {
+    expect(montoSena(24000, 0)).toBe(0)
+    expect(montoSena(24000, 100)).toBe(24000)
+    expect(montoSena(24000, 150)).toBe(24000)
   })
 })

@@ -15,7 +15,9 @@ export type Turno = {
   id: number
   estado: EstadoTurno
   /** Solo en cancelados: "clienta" si lo canceló ella desde la web ("Mi turno"). */
-  canceladoPor: "local" | "clienta" | null
+  canceladoPor: "local" | "clienta" | "sistema" | null
+  /** Solo turnos reservados en la web con seña de Mercado Pago. */
+  sena: { monto: number; estado: "pendiente" | "pagada" | "vencida" } | null
   /** "2026-10-15" */
   fecha: string
   /** "14:30" */

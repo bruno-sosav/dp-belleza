@@ -4,6 +4,8 @@ import { toDateKey, useOpeningHours, useSlots } from "../data/availability"
 import type { ConfirmedBooking } from "../data/booking"
 import { contactProblem, createBooking, emptyContact } from "../data/booking"
 import { useService } from "../data/services"
+import { useNegocio } from "../../shared/lib/negocio"
+import { formatPrice } from "@dp/shared/lib/format"
 import { ApiError } from "../lib/api"
 import Calendar from "../components/Calendar"
 import TimeSlotPicker from "../components/TimeSlotPicker"
@@ -19,6 +21,7 @@ export default function Booking() {
   const navigate = useNavigate()
   const service = useService(id)
   const hours = useOpeningHours()
+  const negocio = useNegocio()
 
   const [step, setStep] = useState<2 | 3>(2)
   const [date, setDate] = useState<Date | null>(null)
@@ -48,6 +51,7 @@ export default function Booking() {
   }
 
   const current = service.data
+  const senaPorcentaje = negocio?.senaPorcentaje ?? 0
   const problem = contactProblem(contact)
   const canContinue = date !== null && time !== null
   const canConfirm = canContinue && problem === null && !sending
@@ -58,6 +62,11 @@ export default function Booking() {
     setSendError(null)
     try {
       const booking = await createBooking({ serviceId: current.id, date: toDateKey(date), time, contact })
+      // Con seña, a pagar a Mercado Pago. Al volver, la web cae en /reserva/pago.
+      if (booking.sena) {
+        window.location.assign(booking.sena.link)
+        return
+      }
       const state: ConfirmedBooking = { booking, service: current, contact }
       navigate("/reserva-confirmada", { state, replace: true })
     } catch (err) {
@@ -197,6 +206,17 @@ export default function Booking() {
                 </form>
               </section>
 
+              {senaPorcentaje > 0 && (
+                <div className="rounded-2xl border border-cream-dark bg-cream-dark/40 px-5 py-4 text-sm text-ink">
+                  <p className="font-medium">
+                    Para confirmar el turno pagás una seña de {formatPrice(Math.max(1, Math.round((current.price * senaPorcentaje) / 100)))} ({senaPorcentaje} %) con Mercado Pago.
+                  </p>
+                  <p className="mt-1 text-ink-soft">
+                    El resto lo abonás en el local. Tenés 30 minutos para pagarla; si no, el horario se libera.
+                  </p>
+                </div>
+              )}
+
               {sendError && (
                 <div className="rounded-2xl border border-rose/50 bg-rose/10 px-5 py-4 text-sm text-ink" role="alert">
                   {sendError}
@@ -213,7 +233,7 @@ export default function Booking() {
                   onClick={() => void handleConfirm()}
                   className={`${primaryButtonClass} flex-1`}
                 >
-                  {sending ? "Reservando…" : "Confirmar turno"}
+                  {sending ? (senaPorcentaje > 0 ? "Yendo a Mercado Pago…" : "Reservando…") : senaPorcentaje > 0 ? "Pagar la seña y reservar" : "Confirmar turno"}
                 </button>
               </div>
 

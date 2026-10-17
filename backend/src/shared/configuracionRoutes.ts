@@ -2,6 +2,7 @@ import { Router } from "express"
 import type { RowDataPacket } from "mysql2"
 import { CLAVES_PUBLICAS, leerConfigs } from "./configuracion.js"
 import { pool } from "./db.js"
+import { porcentajeSena } from "../turnera/sena.js"
 
 // Datos de contacto del local para la web pública, montado en /api/configuracion.
 export const configuracionPublica = Router()
@@ -18,6 +19,8 @@ configuracionPublica.get("/", async (_req, res) => {
     email: c.email_negocio ?? "",
     /** Hasta cuántas horas antes puede cancelar sola desde la web. */
     cancelacionHoras: Number(c.cancelacion_horas_minimas ?? 24),
+    /** % de seña que se cobra al reservar. 0 si no hay, o si Mercado Pago no está conectado. */
+    senaPorcentaje: await porcentajeSena(),
     /** null si el local no conectó Mercado Pago. */
     mercadopagoPublicKey: (mp[0]?.public_key as string | undefined) ?? null,
   })

@@ -13,6 +13,7 @@ import { Router } from "express"
 import { z } from "zod"
 import { pool } from "./db.js"
 import { consultarPago, cuentaMercadoPago, firmaValida } from "./mercadopago.js"
+import { aplicarPagoSena } from "../turnera/sena.js"
 
 export const mercadopagoPublico = Router()
 
@@ -43,6 +44,9 @@ mercadopagoPublico.post("/webhook", async (req, res) => {
        monto = VALUES(monto), referencia_externa = VALUES(referencia_externa), datos = VALUES(datos)`,
     [pago.id, pago.status, pago.status_detail, pago.transaction_amount, pago.external_reference, JSON.stringify(pago)],
   )
+  // Seña de un turno: referencia "turno-<id>" (ver turnera/sena.ts). Los pedidos de la tienda los resuelve ecommerce.
+  const turno = /^turno-(\d+)$/.exec(pago.external_reference ?? "")
+  if (turno) await aplicarPagoSena(Number(turno[1]), pago)
   res.status(200).json({ ok: true })
 })
 

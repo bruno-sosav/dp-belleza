@@ -23,6 +23,8 @@ export type Negocio = {
   horario: string
   /** Hasta cuántas horas antes la clienta puede cancelar sola en "Mi turno". */
   cancelacionHoras: number
+  /** % de seña que se paga al reservar con Mercado Pago. 0 = sin seña. */
+  senaPorcentaje: number
 }
 
 let cache: Negocio | null = null
@@ -40,6 +42,7 @@ async function cargar(): Promise<Negocio> {
     email: config?.email ?? "",
     horario: horarios ? describeOpeningHours(horarios) : "",
     cancelacionHoras: Number(config?.cancelacionHoras ?? 24),
+    senaPorcentaje: Number(config?.senaPorcentaje ?? 0),
   }
 }
 

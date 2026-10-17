@@ -44,6 +44,8 @@ export type CreatedBooking = {
   /** Precio congelado al momento de reservar. */
   precio: number
   estado: string
+  /** Solo si se cobra seña: hay que mandar a la clienta a `link` (Mercado Pago). */
+  sena?: { monto: number; porcentaje: number; link: string; token: string; venceEnMinutos: number }
 }
 
 /** Lo que recibe la pantalla de confirmación por `location.state`. */

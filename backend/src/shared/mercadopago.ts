@@ -101,7 +101,9 @@ export async function crearPreferencia(datos: {
       ...(datos.urlsDeVuelta
         ? {
             back_urls: { success: datos.urlsDeVuelta.exito, pending: datos.urlsDeVuelta.pendiente, failure: datos.urlsDeVuelta.error },
-            auto_return: "approved",
+            // Mercado Pago solo vuelve solo a la web si la dirección es https;
+            // en local (http://localhost) la clienta toca "Volver al sitio".
+            ...(datos.urlsDeVuelta.exito.startsWith("https://") ? { auto_return: "approved" } : {}),
           }
         : {}),
       ...(datos.urlNotificacion ? { notification_url: datos.urlNotificacion } : {}),
