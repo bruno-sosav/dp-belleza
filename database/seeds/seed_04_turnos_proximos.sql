@@ -52,19 +52,12 @@ WHERE a.inicio_min + f.n * 90 + srv.duracion_min <= a.fin_min
   -- la agenda se va vaciando hacia adelante, como pasa de verdad
   AND (d.n * 7 + f.n * 11) % 10 < GREATEST(3, 9 - d.n DIV 2);
 
--- Recordatorios de esos turnos, como los deja la API al reservar
--- (src/turnera/service.ts, programarRecordatorio): X horas antes, y solo si
--- esa hora todavía no pasó.
-INSERT INTO recordatorios (turno_id, programado_para)
-SELECT id, programado_para
-  FROM (
-      SELECT t.id,
-             DATE_SUB(t.fecha_hora_inicio, INTERVAL (
-                 SELECT CAST(valor AS UNSIGNED) FROM configuracion WHERE clave = 'recordatorio_horas_antes'
-             ) HOUR) AS programado_para
-        FROM turnos t
-       WHERE t.fecha_hora_inicio > NOW()
-         AND t.estado IN ('reservado', 'confirmado')
-         AND NOT EXISTS (SELECT 1 FROM recordatorios r WHERE r.turno_id = t.id)
-  ) x
- WHERE programado_para > NOW();
+-- Un segundo tipo de recordatorio para la demo (el primero, "Recordatorio del
+-- turno", lo crea la migracion V5). Con los dos, en la seccion Recordatorios se
+-- ve la confirmacion de los turnos de pasado manana y el recordatorio de los de
+-- manana. A quien le toca cada uno se calcula en la API: aca no se carga nada
+-- por turno.
+INSERT INTO tipos_recordatorio (nombre, horas_antes, mensaje)
+SELECT 'Confirmación del turno', 48,
+       'Hola {nombre}! Te escribimos de {negocio} para confirmar tu turno de {servicio} el {fecha} a las {hora}. ¿Nos confirmás que venís?'
+ WHERE NOT EXISTS (SELECT 1 FROM tipos_recordatorio WHERE nombre = 'Confirmación del turno');

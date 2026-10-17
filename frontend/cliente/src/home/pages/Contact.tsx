@@ -1,6 +1,7 @@
 import { useState } from "react"
 import type { FormEvent } from "react"
 import { whatsappUrl } from "../lib/whatsapp"
+import { datosDeContacto, useNegocio } from "../../shared/lib/negocio"
 
 const inputClass =
   "w-full rounded-md border border-cream-dark px-3 py-2.5 text-sm outline-none transition focus:border-rose focus:ring-2 focus:ring-rose/25"
@@ -10,20 +11,23 @@ export default function Contact() {
   const [subject, setSubject] = useState("")
   const [message, setMessage] = useState("")
 
-  const canSend = name.trim() !== "" && message.trim() !== ""
+  const negocio = useNegocio()
+  // Sin el WhatsApp del local cargado en el panel, no hay a dónde mandar.
+  const sinWhatsapp = negocio !== null && !negocio.telefono
+  const canSend = name.trim() !== "" && message.trim() !== "" && Boolean(negocio?.telefono)
 
   // El formulario no envía nada a un servidor: abre WhatsApp con el mensaje armado
   // y la persona solo tiene que tocar "Enviar" en el chat.
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    if (!canSend) return
+    if (!canSend || !negocio) return
 
-    const lines = [`Hola Dp.belleza! Soy ${name.trim()}.`]
+    const lines = [`Hola ${negocio.nombre}! Soy ${name.trim()}.`]
     if (subject.trim()) lines.push(`Asunto: ${subject.trim()}`)
     lines.push("", message.trim())
     const text = lines.join("\n")
 
-    window.open(whatsappUrl(text), "_blank", "noopener,noreferrer")
+    window.open(whatsappUrl(negocio.telefono, text), "_blank", "noopener,noreferrer")
   }
 
   return (
@@ -71,23 +75,20 @@ export default function Contact() {
             </svg>
             Enviar por WhatsApp
           </button>
-          <p className="text-xs text-ink-soft">Se abre WhatsApp con tu mensaje listo para enviar.</p>
+          <p className="text-xs text-ink-soft">
+            {sinWhatsapp
+              ? "El WhatsApp del local todavía no está configurado."
+              : "Se abre WhatsApp con tu mensaje listo para enviar."}
+          </p>
         </form>
 
         <div className="space-y-6">
-          <div>
-            <h3 className="font-display text-sm font-semibold uppercase tracking-wide text-ink">Dirección</h3>
-            <p className="mt-2 text-sm text-ink-soft">Av. Siempre Viva 1234, Buenos Aires, Argentina</p>
-          </div>
-          <div>
-            <h3 className="font-display text-sm font-semibold uppercase tracking-wide text-ink">Contacto</h3>
-            <p className="mt-2 text-sm text-ink-soft">hola@dpbelleza.com</p>
-            <p className="text-sm text-ink-soft">+54 11 1234-5678</p>
-          </div>
-          <div>
-            <h3 className="font-display text-sm font-semibold uppercase tracking-wide text-ink">Horario de atención</h3>
-            <p className="mt-2 text-sm text-ink-soft">Lunes a viernes de 9 a 18hs</p>
-          </div>
+          {datosDeContacto(negocio).map((d) => (
+            <div key={d.label}>
+              <h3 className="font-display text-sm font-semibold uppercase tracking-wide text-ink">{d.label}</h3>
+              <p className="mt-2 text-sm text-ink-soft">{d.value}</p>
+            </div>
+          ))}
           <div className="overflow-hidden rounded-lg">
             <img src="https://picsum.photos/seed/contact-map/700/350" alt="Mapa" className="w-full object-cover" />
           </div>

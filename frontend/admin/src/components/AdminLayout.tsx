@@ -22,6 +22,7 @@ const siteUrl = import.meta.env.VITE_SITE_URL ?? "http://localhost:5173"
 const navItems = [
   { to: "/", end: true, label: "Hoy", icon: icon(<><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>) },
   { to: "/turnos", label: "Turnos", icon: icon(<><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></>) },
+  { to: "/recordatorios", label: "Recordatorios", short: "Avisos", icon: icon(<><path d="M4 5h16v11H8l-4 4V5z" /><path d="M8 9h8M8 12h5" /></>) },
   { to: "/clientes", label: "Clientas", icon: icon(<><circle cx="9" cy="8" r="3.5" /><path d="M2.5 20a6.5 6.5 0 0113 0M16 4.5a3.5 3.5 0 010 7M18 14.5a6.5 6.5 0 013.5 5.5" /></>) },
   { to: "/servicios", label: "Servicios", icon: icon(<><path d="M12 3c-3 3.5-3 7 0 10 3-3 3-6.5 0-10z" /><path d="M12 13c-4-2-7.5-1.5-9 1 2.5 3.5 6 4 9 2M12 13c4-2 7.5-1.5 9 1-2.5 3.5-6 4-9 2M12 16v5" /></>) },
   { to: "/finanzas", label: "Finanzas", icon: icon(<path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />) },
@@ -59,19 +60,24 @@ export default function AdminLayout() {
           <Link to="/" className="font-display text-xl font-semibold text-ink">
             Dp.belleza <span className="ml-1 font-sans text-[11px] font-medium uppercase tracking-wide text-rose-dark">Admin</span>
           </Link>
-          <button
-            type="button"
-            onClick={() => {
-              cerrarSesion()
-              setUsuario(null)
-            }}
-            className="text-sm text-ink-soft hover:text-ink lg:hidden"
-          >
-            Salir
-          </button>
+          <div className="flex items-center gap-4 lg:hidden">
+            <NavLink to="/ajustes" className={({ isActive }) => `text-sm ${isActive ? "font-medium text-ink" : "text-ink-soft hover:text-ink"}`}>
+              ⚙️ Ajustes
+            </NavLink>
+            <button
+              type="button"
+              onClick={() => {
+                cerrarSesion()
+                setUsuario(null)
+              }}
+              className="text-sm text-ink-soft hover:text-ink"
+            >
+              Salir
+            </button>
+          </div>
         </div>
 
-        <nav className="grid grid-cols-7 gap-1 px-3 pb-3 lg:flex lg:flex-1 lg:flex-col lg:px-3 lg:pb-0">
+        <nav className="grid grid-cols-4 gap-1 px-3 pb-3 lg:flex lg:flex-1 lg:flex-col lg:px-3 lg:pb-0">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
@@ -94,6 +100,14 @@ export default function AdminLayout() {
           <p className="px-3 pb-2 text-xs text-ink-soft">
             Sesión de <span className="font-medium text-ink">{usuario.nombre}</span>
           </p>
+          <NavLink
+            to="/ajustes"
+            className={({ isActive }) =>
+              `block rounded-lg px-3 py-2 text-sm ${isActive ? "bg-cream-dark font-medium text-ink" : "text-ink-soft hover:bg-cream-dark/50 hover:text-ink"}`
+            }
+          >
+            ⚙️ Ajustes
+          </NavLink>
           <a
             href={siteUrl}
             target="_blank"

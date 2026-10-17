@@ -3,7 +3,8 @@ import { useProducts } from "../../ecommerce/data/productStore"
 import ProductCard from "../../ecommerce/components/ProductCard"
 import { useServices } from "../../turnera/data/services"
 import ServiceCard from "../../turnera/components/ServiceCard"
-import { about, bookingSteps, contactInfo, pillars, stats, testimonials } from "../data/content"
+import { about, bookingSteps, pillars, stats, testimonials } from "../data/content"
+import { datosDeContacto, useNegocio } from "../../shared/lib/negocio"
 
 const containerClass = "mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
 
@@ -15,6 +16,7 @@ function Eyebrow({ children, light = false }: { children: string; light?: boolea
 
 export default function Landing() {
   const products = useProducts()
+  const negocio = useNegocio()
   // Los destacados son los que tienen etiqueta (Nuevo, Más elegido, Promo); si
   // la API no responde, la sección queda vacía en vez de romper la portada.
   const featuredServices = (useServices().data ?? []).filter((s) => s.badge).slice(0, 3)
@@ -255,12 +257,7 @@ export default function Landing() {
             </div>
           </div>
           <dl className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            {[
-              { label: "Dirección", value: contactInfo.address },
-              { label: "Horario", value: contactInfo.hours },
-              { label: "Email", value: contactInfo.email },
-              { label: "Teléfono", value: contactInfo.phone },
-            ].map((item) => (
+            {datosDeContacto(negocio).map((item) => (
               <div key={item.label}>
                 <dt className="font-display text-sm font-semibold uppercase tracking-wide text-ink">{item.label}</dt>
                 <dd className="mt-1 text-sm text-ink-soft">{item.value}</dd>

@@ -5,6 +5,7 @@ import Panel from "../components/Panel"
 import StatTile from "../components/StatTile"
 import TurnoFila from "../components/turnos/TurnoFila"
 import FormularioTurno from "../components/agenda/FormularioTurno"
+import { Link } from "react-router-dom"
 import { Cargando, ErrorCarga } from "../components/EstadoCarga"
 import { sumarDias } from "../lib/fechas"
 import { formatLongDate, formatShortDate } from "../lib/format"
@@ -13,6 +14,7 @@ import { primaryButtonClass } from "../lib/styles"
 import { estaAbierto, nombreCliente, useAgenda } from "../data/turnos"
 import type { Turno } from "../data/turnos"
 import { usePedidosPendientes } from "../data/pedidosPendientes"
+import { useRecordatorios } from "../data/recordatorios"
 
 /** Cuántos días para atrás se buscan turnos que quedaron sin marcar. */
 const DIAS_ATRAS = 14
@@ -42,6 +44,7 @@ export default function AdminToday() {
   // Un solo pedido para los tres bloques de turnos (22 días): una recarga, un estado.
   const agenda = useAgenda(desde, hasta)
   const pedidos = usePedidosPendientes()
+  const recordatorios = useRecordatorios()
   /** Formulario de turno abierto: uno nuevo (sin turno) o cambiar uno. */
   const [formulario, setFormulario] = useState<{ turno?: Turno } | null>(null)
   const cerrarFormulario = useCallback(() => setFormulario(null), [])
@@ -148,6 +151,19 @@ export default function AdminToday() {
         >
           <ul className="space-y-4">{sinMarcar.map((t) => fila(t, true))}</ul>
         </Panel>
+      )}
+
+      {(recordatorios.datos?.paraMandar.length ?? 0) > 0 && (
+        <Link
+          to="/recordatorios"
+          className="mt-6 flex min-h-14 items-center justify-between gap-3 rounded-2xl border-2 border-[#25d366]/50 bg-[#e8f8ee] px-5 py-3 text-lg text-ink transition hover:border-[#25d366]"
+        >
+          <span>
+            📨 Tenés <strong>{recordatorios.datos!.paraMandar.length}</strong>{" "}
+            {recordatorios.datos!.paraMandar.length === 1 ? "recordatorio para mandar" : "recordatorios para mandar"}
+          </span>
+          <span className="shrink-0 font-semibold text-[#14532d]">Ir →</span>
+        </Link>
       )}
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_340px]">

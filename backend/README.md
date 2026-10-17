@@ -104,6 +104,8 @@ mysql -u root -p < database/setup.sql
 mysql -u dp_dev -p dp_belleza < database/migrations/V1_scriptInicial.sql
 mysql -u dp_dev -p dp_belleza < database/migrations/V2_servicios_campos_del_front.sql
 mysql -u dp_dev -p dp_belleza < database/migrations/V3_servicios_categoria_libre.sql
+mysql -u dp_dev -p dp_belleza < database/migrations/V4_configuracion_contacto.sql
+mysql -u dp_dev -p dp_belleza < database/migrations/V5_tipos_recordatorio.sql
 mysql -u dp_dev -p dp_belleza < database/seeds/seed_01_servicios.sql
 mysql -u dp_dev -p dp_belleza < database/seeds/seed_02_horarios.sql
 mysql -u dp_dev -p dp_belleza < database/seeds/ecommerce-datos-ejemplo.sql

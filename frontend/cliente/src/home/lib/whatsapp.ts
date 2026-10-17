@@ -1,15 +1,10 @@
 /**
- * Número de WhatsApp al que llegan los mensajes del formulario de contacto.
+ * Link de WhatsApp que abre el chat con el mensaje ya escrito.
  *
- * Formato internacional, solo dígitos, sin "+", espacios ni guiones.
- * Argentina (celular): 54 + 9 + código de área sin 0 + número sin 15.
- *   Ej: 11 1234-5678  →  5491112345678
- *
- * TODO: reemplazar por el número real del local.
+ * El número es el del local, que la dueña carga en Ajustes del panel (ver
+ * shared/lib/negocio.ts). Viene normalizado: 549 + código de área + número,
+ * que es el formato que pide wa.me.
  */
-export const WHATSAPP_NUMBER = "5491112345678"
-
-/** Arma el link de WhatsApp que abre el chat con el mensaje ya escrito. */
-export function whatsappUrl(message: string) {
-  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`
+export function whatsappUrl(telefono: string, message: string) {
+  return `https://wa.me/${telefono}?text=${encodeURIComponent(message)}`
 }

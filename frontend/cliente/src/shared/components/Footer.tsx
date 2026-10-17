@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom"
+import { datosDeContacto, useNegocio } from "../lib/negocio"
 
 export default function Footer() {
+  const negocio = useNegocio()
   return (
     <footer className="border-t border-cream-dark bg-cream-dark/60">
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
@@ -49,10 +51,9 @@ export default function Footer() {
           <div>
             <h4 className="font-display text-sm font-semibold uppercase tracking-wide text-ink">Contacto</h4>
             <ul className="mt-4 space-y-2 text-sm text-ink-soft">
-              <li>hola@dpbelleza.com</li>
-              <li>+54 11 1234-5678</li>
-              <li>Av. Siempre Viva 1234, Buenos Aires</li>
-              <li>Lunes a viernes de 9 a 18hs</li>
+              {datosDeContacto(negocio).map((d) => (
+                <li key={d.label}>{d.value}</li>
+              ))}
             </ul>
           </div>
         </div>

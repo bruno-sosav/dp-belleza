@@ -25,7 +25,6 @@ import {
   bloqueosDelDia,
   calcularDisponibilidad,
   obtenerServicio,
-  programarRecordatorio,
   turnosDelDia,
   validarHorarioDeAtencion,
   yaEmpezo,
@@ -199,7 +198,8 @@ adminTurnos.post("/turnos", async (req, res) => {
  *     servicio nuevo. Si no cambia, conserva los suyos (el precio que vio la
  *     clienta al reservar).
  *   - Nunca puede pisar otro turno ni un bloqueo, igual que al reservar.
- *   - Si se movió un turno pedido, el recordatorio pendiente se reprograma.
+ *   - Si se movió un turno pedido de día u hora, los recordatorios que ya se le
+ *     habían mandado se borran: hay que avisarle de nuevo con la fecha nueva.
  */
 const cambiosTurno = z.object({
   fecha: fechaISO.optional(),
@@ -268,9 +268,8 @@ adminTurnos.patch("/turnos/:id", async (req, res) => {
       columnas.fecha_hora_inicio = aDateTime(fecha, desde)
       columnas.fecha_hora_fin = aDateTime(fecha, hasta)
 
-      if (pedido) {
-        await conn.query("UPDATE recordatorios SET estado = 'cancelado' WHERE turno_id = ? AND estado = 'pendiente'", [id])
-        await programarRecordatorio(conn, id, fecha, desde)
+      if (pedido && (fecha !== fechaActual || desde !== desdeActual)) {
+        await conn.query("DELETE FROM recordatorios WHERE turno_id = ?", [id])
       }
     }
 
@@ -290,8 +289,8 @@ adminTurnos.patch("/turnos/:id", async (req, res) => {
  *     a un turno de mañana).
  *   - si el turno vuelve a ocupar la agenda (deshacer un ausente), se revisa que
  *     el horario siga libre, igual que al reservar.
- *   - al cancelar, el recordatorio pendiente se cancela: no hay que mandarle
- *     WhatsApp a alguien por un turno que ya no existe.
+ *   - un turno cancelado deja de aparecer solo en Recordatorios (la lista se
+ *     arma con los turnos pedidos), no hay nada que limpiar.
  */
 adminTurnos.patch("/turnos/:id/estado", async (req, res) => {
   const id = idParam.parse(req.params.id)
@@ -330,12 +329,6 @@ adminTurnos.patch("/turnos/:id/estado", async (req, res) => {
 
     await conn.query("UPDATE turnos SET estado = ? WHERE id = ?", [estado, id])
 
-    if (estado === "cancelado") {
-      await conn.query(
-        "UPDATE recordatorios SET estado = 'cancelado' WHERE turno_id = ? AND estado = 'pendiente'",
-        [id],
-      )
-    }
   })
 
   res.json(await buscarTurno(id))

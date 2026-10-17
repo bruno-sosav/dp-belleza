@@ -12,6 +12,9 @@ import AdminProductNew from "./pages/AdminProductNew"
 import AdminServices from "./pages/AdminServices"
 import AdminServiceForm from "./pages/AdminServiceForm"
 import AdminSchedule from "./pages/AdminSchedule"
+import AdminSettings from "./pages/AdminSettings"
+import AdminReminders from "./pages/AdminReminders"
+import AdminReminderTypes from "./pages/AdminReminderTypes"
 
 /**
  * Rutas del panel (admin.dpbelleza.com.ar).
@@ -35,6 +38,9 @@ export default function App() {
         <Route path="/ventas" element={<AdminSales />} />
         <Route path="/productos" element={<AdminProducts />} />
         <Route path="/productos/nuevo" element={<AdminProductNew />} />
+        <Route path="/recordatorios" element={<AdminReminders />} />
+        <Route path="/recordatorios/mensajes" element={<AdminReminderTypes />} />
+        <Route path="/ajustes" element={<AdminSettings />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

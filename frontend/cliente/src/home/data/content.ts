@@ -70,10 +70,3 @@ export const testimonials = [
     rating: 5,
   },
 ]
-
-export const contactInfo = {
-  address: "Av. Siempre Viva 1234, Buenos Aires",
-  email: "hola@dpbelleza.com",
-  phone: "+54 11 1234-5678",
-  hours: "Lunes a viernes de 9 a 18hs",
-}

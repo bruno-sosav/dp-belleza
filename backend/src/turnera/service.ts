@@ -335,8 +335,6 @@ export async function agendarTurno(input: AgendarTurno): Promise<TurnoCreadoDTO>
     )
     const turnoId = (result as { insertId: number }).insertId
 
-    await programarRecordatorio(conn, turnoId, input.fecha, inicio)
-
     return {
       id: turnoId,
       servicioId: servicio.id,
@@ -349,35 +347,4 @@ export async function agendarTurno(input: AgendarTurno): Promise<TurnoCreadoDTO>
       estado: input.estado,
     }
   })
-}
-
-/**
- * Deja el recordatorio de WhatsApp en la cola.
- *
- * Solo escribe la fila en `recordatorios`: quien los manda es otro proceso que
- * todavía no existe. Si la fecha de envío ya pasó (turno para dentro de menos
- * horas que la anticipación configurada), no se programa nada.
- */
-export async function programarRecordatorio(
-  conn: PoolConnection,
-  turnoId: number,
-  fecha: FechaISO,
-  inicioMin: number,
-): Promise<void> {
-  const horasAntes = await leerConfigNumero("recordatorio_horas_antes", 24)
-  const [y, m, d] = fecha.split("-").map(Number)
-  const envio = new Date(y, m - 1, d, Math.floor(inicioMin / 60), inicioMin % 60)
-  envio.setHours(envio.getHours() - horasAntes)
-
-  if (envio.getTime() <= Date.now()) return
-
-  const pad = (n: number) => String(n).padStart(2, "0")
-  const programado =
-    `${envio.getFullYear()}-${pad(envio.getMonth() + 1)}-${pad(envio.getDate())} ` +
-    `${pad(envio.getHours())}:${pad(envio.getMinutes())}:00`
-
-  await conn.query(
-    "INSERT INTO recordatorios (turno_id, programado_para) VALUES (?, ?)",
-    [turnoId, programado],
-  )
 }

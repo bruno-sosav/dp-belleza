@@ -59,3 +59,12 @@ export function minutosAhora(): number {
 export function seSolapan(a1: number, a2: number, b1: number, b2: number): boolean {
   return a1 < b2 && b1 < a2
 }
+
+const DIAS = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"]
+const MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
+
+/** "2026-10-20" -> "martes 20 de octubre", para los mensajes a las clientas. */
+export function fechaLarga(fecha: FechaISO): string {
+  const [y, m, d] = fecha.split("-").map(Number)
+  return `${DIAS[new Date(y, m - 1, d).getDay()]} ${d} de ${MESES[m - 1]}`
+}
