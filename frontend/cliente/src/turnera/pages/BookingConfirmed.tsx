@@ -1,6 +1,8 @@
 import { Link, useLocation } from "react-router-dom"
 import type { ConfirmedBooking } from "../data/booking"
 import { bookingCode } from "../data/booking"
+import { textoCancelacion } from "../data/miTurno"
+import { useNegocio } from "../../shared/lib/negocio"
 import { parseDateKey } from "../data/availability"
 import { formatPrice } from "@dp/shared/lib/format"
 import { formatDuration, formatLongDate, formatTime } from "../lib/format"
@@ -21,6 +23,7 @@ export default function BookingConfirmed() {
   // Llega por `state` desde Booking. Si se entra directo a la URL (o se
   // recarga en otro navegador) no hay nada que mostrar.
   const confirmed = location.state as ConfirmedBooking | null
+  const negocio = useNegocio()
 
   if (!confirmed) {
     return (
@@ -88,7 +91,17 @@ export default function BookingConfirmed() {
           <h2 className="font-display text-sm font-semibold text-ink">Antes de venir</h2>
           <ul className="mt-3 space-y-2 text-xs leading-relaxed text-ink-soft">
             <li>· Llegá 5 minutos antes para no perder tiempo de sesión.</li>
-            <li>· Si necesitás cancelar o reprogramar, avisanos con 24 hs de anticipación.</li>
+            <li>
+              · Si no podés venir, cancelalo en{" "}
+              <Link
+                to="/mi-turno"
+                state={{ codigo: bookingCode(booking.id), telefono: contact.phone }}
+                className="font-medium text-rose-dark underline"
+              >
+                Mi turno
+              </Link>{" "}
+              con tu código{negocio ? `, ${textoCancelacion(negocio.cancelacionHoras)}` : ""}.
+            </li>
             <li>· El pago se realiza en el local al finalizar el tratamiento.</li>
           </ul>
         </div>

@@ -97,6 +97,11 @@ export default function AdminToday() {
   const sinMarcar = turnos.filter((t) => t.fecha < ahora.fecha && estaAbierto(t))
   const deHoy = turnos.filter((t) => t.fecha === ahora.fecha)
   const proximos = turnos.filter((t) => t.fecha > ahora.fecha && t.estado !== "cancelado")
+  // Las que cancelaron desde la web turnos que todavía no llegaron: la dueña
+  // tiene que enterarse (queda un hueco libre que puede ofrecer).
+  const canceladosWeb = turnos.filter(
+    (t) => t.canceladoPor === "clienta" && (t.fecha > ahora.fecha || (t.fecha === ahora.fecha && t.horaInicio > ahora.hora)),
+  )
 
   const activosHoy = deHoy.filter((t) => t.estado !== "cancelado")
   const siguiente = deHoy.find((t) => estaAbierto(t) && t.horaInicio > ahora.hora)
@@ -164,6 +169,25 @@ export default function AdminToday() {
           </span>
           <span className="shrink-0 font-semibold text-[#14532d]">Ir →</span>
         </Link>
+      )}
+
+      {canceladosWeb.length > 0 && (
+        <Panel
+          title="Cancelaron desde la web"
+          description="Esos horarios ya quedaron libres para otras clientas."
+          className="mt-6 border-[#e9b9b6]"
+        >
+          <ul className="divide-y divide-cream-dark">
+            {canceladosWeb.map((t) => (
+              <li key={t.id} className="flex flex-wrap items-baseline gap-x-3 py-3 text-base">
+                <span className="w-24 shrink-0 text-ink-soft">{t.fecha === ahora.fecha ? "Hoy" : formatShortDate(t.fecha)}</span>
+                <span className="font-semibold tabular-nums text-ink">{t.horaInicio}</span>
+                <span className="text-ink">{nombreCliente(t)}</span>
+                <span className="text-ink-soft">· {t.servicio.nombre}</span>
+              </li>
+            ))}
+          </ul>
+        </Panel>
       )}
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_340px]">

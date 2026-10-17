@@ -16,6 +16,8 @@ configuracionPublica.get("/", async (_req, res) => {
     telefono: c.telefono_negocio ?? "",
     direccion: c.direccion_negocio ?? "",
     email: c.email_negocio ?? "",
+    /** Hasta cuántas horas antes puede cancelar sola desde la web. */
+    cancelacionHoras: Number(c.cancelacion_horas_minimas ?? 24),
     /** null si el local no conectó Mercado Pago. */
     mercadopagoPublicKey: (mp[0]?.public_key as string | undefined) ?? null,
   })

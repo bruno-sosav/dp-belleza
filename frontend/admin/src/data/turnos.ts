@@ -14,6 +14,8 @@ export type EstadoTurno = "reservado" | "confirmado" | "completado" | "ausente" 
 export type Turno = {
   id: number
   estado: EstadoTurno
+  /** Solo en cancelados: "clienta" si lo canceló ella desde la web ("Mi turno"). */
+  canceladoPor: "local" | "clienta" | null
   /** "2026-10-15" */
   fecha: string
   /** "14:30" */

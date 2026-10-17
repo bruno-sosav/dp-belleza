@@ -6,6 +6,7 @@ import { manejarErrores } from "./shared/errors.js"
 import { auth } from "./shared/auth/routes.js"
 import { tienda } from "./ecommerce/routes.js"
 import { turnos } from "./turnera/routes.js"
+import { miTurno } from "./turnera/miTurno.js"
 import { admin } from "./admin/index.js"
 import { configuracionPublica } from "./shared/configuracionRoutes.js"
 import { mercadopagoPublico } from "./shared/mercadopagoRoutes.js"
@@ -25,6 +26,8 @@ app.get("/api/salud", (_req, res) => {
 
 app.use("/api/auth", auth)
 app.use("/api/tienda", tienda)
+// Antes que /api/turnos: si no, "mi-turno" se leería como una ruta de turnos.
+app.use("/api/turnos/mi-turno", miTurno)
 app.use("/api/turnos", turnos)
 app.use("/api/configuracion", configuracionPublica)
 app.use("/api/mercadopago", mercadopagoPublico)

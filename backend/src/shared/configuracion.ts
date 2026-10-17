@@ -24,7 +24,13 @@ export async function leerConfigNumero(clave: string, porDefecto: number): Promi
  * Lo que la web pública puede leer (GET /api/configuracion): datos de
  * contacto. El resto (texto del recordatorio, intervalos) es del panel.
  */
-export const CLAVES_PUBLICAS = ["nombre_negocio", "telefono_negocio", "direccion_negocio", "email_negocio"] as const
+export const CLAVES_PUBLICAS = [
+  "nombre_negocio",
+  "telefono_negocio",
+  "direccion_negocio",
+  "email_negocio",
+  "cancelacion_horas_minimas",
+] as const
 
 export async function leerConfigs(claves?: readonly string[]): Promise<Record<string, string>> {
   const [rows] = await pool.query<RowDataPacket[]>(

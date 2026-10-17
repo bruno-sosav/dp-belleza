@@ -9,8 +9,14 @@ export type DatosCliente = {
   email?: string
 }
 
-// Dado un teléfono, devuelve el id del cliente: si ya existe lo reutiliza (y actualiza sus datos),
-// si no, lo crea. La usan la tienda y la turnera, así la misma persona no queda duplicada.
+// Dado un teléfono, devuelve el id del cliente: si ya existe lo reutiliza, si no, lo crea. La usan
+// la tienda y la turnera, así la misma persona no queda duplicada.
+//
+// Si ya existe, NO se pisan sus datos: solo se completan los que estén vacíos. Antes se
+// reemplazaba el nombre con lo que escribiera la persona en cada reserva o compra, y eso borraba
+// lo que la dueña corrige a mano en la ficha (por ejemplo, "Sofi" -> "Sofía Martínez"). El
+// teléfono es lo que la identifica; el nombre es de la ficha.
+//
 // Va dentro de una transacción: recibe la conexión de quien la llama.
 export async function buscarOCrearCliente(conn: PoolConnection, datos: DatosCliente): Promise<number> {
   const telefono = normalizarTelefono(datos.telefono)
@@ -18,8 +24,8 @@ export async function buscarOCrearCliente(conn: PoolConnection, datos: DatosClie
 
   const [r] = await conn.query<ResultSetHeader>(
     `INSERT INTO clientes (nombre, apellido, telefono, email) VALUES (?, ?, ?, ?)
-     ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID(id), nombre = VALUES(nombre),
-       apellido = COALESCE(VALUES(apellido), apellido), email = COALESCE(VALUES(email), email)`,
+     ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID(id),
+       apellido = COALESCE(apellido, VALUES(apellido)), email = COALESCE(email, VALUES(email))`,
     [datos.nombre, datos.apellido ?? null, telefono, datos.email ?? null],
   )
   return r.insertId

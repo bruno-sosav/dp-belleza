@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { puedeCancelar } from "../src/turnera/miTurno.js"
 import { ocupaAgenda, puedeCambiarEstadoTurno, requiereHaberEmpezado } from "../src/turnera/estados.js"
 
 describe("puedeCambiarEstadoTurno", () => {
@@ -38,5 +39,24 @@ describe("reglas auxiliares", () => {
     expect(ocupaAgenda("completado")).toBe(true)
     expect(ocupaAgenda("cancelado")).toBe(false)
     expect(ocupaAgenda("ausente")).toBe(false)
+  })
+})
+
+describe("puedeCancelar (Mi turno)", () => {
+  it("con más anticipación que el mínimo, sí", () => {
+    expect(puedeCancelar("2026-10-20 10:00:00", "2026-10-18 10:00:00", 24)).toBe(true)
+  })
+  it("justo en el límite, sí", () => {
+    expect(puedeCancelar("2026-10-20 10:00:00", "2026-10-19 10:00:00", 24)).toBe(true)
+  })
+  it("un minuto después del límite, no", () => {
+    expect(puedeCancelar("2026-10-20 10:00:00", "2026-10-19 10:01:00", 24)).toBe(false)
+  })
+  it("con 0 horas, hasta que empieza", () => {
+    expect(puedeCancelar("2026-10-20 10:00:00", "2026-10-20 09:59:00", 0)).toBe(true)
+    expect(puedeCancelar("2026-10-20 10:00:00", "2026-10-20 10:00:00", 0)).toBe(false)
+  })
+  it("cruzando de mes", () => {
+    expect(puedeCancelar("2026-11-01 09:00:00", "2026-10-30 09:00:00", 48)).toBe(true)
   })
 })

@@ -13,6 +13,7 @@ import AdminServices from "./pages/AdminServices"
 import AdminServiceForm from "./pages/AdminServiceForm"
 import AdminSchedule from "./pages/AdminSchedule"
 import AdminClosedDays from "./pages/AdminClosedDays"
+import AdminBookingRules from "./pages/AdminBookingRules"
 import AdminSettings from "./pages/AdminSettings"
 import AdminSettingsMercadoPago from "./pages/AdminSettingsMercadoPago"
 import AdminReminders from "./pages/AdminReminders"
@@ -38,6 +39,7 @@ export default function App() {
         <Route path="/turnos" element={<AdminAgenda />} />
         <Route path="/turnos/horario" element={<AdminSchedule />} />
         <Route path="/turnos/dias-cerrados" element={<AdminClosedDays />} />
+        <Route path="/turnos/reglas" element={<AdminBookingRules />} />
         <Route path="/ventas" element={<AdminSales />} />
         <Route path="/productos" element={<AdminProducts />} />
         <Route path="/productos/nuevo" element={<AdminProductNew />} />

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom"
 import { categoriesOf } from "@dp/shared/data/services"
 import { describeOpenDays, useOpeningHours } from "../data/availability"
 import { useServices } from "../data/services"
+import { useNegocio } from "../../shared/lib/negocio"
 import { InlineError } from "../components/LoadState"
 import CategoryTabs from "../components/CategoryTabs"
 import SectionHeader from "../components/SectionHeader"
@@ -27,6 +28,7 @@ const steps = [
 export default function Services() {
   const services = useServices()
   const hours = useOpeningHours()
+  const negocio = useNegocio()
   const [category, setCategory] = useState<string | null>(null)
 
   const all = useMemo(() => services.data ?? [], [services.data])
@@ -73,8 +75,10 @@ export default function Services() {
               <dd className="mt-0.5 text-xs text-ink-soft">Atención</dd>
             </div>
             <div>
-              <dt className="font-display text-2xl font-semibold text-ink">24 hs</dt>
-              <dd className="mt-0.5 text-xs text-ink-soft">Para cancelar sin cargo</dd>
+              <dt className="font-display text-2xl font-semibold text-ink">
+                {negocio ? (negocio.cancelacionHoras ? `${negocio.cancelacionHoras} hs` : "Hasta el turno") : "—"}
+              </dt>
+              <dd className="mt-0.5 text-xs text-ink-soft">Para cancelar desde la web</dd>
             </div>
             <div>
               <dt className="font-display text-2xl font-semibold text-ink">Sin seña</dt>

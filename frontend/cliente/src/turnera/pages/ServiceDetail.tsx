@@ -2,6 +2,8 @@ import { Link, useParams } from "react-router-dom"
 import { formatPrice } from "@dp/shared/lib/format"
 import { formatDuration } from "../lib/format"
 import { useService, useServices } from "../data/services"
+import { textoCancelacion } from "../data/miTurno"
+import { useNegocio } from "../../shared/lib/negocio"
 import DurationPill from "../components/DurationPill"
 import ServiceImage from "../components/ServiceImage"
 import { PageError, PageLoading } from "../components/LoadState"
@@ -13,6 +15,7 @@ export default function ServiceDetail() {
   const { id } = useParams()
   const current = useService(id)
   const catalog = useServices()
+  const negocio = useNegocio()
 
   if (current.error) return <PageError message={current.error} onRetry={current.reload} />
   if (current.loading) return <PageLoading />
@@ -115,7 +118,7 @@ export default function ServiceDetail() {
           <div className={`${cardClass} mt-6 bg-cream-dark/40`}>
             <ul className="space-y-2 text-xs leading-relaxed text-ink-soft">
               <li>✓ Reserva sin seña — abonás en el local al finalizar</li>
-              <li>✓ Podés cancelar o reprogramar hasta 24 hs antes</li>
+              {negocio && <li>✓ Podés cancelar desde la web {textoCancelacion(negocio.cancelacionHoras)}</li>}
               <li>✓ El turno reserva {formatDuration(service.durationMin)} exclusivos para vos</li>
             </ul>
           </div>

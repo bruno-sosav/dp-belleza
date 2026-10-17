@@ -2,14 +2,13 @@ import PageHeader from "../components/PageHeader"
 import Panel from "../components/Panel"
 import TurnosTabs from "../components/TurnosTabs"
 import EditorHorario from "../components/agenda/EditorHorario"
-import IntervaloTurnos from "../components/agenda/IntervaloTurnos"
 import { Cargando, ErrorCarga } from "../components/EstadoCarga"
 import { useHorarios } from "../data/horarios"
 
 /**
  * Turnos → Horario (/turnos/horario): los días y horas en que se atiende todas
- * las semanas, y cada cuánto se ofrecen horarios en la web. Es lo que decide
- * qué puede reservar una clienta.
+ * las semanas. Es lo que decide qué puede reservar una clienta. Cada cuánto se
+ * ofrecen horarios está en Turnos → Reglas.
  */
 export default function AdminSchedule() {
   const horarios = useHorarios()
@@ -34,7 +33,6 @@ export default function AdminSchedule() {
           )}
         </Panel>
 
-        <IntervaloTurnos />
       </div>
     </div>
   )

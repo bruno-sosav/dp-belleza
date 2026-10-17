@@ -60,7 +60,7 @@ function diasEntre(desde: string, hasta: string): number {
 }
 
 export const SELECT_TURNO = `
-  SELECT t.id, t.estado, t.precio, t.notas, t.fecha_hora_inicio, t.fecha_hora_fin,
+  SELECT t.id, t.estado, t.cancelado_por, t.precio, t.notas, t.fecha_hora_inicio, t.fecha_hora_fin,
          s.id AS servicio_id, s.nombre AS servicio_nombre, s.duracion_min,
          c.id AS cliente_id, c.nombre, c.apellido, c.telefono, c.email
     FROM turnos t
@@ -73,6 +73,8 @@ export function aTurno(r: RowDataPacket) {
   return {
     id: r.id as number,
     estado: r.estado as EstadoTurno,
+    /** Solo en cancelados: "clienta" si lo canceló ella desde la web. */
+    canceladoPor: (r.cancelado_por ?? null) as "local" | "clienta" | null,
     // "2026-10-20 14:30:00" -> fecha y hora por separado. Se cortan strings y
     // no se pasa por Date por lo explicado en shared/db.ts (dateStrings).
     fecha: inicio.slice(0, 10),
@@ -327,7 +329,12 @@ adminTurnos.patch("/turnos/:id/estado", async (req, res) => {
       }
     }
 
-    await conn.query("UPDATE turnos SET estado = ? WHERE id = ?", [estado, id])
+    await conn.query(
+      estado === "cancelado"
+        ? "UPDATE turnos SET estado = ?, cancelado_por = 'local', cancelado_at = NOW() WHERE id = ?"
+        : "UPDATE turnos SET estado = ? WHERE id = ?",
+      [estado, id],
+    )
 
   })
 

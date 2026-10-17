@@ -21,6 +21,8 @@ export type Negocio = {
   email: string
   /** "Lun a Mié 9 a 19 hs · …", o vacío si no se pudo leer. */
   horario: string
+  /** Hasta cuántas horas antes la clienta puede cancelar sola en "Mi turno". */
+  cancelacionHoras: number
 }
 
 let cache: Negocio | null = null
@@ -37,6 +39,7 @@ async function cargar(): Promise<Negocio> {
     direccion: config?.direccion ?? "",
     email: config?.email ?? "",
     horario: horarios ? describeOpeningHours(horarios) : "",
+    cancelacionHoras: Number(config?.cancelacionHoras ?? 24),
   }
 }
 

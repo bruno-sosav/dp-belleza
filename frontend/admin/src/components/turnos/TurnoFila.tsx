@@ -128,6 +128,7 @@ export default function TurnoFila({
         ) : (
           <div className="flex flex-wrap items-center gap-4">
             <EstadoBadge estado={turno.estado} grande />
+            {turno.canceladoPor === "clienta" && <span className="text-base text-ink-soft">Lo canceló la clienta desde la web</span>}
             {(turno.estado === "completado" || turno.estado === "ausente") && (
               <button
                 type="button"

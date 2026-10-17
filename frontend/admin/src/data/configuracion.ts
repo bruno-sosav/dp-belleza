@@ -14,6 +14,8 @@ export type Configuracion = {
   direccion_negocio: string
   email_negocio: string
   intervalo_turnos_min: string
+  /** Hasta cuántas horas antes la clienta puede cancelar desde la web. */
+  cancelacion_horas_minimas: string
 }
 
 export type CambiosConfiguracion = Partial<{
@@ -22,6 +24,7 @@ export type CambiosConfiguracion = Partial<{
   direccion_negocio: string
   email_negocio: string
   intervalo_turnos_min: number
+  cancelacion_horas_minimas: number
 }>
 
 export function useConfiguracion() {
