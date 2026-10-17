@@ -15,6 +15,8 @@ export type Cliente = {
   apellido: string | null
   telefono: string
   email: string | null
+  /** Solo día y mes (el año no hace falta para saludarla). null si no se sabe. */
+  cumple: { dia: number; mes: number } | null
   /** Notas internas de la dueña. La clienta no las ve. */
   notas: string | null
   /** "2026-06-18" */
@@ -52,7 +54,7 @@ export type PedidoDeCliente = {
 
 export type FichaCliente = Cliente & { turnos: TurnoDeCliente[]; pedidos: PedidoDeCliente[] }
 
-export type CambiosCliente = Partial<Pick<Cliente, "nombre" | "apellido" | "telefono" | "email" | "notas">>
+export type CambiosCliente = Partial<Pick<Cliente, "nombre" | "apellido" | "telefono" | "email" | "cumple" | "notas">>
 
 /** Lista, filtrada por nombre o teléfono. `q` vacío trae todas. */
 export function useClientes(q: string) {

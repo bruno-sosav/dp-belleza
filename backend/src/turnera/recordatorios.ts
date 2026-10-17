@@ -39,3 +39,29 @@ export type DatosMensaje = { nombre: string; servicio: string; fecha: string; ho
 export function armarMensaje(plantilla: string, datos: DatosMensaje) {
   return plantilla.replace(/\{(nombre|servicio|fecha|hora|negocio)\}/g, (_, clave: keyof DatosMensaje) => datos[clave])
 }
+
+/**
+ * Cuántos días faltan para el próximo cumpleaños, y de qué año es ese
+ * cumpleaños (con eso se registra que ya se saludó, así el año que viene vuelve
+ * a aparecer). Hoy mismo da 0. Un 29 de febrero se festeja el 28 en los años
+ * que no son bisiestos.
+ */
+export function proximoCumple(hoy: string, dia: number, mes: number): { dias: number; anio: number } {
+  const [y, m, d] = hoy.split("-").map(Number)
+  const base = Date.UTC(y, m - 1, d)
+  const enAnio = (anio: number) => {
+    const bisiesto = (anio % 4 === 0 && anio % 100 !== 0) || anio % 400 === 0
+    const diaReal = mes === 2 && dia === 29 && !bisiesto ? 28 : dia
+    return Date.UTC(anio, mes - 1, diaReal)
+  }
+  const anio = enAnio(y) >= base ? y : y + 1
+  return { dias: Math.round((enAnio(anio) - base) / 86_400_000), anio }
+}
+
+/**
+ * Hasta cuántos días después de la fecha en que "toca" un recordatorio de
+ * después de la visita se lo sigue mostrando. Si la dueña no entra al panel
+ * unos días, no lo pierde; pero una visita de hace un año no aparece de golpe
+ * al crear un tipo nuevo.
+ */
+export const VENTANA_DESPUES_DIAS = 14

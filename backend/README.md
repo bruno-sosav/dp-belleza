@@ -106,6 +106,7 @@ mysql -u dp_dev -p dp_belleza < database/migrations/V2_servicios_campos_del_fron
 mysql -u dp_dev -p dp_belleza < database/migrations/V3_servicios_categoria_libre.sql
 mysql -u dp_dev -p dp_belleza < database/migrations/V4_configuracion_contacto.sql
 mysql -u dp_dev -p dp_belleza < database/migrations/V5_tipos_recordatorio.sql
+mysql -u dp_dev -p dp_belleza < database/migrations/V6_recordatorios_posteriores_cumple_mercadopago.sql
 mysql -u dp_dev -p dp_belleza < database/seeds/seed_01_servicios.sql
 mysql -u dp_dev -p dp_belleza < database/seeds/seed_02_horarios.sql
 mysql -u dp_dev -p dp_belleza < database/seeds/ecommerce-datos-ejemplo.sql
@@ -237,6 +238,40 @@ el header `Authorization: Bearer <token>` (dura 8 horas). `GET /api/auth/yo` dev
   dueña no los marca, la plata no aparece.
 - Estados de pedido: `pendiente → confirmado → entregado`, y `pendiente`/`confirmado → cancelado`.
   Al **cancelar**, el stock vuelve a los productos.
+
+## Mercado Pago
+
+La dueña conecta la cuenta del local en el panel (**Ajustes → Mercado Pago**):
+pega la Public Key y el Access Token, el backend los prueba contra Mercado Pago
+y los guarda en `mercadopago_cuenta`, con el token **cifrado**
+(`src/shared/cifrado.ts`, clave en `CREDENCIALES_KEY` o derivada de
+`JWT_SECRET`). Nunca vuelven enteros al navegador.
+
+Para cobrar, usar `src/shared/mercadopago.ts`:
+
+```ts
+import { crearPreferencia } from "../shared/mercadopago.js"
+
+const { link } = await crearPreferencia({
+  items: [{ titulo: "Crema hidratante", cantidad: 1, precioUnitario: 12000 }],
+  referenciaExterna: `pedido-${pedidoId}`,          // con esto se sabe qué se pagó
+  urlsDeVuelta: { exito: "…/pago/ok", pendiente: "…/pago/pendiente", error: "…/pago/error" },
+  urlNotificacion: "https://<api pública>/api/mercadopago/webhook",
+})
+// redirigir a la clienta a `link` (en modo prueba ya es el link de sandbox)
+```
+
+Cuando cambia un pago, Mercado Pago llama a `POST /api/mercadopago/webhook`: se
+consulta el pago con el token del local (no se confía en el cuerpo), se verifica
+la firma si hay clave secreta cargada, y queda en `mercadopago_pagos` con su
+`referencia_externa`. La web puede preguntar
+`GET /api/mercadopago/estado-pago?referencia=pedido-15` al volver del pago.
+
+**En local el webhook no llega** (Mercado Pago no ve `localhost`). Para probarlo
+hace falta exponer la API, por ejemplo con `ngrok http 3000`, y usar esa URL.
+
+Falta (tienda): crear la preferencia al confirmar un pedido y pasar el pedido a
+`confirmado` cuando el pago llega `approved`.
 
 ## Pendiente de decidir
 

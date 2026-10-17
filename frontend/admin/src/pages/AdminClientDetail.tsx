@@ -9,7 +9,7 @@ import NotasCliente from "../components/clientes/NotasCliente"
 import FormularioCliente from "../components/clientes/FormularioCliente"
 import EliminarCliente from "../components/clientes/EliminarCliente"
 import { Cargando, ErrorCarga } from "../components/EstadoCarga"
-import { formatDayMonth, formatShortDate, formatTelefono } from "../lib/format"
+import { formatCumple, formatDayMonth, formatShortDate, formatTelefono } from "../lib/format"
 import { secondaryButtonClass } from "../lib/styles"
 import { whatsappCliente } from "../lib/whatsapp"
 import { nombreCompleto, useFichaCliente } from "../data/clientes"
@@ -96,6 +96,7 @@ function Ficha({ cliente, recargar }: { cliente: FichaCliente; recargar: () => v
               <h1 className="font-display text-3xl font-semibold text-ink">{nombre}</h1>
               <p className="mt-2 text-xl text-ink">{formatTelefono(cliente.telefono)}</p>
               {cliente.email && <p className="mt-1 text-base text-ink-soft">{cliente.email}</p>}
+              {cliente.cumple && <p className="mt-1 text-base text-ink">🎂 Cumple el {formatCumple(cliente.cumple)}</p>}
               <p className="mt-2 text-sm text-ink-soft">Clienta desde el {formatDayMonth(cliente.clienteDesde)} de {cliente.clienteDesde.slice(0, 4)}</p>
             </div>
             <div className="flex flex-wrap gap-3">

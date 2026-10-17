@@ -2,6 +2,7 @@ import { useState } from "react"
 import type { FormEvent, ReactNode } from "react"
 import PageHeader from "../components/PageHeader"
 import Panel from "../components/Panel"
+import PanelMercadoPago from "../components/PanelMercadoPago"
 import { Cargando, ErrorCarga } from "../components/EstadoCarga"
 import { ApiError } from "../lib/api"
 import { formatTelefono } from "../lib/format"
@@ -23,7 +24,7 @@ export default function AdminSettings() {
 
   return (
     <div>
-      <PageHeader title="Ajustes" description="Tus datos de contacto y cómo se dan los turnos en la web. Los mensajes de recordatorio están en Recordatorios." withPeriod={false} />
+      <PageHeader title="Ajustes" description="Tus datos de contacto, cómo se dan los turnos en la web y Mercado Pago. Los mensajes de recordatorio están en Recordatorios." withPeriod={false} />
       {config.error ? (
         <Panel>
           <ErrorCarga mensaje={config.error} onReintentar={config.recargar} />
@@ -35,6 +36,10 @@ export default function AdminSettings() {
       ) : (
         <Formulario config={config.datos} />
       )}
+
+      <div className="mt-6">
+        <PanelMercadoPago />
+      </div>
     </div>
   )
 }

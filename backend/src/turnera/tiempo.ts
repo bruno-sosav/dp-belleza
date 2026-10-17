@@ -68,3 +68,10 @@ export function fechaLarga(fecha: FechaISO): string {
   const [y, m, d] = fecha.split("-").map(Number)
   return `${DIAS[new Date(y, m - 1, d).getDay()]} ${d} de ${MESES[m - 1]}`
 }
+
+/** "2026-10-17" + 3 -> "2026-10-20". */
+export function sumarDias(fecha: FechaISO, dias: number): FechaISO {
+  const [y, m, d] = fecha.split("-").map(Number)
+  const r = new Date(y, m - 1, d + dias)
+  return `${r.getFullYear()}-${String(r.getMonth() + 1).padStart(2, "0")}-${String(r.getDate()).padStart(2, "0")}`
+}

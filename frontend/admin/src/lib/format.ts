@@ -35,6 +35,14 @@ export function formatLongDate(key: string) {
   return `${weekdayLong[d.getDay()]} ${d.getDate()} de ${monthLong[d.getMonth()]}`
 }
 
+/** { dia: 20, mes: 10 } → "20 de octubre" */
+export function formatCumple(cumple: { dia: number; mes: number }) {
+  return `${cumple.dia} de ${monthLong[cumple.mes - 1]}`
+}
+
+/** Los nombres de los meses, para los desplegables ("enero"…"diciembre"). */
+export const nombresMeses = monthLong
+
 export function monthShortName(monthIndex: number) {
   return monthShort[monthIndex]
 }

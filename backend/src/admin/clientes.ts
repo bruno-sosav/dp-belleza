@@ -30,7 +30,7 @@ const idParam = z.coerce.number().int().positive()
  * Plata: solo turnos `completado` y pedidos que no estén `cancelado`.
  */
 const SELECT_CLIENTE = `
-  SELECT c.id, c.nombre, c.apellido, c.telefono, c.email, c.notas, c.created_at,
+  SELECT c.id, c.nombre, c.apellido, c.telefono, c.email, c.cumple_dia, c.cumple_mes, c.notas, c.created_at,
          COALESCE(t.visitas, 0)        AS visitas,
          COALESCE(t.ausencias, 0)      AS ausencias,
          COALESCE(t.gastado, 0)        AS gastado_turnos,
@@ -66,6 +66,8 @@ function aCliente(r: RowDataPacket) {
     apellido: r.apellido as string | null,
     telefono: r.telefono as string,
     email: r.email as string | null,
+    /** Solo día y mes. null si no se cargó. */
+    cumple: r.cumple_dia ? { dia: r.cumple_dia as number, mes: r.cumple_mes as number } : null,
     notas: r.notas as string | null,
     clienteDesde: String(r.created_at).slice(0, 10),
     visitas: Number(r.visitas),
@@ -171,6 +173,11 @@ const datosCliente = z.object({
   email: z.email().max(150).nullable(),
   // Notas internas de la dueña: la clienta no las ve.
   notas: z.string().trim().max(2000).nullable(),
+  // Solo día y mes (el año no hace falta para saludarla). null = no se sabe.
+  cumple: z
+    .object({ dia: z.number().int().min(1).max(31), mes: z.number().int().min(1).max(12) })
+    .refine(({ dia, mes }) => dia <= [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][mes - 1], "Ese día no existe en ese mes")
+    .nullable(),
 })
 const nuevaCliente = datosCliente.partial().required({ nombre: true, telefono: true })
 const cambiosCliente = datosCliente.partial()
@@ -182,6 +189,10 @@ function aColumnas(datos: z.infer<typeof cambiosCliente>) {
   if (datos.apellido !== undefined) columnas.apellido = datos.apellido || null
   if (datos.email !== undefined) columnas.email = datos.email || null
   if (datos.notas !== undefined) columnas.notas = datos.notas || null
+  if (datos.cumple !== undefined) {
+    columnas.cumple_dia = datos.cumple?.dia ?? null
+    columnas.cumple_mes = datos.cumple?.mes ?? null
+  }
   if (datos.telefono !== undefined) {
     const telefono = normalizarTelefono(datos.telefono)
     if (!telefono) throw malaPeticion("El teléfono no es válido")

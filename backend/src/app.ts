@@ -8,6 +8,7 @@ import { tienda } from "./ecommerce/routes.js"
 import { turnos } from "./turnera/routes.js"
 import { admin } from "./admin/index.js"
 import { configuracionPublica } from "./shared/configuracionRoutes.js"
+import { mercadopagoPublico } from "./shared/mercadopagoRoutes.js"
 
 // Mensajes de validación en español
 z.config(z.locales.es())
@@ -26,6 +27,7 @@ app.use("/api/auth", auth)
 app.use("/api/tienda", tienda)
 app.use("/api/turnos", turnos)
 app.use("/api/configuracion", configuracionPublica)
+app.use("/api/mercadopago", mercadopagoPublico)
 app.use("/api/admin", admin)
 
 app.use((_req, res) => {

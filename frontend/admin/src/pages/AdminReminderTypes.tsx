@@ -2,33 +2,54 @@ import { useRef, useState } from "react"
 import type { FormEvent } from "react"
 import PageHeader from "../components/PageHeader"
 import Panel from "../components/Panel"
+import RecordatoriosTabs from "../components/RecordatoriosTabs"
 import { Cargando, ErrorCarga } from "../components/EstadoCarga"
 import { ApiError } from "../lib/api"
 import { inputClass, labelClass, primaryButtonClass, secondaryButtonClass } from "../lib/styles"
-import RecordatoriosTabs from "../components/RecordatoriosTabs"
-import { actualizarTipo, borrarTipo, crearTipo, formatAnticipacion, useTiposRecordatorio } from "../data/recordatorios"
-import type { TipoRecordatorio } from "../data/recordatorios"
+import { useServiciosAdmin } from "../data/servicios"
+import { actualizarTipo, borrarTipo, crearTipo, describirCuando, formatAnticipacion, useTiposRecordatorio } from "../data/recordatorios"
+import type { DatosTipo, Momento, TipoRecordatorio } from "../data/recordatorios"
 
 const campo = `${inputClass} py-3 text-base`
 
-/** Opciones de "¿Cuándo?": de 1 hora a 1 semana antes del turno. */
-const anticipaciones = [1, 2, 3, 6, 12, 24, 48, 72, 168]
+const momentos: { valor: Momento; titulo: string; ayuda: string }[] = [
+  { valor: "antes", titulo: "⏰ Antes del turno", ayuda: "Para confirmar o recordar un turno que viene." },
+  { valor: "despues", titulo: "🔁 Después de la visita", ayuda: "Para invitarla a volver, por ejemplo a renovar un tratamiento." },
+  { valor: "cumpleanos", titulo: "🎂 Cumpleaños", ayuda: "Para saludarla o mandarle una promo." },
+]
 
+/** Antes del turno: de 1 hora a 1 semana. */
+const horasAntes = [1, 2, 3, 6, 12, 24, 48, 72, 168]
+/** Después de la visita: de una semana a un año. */
+const diasDespues = [7, 14, 21, 28, 30, 45, 60, 90, 180, 365]
+/** Cumpleaños: el mismo día o hasta un mes antes. */
+const diasCumple = [0, 1, 2, 3, 7, 14, 30]
+
+const etiquetaDias = (n: number) =>
+  n === 0 ? "El mismo día" : n === 1 ? "1 día" : n % 7 === 0 && n <= 28 ? (n === 7 ? "1 semana" : `${n / 7} semanas`) : `${n} días`
+
+/** Qué se puede poner en cada mensaje. En un cumpleaños no hay turno: ni servicio ni hora. */
 const variables = [
-  { clave: "{nombre}", label: "Nombre de la clienta", ejemplo: "Sofía" },
-  { clave: "{servicio}", label: "Servicio", ejemplo: "Limpieza facial" },
-  { clave: "{fecha}", label: "Día", ejemplo: "martes 20 de octubre" },
-  { clave: "{hora}", label: "Hora", ejemplo: "14:30" },
-  { clave: "{negocio}", label: "Nombre del local", ejemplo: "Dp.belleza" },
+  { clave: "{nombre}", label: "Nombre de la clienta", ejemplo: "Sofía", momentos: ["antes", "despues", "cumpleanos"] },
+  { clave: "{servicio}", label: "Servicio", ejemplo: "Limpieza facial", momentos: ["antes", "despues"] },
+  { clave: "{fecha}", label: "Día", ejemplo: "martes 20 de octubre", momentos: ["antes", "despues", "cumpleanos"] },
+  { clave: "{hora}", label: "Hora", ejemplo: "14:30", momentos: ["antes", "despues"] },
+  { clave: "{negocio}", label: "Nombre del local", ejemplo: "Dp.belleza", momentos: ["antes", "despues", "cumpleanos"] },
 ]
 
 const ejemplo = (plantilla: string) => variables.reduce((texto, v) => texto.replaceAll(v.clave, v.ejemplo), plantilla)
 
+const textoInicial: Record<Momento, string> = {
+  antes: "Hola {nombre}! Te escribimos de {negocio} por tu turno de {servicio} el {fecha} a las {hora}.",
+  despues: "Hola {nombre}! ¿Cómo te fue con {servicio}? Si querés, te reservamos el próximo turno.",
+  cumpleanos: "¡Feliz cumpleaños {nombre}! 🎂 De regalo tenés un 15% en tu próximo turno en {negocio}.",
+}
+
 /**
  * Recordatorios → Mensajes (/recordatorios/mensajes).
  *
- * Cada tipo es una regla: "a las clientas con turno dentro de X horas,
- * mandales este mensaje". La pestaña Para mandar muestra a quién le toca.
+ * Cada tipo es una regla: "a las clientas que cumplen tal cosa, mandales este
+ * mensaje". La pestaña Para mandar muestra a quién le toca hoy.
  */
 export default function AdminReminderTypes() {
   const tipos = useTiposRecordatorio()
@@ -44,7 +65,7 @@ export default function AdminReminderTypes() {
     <div>
       <PageHeader
         title="Recordatorios"
-        description="Qué mensaje mandar y cuánto antes del turno. Podés tener varios, por ejemplo una confirmación 2 días antes y un recordatorio el día anterior."
+        description="Qué mensaje mandar y cuándo: antes de un turno, unos días después de la visita o por el cumpleaños."
         withPeriod={false}
         action={<RecordatoriosTabs />}
       />
@@ -85,9 +106,11 @@ export default function AdminReminderTypes() {
             </button>
           )}
 
-          <p className="text-sm text-ink-soft">
-            Si a un turno le tocan dos a la vez (por ejemplo, alguien que reservó para mañana), en Para mandar aparece solo el más cercano al turno, así no le llegan dos mensajes.
-          </p>
+          <ul className="space-y-1 text-sm text-ink-soft">
+            <li>· Si a un turno le tocan dos a la vez (por ejemplo, alguien que reservó para mañana), aparece solo el más cercano, así no le llegan dos mensajes.</li>
+            <li>· Los de después de la visita no aparecen si la clienta ya tiene otro turno pedido.</li>
+            <li>· Los de cumpleaños aparecen solo para las clientas que tienen el cumpleaños cargado en su ficha.</li>
+          </ul>
         </div>
       )}
     </div>
@@ -112,8 +135,8 @@ function TarjetaTipo({ tipo, onEditar, onBorrado }: { tipo: TipoRecordatorio; on
       <div className="flex flex-wrap items-start gap-4">
         <div className="min-w-0 flex-1">
           <p className="text-xl font-semibold text-ink">{tipo.nombre}</p>
-          <p className="mt-0.5 inline-block rounded-full bg-rose/30 px-3 py-0.5 text-base font-medium text-ink">
-            {formatAnticipacion(tipo.horasAntes)} del turno
+          <p className="mt-1 inline-block rounded-full bg-rose/30 px-3 py-0.5 text-base font-medium text-ink">
+            {momentos.find((m) => m.valor === tipo.momento)?.titulo.split(" ")[0]} {describirCuando(tipo)}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -152,14 +175,24 @@ function TarjetaTipo({ tipo, onEditar, onBorrado }: { tipo: TipoRecordatorio; on
 }
 
 function FormularioTipo({ tipo, onGuardado, onCancelar }: { tipo?: TipoRecordatorio; onGuardado: () => void; onCancelar: () => void }) {
+  const [momento, setMomento] = useState<Momento>(tipo?.momento ?? "antes")
   const [nombre, setNombre] = useState(tipo?.nombre ?? "")
   const [horas, setHoras] = useState(tipo?.horasAntes ?? 24)
-  const [mensaje, setMensaje] = useState(
-    tipo?.mensaje ?? "Hola {nombre}! Te escribimos de {negocio} por tu turno de {servicio} el {fecha} a las {hora}.",
-  )
+  const [dias, setDias] = useState(tipo?.dias ?? (tipo?.momento === "cumpleanos" ? 0 : 21))
+  const [servicioId, setServicioId] = useState<number | null>(tipo?.servicio?.id ?? null)
+  const [mensaje, setMensaje] = useState(tipo?.mensaje ?? textoInicial.antes)
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const mensajeRef = useRef<HTMLTextAreaElement>(null)
+  const servicios = useServiciosAdmin()
+
+  /** Al cambiar de momento en uno nuevo, el texto de ejemplo y los días acompañan (si no lo tocó). */
+  function elegirMomento(m: Momento) {
+    if (!tipo && Object.values(textoInicial).includes(mensaje)) setMensaje(textoInicial[m])
+    if (m === "cumpleanos" && !diasCumple.includes(dias)) setDias(0)
+    if (m === "despues" && !diasDespues.includes(dias)) setDias(21)
+    setMomento(m)
+  }
 
   /** Inserta la variable donde está el cursor, así no tiene que escribir las llaves. */
   function insertar(clave: string) {
@@ -177,8 +210,14 @@ function FormularioTipo({ tipo, onGuardado, onCancelar }: { tipo?: TipoRecordato
     e.preventDefault()
     setGuardando(true)
     setError(null)
+    const base = { nombre: nombre.trim(), mensaje: mensaje.trim() }
+    const datos: DatosTipo =
+      momento === "antes"
+        ? { ...base, momento, horasAntes: horas }
+        : momento === "despues"
+          ? { ...base, momento, dias, servicioId }
+          : { ...base, momento, dias }
     try {
-      const datos = { nombre: nombre.trim(), horasAntes: horas, mensaje: mensaje.trim() }
       if (tipo) await actualizarTipo(tipo.id, datos)
       else await crearTipo(datos)
       onGuardado()
@@ -194,24 +233,83 @@ function FormularioTipo({ tipo, onGuardado, onCancelar }: { tipo?: TipoRecordato
     }
   }
 
+  const opcionesDias = momento === "despues" ? diasDespues : diasCumple
+  const visibles = variables.filter((v) => v.momentos.includes(momento))
+
   return (
     <form onSubmit={guardar} className="space-y-5">
+      <fieldset>
+        <legend className={`${labelClass} text-base`}>¿Cuándo se manda?</legend>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+          {momentos.map((m) => (
+            <button
+              key={m.valor}
+              type="button"
+              onClick={() => elegirMomento(m.valor)}
+              aria-pressed={momento === m.valor}
+              className={`rounded-xl border p-3 text-left transition ${
+                momento === m.valor ? "border-ink bg-ink text-cream" : "border-cream-dark bg-surface text-ink hover:border-rose-dark"
+              }`}
+            >
+              <span className="block text-base font-semibold">{m.titulo}</span>
+              <span className={`mt-0.5 block text-sm ${momento === m.valor ? "text-cream/80" : "text-ink-soft"}`}>{m.ayuda}</span>
+            </button>
+          ))}
+        </div>
+      </fieldset>
+
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <div>
           <label htmlFor="tr-nombre" className={`${labelClass} text-base`}>Nombre</label>
-          <input id="tr-nombre" required maxLength={100} placeholder="Ej: Confirmación del turno" value={nombre} onChange={(e) => setNombre(e.target.value)} className={campo} />
+          <input id="tr-nombre" required maxLength={100} placeholder="Ej: Renovar depilación" value={nombre} onChange={(e) => setNombre(e.target.value)} className={campo} />
           <p className="mt-1.5 text-sm text-ink-soft">Solo lo ves vos, para saber cuál es cuál.</p>
         </div>
-        <div>
-          <label htmlFor="tr-horas" className={`${labelClass} text-base`}>¿Cuándo se manda?</label>
-          <select id="tr-horas" value={horas} onChange={(e) => setHoras(Number(e.target.value))} className={campo}>
-            {(anticipaciones.includes(horas) ? anticipaciones : [...anticipaciones, horas].sort((a, b) => a - b)).map((h) => (
-              <option key={h} value={h}>
-                {h === 168 ? "1 semana antes" : formatAnticipacion(h)}
-              </option>
-            ))}
-          </select>
-        </div>
+
+        {momento === "antes" ? (
+          <div>
+            <label htmlFor="tr-horas" className={`${labelClass} text-base`}>¿Cuánto antes del turno?</label>
+            <select id="tr-horas" value={horas} onChange={(e) => setHoras(Number(e.target.value))} className={campo}>
+              {(horasAntes.includes(horas) ? horasAntes : [...horasAntes, horas].sort((a, b) => a - b)).map((h) => (
+                <option key={h} value={h}>
+                  {formatAnticipacion(h)}
+                </option>
+              ))}
+            </select>
+          </div>
+        ) : (
+          <div>
+            <label htmlFor="tr-dias" className={`${labelClass} text-base`}>
+              {momento === "despues" ? "¿Cuánto después de la visita?" : "¿Cuánto antes del cumpleaños?"}
+            </label>
+            <select id="tr-dias" value={dias} onChange={(e) => setDias(Number(e.target.value))} className={campo}>
+              {(opcionesDias.includes(dias) ? opcionesDias : [...opcionesDias, dias].sort((a, b) => a - b)).map((d) => (
+                <option key={d} value={d}>
+                  {d === 0 ? "El mismo día" : `${etiquetaDias(d)} ${momento === "despues" ? "después" : "antes"}`}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {momento === "despues" && (
+          <div className="sm:col-span-2">
+            <label htmlFor="tr-servicio" className={`${labelClass} text-base`}>¿Para qué servicio?</label>
+            <select
+              id="tr-servicio"
+              value={servicioId ?? ""}
+              onChange={(e) => setServicioId(e.target.value ? Number(e.target.value) : null)}
+              className={`${campo} sm:max-w-md`}
+            >
+              <option value="">Cualquier servicio</option>
+              {(servicios.datos ?? []).map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
+            <p className="mt-1.5 text-sm text-ink-soft">Por ejemplo, depilación láser cada 21 días. Se cuenta desde la última visita de ese servicio.</p>
+          </div>
+        )}
       </div>
 
       <div>
@@ -219,7 +317,7 @@ function FormularioTipo({ tipo, onGuardado, onCancelar }: { tipo?: TipoRecordato
         <textarea id="tr-mensaje" ref={mensajeRef} required rows={4} maxLength={1000} value={mensaje} onChange={(e) => setMensaje(e.target.value)} className={`${campo} resize-y`} />
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <span className="text-sm text-ink-soft">Agregar:</span>
-          {variables.map((v) => (
+          {visibles.map((v) => (
             <button
               key={v.clave}
               type="button"
@@ -230,6 +328,7 @@ function FormularioTipo({ tipo, onGuardado, onCancelar }: { tipo?: TipoRecordato
             </button>
           ))}
         </div>
+        {momento === "cumpleanos" && <p className="mt-1.5 text-sm text-ink-soft">En un cumpleaños, el día es el del cumpleaños.</p>}
         <div className="mt-4 rounded-xl bg-[#dcf2e3] p-4">
           <p className="text-sm font-medium text-[#14532d]">Así le llega a la clienta:</p>
           <p className="mt-1 whitespace-pre-line text-base text-ink">{ejemplo(mensaje) || "—"}</p>

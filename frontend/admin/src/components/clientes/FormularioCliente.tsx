@@ -1,7 +1,7 @@
 import { useState } from "react"
 import type { FormEvent } from "react"
 import { ApiError } from "../../lib/api"
-import { formatTelefono } from "../../lib/format"
+import { formatTelefono, nombresMeses } from "../../lib/format"
 import { inputClass, labelClass, primaryButtonClass, secondaryButtonClass } from "../../lib/styles"
 import { actualizarCliente, crearCliente } from "../../data/clientes"
 import type { Cliente } from "../../data/clientes"
@@ -28,6 +28,9 @@ export default function FormularioCliente({
   const [apellido, setApellido] = useState(cliente?.apellido ?? "")
   const [telefono, setTelefono] = useState(cliente ? formatTelefono(cliente.telefono) : "")
   const [email, setEmail] = useState(cliente?.email ?? "")
+  // Día y mes por separado, como dos desplegables: nada de escribir fechas.
+  const [cumpleDia, setCumpleDia] = useState(cliente?.cumple ? String(cliente.cumple.dia) : "")
+  const [cumpleMes, setCumpleMes] = useState(cliente?.cumple ? String(cliente.cumple.mes) : "")
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -35,12 +38,18 @@ export default function FormularioCliente({
     e.preventDefault()
     setGuardando(true)
     setError(null)
+    if (Boolean(cumpleDia) !== Boolean(cumpleMes)) {
+      setError("Para el cumpleaños elegí el día y el mes (o dejá los dos vacíos).")
+      setGuardando(false)
+      return
+    }
     try {
       const datos = {
         nombre: nombre.trim(),
         apellido: apellido.trim() || null,
         telefono: telefono.trim(),
         email: email.trim() || null,
+        cumple: cumpleDia && cumpleMes ? { dia: Number(cumpleDia), mes: Number(cumpleMes) } : null,
       }
       onGuardado(cliente ? await actualizarCliente(cliente.id, datos) : await crearCliente(datos))
     } catch (err) {
@@ -71,6 +80,29 @@ export default function FormularioCliente({
           <label htmlFor="cli-email" className={`${labelClass} text-base`}>Email <span className="font-normal text-ink-soft">(opcional)</span></label>
           <input id="cli-email" type="email" maxLength={150} value={email} onChange={(e) => setEmail(e.target.value)} className={campo} />
         </div>
+        <fieldset className="sm:col-span-2">
+          <legend className={`${labelClass} text-base`}>
+            Cumpleaños <span className="font-normal text-ink-soft">(opcional, para saludarla o mandarle una promo)</span>
+          </legend>
+          <div className="flex flex-wrap gap-3">
+            <select aria-label="Día del cumpleaños" value={cumpleDia} onChange={(e) => setCumpleDia(e.target.value)} className={`${campo} w-28`}>
+              <option value="">Día</option>
+              {Array.from({ length: 31 }, (_, i) => (
+                <option key={i + 1} value={i + 1}>
+                  {i + 1}
+                </option>
+              ))}
+            </select>
+            <select aria-label="Mes del cumpleaños" value={cumpleMes} onChange={(e) => setCumpleMes(e.target.value)} className={`${campo} w-48`}>
+              <option value="">Mes</option>
+              {nombresMeses.map((m, i) => (
+                <option key={m} value={i + 1}>
+                  {m}
+                </option>
+              ))}
+            </select>
+          </div>
+        </fieldset>
       </div>
 
       {error && (
@@ -95,7 +127,7 @@ export default function FormularioCliente({
 function mensajeDeError(err: ApiError) {
   const detalle = err.detalle as { campo: string; mensaje: string }[] | undefined
   if (Array.isArray(detalle) && detalle[0]) {
-    const campos: Record<string, string> = { nombre: "el nombre", telefono: "el teléfono", email: "el email", apellido: "el apellido" }
+    const campos: Record<string, string> = { nombre: "el nombre", telefono: "el teléfono", email: "el email", apellido: "el apellido", cumple: "el cumpleaños" }
     return `Revisá ${campos[detalle[0].campo] ?? "los datos"}: ${detalle[0].mensaje.toLowerCase()}.`
   }
   return err.message

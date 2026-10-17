@@ -4,8 +4,8 @@ import RecordatoriosTabs from "../components/RecordatoriosTabs"
 import Panel from "../components/Panel"
 import IconoWhatsApp from "../components/IconoWhatsApp"
 import { Cargando, ErrorCarga } from "../components/EstadoCarga"
-import { sumarDias } from "../lib/fechas"
-import { formatLongDate } from "../lib/format"
+import { fromDateKey, sumarDias } from "../lib/fechas"
+import { formatCumple, formatLongDate } from "../lib/format"
 import { secondaryButtonClass } from "../lib/styles"
 import { useAhora } from "../lib/useAhora"
 import { whatsappCliente } from "../lib/whatsapp"
@@ -17,7 +17,7 @@ import type { AvisoParaMandar } from "../data/recordatorios"
  * Recordatorios → Para mandar (/recordatorios).
  *
  * Las clientas a las que hoy les toca un aviso, según los tipos de la pestaña
- * Mensajes. Un toque en el botón verde abre WhatsApp en su chat con el mensaje
+ * Mensajes: antes de un turno, después de una visita o por su cumpleaños. Un toque en el botón verde abre WhatsApp en su chat con el mensaje
  * escrito: solo queda apretar enviar. El panel no puede saber si lo envió, así
  * que lo da por mandado y abajo queda "Deshacer" por si fue sin querer.
  */
@@ -36,12 +36,27 @@ export default function AdminReminders() {
     recordatorios.recargar()
   }
 
-  const cuando = (fecha: string, hora: string) => {
-    if (fecha === ahora.fecha) return `Hoy a las ${hora}`
-    if (fecha === sumarDias(ahora.fecha, 1)) return `Mañana a las ${hora}`
-    if (fecha === sumarDias(ahora.fecha, 2)) return `Pasado mañana a las ${hora}`
-    const largo = formatLongDate(fecha)
-    return `${largo.charAt(0).toUpperCase()}${largo.slice(1)} a las ${hora}`
+  /** El renglón de contexto de cada aviso, según el momento. */
+  const detalle = (a: AvisoParaMandar) => {
+    if (a.momento === "cumpleanos" && a.cumple) {
+      const cuando = a.cumple.faltan === 0 ? "¡Hoy!" : a.cumple.faltan === 1 ? "mañana" : `en ${a.cumple.faltan} días`
+      return `🎂 Cumple el ${formatCumple(a.cumple)} · ${cuando}`
+    }
+    if (!a.turno) return ""
+    if (a.momento === "despues") {
+      const hace = Math.round((fromDateKey(ahora.fecha).getTime() - fromDateKey(a.turno.fecha).getTime()) / 86_400_000)
+      return `Vino hace ${hace} días · ${a.turno.servicio}`
+    }
+    const { fecha, hora } = a.turno
+    const dia =
+      fecha === ahora.fecha
+        ? "Hoy"
+        : fecha === sumarDias(ahora.fecha, 1)
+          ? "Mañana"
+          : fecha === sumarDias(ahora.fecha, 2)
+            ? "Pasado mañana"
+            : formatLongDate(fecha).replace(/^./, (c) => c.toUpperCase())
+    return `${dia} a las ${hora} · ${a.turno.servicio}`
   }
 
   const { datos } = recordatorios
@@ -92,19 +107,17 @@ export default function AdminReminders() {
               <Panel key={g.nombre} title={`${g.nombre} (${g.avisos.length})`}>
                 <ul className="divide-y divide-cream-dark">
                   {g.avisos.map((a) => (
-                    <li key={`${a.turno.id}-${a.tipo.id}`} className="py-4">
+                    <li key={`${a.tipo.id}-${a.turno?.id ?? `c${a.cliente.id}`}`} className="py-4">
                       <div className="flex flex-wrap items-center gap-3">
                         <div className="min-w-0 flex-1">
                           <p className="text-xl font-semibold text-ink">{nombreCompleto(a.cliente)}</p>
-                          <p className="text-base text-ink-soft">
-                            {cuando(a.turno.fecha, a.turno.hora)} · {a.turno.servicio}
-                          </p>
+                          <p className="text-base text-ink-soft">{detalle(a)}</p>
                         </div>
                         <a
                           href={whatsappCliente(a.cliente.telefono, a.mensaje)}
                           target="_blank"
                           rel="noopener noreferrer"
-                          onClick={() => void hacer(() => registrarAviso(a.turno.id, a.tipo.id, "enviado"))}
+                          onClick={() => void hacer(() => registrarAviso(a, "enviado"))}
                           className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-[#25d366] px-5 text-base font-semibold text-white transition hover:bg-[#1da851]"
                         >
                           <IconoWhatsApp className="h-5 w-5" />
@@ -112,7 +125,7 @@ export default function AdminReminders() {
                         </a>
                         <button
                           type="button"
-                          onClick={() => void hacer(() => registrarAviso(a.turno.id, a.tipo.id, "omitido"))}
+                          onClick={() => void hacer(() => registrarAviso(a, "omitido"))}
                           title="Por ejemplo, si ya hablaste con ella"
                           className={`${secondaryButtonClass} min-h-12 px-4 text-base`}
                         >
@@ -136,7 +149,7 @@ export default function AdminReminders() {
                       {h.estado === "enviado" ? "✓" : "—"} {nombreCompleto(h.cliente)}
                       <span className="text-ink-soft">
                         {" "}
-                        · {h.tipo.nombre} · {h.estado === "enviado" ? "mandado" : "no hacía falta"}
+                        · {h.tipo} · {h.estado === "enviado" ? "mandado" : "no hacía falta"}
                       </span>
                     </p>
                     <button

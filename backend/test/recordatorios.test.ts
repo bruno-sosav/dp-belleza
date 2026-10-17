@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { armarMensaje, avisoQueToca } from "../src/turnera/recordatorios.js"
+import { armarMensaje, avisoQueToca, proximoCumple } from "../src/turnera/recordatorios.js"
 import { fechaLarga } from "../src/turnera/tiempo.js"
 
 const confirmacion = { id: 1, horasAntes: 48 }
@@ -60,5 +60,28 @@ describe("fechaLarga", () => {
   it("da el día de la semana y el mes en castellano", () => {
     expect(fechaLarga("2026-10-20")).toBe("martes 20 de octubre")
     expect(fechaLarga("2026-11-01")).toBe("domingo 1 de noviembre")
+  })
+})
+
+describe("proximoCumple", () => {
+  it("hoy es su cumpleaños: 0 días, este año", () => {
+    expect(proximoCumple("2026-10-17", 17, 10)).toEqual({ dias: 0, anio: 2026 })
+  })
+
+  it("falta poco este año", () => {
+    expect(proximoCumple("2026-10-17", 24, 10)).toEqual({ dias: 7, anio: 2026 })
+  })
+
+  it("ya pasó: es el del año que viene", () => {
+    expect(proximoCumple("2026-10-17", 16, 10)).toEqual({ dias: 364, anio: 2027 })
+  })
+
+  it("cruza el fin de año", () => {
+    expect(proximoCumple("2026-12-30", 2, 1)).toEqual({ dias: 3, anio: 2027 })
+  })
+
+  it("29 de febrero en un año no bisiesto se festeja el 28", () => {
+    expect(proximoCumple("2027-02-20", 29, 2)).toEqual({ dias: 8, anio: 2027 })
+    expect(proximoCumple("2028-02-20", 29, 2)).toEqual({ dias: 9, anio: 2028 })
   })
 })
