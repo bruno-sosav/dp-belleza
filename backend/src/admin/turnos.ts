@@ -50,7 +50,7 @@ function diasEntre(desde: string, hasta: string): number {
   return Math.round((Date.UTC(y2, m2 - 1, d2) - Date.UTC(y1, m1 - 1, d1)) / 86_400_000)
 }
 
-const SELECT_TURNO = `
+export const SELECT_TURNO = `
   SELECT t.id, t.estado, t.precio, t.notas, t.fecha_hora_inicio, t.fecha_hora_fin,
          s.id AS servicio_id, s.nombre AS servicio_nombre, s.duracion_min,
          c.id AS cliente_id, c.nombre, c.apellido, c.telefono, c.email
@@ -58,7 +58,7 @@ const SELECT_TURNO = `
     JOIN servicios s ON s.id = t.servicio_id
     JOIN clientes  c ON c.id = t.cliente_id`
 
-function aTurno(r: RowDataPacket) {
+export function aTurno(r: RowDataPacket) {
   const inicio = String(r.fecha_hora_inicio)
   const fin = String(r.fecha_hora_fin)
   return {

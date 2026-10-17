@@ -26,7 +26,7 @@ export class ApiError extends Error {
 }
 
 type Opciones = {
-  metodo?: "GET" | "POST" | "PATCH" | "DELETE"
+  metodo?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
   cuerpo?: unknown
   /** Parámetros de query; los `undefined` se descartan. */
   query?: Record<string, string | number | undefined>

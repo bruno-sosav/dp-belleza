@@ -11,6 +11,7 @@ import AdminProducts from "./pages/AdminProducts"
 import AdminProductNew from "./pages/AdminProductNew"
 import AdminServices from "./pages/AdminServices"
 import AdminServiceForm from "./pages/AdminServiceForm"
+import AdminSchedule from "./pages/AdminSchedule"
 
 /**
  * Rutas del panel (admin.dpbelleza.com.ar).
@@ -30,6 +31,7 @@ export default function App() {
         <Route path="/finanzas" element={<AdminFinances />} />
         <Route path="/finanzas/turnos" element={<AdminBookingStats />} />
         <Route path="/turnos" element={<AdminAgenda />} />
+        <Route path="/turnos/horario" element={<AdminSchedule />} />
         <Route path="/ventas" element={<AdminSales />} />
         <Route path="/productos" element={<AdminProducts />} />
         <Route path="/productos/nuevo" element={<AdminProductNew />} />

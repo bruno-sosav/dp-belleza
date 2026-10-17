@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react"
+import { Link } from "react-router-dom"
 import PageHeader from "../components/PageHeader"
 import Panel from "../components/Panel"
 import SemanaGrilla from "../components/agenda/SemanaGrilla"
@@ -13,7 +14,8 @@ import { primaryButtonClass, secondaryButtonClass } from "../lib/styles"
 import { useAhora } from "../lib/useAhora"
 import { useAgenda } from "../data/turnos"
 import type { EstadoTurno, Turno } from "../data/turnos"
-import { useHorarios } from "../data/horarios"
+import { useBloqueos, useHorarios } from "../data/horarios"
+import { bloqueoEnElDia } from "../lib/bloqueos"
 
 const leyenda: { estado: EstadoTurno; label: string }[] = [
   { estado: "reservado", label: "Reservado" },
@@ -50,6 +52,7 @@ export default function AdminAgenda() {
   const dias = Array.from({ length: 7 }, (_, i) => sumarDias(lunes, i))
   const agenda = useAgenda(dias[0], dias[6])
   const horarios = useHorarios()
+  const bloqueos = useBloqueos(dias[0], dias[6])
   const cerrarModal = useCallback(() => setElegidoId(null), [])
   const cerrarNuevo = useCallback(() => setNuevo(null), [])
 
@@ -95,13 +98,18 @@ export default function AdminAgenda() {
         </button>
         <h2 className="ml-1 font-display text-2xl font-semibold text-ink">{formatRangoSemana(dias[0], dias[6])}</h2>
         {agenda.cargando && agenda.turnos && <span className="text-sm text-ink-soft">Actualizando…</span>}
-        <button
-          type="button"
-          onClick={() => setNuevo({ fecha: diaMovil > ahora.fecha ? diaMovil : ahora.fecha })}
-          className={`${primaryButtonClass} min-h-12 px-5 text-base sm:ml-auto`}
-        >
-          + Nuevo turno
-        </button>
+        <div className="flex flex-wrap gap-3 sm:ml-auto">
+          <Link to="/turnos/horario" className={botonNav}>
+            Horario y días cerrados
+          </Link>
+          <button
+            type="button"
+            onClick={() => setNuevo({ fecha: diaMovil > ahora.fecha ? diaMovil : ahora.fecha })}
+            className={`${primaryButtonClass} min-h-12 px-5 text-base`}
+          >
+            + Nuevo turno
+          </button>
+        </div>
       </div>
 
       <Panel>
@@ -113,7 +121,7 @@ export default function AdminAgenda() {
           <>
             {/* Computadora: la semana entera */}
             <div className="hidden md:block">
-              <SemanaGrilla dias={dias} turnos={visibles} horarios={horarios.datos ?? []} ahora={ahora} onElegir={(t) => setElegidoId(t.id)} onHueco={(fecha, hora) => setNuevo({ fecha, hora })} />
+              <SemanaGrilla dias={dias} turnos={visibles} horarios={horarios.datos ?? []} bloqueos={bloqueos.datos ?? []} ahora={ahora} onElegir={(t) => setElegidoId(t.id)} onHueco={(fecha, hora) => setNuevo({ fecha, hora })} />
             </div>
 
             {/* Celular: un día a la vez */}
@@ -138,6 +146,14 @@ export default function AdminAgenda() {
                   )
                 })}
               </div>
+              {(bloqueos.datos ?? [])
+                .filter((b) => bloqueoEnElDia(b, diaMovil))
+                .map((b) => (
+                  <p key={b.id} className="mb-4 rounded-xl bg-cream-dark px-4 py-3 text-base text-ink">
+                    🚫 Cerrado {bloqueoEnElDia(b, diaMovil)?.desde === 0 && bloqueoEnElDia(b, diaMovil)?.hasta === 24 * 60 ? "todo el día" : "un rato"}
+                    {b.motivo && <span className="text-ink-soft"> · {b.motivo}</span>}
+                  </p>
+                ))}
               {delDiaMovil.length ? (
                 <ul className="space-y-4">
                   {delDiaMovil.map((t) => (

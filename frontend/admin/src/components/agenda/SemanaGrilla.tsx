@@ -4,7 +4,8 @@ import { weekdayShort } from "../../lib/format"
 import type { Ahora } from "../../lib/useAhora"
 import { nombreCliente } from "../../data/turnos"
 import type { Turno } from "../../data/turnos"
-import type { Horario } from "../../data/horarios"
+import type { Bloqueo, Horario } from "../../data/horarios"
+import { bloqueoEnElDia } from "../../lib/bloqueos"
 
 /** Alto de una hora en la grilla. Generoso a propósito: un turno de 30 minutos tiene que poder leerse. */
 const PX_POR_HORA = 80
@@ -37,6 +38,7 @@ export default function SemanaGrilla({
   dias,
   turnos,
   horarios,
+  bloqueos,
   ahora,
   onElegir,
   onHueco,
@@ -45,6 +47,8 @@ export default function SemanaGrilla({
   dias: string[]
   turnos: Turno[]
   horarios: Horario[]
+  /** Días cerrados de esa semana: se dibujan rayados encima del horario. */
+  bloqueos: Bloqueo[]
   ahora: Ahora
   onElegir: (turno: Turno) => void
   /** Tocaron un espacio de la grilla: "2026-10-20", "14:30". */
@@ -115,6 +119,25 @@ export default function SemanaGrilla({
                   style={{ top: y(aMinutos(h.desde)), height: y(aMinutos(h.hasta)) - y(aMinutos(h.desde)) }}
                 />
               ))}
+              {/* Días cerrados (feriados, vacaciones): rayados, con el motivo */}
+              {bloqueos.map((b) => {
+                const rango = bloqueoEnElDia(b, fecha)
+                if (!rango) return null
+                const top = Math.max(y(rango.desde), 0)
+                const bottom = Math.min(y(rango.hasta), alto)
+                if (bottom <= top) return null
+                return (
+                  <div
+                    key={b.id}
+                    className="pointer-events-none absolute inset-x-0 z-[1] overflow-hidden bg-[repeating-linear-gradient(135deg,rgba(34,38,31,0.07)_0_8px,transparent_8px_16px)] bg-cream-dark/80 px-2 py-1"
+                    style={{ top, height: bottom - top }}
+                  >
+                    <p className="text-sm font-semibold text-ink-soft">Cerrado</p>
+                    {b.motivo && <p className="truncate text-xs text-ink-soft">{b.motivo}</p>}
+                  </div>
+                )
+              })}
+
               {abierto.length === 0 && delDia.length === 0 && (
                 <p className="absolute inset-x-0 top-6 text-center text-sm font-medium text-ink-soft">Cerrado</p>
               )}
