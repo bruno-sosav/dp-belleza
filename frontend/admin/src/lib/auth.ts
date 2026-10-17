@@ -90,6 +90,16 @@ export async function iniciarSesion(email: string, password: string): Promise<Us
   return usuario
 }
 
+/** Evento que avisa que cambió el usuario de la sesión (por ejemplo, su nombre en Ajustes → Tu cuenta). */
+export const EVENTO_SESION = "dp-sesion"
+
+/** Reemplaza el token y el usuario de la sesión abierta, sin volver a pedir login. */
+export function actualizarSesion(token: string, usuario: Usuario) {
+  guardar(CLAVE_TOKEN, token)
+  guardar(CLAVE_USUARIO, JSON.stringify(usuario))
+  window.dispatchEvent(new Event(EVENTO_SESION))
+}
+
 export function cerrarSesion() {
   try {
     sessionStorage.removeItem(CLAVE_TOKEN)

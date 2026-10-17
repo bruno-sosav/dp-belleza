@@ -250,6 +250,7 @@ export async function crearTurno(input: NuevoTurno): Promise<TurnoCreadoDTO> {
         apellido: partes.length > 1 ? partes[partes.length - 1] : undefined,
         telefono: input.contacto.telefono,
         email: input.contacto.email,
+        cumple: input.contacto.cumple,
       })
     },
   })

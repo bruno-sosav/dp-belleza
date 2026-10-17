@@ -43,6 +43,7 @@ export default function AdminSettings() {
 function Formulario({ config }: { config: Configuracion }) {
   const [nombre, setNombre] = useState(config.nombre_negocio)
   const [telefono, setTelefono] = useState(config.telefono_negocio ? formatTelefono(config.telefono_negocio) : "")
+  const [codigoArea, setCodigoArea] = useState(config.codigo_area_negocio ?? "223")
   const [direccion, setDireccion] = useState(config.direccion_negocio ?? "")
   const [email, setEmail] = useState(config.email_negocio ?? "")
   const [guardando, setGuardando] = useState(false)
@@ -57,6 +58,7 @@ function Formulario({ config }: { config: Configuracion }) {
     const cambios: CambiosConfiguracion = {
       nombre_negocio: nombre.trim(),
       telefono_negocio: telefono.trim(),
+      codigo_area_negocio: codigoArea.trim(),
       direccion_negocio: direccion.trim(),
       email_negocio: email.trim(),
     }
@@ -80,6 +82,13 @@ function Formulario({ config }: { config: Configuracion }) {
           </Campo>
           <Campo label="WhatsApp del local" htmlFor="aj-telefono" ayuda="Las clientas te escriben a este número desde la web.">
             <input id="aj-telefono" type="tel" inputMode="tel" placeholder="Ej: 223 555-1234" value={telefono} onChange={(e) => setTelefono(e.target.value)} className={campo} />
+          </Campo>
+          <Campo
+            label="Código de área de tu ciudad"
+            htmlFor="aj-area"
+            ayuda="Si una clienta pone su teléfono sin código de área (por ejemplo 15 555-1234), se completa con este."
+          >
+            <input id="aj-area" required inputMode="numeric" maxLength={5} placeholder="223" value={codigoArea} onChange={(e) => setCodigoArea(e.target.value)} className={`${campo} w-32`} />
           </Campo>
           <Campo label="Dirección" htmlFor="aj-direccion">
             <input id="aj-direccion" maxLength={200} placeholder="Ej: Av. Colón 1234, Mar del Plata" value={direccion} onChange={(e) => setDireccion(e.target.value)} className={campo} />
@@ -126,6 +135,7 @@ function mensajeDeError(err: ApiError) {
     const campos: Record<string, string> = {
       nombre_negocio: "el nombre del local",
       email_negocio: "el email",
+      codigo_area_negocio: "el código de área (2 a 4 números, sin el 0)",
       direccion_negocio: "la dirección",
     }
     return `Revisá ${campos[detalle[0].campo] ?? "los datos"}.`

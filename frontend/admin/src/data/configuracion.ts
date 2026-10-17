@@ -11,6 +11,8 @@ export type Configuracion = {
   nombre_negocio: string
   /** Normalizado: 549 + 10 dígitos. */
   telefono_negocio: string
+  /** "223": se usa para los teléfonos que se escriben sin código de área. */
+  codigo_area_negocio: string
   direccion_negocio: string
   email_negocio: string
   intervalo_turnos_min: string
@@ -21,6 +23,7 @@ export type Configuracion = {
 export type CambiosConfiguracion = Partial<{
   nombre_negocio: string
   telefono_negocio: string
+  codigo_area_negocio: string
   direccion_negocio: string
   email_negocio: string
   intervalo_turnos_min: number

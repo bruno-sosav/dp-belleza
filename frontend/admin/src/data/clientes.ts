@@ -86,3 +86,23 @@ export function eliminarCliente(id: number) {
 
 export const nombreCompleto = (c: Pick<Cliente, "nombre" | "apellido">) =>
   [c.nombre, c.apellido].filter(Boolean).join(" ")
+
+/** Otra ficha, en la forma corta que devuelve la sugerencia de duplicados. */
+export type FichaCorta = Pick<Cliente, "id" | "nombre" | "apellido" | "telefono" | "email">
+
+/** Fichas que podrían ser la misma persona (mismo nombre y apellido, o mismo email). */
+export function usePosiblesDuplicados(id: number) {
+  const pedir = useCallback(() => api<FichaCorta[]>(`/api/admin/clientes/${id}/posibles-duplicados`), [id])
+  return useApi(pedir)
+}
+
+/**
+ * Une `otraId` a la ficha `id`: le pasa turnos, compras y recordatorios, y la
+ * borra. `telefonoDe` elige con qué teléfono se queda la ficha.
+ */
+export function unirClientes(id: number, otraId: number, telefonoDe: "esta" | "otra") {
+  return api<{ id: number; turnos: number; compras: number }>(`/api/admin/clientes/${id}/unir`, {
+    metodo: "POST",
+    cuerpo: { otraId, telefonoDe },
+  })
+}

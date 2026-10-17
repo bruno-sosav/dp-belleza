@@ -8,6 +8,7 @@ import IconoWhatsApp from "../components/IconoWhatsApp"
 import NotasCliente from "../components/clientes/NotasCliente"
 import FormularioCliente from "../components/clientes/FormularioCliente"
 import EliminarCliente from "../components/clientes/EliminarCliente"
+import UnirCliente from "../components/clientes/UnirCliente"
 import { Cargando, ErrorCarga } from "../components/EstadoCarga"
 import { formatCumple, formatDayMonth, formatShortDate, formatTelefono } from "../lib/format"
 import { secondaryButtonClass } from "../lib/styles"
@@ -196,6 +197,10 @@ function Ficha({ cliente, recargar }: { cliente: FichaCliente; recargar: () => v
           )}
         </Panel>
       </div>
+
+      <Panel title="¿Tiene otra ficha?" className="mt-6">
+        <UnirCliente cliente={cliente} onUnida={recargar} />
+      </Panel>
 
       <Panel title="Eliminar" className="mt-6">
         <EliminarCliente

@@ -1,5 +1,6 @@
 import type { BookingContact } from "../data/booking"
 import { inputClass } from "../lib/styles"
+import { monthLabels } from "../data/availability"
 import Field from "./Field"
 
 type Props = {
@@ -47,6 +48,43 @@ export default function BookingForm({ value, onChange }: Props) {
           onChange={(e) => update("email", e.target.value)}
           className={inputClass}
         />
+      </Field>
+
+      <Field
+        label="Tu cumpleaños"
+        htmlFor="birthDay"
+        className="sm:col-span-2"
+        hint="Opcional. Solo el día y el mes, para saludarte (y quizás un regalo 🎁)."
+      >
+        <div className="flex gap-3">
+          <select
+            id="birthDay"
+            aria-label="Día de tu cumpleaños"
+            value={value.birthDay}
+            onChange={(e) => update("birthDay", e.target.value)}
+            className={`${inputClass} w-28`}
+          >
+            <option value="">Día</option>
+            {Array.from({ length: 31 }, (_, i) => (
+              <option key={i + 1} value={i + 1}>
+                {i + 1}
+              </option>
+            ))}
+          </select>
+          <select
+            aria-label="Mes de tu cumpleaños"
+            value={value.birthMonth}
+            onChange={(e) => update("birthMonth", e.target.value)}
+            className={`${inputClass} w-44`}
+          >
+            <option value="">Mes</option>
+            {monthLabels.map((m, i) => (
+              <option key={m} value={i + 1}>
+                {m}
+              </option>
+            ))}
+          </select>
+        </div>
       </Field>
 
       <Field

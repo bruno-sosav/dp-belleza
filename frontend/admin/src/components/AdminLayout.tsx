@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import type { ReactNode } from "react"
 import { Link, NavLink, Outlet } from "react-router-dom"
 import AdminLogin from "../pages/AdminLogin"
-import { cerrarSesion, haySesion, usuarioActual } from "../lib/auth"
+import { cerrarSesion, EVENTO_SESION, haySesion, usuarioActual } from "../lib/auth"
 import type { Usuario } from "../lib/auth"
 import type { Period } from "../lib/stats"
 import type { AdminOutletContext } from "../lib/usePeriod"
@@ -38,6 +38,13 @@ const navItems = [
 export default function AdminLayout() {
   const [usuario, setUsuario] = useState<Usuario | null>(usuarioActual)
   const [period, setPeriod] = useState<Period>(30)
+
+  // Si cambia el nombre en Ajustes → Tu cuenta, se actualiza "Sesión de …".
+  useEffect(() => {
+    const alCambiar = () => setUsuario(usuarioActual())
+    window.addEventListener(EVENTO_SESION, alCambiar)
+    return () => window.removeEventListener(EVENTO_SESION, alCambiar)
+  }, [])
 
   // Que los buscadores no indexen el panel.
   useEffect(() => {

@@ -16,7 +16,7 @@ import type { ResultSetHeader, RowDataPacket } from "mysql2"
 import { z } from "zod"
 import { pool } from "../shared/db.js"
 import { conflicto, malaPeticion, noEncontrado } from "../shared/errors.js"
-import { normalizarTelefono } from "../shared/models/telefono.js"
+import { normalizarTelefonoLocal } from "../shared/telefonoLocal.js"
 import type { EstadoTurno } from "../turnera/estados.js"
 
 export const adminClientes = Router()
@@ -183,7 +183,7 @@ const nuevaCliente = datosCliente.partial().required({ nombre: true, telefono: t
 const cambiosCliente = datosCliente.partial()
 
 /** Pasa los datos validados a columnas de la tabla. El teléfono se normaliza igual que al reservar o comprar. */
-function aColumnas(datos: z.infer<typeof cambiosCliente>) {
+async function aColumnas(datos: z.infer<typeof cambiosCliente>) {
   const columnas: Record<string, unknown> = {}
   if (datos.nombre !== undefined) columnas.nombre = datos.nombre
   if (datos.apellido !== undefined) columnas.apellido = datos.apellido || null
@@ -194,8 +194,8 @@ function aColumnas(datos: z.infer<typeof cambiosCliente>) {
     columnas.cumple_mes = datos.cumple?.mes ?? null
   }
   if (datos.telefono !== undefined) {
-    const telefono = normalizarTelefono(datos.telefono)
-    if (!telefono) throw malaPeticion("El teléfono no es válido")
+    const telefono = await normalizarTelefonoLocal(datos.telefono)
+    if (!telefono) throw malaPeticion("El teléfono no es válido: revisá que tenga el código de área y el número, por ejemplo 223 555-1234")
     columnas.telefono = telefono
   }
   return columnas
@@ -224,7 +224,7 @@ async function escribirCliente(sql: string, params: unknown[]) {
  * reservan por la web o compran en la tienda se crean solas (buscarOCrearCliente).
  */
 adminClientes.post("/clientes", async (req, res) => {
-  const columnas = aColumnas(nuevaCliente.parse(req.body))
+  const columnas = await aColumnas(nuevaCliente.parse(req.body))
   const r = await escribirCliente("INSERT INTO clientes SET ?", [columnas])
   res.status(201).json(await buscarCliente(r.insertId))
 })
@@ -236,7 +236,7 @@ adminClientes.post("/clientes", async (req, res) => {
  */
 adminClientes.patch("/clientes/:id", async (req, res) => {
   const id = idParam.parse(req.params.id)
-  const columnas = aColumnas(cambiosCliente.parse(req.body))
+  const columnas = await aColumnas(cambiosCliente.parse(req.body))
   if (Object.keys(columnas).length) {
     const r = await escribirCliente("UPDATE clientes SET ? WHERE id = ?", [columnas, id])
     if (r.affectedRows === 0) throw noEncontrado("Cliente")

@@ -16,6 +16,7 @@ import AdminClosedDays from "./pages/AdminClosedDays"
 import AdminBookingRules from "./pages/AdminBookingRules"
 import AdminSettings from "./pages/AdminSettings"
 import AdminSettingsMercadoPago from "./pages/AdminSettingsMercadoPago"
+import AdminSettingsAccount from "./pages/AdminSettingsAccount"
 import AdminReminders from "./pages/AdminReminders"
 import AdminReminderTypes from "./pages/AdminReminderTypes"
 
@@ -47,6 +48,7 @@ export default function App() {
         <Route path="/recordatorios/mensajes" element={<AdminReminderTypes />} />
         <Route path="/ajustes" element={<AdminSettings />} />
         <Route path="/ajustes/mercadopago" element={<AdminSettingsMercadoPago />} />
+        <Route path="/ajustes/cuenta" element={<AdminSettingsAccount />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

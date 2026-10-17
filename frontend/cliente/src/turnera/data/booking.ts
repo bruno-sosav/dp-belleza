@@ -9,6 +9,9 @@ export type BookingContact = {
   phone: string
   email: string
   notes: string
+  /** Cumpleaños, opcional: día y mes como texto del desplegable ("" = no lo puso). */
+  birthDay: string
+  birthMonth: string
 }
 
 export const emptyContact: BookingContact = {
@@ -16,6 +19,8 @@ export const emptyContact: BookingContact = {
   phone: "",
   email: "",
   notes: "",
+  birthDay: "",
+  birthMonth: "",
 }
 
 export type BookingRequest = {
@@ -60,6 +65,12 @@ export function contactProblem(contact: BookingContact): string | null {
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return "Revisá el email: parece que le falta algo. Si no querés dejarlo, borralo."
   }
+  if (Boolean(contact.birthDay) !== Boolean(contact.birthMonth)) {
+    return "Para el cumpleaños elegí el día y el mes (o dejá los dos vacíos)."
+  }
+  if (contact.birthDay && Number(contact.birthDay) > [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][Number(contact.birthMonth) - 1]) {
+    return "Revisá tu cumpleaños: ese día no existe en ese mes."
+  }
   return null
 }
 
@@ -78,6 +89,9 @@ export function createBooking({ serviceId, date, time, contact }: BookingRequest
         // Opcionales: vacíos no se mandan (el backend rechaza un email "").
         ...(email ? { email } : {}),
         ...(notes ? { notas: notes } : {}),
+        ...(contact.birthDay && contact.birthMonth
+          ? { cumple: { dia: Number(contact.birthDay), mes: Number(contact.birthMonth) } }
+          : {}),
       },
     },
   })
