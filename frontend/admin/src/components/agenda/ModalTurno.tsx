@@ -16,11 +16,13 @@ export default function ModalTurno({
   turno,
   ahora,
   onCambiarEstado,
+  onEditar,
   onCerrar,
 }: {
   turno: Turno
   ahora: Ahora
   onCambiarEstado: (estado: EstadoTurno) => Promise<void>
+  onEditar: () => void
   onCerrar: () => void
 }) {
   useEffect(() => {
@@ -53,7 +55,7 @@ export default function ModalTurno({
         </div>
 
         <ul>
-          <TurnoFila turno={turno} ahora={ahora} onCambiarEstado={onCambiarEstado} />
+          <TurnoFila turno={turno} ahora={ahora} onCambiarEstado={onCambiarEstado} onEditar={onEditar} />
         </ul>
 
         <Link to={`/clientes/${turno.cliente.id}`} className="mt-4 inline-block text-base text-rose-dark underline underline-offset-4 hover:text-ink">

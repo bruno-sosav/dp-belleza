@@ -20,9 +20,19 @@ import {
   requiereHaberEmpezado,
   type EstadoTurno,
 } from "../turnera/estados.js"
-import { agendarTurno, bloqueosDelDia, turnosDelDia } from "../turnera/service.js"
+import {
+  agendarTurno,
+  bloqueosDelDia,
+  calcularDisponibilidad,
+  obtenerServicio,
+  programarRecordatorio,
+  turnosDelDia,
+  validarHorarioDeAtencion,
+  yaEmpezo,
+} from "../turnera/service.js"
 import { aDateTime, aMinutos, hoy, minutosAhora, seSolapan } from "../turnera/tiempo.js"
-import { fechaISO, horaHM } from "../turnera/validacion.js"
+import type { FechaISO } from "../turnera/tiempo.js"
+import { consultaDisponibilidad, fechaISO, horaHM } from "../turnera/validacion.js"
 
 export const adminTurnos = Router()
 
@@ -112,6 +122,19 @@ adminTurnos.get("/turnos", async (req, res) => {
   res.json(rows.map(aTurno))
 })
 
+/**
+ * GET /api/admin/turnos/disponibilidad?servicioId=2&fecha=2026-10-20&excluir=15
+ *
+ * Igual que la de la web, pero con `excluir`: al reprogramar un turno, el
+ * horario que ocupa él mismo tiene que aparecer libre. Va antes de
+ * /turnos/:id para que "disponibilidad" no se lea como un id.
+ */
+adminTurnos.get("/turnos/disponibilidad", async (req, res) => {
+  const { servicioId, fecha } = consultaDisponibilidad.parse(req.query)
+  const { excluir } = z.object({ excluir: idParam.optional() }).parse(req.query)
+  res.json(await calcularDisponibilidad(servicioId, fecha, excluir))
+})
+
 adminTurnos.get("/turnos/:id", async (req, res) => {
   res.json(await buscarTurno(idParam.parse(req.params.id)))
 })
@@ -127,6 +150,9 @@ adminTurnos.get("/turnos/:id", async (req, res) => {
  *   - la clienta ya existe: se elige de la lista (o se la da de alta antes con
  *     POST /clientes), no se la busca por teléfono.
  *   - entra como `confirmado`: lo arregló ella misma, no hay nada que confirmar.
+ *   - si el horario ya pasó, entra como `completado`: es alguien que vino sin
+ *     turno y la dueña lo registra para que sume en Finanzas. Ahí no se mira
+ *     el horario de atención (ya pasó), pero tampoco puede pisar otro turno.
  *   - con `fueraDeHorario: true` se puede dar fuera del horario de atención.
  *     Va explícito para que el panel pregunte antes, y no se cuele por error.
  */
@@ -141,13 +167,14 @@ const nuevoTurnoAdmin = z.object({
 
 adminTurnos.post("/turnos", async (req, res) => {
   const datos = nuevoTurnoAdmin.parse(req.body)
+  const pasado = yaEmpezo(datos.fecha, aMinutos(datos.hora))
   const creado = await agendarTurno({
     servicioId: datos.servicioId,
     fecha: datos.fecha,
     hora: datos.hora,
     notas: datos.notas || undefined,
-    estado: "confirmado",
-    respetarHorario: !datos.fueraDeHorario,
+    estado: pasado ? "completado" : "confirmado",
+    respetarHorario: !pasado && !datos.fueraDeHorario,
     cliente: async (conn) => {
       const [rows] = await conn.query<RowDataPacket[]>("SELECT id FROM clientes WHERE id = ?", [datos.clienteId])
       if (!rows[0]) throw noEncontrado("Cliente")
@@ -155,6 +182,104 @@ adminTurnos.post("/turnos", async (req, res) => {
     },
   })
   res.status(201).json(await buscarTurno(creado.id))
+})
+
+/**
+ * PATCH /api/admin/turnos/:id
+ *   { "fecha": "2026-10-22", "hora": "16:00", "servicioId": 3, "notas": "…", "fueraDeHorario": false }
+ *
+ * Reprogramar o corregir un turno. Todo es opcional: lo que no viene, no cambia.
+ *
+ *   - La nota se puede editar siempre, hasta en un cancelado.
+ *   - Día, hora y servicio: un cancelado no se toca (liberó el horario; si
+ *     vuelve, es un turno nuevo). Uno pedido (reservado/confirmado) se mueve
+ *     solo para adelante. Uno completado o "no vino" es historia: se puede
+ *     corregir, pero tiene que seguir en el pasado.
+ *   - Si cambia el servicio, el turno toma la duración y el precio ACTUALES del
+ *     servicio nuevo. Si no cambia, conserva los suyos (el precio que vio la
+ *     clienta al reservar).
+ *   - Nunca puede pisar otro turno ni un bloqueo, igual que al reservar.
+ *   - Si se movió un turno pedido, el recordatorio pendiente se reprograma.
+ */
+const cambiosTurno = z.object({
+  fecha: fechaISO.optional(),
+  hora: horaHM.optional(),
+  servicioId: z.number().int().positive().optional(),
+  notas: z.string().trim().max(1000).nullable().optional(),
+  fueraDeHorario: z.boolean().default(false),
+})
+
+adminTurnos.patch("/turnos/:id", async (req, res) => {
+  const id = idParam.parse(req.params.id)
+  const cambios = cambiosTurno.parse(req.body)
+
+  await enTransaccion(async (conn) => {
+    const [rows] = await conn.query<RowDataPacket[]>(
+      "SELECT estado, servicio_id, precio, fecha_hora_inicio, fecha_hora_fin FROM turnos WHERE id = ? FOR UPDATE",
+      [id],
+    )
+    if (!rows[0]) throw noEncontrado("Turno")
+    const actual = rows[0]
+    const estado = actual.estado as EstadoTurno
+    const inicioActual = String(actual.fecha_hora_inicio)
+    const fechaActual = inicioActual.slice(0, 10)
+    const desdeActual = aMinutos(inicioActual.slice(11, 16))
+    const duracionActual = aMinutos(String(actual.fecha_hora_fin).slice(11, 16)) - desdeActual
+
+    const fecha: FechaISO = cambios.fecha ?? fechaActual
+    const desde = cambios.hora ? aMinutos(cambios.hora) : desdeActual
+    const cambiaServicio = cambios.servicioId !== undefined && cambios.servicioId !== actual.servicio_id
+    const mueve = fecha !== fechaActual || desde !== desdeActual || cambiaServicio
+
+    const columnas: Record<string, unknown> = {}
+    if (cambios.notas !== undefined) columnas.notas = cambios.notas || null
+
+    if (mueve) {
+      if (estado === "cancelado") {
+        throw conflicto("Un turno cancelado no se puede cambiar de día. Dale un turno nuevo.")
+      }
+      const pedido = estado === "reservado" || estado === "confirmado"
+      const pasado = yaEmpezo(fecha, desde)
+      if (pedido && pasado) throw malaPeticion("Ese horario ya pasó. Elegí uno de ahora en adelante.")
+      if (!pedido && !pasado) {
+        throw malaPeticion(`Este turno figura como ${estado === "completado" ? "completado" : "\"no vino\""}: solo se puede corregir a un horario que ya pasó.`)
+      }
+
+      let duracion = duracionActual
+      if (cambiaServicio) {
+        const servicio = await obtenerServicio(cambios.servicioId!)
+        duracion = servicio.durationMin
+        columnas.servicio_id = servicio.id
+        columnas.precio = servicio.price
+      }
+      const hasta = desde + duracion
+      if (hasta > 24 * 60) throw malaPeticion(`El turno de ${duracion} minutos terminaría pasada la medianoche.`)
+      if (!pasado && !cambios.fueraDeHorario) await validarHorarioDeAtencion(fecha, desde, hasta, duracion)
+
+      // Un "no vino" no ocupa la agenda (otra persona pudo tomar el horario),
+      // así que no se lo controla contra los demás.
+      if (estado !== "ausente") {
+        const ocupados = [...(await turnosDelDia(fecha, conn, true, id)), ...(await bloqueosDelDia(fecha, conn))]
+        if (ocupados.some((o) => seSolapan(desde, hasta, o.desde, o.hasta))) {
+          throw conflicto("Ese horario ya lo ocupa otro turno o un bloqueo.")
+        }
+      }
+
+      columnas.fecha_hora_inicio = aDateTime(fecha, desde)
+      columnas.fecha_hora_fin = aDateTime(fecha, hasta)
+
+      if (pedido) {
+        await conn.query("UPDATE recordatorios SET estado = 'cancelado' WHERE turno_id = ? AND estado = 'pendiente'", [id])
+        await programarRecordatorio(conn, id, fecha, desde)
+      }
+    }
+
+    if (Object.keys(columnas).length) {
+      await conn.query("UPDATE turnos SET ? WHERE id = ?", [columnas, id])
+    }
+  })
+
+  res.json(await buscarTurno(id))
 })
 
 /**

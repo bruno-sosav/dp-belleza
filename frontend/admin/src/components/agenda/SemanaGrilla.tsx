@@ -31,8 +31,8 @@ function rangoDeHoras(horarios: Horario[], turnos: Turno[]) {
  * abajo, y cada turno como un bloque del alto de lo que dura.
  *
  * Las horas en que el local está cerrado van en gris. Tocar un turno lo abre;
- * tocar un espacio vacío de hoy en adelante abre "Nuevo turno" con ese día y
- * esa hora ya puestos.
+ * tocar un espacio vacío abre "Nuevo turno" con ese día y esa hora ya puestos
+ * (en un día que ya pasó, para cargar a alguien que vino sin turno).
  */
 export default function SemanaGrilla({
   dias,
@@ -96,16 +96,13 @@ export default function SemanaGrilla({
           const carriles = asignarCarriles(delDia)
           const esHoy = fecha === ahora.fecha
           const ahoraMin = aMinutos(ahora.hora)
-          const sePuedeAgendar = fecha >= ahora.fecha
-
           return (
             <div
               key={fecha}
-              className={`relative border-l border-cream-dark bg-cream-dark/60 ${sePuedeAgendar ? "cursor-copy" : ""}`}
+              className="relative cursor-copy border-l border-cream-dark bg-cream-dark/60"
               style={{ height: alto }}
-              title={sePuedeAgendar ? "Tocá un espacio libre para dar un turno" : undefined}
+              title={fecha >= ahora.fecha ? "Tocá un espacio libre para dar un turno" : "Tocá un espacio para cargar un turno que ya pasó"}
               onClick={(e) => {
-                if (!sePuedeAgendar) return
                 const offset = e.clientY - e.currentTarget.getBoundingClientRect().top
                 const minutos = desde + Math.floor((offset / PX_POR_HORA) * (60 / PASO_MIN)) * PASO_MIN
                 onHueco(fecha, `${String(Math.floor(minutos / 60)).padStart(2, "0")}:${String(minutos % 60).padStart(2, "0")}`)

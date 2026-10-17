@@ -1,13 +1,15 @@
-import { useEffect } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { formatPrice } from "@dp/shared/lib/format"
 import PageHeader from "../components/PageHeader"
 import Panel from "../components/Panel"
 import StatTile from "../components/StatTile"
 import TurnoFila from "../components/turnos/TurnoFila"
+import FormularioTurno from "../components/agenda/FormularioTurno"
 import { Cargando, ErrorCarga } from "../components/EstadoCarga"
 import { sumarDias } from "../lib/fechas"
 import { formatLongDate, formatShortDate } from "../lib/format"
 import { useAhora } from "../lib/useAhora"
+import { primaryButtonClass } from "../lib/styles"
 import { estaAbierto, nombreCliente, useAgenda } from "../data/turnos"
 import type { Turno } from "../data/turnos"
 import { usePedidosPendientes } from "../data/pedidosPendientes"
@@ -40,6 +42,9 @@ export default function AdminToday() {
   // Un solo pedido para los tres bloques de turnos (22 días): una recarga, un estado.
   const agenda = useAgenda(desde, hasta)
   const pedidos = usePedidosPendientes()
+  /** Formulario de turno abierto: uno nuevo (sin turno) o cambiar uno. */
+  const [formulario, setFormulario] = useState<{ turno?: Turno } | null>(null)
+  const cerrarFormulario = useCallback(() => setFormulario(null), [])
 
   const { recargar: recargarTurnos } = agenda
   const { recargar: recargarPedidos } = pedidos
@@ -52,7 +57,16 @@ export default function AdminToday() {
   }, [recargarTurnos, recargarPedidos])
 
   const header = (
-    <PageHeader title="Hoy" description={capitalizar(formatLongDate(ahora.fecha))} withPeriod={false} />
+    <PageHeader
+      title="Hoy"
+      description={capitalizar(formatLongDate(ahora.fecha))}
+      withPeriod={false}
+      action={
+        <button type="button" onClick={() => setFormulario({})} className={`${primaryButtonClass} min-h-12 px-6 text-base`}>
+          + Nuevo turno
+        </button>
+      }
+    />
   )
 
   if (agenda.cargando && !agenda.turnos) {
@@ -94,6 +108,7 @@ export default function AdminToday() {
       ahora={ahora}
       mostrarFecha={mostrarFecha}
       onCambiarEstado={(estado) => agenda.cambiarEstado(t.id, estado)}
+      onEditar={() => setFormulario({ turno: t })}
     />
   )
 
@@ -170,6 +185,19 @@ export default function AdminToday() {
           </Panel>
         </div>
       </div>
+
+      {formulario && (
+        <FormularioTurno
+          turno={formulario.turno}
+          fechaInicial={formulario.turno?.fecha ?? ahora.fecha}
+          ahora={ahora}
+          onGuardado={() => {
+            setFormulario(null)
+            agenda.recargar()
+          }}
+          onCerrar={cerrarFormulario}
+        />
+      )}
     </div>
   )
 }

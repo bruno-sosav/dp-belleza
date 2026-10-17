@@ -28,11 +28,14 @@ export default function TurnoFila({
   turno,
   ahora,
   onCambiarEstado,
+  onEditar,
   mostrarFecha = false,
 }: {
   turno: Turno
   ahora: Ahora
   onCambiarEstado: (estado: EstadoTurno) => Promise<void>
+  /** Abre el formulario para cambiar día, hora, servicio o nota. */
+  onEditar?: () => void
   /** Para listas de varios días: muestra "lun 13/10" arriba de la hora. */
   mostrarFecha?: boolean
 }) {
@@ -142,6 +145,16 @@ export default function TurnoFila({
           <p className="mt-3 rounded-lg bg-[#fbe4e2] px-3 py-2 text-base text-[#a12b28]" role="alert">
             {error}
           </p>
+        )}
+
+        {onEditar && !confirmandoCancelar && (
+          <button
+            type="button"
+            onClick={onEditar}
+            className="mt-3 inline-flex min-h-12 items-center gap-2 text-base text-ink-soft underline underline-offset-4 hover:text-ink"
+          >
+            ✏️ {abierto ? "Cambiar día, hora o servicio" : turno.estado === "cancelado" ? "Editar la nota" : "Corregir o agregar una nota"}
+          </button>
         )}
       </div>
     </li>

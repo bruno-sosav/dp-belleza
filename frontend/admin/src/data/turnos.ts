@@ -50,9 +50,25 @@ export type NuevoTurno = {
   fueraDeHorario?: boolean
 }
 
-/** Un turno que carga la dueña. Entra como "confirmado". */
+/** Un turno que carga la dueña. Entra como "confirmado", o "completado" si el horario ya pasó (vino sin turno). */
 export function crearTurno(datos: NuevoTurno) {
   return api<Turno>("/api/admin/turnos", { metodo: "POST", cuerpo: datos })
+}
+
+export type CambiosTurno = {
+  fecha?: string
+  hora?: string
+  servicioId?: number
+  notas?: string | null
+  fueraDeHorario?: boolean
+}
+
+/**
+ * Reprogramar o corregir un turno. Las reglas (qué se puede mover según el
+ * estado, el precio al cambiar de servicio) están en backend/src/admin/turnos.ts.
+ */
+export function editarTurno(id: number, cambios: CambiosTurno) {
+  return api<Turno>(`/api/admin/turnos/${id}`, { metodo: "PATCH", cuerpo: cambios })
 }
 
 /**

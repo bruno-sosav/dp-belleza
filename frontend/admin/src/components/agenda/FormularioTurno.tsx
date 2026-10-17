@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react"
 import type { ReactNode } from "react"
 import { categoriesOf } from "@dp/shared/data/services"
-import type { Service } from "@dp/shared/data/services"
 import { formatPrice } from "@dp/shared/lib/format"
 import FormularioCliente from "../clientes/FormularioCliente"
 import { Cargando, ErrorCarga } from "../EstadoCarga"
+import { aMinutos } from "../../lib/agenda"
 import { ApiError } from "../../lib/api"
 import { formatLongDate, formatTelefono } from "../../lib/format"
 import { inputClass, labelClass, primaryButtonClass, secondaryButtonClass } from "../../lib/styles"
@@ -12,58 +12,96 @@ import type { Ahora } from "../../lib/useAhora"
 import { nombreCompleto, useClientes } from "../../data/clientes"
 import type { Cliente } from "../../data/clientes"
 import { formatDuracion, useHorariosLibres, useServicios } from "../../data/servicios"
-import { crearTurno } from "../../data/turnos"
+import { crearTurno, editarTurno, estaAbierto } from "../../data/turnos"
 import type { Turno } from "../../data/turnos"
 
 const opcionClass =
   "flex min-h-14 w-full items-center justify-between gap-3 rounded-xl border border-cream-dark bg-surface px-4 py-3 text-left text-base text-ink transition hover:border-rose-dark hover:bg-rose/10"
 const campo = `${inputClass} py-3 text-base`
+const linkClass = "text-base text-rose-dark underline underline-offset-4 hover:text-ink"
 
+type ClienteElegido = Pick<Cliente, "id" | "nombre" | "apellido" | "telefono">
+type ServicioElegido = { id: number; name: string; durationMin: number; price: number }
 
 /**
- * Dar un turno desde el panel: le escribieron por WhatsApp, la llamaron, o se
- * lo pidieron en el local.
+ * Cómo se elige la hora:
+ *   libres  los horarios libres del día, los mismos que vería una clienta.
+ *   fuera   una hora a mano, fuera del horario de atención (igual no pisa otro turno).
+ *   pasado  una hora a mano que ya pasó: alguien que vino sin turno, o corregir
+ *           uno ya completado. Se guarda como completado.
+ */
+type ModoHora = "libres" | "fuera" | "pasado"
+
+/**
+ * Dar, cambiar o cargar un turno desde el panel.
  *
  * Tres preguntas, una debajo de la otra, y cada una aparece recién cuando la
  * anterior está respondida: ¿para quién?, ¿qué servicio?, ¿qué día y a qué
  * hora? Lo ya elegido queda como un renglón con "Cambiar", así la dueña ve
  * siempre lo que va a guardar.
  *
- * Los horarios son los mismos que vería una clienta en la web (ya descuentan
- * turnos tomados y bloqueos). Si hace falta darlo fuera del horario de
- * atención, hay un botón aparte que lo dice con todas las letras.
+ * Con `turno`, edita ese turno: la clienta queda fija y lo demás arranca con lo
+ * que tiene. Qué se puede cambiar depende del estado (las reglas están en el
+ * backend, PATCH /api/admin/turnos/:id):
+ *   - pedido (reservado/confirmado): se mueve de ahora en adelante.
+ *   - completado / no vino: se corrige, pero sigue en el pasado.
+ *   - cancelado: solo la nota.
  */
-export default function NuevoTurno({
+export default function FormularioTurno({
+  turno,
   fechaInicial,
   horaInicial,
   ahora,
-  onCreado,
+  onGuardado,
   onCerrar,
 }: {
+  /** El turno a cambiar. Sin turno, da uno nuevo. */
+  turno?: Turno
   fechaInicial: string
   /** Cuando se abre tocando un hueco del calendario. */
   horaInicial?: string
   ahora: Ahora
-  onCreado: (turno: Turno) => void
+  onGuardado: (turno: Turno) => void
   onCerrar: () => void
 }) {
-  const [cliente, setCliente] = useState<Cliente | null>(null)
-  const [servicio, setServicio] = useState<Service | null>(null)
-  const [fecha, setFecha] = useState(fechaInicial)
-  const [hora, setHora] = useState<string | null>(horaInicial ?? null)
-  const [fueraDeHorario, setFueraDeHorario] = useState(false)
-  const [horaLibre, setHoraLibre] = useState(horaInicial ?? "")
-  const [notas, setNotas] = useState("")
+  const editando = Boolean(turno)
+  const soloNota = turno?.estado === "cancelado"
+  const esHistoria = turno ? !estaAbierto(turno) && !soloNota : false
+
+  const [cliente, setCliente] = useState<ClienteElegido | null>(turno?.cliente ?? null)
+  const [servicio, setServicio] = useState<ServicioElegido | null>(
+    turno
+      ? {
+          id: turno.servicio.id,
+          name: turno.servicio.nombre,
+          durationMin: aMinutos(turno.horaFin) - aMinutos(turno.horaInicio),
+          price: turno.precio,
+        }
+      : null,
+  )
+  const [fecha, setFecha] = useState(turno?.fecha ?? fechaInicial)
+  const [hora, setHora] = useState<string | null>(turno?.horaInicio ?? horaInicial ?? null)
+  const [modoElegido, setModoElegido] = useState<ModoHora>(esHistoria ? "pasado" : "libres")
+  const [horaManual, setHoraManual] = useState(turno?.horaInicio ?? horaInicial ?? "")
+  const [notas, setNotas] = useState(turno?.notas ?? "")
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const libres = useHorariosLibres(servicio?.id ?? null, fecha)
+  // Un día que ya pasó solo admite cargar lo que pasó. Uno futuro, nunca.
+  const modo: ModoHora =
+    fecha < ahora.fecha ? "pasado" : fecha > ahora.fecha && modoElegido === "pasado" ? "libres" : modoElegido
+  const pasadoHoraFutura = modo === "pasado" && fecha === ahora.fecha && horaManual > ahora.hora
+
+  const libres = useHorariosLibres(modo === "libres" && servicio ? servicio.id : null, fecha, turno?.id)
   const disponibles = (libres.datos ?? []).filter((h) => h.available).map((h) => h.time)
 
   // La hora que viene de tocar el calendario puede no servir para el servicio
   // elegido (no entra antes del cierre, o se pisa con otro turno): en ese caso
   // simplemente no queda elegida, sin un efecto que la borre.
-  const horaElegida = fueraDeHorario ? (horaLibre || null) : hora && disponibles.includes(hora) ? hora : null
+  const horaElegida =
+    modo === "libres" ? (hora && disponibles.includes(hora) ? hora : null) : pasadoHoraFutura ? null : horaManual || null
+
+  const listo = soloNota || Boolean(cliente && servicio && horaElegida)
 
   useEffect(() => {
     const alApretar = (e: KeyboardEvent) => e.key === "Escape" && !guardando && onCerrar()
@@ -72,19 +110,33 @@ export default function NuevoTurno({
   }, [onCerrar, guardando])
 
   async function guardar() {
-    if (!cliente || !servicio || !horaElegida) return
+    if (!listo) return
     setGuardando(true)
     setError(null)
     try {
-      const turno = await crearTurno({
-        clienteId: cliente.id,
-        servicioId: servicio.id,
-        fecha,
-        hora: horaElegida,
-        notas: notas.trim() || undefined,
-        fueraDeHorario,
-      })
-      onCreado(turno)
+      const nota = notas.trim()
+      let guardado: Turno
+      if (turno && soloNota) {
+        guardado = await editarTurno(turno.id, { notas: nota || null })
+      } else if (turno) {
+        guardado = await editarTurno(turno.id, {
+          fecha,
+          hora: horaElegida!,
+          servicioId: servicio!.id,
+          notas: nota || null,
+          fueraDeHorario: modo === "fuera",
+        })
+      } else {
+        guardado = await crearTurno({
+          clienteId: cliente!.id,
+          servicioId: servicio!.id,
+          fecha,
+          hora: horaElegida!,
+          notas: nota || undefined,
+          fueraDeHorario: modo === "fuera",
+        })
+      }
+      onGuardado(guardado)
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "No se pudo guardar el turno.")
       // Si alguien tomó el horario mientras tanto, se actualiza la lista.
@@ -93,19 +145,29 @@ export default function NuevoTurno({
     }
   }
 
+  const titulo = !turno ? "Nuevo turno" : soloNota ? "Nota del turno" : esHistoria ? "Corregir turno" : "Cambiar turno"
+  const textoBoton = editando ? "Guardar cambios" : modo === "pasado" ? "Cargar turno" : "Agendar turno"
+
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 p-0 sm:items-center sm:p-6" onClick={() => !guardando && onCerrar()}>
       <div
         role="dialog"
         aria-modal="true"
-        aria-labelledby="nuevo-turno-titulo"
+        aria-labelledby="form-turno-titulo"
         className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-t-2xl bg-cream p-5 shadow-xl sm:rounded-2xl sm:p-6"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-5 flex items-start justify-between gap-4">
-          <h2 id="nuevo-turno-titulo" className="font-display text-2xl font-semibold text-ink">
-            Nuevo turno
-          </h2>
+          <div>
+            <h2 id="form-turno-titulo" className="font-display text-2xl font-semibold text-ink">
+              {titulo}
+            </h2>
+            {turno && (
+              <p className="mt-1 text-base text-ink-soft first-letter:uppercase">
+                Hoy está: {formatLongDate(turno.fecha)} a las {turno.horaInicio} · {turno.servicio.nombre}
+              </p>
+            )}
+          </div>
           <button
             type="button"
             onClick={onCerrar}
@@ -118,20 +180,28 @@ export default function NuevoTurno({
         </div>
 
         <div className="space-y-6">
-          {/* 1. Clienta */}
-          <Paso numero={1} titulo="¿Para quién es?">
-            {cliente ? (
-              <Elegido onCambiar={() => setCliente(null)}>
-                <span className="font-semibold">{nombreCompleto(cliente)}</span>
-                <span className="text-ink-soft"> · {formatTelefono(cliente.telefono)}</span>
-              </Elegido>
-            ) : (
-              <ElegirCliente onElegir={setCliente} />
-            )}
-          </Paso>
+          {soloNota && (
+            <p className="rounded-xl bg-cream-dark px-4 py-3 text-base text-ink">
+              Este turno está cancelado: solo se puede cambiar la nota. Si la clienta vuelve, dale un turno nuevo.
+            </p>
+          )}
+
+          {/* 1. Clienta (fija al editar) */}
+          {!soloNota && (
+            <Paso numero={1} titulo="¿Para quién es?">
+              {cliente ? (
+                <Elegido onCambiar={editando ? undefined : () => setCliente(null)}>
+                  <span className="font-semibold">{nombreCompleto(cliente)}</span>
+                  <span className="text-ink-soft"> · {formatTelefono(cliente.telefono)}</span>
+                </Elegido>
+              ) : (
+                <ElegirCliente onElegir={setCliente} />
+              )}
+            </Paso>
+          )}
 
           {/* 2. Servicio */}
-          {cliente && (
+          {!soloNota && cliente && (
             <Paso numero={2} titulo="¿Qué servicio?">
               {servicio ? (
                 <Elegido onCambiar={() => setServicio(null)}>
@@ -139,44 +209,35 @@ export default function NuevoTurno({
                   <span className="text-ink-soft"> · {formatDuracion(servicio.durationMin)} · {formatPrice(servicio.price)}</span>
                 </Elegido>
               ) : (
-                <ElegirServicio onElegir={setServicio} />
+                <>
+                  {editando && (
+                    <p className="mb-3 text-sm text-ink-soft">Si cambiás el servicio, el turno toma el precio y la duración actuales del nuevo.</p>
+                  )}
+                  <ElegirServicio
+                    onElegir={(s) => setServicio({ id: s.id, name: s.name, durationMin: s.durationMin, price: s.price })}
+                  />
+                </>
               )}
             </Paso>
           )}
 
           {/* 3. Día y hora */}
-          {cliente && servicio && (
+          {!soloNota && cliente && servicio && (
             <Paso numero={3} titulo="¿Qué día y a qué hora?">
-              <label htmlFor="nt-fecha" className={`${labelClass} text-base`}>Día</label>
+              <label htmlFor="ft-fecha" className={`${labelClass} text-base`}>Día</label>
               <input
-                id="nt-fecha"
+                id="ft-fecha"
                 type="date"
-                min={ahora.fecha}
+                // Un turno pedido se mueve para adelante; uno completado se corrige para atrás.
+                min={esHistoria ? undefined : editando ? ahora.fecha : undefined}
+                max={esHistoria ? ahora.fecha : undefined}
                 value={fecha}
                 onChange={(e) => e.target.value && setFecha(e.target.value)}
                 className={`${campo} max-w-xs`}
               />
               <p className="mt-1.5 text-base text-ink-soft first-letter:uppercase">{formatLongDate(fecha)}</p>
 
-              {fueraDeHorario ? (
-                <div className="mt-5 rounded-xl border border-[#e0b44a] bg-[#fdf3dc] p-4">
-                  <label htmlFor="nt-hora" className={`${labelClass} text-base`}>Hora (fuera del horario de atención)</label>
-                  <input
-                    id="nt-hora"
-                    type="time"
-                    step={900}
-                    value={horaLibre}
-                    onChange={(e) => setHoraLibre(e.target.value)}
-                    className={`${campo} max-w-[10rem]`}
-                  />
-                  <p className="mt-2 text-sm text-ink-soft">
-                    Igual no deja pisar otro turno. Dura {formatDuracion(servicio.durationMin)}.
-                  </p>
-                  <button type="button" onClick={() => setFueraDeHorario(false)} className="mt-3 text-base text-rose-dark underline underline-offset-4 hover:text-ink">
-                    Volver a los horarios libres
-                  </button>
-                </div>
-              ) : (
+              {modo === "libres" && (
                 <div className="mt-5">
                   <p className={`${labelClass} text-base`}>Horarios libres</p>
                   {libres.error ? (
@@ -204,24 +265,79 @@ export default function NuevoTurno({
                       Ese día no quedan horarios libres para este servicio (o el local está cerrado).
                     </p>
                   )}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setFueraDeHorario(true)
-                      setHoraLibre(horaElegida ?? horaLibre)
-                    }}
-                    className="mt-3 text-base text-rose-dark underline underline-offset-4 hover:text-ink"
-                  >
-                    Darlo en otro horario
+                  <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setModoElegido("fuera")
+                        setHoraManual(horaElegida ?? horaManual)
+                      }}
+                      className={linkClass}
+                    >
+                      Darlo en otro horario
+                    </button>
+                    {!editando && fecha === ahora.fecha && (
+                      <button type="button" onClick={() => setModoElegido("pasado")} className={linkClass}>
+                        Ya vino (cargar un turno que ya pasó)
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {modo === "fuera" && (
+                <div className="mt-5 rounded-xl border border-[#e0b44a] bg-[#fdf3dc] p-4">
+                  <label htmlFor="ft-hora" className={`${labelClass} text-base`}>Hora (fuera del horario de atención)</label>
+                  <input
+                    id="ft-hora"
+                    type="time"
+                    step={900}
+                    value={horaManual}
+                    onChange={(e) => setHoraManual(e.target.value)}
+                    className={`${campo} max-w-[10rem]`}
+                  />
+                  <p className="mt-2 text-sm text-ink-soft">Igual no deja pisar otro turno. Dura {formatDuracion(servicio.durationMin)}.</p>
+                  <button type="button" onClick={() => setModoElegido("libres")} className={`mt-3 ${linkClass}`}>
+                    Volver a los horarios libres
                   </button>
                 </div>
               )}
 
-              <label htmlFor="nt-notas" className={`${labelClass} mt-5 text-base`}>
-                Nota <span className="font-normal text-ink-soft">(opcional)</span>
+              {modo === "pasado" && (
+                <div className="mt-5 rounded-xl border border-[#1f8a4c]/40 bg-[#dcf2e3] p-4">
+                  <label htmlFor="ft-hora-pasada" className={`${labelClass} text-base`}>¿A qué hora vino?</label>
+                  <input
+                    id="ft-hora-pasada"
+                    type="time"
+                    step={300}
+                    value={horaManual}
+                    onChange={(e) => setHoraManual(e.target.value)}
+                    className={`${campo} max-w-[10rem]`}
+                  />
+                  {pasadoHoraFutura ? (
+                    <p className="mt-2 text-sm font-medium text-[#a12b28]">Esa hora todavía no llegó.</p>
+                  ) : (
+                    <p className="mt-2 text-sm text-[#14532d]">
+                      {editando ? "Sigue figurando como lo marcaste." : "Se guarda como ✅ completado y suma en Finanzas."}
+                    </p>
+                  )}
+                  {!esHistoria && fecha === ahora.fecha && (
+                    <button type="button" onClick={() => setModoElegido("libres")} className={`mt-3 ${linkClass}`}>
+                      Volver a los horarios libres
+                    </button>
+                  )}
+                </div>
+              )}
+            </Paso>
+          )}
+
+          {(soloNota || (cliente && servicio)) && (
+            <div>
+              <label htmlFor="ft-notas" className={`${labelClass} text-base`}>
+                Nota <span className="font-normal text-ink-soft">(opcional, solo la ves vos)</span>
               </label>
               <textarea
-                id="nt-notas"
+                id="ft-notas"
                 rows={2}
                 maxLength={1000}
                 placeholder="Ej: viene con la hija, prefiere aceite sin perfume…"
@@ -229,7 +345,7 @@ export default function NuevoTurno({
                 onChange={(e) => setNotas(e.target.value)}
                 className={`${campo} resize-none`}
               />
-            </Paso>
+            </div>
           )}
 
           {error && (
@@ -238,7 +354,7 @@ export default function NuevoTurno({
             </p>
           )}
 
-          {cliente && servicio && horaElegida && (
+          {!soloNota && cliente && servicio && horaElegida && (
             <div className="rounded-xl border border-cream-dark bg-surface p-4">
               <p className="text-base text-ink">
                 <span className="font-semibold">{nombreCompleto(cliente)}</span> · {servicio.name}
@@ -253,10 +369,10 @@ export default function NuevoTurno({
             <button
               type="button"
               onClick={() => void guardar()}
-              disabled={!cliente || !servicio || !horaElegida || guardando}
+              disabled={!listo || guardando}
               className={`${primaryButtonClass} min-h-12 px-6 text-base`}
             >
-              {guardando ? "Guardando…" : "Agendar turno"}
+              {guardando ? "Guardando…" : textoBoton}
             </button>
             <button type="button" onClick={onCerrar} disabled={guardando} className={`${secondaryButtonClass} min-h-12 px-6 text-base`}>
               Cancelar
@@ -280,13 +396,16 @@ function Paso({ numero, titulo, children }: { numero: number; titulo: string; ch
   )
 }
 
-function Elegido({ children, onCambiar }: { children: ReactNode; onCambiar: () => void }) {
+/** Lo ya elegido. Sin `onCambiar` queda fijo (la clienta de un turno que se está cambiando). */
+function Elegido({ children, onCambiar }: { children: ReactNode; onCambiar?: () => void }) {
   return (
-    <div className="flex items-center justify-between gap-3 rounded-xl border border-ink/15 bg-surface px-4 py-3">
+    <div className="flex min-h-14 items-center justify-between gap-3 rounded-xl border border-ink/15 bg-surface px-4 py-3">
       <p className="text-base">{children}</p>
-      <button type="button" onClick={onCambiar} className="min-h-12 shrink-0 px-2 text-base text-rose-dark underline underline-offset-4 hover:text-ink">
-        Cambiar
-      </button>
+      {onCambiar && (
+        <button type="button" onClick={onCambiar} className={`min-h-12 shrink-0 px-2 ${linkClass}`}>
+          Cambiar
+        </button>
+      )}
     </div>
   )
 }
@@ -313,9 +432,9 @@ function ElegirCliente({ onElegir }: { onElegir: (cliente: Cliente) => void }) {
 
   return (
     <div>
-      <label htmlFor="nt-buscar" className="sr-only">Buscar clienta</label>
+      <label htmlFor="ft-buscar" className="sr-only">Buscar clienta</label>
       <input
-        id="nt-buscar"
+        id="ft-buscar"
         type="search"
         autoFocus
         placeholder="Escribí el nombre o el teléfono"
@@ -347,7 +466,7 @@ function ElegirCliente({ onElegir }: { onElegir: (cliente: Cliente) => void }) {
 }
 
 /** Los servicios agrupados por categoría, como botones grandes. */
-function ElegirServicio({ onElegir }: { onElegir: (servicio: Service) => void }) {
+function ElegirServicio({ onElegir }: { onElegir: (servicio: ServicioElegido) => void }) {
   const servicios = useServicios()
 
   const lista = servicios.datos
@@ -357,11 +476,9 @@ function ElegirServicio({ onElegir }: { onElegir: (servicio: Service) => void })
     return <p className="text-base text-ink-soft">Todavía no hay servicios cargados.</p>
   }
 
-  const categorias = categoriesOf(lista)
-
   return (
     <div className="space-y-4">
-      {categorias.map((categoria) => (
+      {categoriesOf(lista).map((categoria) => (
         <div key={categoria}>
           <p className="mb-2 text-sm font-medium uppercase tracking-wide text-ink-soft">{categoria}</p>
           <div className="space-y-2">

@@ -119,6 +119,8 @@ export async function turnosDelDia(
   fecha: FechaISO,
   conn?: PoolConnection,
   bloquear = false,
+  /** Al reprogramar un turno, su propio horario no cuenta como ocupado. */
+  excluirTurnoId = 0,
 ): Promise<Ocupado[]> {
   const ejecutor = conn ?? pool
   const [rows] = await ejecutor.query<RowDataPacket[]>(
@@ -126,9 +128,10 @@ export async function turnosDelDia(
        FROM turnos
       WHERE DATE(fecha_hora_inicio) = ?
         AND estado IN (?)
+        AND id <> ?
       ORDER BY fecha_hora_inicio
       ${bloquear ? "FOR UPDATE" : ""}`,
-    [fecha, ESTADOS_OCUPAN],
+    [fecha, ESTADOS_OCUPAN, excluirTurnoId],
   )
   return rows.map((r) => ({
     desde: aMinutos(String(r.fecha_hora_inicio).slice(11, 16)),
@@ -165,6 +168,8 @@ export async function bloqueosDelDia(fecha: FechaISO, conn?: PoolConnection): Pr
 export async function calcularDisponibilidad(
   servicioId: number,
   fecha: FechaISO,
+  /** El panel, al reprogramar: el horario actual del turno se muestra libre. */
+  excluirTurnoId = 0,
 ): Promise<SlotDTO[]> {
   const servicio = await obtenerServicio(servicioId)
 
@@ -172,7 +177,7 @@ export async function calcularDisponibilidad(
   if (horarios.length === 0) return [] // cerrado
 
   const paso = await leerConfigNumero("intervalo_turnos_min", 15)
-  const ocupados = [...(await turnosDelDia(fecha)), ...(await bloqueosDelDia(fecha))]
+  const ocupados = [...(await turnosDelDia(fecha, undefined, false, excluirTurnoId)), ...(await bloqueosDelDia(fecha))]
 
   const esHoy = fecha === hoy()
   const ahora = minutosAhora()
@@ -194,6 +199,22 @@ export async function calcularDisponibilidad(
 }
 
 // ---------------------------------------------------------------- alta de turno
+
+/** Que el turno entre completo en el horario de atención de ese día. Lo usan el alta y la reprogramación. */
+export async function validarHorarioDeAtencion(fecha: FechaISO, inicio: number, fin: number, duracionMin: number) {
+  const horarios = (await listarHorarios()).filter((h) => h.diaSemana === diaSemanaISO(fecha))
+  if (horarios.length === 0) {
+    throw conflicto("Ese día el local no atiende.")
+  }
+  if (!horarios.some((h) => inicio >= aMinutos(h.desde) && fin <= aMinutos(h.hasta))) {
+    throw conflicto(`El turno de ${duracionMin} minutos no entra en el horario de atención de ese día.`)
+  }
+}
+
+/** Si un turno que empieza ese día a esa hora ya empezó. */
+export function yaEmpezo(fecha: FechaISO, inicio: number): boolean {
+  return fecha < hoy() || (fecha === hoy() && inicio <= minutosAhora())
+}
 
 export type TurnoCreadoDTO = {
   id: number
@@ -239,8 +260,11 @@ export type AgendarTurno = {
   fecha: FechaISO
   hora: string
   notas?: string
-  /** "reservado" si lo pidió la clienta por la web; "confirmado" si lo cargó la dueña. */
-  estado: "reservado" | "confirmado"
+  /**
+   * "reservado" si lo pidió la clienta por la web; "confirmado" si lo cargó la
+   * dueña; "completado" si la dueña registra uno que ya pasó (vino sin turno).
+   */
+  estado: "reservado" | "confirmado" | "completado"
   /**
    * La web solo deja reservar dentro del horario de atención. La dueña puede
    * dar un turno fuera de horario (un sábado a la tarde, un día cerrado), pero
@@ -265,27 +289,21 @@ export async function agendarTurno(input: AgendarTurno): Promise<TurnoCreadoDTO>
   const inicio = aMinutos(input.hora)
   const fin = inicio + servicio.durationMin
 
-  // No se puede reservar en el pasado.
-  if (input.fecha < hoy() || (input.fecha === hoy() && inicio <= minutosAhora())) {
+  // Solo un turno ya completado puede estar en el pasado: es la dueña
+  // registrando a alguien que vino sin turno. Todo lo demás, para adelante.
+  const pasado = yaEmpezo(input.fecha, inicio)
+  if (pasado && input.estado !== "completado") {
     throw malaPeticion("Ese horario ya pasó.")
+  }
+  if (!pasado && input.estado === "completado") {
+    throw malaPeticion("Todavía no es la hora de ese turno: no se puede cargar como completado.")
   }
   if (fin > 24 * 60) {
     throw malaPeticion(`El turno de ${servicio.durationMin} minutos terminaría pasada la medianoche.`)
   }
 
   if (input.respetarHorario) {
-    const horarios = (await listarHorarios()).filter((h) => h.diaSemana === diaSemanaISO(input.fecha))
-    if (horarios.length === 0) {
-      throw conflicto("Ese día el local no atiende.")
-    }
-    const entraEnAlgunHorario = horarios.some(
-      (h) => inicio >= aMinutos(h.desde) && fin <= aMinutos(h.hasta),
-    )
-    if (!entraEnAlgunHorario) {
-      throw conflicto(
-        `El turno de ${servicio.durationMin} minutos no entra en el horario de atención de ese día.`,
-      )
-    }
+    await validarHorarioDeAtencion(input.fecha, inicio, fin, servicio.durationMin)
   }
 
   return enTransaccion(async (conn) => {
@@ -340,7 +358,7 @@ export async function agendarTurno(input: AgendarTurno): Promise<TurnoCreadoDTO>
  * todavía no existe. Si la fecha de envío ya pasó (turno para dentro de menos
  * horas que la anticipación configurada), no se programa nada.
  */
-async function programarRecordatorio(
+export async function programarRecordatorio(
   conn: PoolConnection,
   turnoId: number,
   fecha: FechaISO,

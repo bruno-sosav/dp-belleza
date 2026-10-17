@@ -4,7 +4,7 @@ import PageHeader from "../components/PageHeader"
 import Panel from "../components/Panel"
 import SemanaGrilla from "../components/agenda/SemanaGrilla"
 import ModalTurno from "../components/agenda/ModalTurno"
-import NuevoTurno from "../components/agenda/NuevoTurno"
+import FormularioTurno from "../components/agenda/FormularioTurno"
 import TurnoFila from "../components/turnos/TurnoFila"
 import { Cargando, ErrorCarga } from "../components/EstadoCarga"
 import { fromDateKey, lunesDeSemana, sumarDias } from "../lib/fechas"
@@ -46,15 +46,18 @@ export default function AdminAgenda() {
   const [diaMovil, setDiaMovil] = useState(ahora.fecha)
   const [elegidoId, setElegidoId] = useState<number | null>(null)
   const [verCancelados, setVerCancelados] = useState(false)
-  /** Abierto = el modal de "Nuevo turno" con lo que ya se sabe (día y, si tocó la grilla, hora). */
-  const [nuevo, setNuevo] = useState<{ fecha: string; hora?: string } | null>(null)
+  /**
+   * El formulario de turno abierto: uno nuevo (con lo que ya se sabe: día y, si
+   * tocó la grilla, hora) o cambiar uno que existe.
+   */
+  const [formulario, setFormulario] = useState<{ fecha: string; hora?: string; turno?: Turno } | null>(null)
 
   const dias = Array.from({ length: 7 }, (_, i) => sumarDias(lunes, i))
   const agenda = useAgenda(dias[0], dias[6])
   const horarios = useHorarios()
   const bloqueos = useBloqueos(dias[0], dias[6])
   const cerrarModal = useCallback(() => setElegidoId(null), [])
-  const cerrarNuevo = useCallback(() => setNuevo(null), [])
+  const cerrarFormulario = useCallback(() => setFormulario(null), [])
 
   function irASemana(nuevoLunes: string) {
     setLunes(nuevoLunes)
@@ -62,9 +65,9 @@ export default function AdminAgenda() {
     setDiaMovil(lunesDeSemana(ahora.fecha) === nuevoLunes ? ahora.fecha : nuevoLunes)
   }
 
-  /** Recién creado: se va a su semana y se abre, así la dueña ve que quedó (y tiene el botón de WhatsApp a mano). */
-  function alCrear(turno: Turno) {
-    setNuevo(null)
+  /** Recién guardado: se va a su semana y se abre, así la dueña ve cómo quedó (y tiene el botón de WhatsApp a mano). */
+  function alGuardar(turno: Turno) {
+    setFormulario(null)
     setLunes(lunesDeSemana(turno.fecha))
     setDiaMovil(turno.fecha)
     setElegidoId(turno.id)
@@ -104,7 +107,7 @@ export default function AdminAgenda() {
           </Link>
           <button
             type="button"
-            onClick={() => setNuevo({ fecha: diaMovil > ahora.fecha ? diaMovil : ahora.fecha })}
+            onClick={() => setFormulario({ fecha: diaMovil > ahora.fecha ? diaMovil : ahora.fecha })}
             className={`${primaryButtonClass} min-h-12 px-5 text-base`}
           >
             + Nuevo turno
@@ -121,7 +124,7 @@ export default function AdminAgenda() {
           <>
             {/* Computadora: la semana entera */}
             <div className="hidden md:block">
-              <SemanaGrilla dias={dias} turnos={visibles} horarios={horarios.datos ?? []} bloqueos={bloqueos.datos ?? []} ahora={ahora} onElegir={(t) => setElegidoId(t.id)} onHueco={(fecha, hora) => setNuevo({ fecha, hora })} />
+              <SemanaGrilla dias={dias} turnos={visibles} horarios={horarios.datos ?? []} bloqueos={bloqueos.datos ?? []} ahora={ahora} onElegir={(t) => setElegidoId(t.id)} onHueco={(fecha, hora) => setFormulario({ fecha, hora })} />
             </div>
 
             {/* Celular: un día a la vez */}
@@ -157,7 +160,13 @@ export default function AdminAgenda() {
               {delDiaMovil.length ? (
                 <ul className="space-y-4">
                   {delDiaMovil.map((t) => (
-                    <TurnoFila key={t.id} turno={t} ahora={ahora} onCambiarEstado={(estado) => agenda.cambiarEstado(t.id, estado)} />
+                    <TurnoFila
+                      key={t.id}
+                      turno={t}
+                      ahora={ahora}
+                      onCambiarEstado={(estado) => agenda.cambiarEstado(t.id, estado)}
+                      onEditar={() => setFormulario({ fecha: t.fecha, turno: t })}
+                    />
                   ))}
                 </ul>
               ) : (
@@ -185,8 +194,15 @@ export default function AdminAgenda() {
         )}
       </Panel>
 
-      {nuevo && (
-        <NuevoTurno fechaInicial={nuevo.fecha} horaInicial={nuevo.hora} ahora={ahora} onCreado={alCrear} onCerrar={cerrarNuevo} />
+      {formulario && (
+        <FormularioTurno
+          turno={formulario.turno}
+          fechaInicial={formulario.fecha}
+          horaInicial={formulario.hora}
+          ahora={ahora}
+          onGuardado={alGuardar}
+          onCerrar={cerrarFormulario}
+        />
       )}
 
       {elegido && (
@@ -194,6 +210,10 @@ export default function AdminAgenda() {
           turno={elegido}
           ahora={ahora}
           onCambiarEstado={(estado) => agenda.cambiarEstado(elegido.id, estado)}
+          onEditar={() => {
+            setElegidoId(null)
+            setFormulario({ fecha: elegido.fecha, turno: elegido })
+          }}
           onCerrar={cerrarModal}
         />
       )}
