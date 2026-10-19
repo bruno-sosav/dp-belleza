@@ -107,6 +107,8 @@ export async function limpiar() {
   await pool.query("DELETE FROM cobros WHERE descripcion LIKE 'TEST%'")
   if (ids.length) {
     await pool.query("DELETE FROM cobros WHERE cliente_id IN (?) OR turno_id IN (SELECT id FROM turnos WHERE cliente_id IN (?))", [ids, ids])
+    await pool.query("DELETE i FROM pedido_items i JOIN pedidos p ON p.id = i.pedido_id WHERE p.cliente_id IN (?)", [ids])
+    await pool.query("DELETE FROM pedidos WHERE cliente_id IN (?)", [ids])
     await pool.query("DELETE FROM recordatorios WHERE cliente_id IN (?) OR turno_id IN (SELECT id FROM turnos WHERE cliente_id IN (?))", [ids, ids])
     await pool.query("DELETE FROM turnos WHERE cliente_id IN (?)", [ids])
     await pool.query("DELETE FROM clientes WHERE id IN (?)", [ids])

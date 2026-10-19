@@ -6,6 +6,7 @@
 import { ActualizarProducto, CrearProducto, GestionarCategorias, ListarProductos, VerProducto } from "./application/productos.js"
 import { ActualizarServicio, CrearServicio, ListarServicios, VerServicio } from "./application/servicios.js"
 import type { ServicioReservable } from "./domain/servicio.js"
+import type { Transaccion } from "../../core/transaccion.js"
 import { MySqlCategoriaRepository } from "./infrastructure/MySqlCategoriaRepository.js"
 import { MySqlProductoRepository } from "./infrastructure/MySqlProductoRepository.js"
 import { MySqlServicioRepository } from "./infrastructure/MySqlServicioRepository.js"
@@ -48,4 +49,7 @@ export const catalogo = {
    */
   servicioReservable: (id: number, opciones?: { incluirPausados?: boolean }): Promise<ServicioReservable> =>
     verServicio.reservable(id, opciones),
+
+  /** Para una venta: de esos productos, los activos con su precio actual. Los que no están, no se pueden vender. */
+  productosParaVender: (ids: number[], tx?: Transaccion) => productos.vendibles(ids, tx),
 }

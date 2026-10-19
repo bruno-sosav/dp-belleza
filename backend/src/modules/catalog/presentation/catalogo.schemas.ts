@@ -55,7 +55,8 @@ const producto = z.object({
   activo: z.boolean().optional(),
 })
 export const nuevoProducto = producto
-export const cambiosProducto = producto.partial()
+/** Editar un producto no toca el stock: eso va por el inventario (/productos/:id/stock y /reponer). */
+export const cambiosProducto = producto.omit({ stock: true }).partial()
 
 const categoria = z.object({
   nombre: z.string().trim().min(1).max(100),

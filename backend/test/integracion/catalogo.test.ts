@@ -63,7 +63,8 @@ describe("tienda", () => {
     expect(web.body).not.toHaveProperty("stock")
     expect(web.body).not.toHaveProperty("activo")
 
-    await api().patch(`/api/admin/productos/${p.body.id}`).set(auth).send({ stock: 0 })
+    // El stock lo cambia el inventario, no la edición del producto.
+    await api().put(`/api/admin/productos/${p.body.id}/stock`).set(auth).send({ stock: 0 })
     expect((await api().get(`/api/tienda/productos/${p.body.id}`)).body.disponible).toBe(false)
 
     const filtrados = (await api().get("/api/tienda/productos").query({ categoria: cat.body.id })).body as { id: number }[]

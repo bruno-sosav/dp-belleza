@@ -3,6 +3,8 @@ import type { RowDataPacket } from "mysql2"
 import { z } from "zod"
 import { enTransaccion, pool } from "../core/database/conexion.js"
 import { HttpError, noEncontrado } from "../core/errores.js"
+import { inventario } from "../modules/inventory/inventory.module.js"
+import { comoTransaccion } from "../core/database/MySqlUnidadDeTrabajo.js"
 import { ESTADOS_PEDIDO, puedeCambiarEstado, type EstadoPedido } from "../shared/models/pedidos.js"
 
 // Panel: pedidos de la tienda. Categorías y productos están en el módulo de
@@ -105,12 +107,12 @@ adminTienda.patch("/pedidos/:id/estado", async (req, res) => {
       throw new HttpError(409, `No se puede pasar un pedido de "${actual}" a "${estado}"`)
     }
     await conn.query("UPDATE pedidos SET estado = ? WHERE id = ?", [estado, id])
-    // Al cancelar, el stock vuelve a estar disponible.
+    // Al cancelar, el stock vuelve a estar disponible (lo hace el inventario).
     if (estado === "cancelado") {
-      await conn.query(
-        `UPDATE productos pr JOIN pedido_items i ON i.producto_id = pr.id
-         SET pr.stock = pr.stock + i.cantidad WHERE i.pedido_id = ?`,
-        [id],
+      const [items] = await conn.query<RowDataPacket[]>("SELECT producto_id, cantidad FROM pedido_items WHERE pedido_id = ?", [id])
+      await inventario.devolver(
+        items.map((i) => ({ productoId: i.producto_id as number, cantidad: Number(i.cantidad) })),
+        comoTransaccion(conn),
       )
     }
   })

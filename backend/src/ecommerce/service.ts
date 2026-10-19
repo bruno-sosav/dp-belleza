@@ -1,39 +1,38 @@
-import type { ResultSetHeader, RowDataPacket } from "mysql2"
+import type { ResultSetHeader } from "mysql2"
 import { enTransaccion } from "../core/database/conexion.js"
-import { HttpError } from "../core/errores.js"
+import { ErrorDeNegocio } from "../core/errores.js"
+import { catalogo } from "../modules/catalog/catalog.module.js"
+import { inventario } from "../modules/inventory/inventory.module.js"
 import { clientes } from "../modules/customers/customers.module.js"
 import { comoTransaccion } from "../core/database/MySqlUnidadDeTrabajo.js"
 import { agruparItems, redondear } from "../shared/models/pedidos.js"
 import type { NuevoPedido } from "./validacion.js"
 
-// Checkout: crea el pedido, toma los precios de la base y descuenta stock, todo en una transacción.
+// Checkout: crea el pedido con los precios del catálogo y el stock del
+// inventario, todo en una transacción.
 export async function crearPedido(datos: NuevoPedido) {
   const items = agruparItems(datos.items)
 
   return enTransaccion(async (conn) => {
     const clienteId = await clientes.buscarOCrear(datos.cliente, comoTransaccion(conn))
 
-    // FOR UPDATE bloquea las filas hasta el commit, así dos compras simultáneas no venden el mismo stock.
-    const ids = items.map((i) => i.productoId)
-    const [productos] = await conn.query<RowDataPacket[]>(
-      "SELECT id, nombre, precio, stock, activo FROM productos WHERE id IN (?) FOR UPDATE",
-      [ids],
-    )
-    const porId = new Map(productos.map((p) => [p.id as number, p]))
+    const tx = comoTransaccion(conn)
 
-    const problemas: { productoId: number; motivo: string }[] = []
-    for (const item of items) {
-      const p = porId.get(item.productoId)
-      if (!p || !p.activo) problemas.push({ productoId: item.productoId, motivo: "no disponible" })
-      else if (p.stock < item.cantidad)
-        problemas.push({ productoId: item.productoId, motivo: `stock insuficiente (quedan ${p.stock})` })
-    }
-    if (problemas.length) throw new HttpError(409, "Algunos productos no se pueden comprar", problemas)
+    // Del catálogo: qué productos están activos y a qué precio. El precio sale
+    // siempre de la base, nunca del navegador.
+    const vendibles = await catalogo.productosParaVender(items.map((i) => i.productoId), tx)
+    const problemas = items.filter((i) => !vendibles.has(i.productoId)).map((i) => ({ productoId: i.productoId, motivo: "no disponible" }))
 
-    // El precio sale siempre de la base, nunca del navegador.
+    // Del inventario: que alcance el stock, y descontarlo. Bloquea esas filas
+    // hasta el commit, así dos compras simultáneas no venden la misma unidad.
+    const reserva = await inventario.reservar(items.filter((i) => vendibles.has(i.productoId)), tx)
+    if (!reserva.ok) problemas.push(...reserva.problemas)
+    // Si algo falla, la transacción se deshace entera (también el descuento).
+    if (problemas.length) throw new ErrorDeNegocio("conflicto", "Algunos productos no se pueden comprar", problemas)
+
     const lineas = items.map((item) => {
-      const p = porId.get(item.productoId)!
-      return { ...item, nombre: p.nombre as string, precioUnitario: p.precio as number }
+      const p = vendibles.get(item.productoId)!
+      return { ...item, nombre: p.nombre, precioUnitario: p.precio }
     })
     const total = redondear(lineas.reduce((suma, l) => suma + l.precioUnitario * l.cantidad, 0))
 
@@ -47,9 +46,6 @@ export async function crearPedido(datos: NuevoPedido) {
       "INSERT INTO pedido_items (pedido_id, producto_id, cantidad, precio_unitario) VALUES ?",
       [lineas.map((l) => [pedidoId, l.productoId, l.cantidad, l.precioUnitario])],
     )
-    for (const l of lineas) {
-      await conn.query("UPDATE productos SET stock = stock - ? WHERE id = ?", [l.cantidad, l.productoId])
-    }
 
     return {
       id: pedidoId,

@@ -1,8 +1,9 @@
 /**
  * Productos y categorías de la tienda. Dominio puro.
  *
- * El stock vive en el producto por ahora; cuando se arme el módulo inventory/,
- * los movimientos de stock (vender, reponer) pasan a ser de ese módulo.
+ * El stock es del módulo inventory/: el catálogo solo lo pone al crear el
+ * producto (stock inicial) y lo muestra; venderlo, devolverlo, reponerlo o
+ * corregirlo lo hace el inventario.
  */
 
 export type Categoria = { id: number; nombre: string; activo: boolean }
@@ -28,7 +29,11 @@ export type DatosProducto = {
   categoriaId?: number | null
   activo?: boolean
 }
-export type CambiosProducto = Partial<DatosProducto>
+/** Editar un producto no toca el stock: eso es del inventario. */
+export type CambiosProducto = Partial<Omit<DatosProducto, "stock">>
+
+/** Lo que necesita una venta del catálogo: que esté activo y a qué precio. */
+export type ProductoVendible = Pick<Producto, "id" | "nombre" | "precio">
 
 /** Lo que ve la clienta: si hay o no, no cuántas unidades quedan. */
 export const disponible = (p: Pick<Producto, "stock">) => p.stock > 0

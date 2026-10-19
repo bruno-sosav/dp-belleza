@@ -2,7 +2,8 @@
 import type { ResultSetHeader, RowDataPacket } from "mysql2"
 import { ejecutor } from "../../../core/database/MySqlUnidadDeTrabajo.js"
 import type { ProductoRepository } from "../domain/ports.js"
-import type { CambiosProducto, Producto } from "../domain/producto.js"
+import type { CambiosProducto, DatosProducto, Producto, ProductoVendible } from "../domain/producto.js"
+import type { Transaccion } from "../../../core/transaccion.js"
 
 const SELECT = `
   SELECT p.id, p.nombre, p.descripcion, p.precio, p.stock, p.imagen_url, p.activo,
@@ -23,11 +24,12 @@ function aProducto(r: RowDataPacket): Producto {
   }
 }
 
-function aColumnas(p: CambiosProducto): Record<string, unknown> {
+function aColumnas(p: CambiosProducto & { stock?: number }): Record<string, unknown> {
   const c: Record<string, unknown> = {
     nombre: p.nombre,
     descripcion: p.descripcion,
     precio: p.precio,
+    // Solo al crear (stock inicial): después lo maneja el inventario.
     stock: p.stock,
     imagen_url: p.imagenUrl,
     categoria_id: p.categoriaId,
@@ -62,7 +64,7 @@ export class MySqlProductoRepository implements ProductoRepository {
     return rows[0] ? aProducto(rows[0]) : null
   }
 
-  async crear(datos: CambiosProducto) {
+  async crear(datos: DatosProducto) {
     const [r] = await ejecutor().query<ResultSetHeader>("INSERT INTO productos SET ?", [aColumnas(datos)])
     return r.insertId
   }
@@ -70,5 +72,11 @@ export class MySqlProductoRepository implements ProductoRepository {
   async actualizar(id: number, cambios: CambiosProducto) {
     const [r] = await ejecutor().query<ResultSetHeader>("UPDATE productos SET ? WHERE id = ?", [aColumnas(cambios), id])
     return r.affectedRows > 0
+  }
+
+  async vendibles(ids: number[], tx?: Transaccion) {
+    if (!ids.length) return new Map<number, ProductoVendible>()
+    const [rows] = await ejecutor(tx).query<RowDataPacket[]>("SELECT id, nombre, precio FROM productos WHERE id IN (?) AND activo = 1", [ids])
+    return new Map(rows.map((r) => [r.id as number, { id: r.id as number, nombre: r.nombre as string, precio: Number(r.precio) }]))
   }
 }

@@ -1,5 +1,6 @@
 /** Puertos del catálogo. Las implementaciones MySQL están en infrastructure/. */
-import type { CambiosProducto, Categoria, DatosProducto, Producto } from "./producto.js"
+import type { Transaccion } from "../../../core/transaccion.js"
+import type { CambiosProducto, Categoria, DatosProducto, Producto, ProductoVendible } from "./producto.js"
 import type { CambiosServicio, DatosServicio, Servicio } from "./servicio.js"
 
 export interface ServicioRepository {
@@ -23,6 +24,8 @@ export interface ProductoRepository {
   porId(id: number, opciones: { soloActivos: boolean }): Promise<Producto | null>
   crear(datos: DatosProducto): Promise<number>
   actualizar(id: number, cambios: CambiosProducto): Promise<boolean>
+  /** De esos productos, los activos, con su precio actual (para una venta). */
+  vendibles(ids: number[], tx?: Transaccion): Promise<Map<number, ProductoVendible>>
 }
 
 export interface CategoriaRepository {

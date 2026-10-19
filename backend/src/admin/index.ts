@@ -5,6 +5,7 @@ import { adminStats } from "./stats.js"
 import { adminTurnos } from "./turnos.js"
 import { clientes } from "../modules/customers/customers.module.js"
 import { catalogo } from "../modules/catalog/catalog.module.js"
+import { inventario } from "../modules/inventory/inventory.module.js"
 import { adminAgenda } from "./agenda.js"
 import { adminConfiguracion } from "./configuracion.js"
 import { adminRecordatorios } from "./recordatorios.js"
@@ -21,6 +22,7 @@ admin.use(adminTurnos)
 // Módulos ya reorganizados (modules/): cada uno trae sus rutas de panel.
 admin.use(clientes.rutasPanel)
 admin.use(catalogo.rutasPanel)
+admin.use(inventario.rutasPanel)
 admin.use(adminAgenda)
 admin.use(adminConfiguracion)
 admin.use(adminRecordatorios)
