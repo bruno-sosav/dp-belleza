@@ -8,6 +8,14 @@ export const unidadDeTrabajoMySql: UnidadDeTrabajo = {
 }
 
 /**
+ * Para los módulos que todavía no se mudaron a modules/ y manejan su propia
+ * conexión: la presentan como Transaccion para llamar a un módulo nuevo.
+ */
+export function comoTransaccion(conn: PoolConnection): Transaccion {
+  return conn as unknown as Transaccion
+}
+
+/**
  * Para los repositorios MySQL: la conexión de la transacción en curso, o el
  * pool si el caso de uso no abrió una.
  */

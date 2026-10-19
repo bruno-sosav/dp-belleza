@@ -12,8 +12,7 @@ import { z } from "zod"
 import { enTransaccion } from "../core/database/conexion.js"
 import { malaPeticion } from "../core/errores.js"
 import { leerConfigs } from "../shared/configuracion.js"
-import { normalizarTelefono } from "../shared/models/telefono.js"
-import { codigoAreaLocal, olvidarCodigoArea } from "../shared/telefonoLocal.js"
+import { clientes } from "../modules/customers/customers.module.js"
 
 export const adminConfiguracion = Router()
 
@@ -59,7 +58,7 @@ adminConfiguracion.patch("/configuracion", async (req, res) => {
 
   if (datos.telefono_negocio) {
     // Con el código de área que viene en el mismo guardado, si cambió.
-    const telefono = normalizarTelefono(datos.telefono_negocio, datos.codigo_area_negocio ?? (await codigoAreaLocal()))
+    const telefono = clientes.normalizarTelefonoCon(datos.telefono_negocio, datos.codigo_area_negocio ?? (await clientes.codigoArea()))
     if (!telefono) throw malaPeticion("El WhatsApp del local no parece un teléfono válido.")
     datos.telefono_negocio = telefono
   }
@@ -70,6 +69,6 @@ adminConfiguracion.patch("/configuracion", async (req, res) => {
     }
   })
 
-  if (datos.codigo_area_negocio !== undefined) olvidarCodigoArea()
+  if (datos.codigo_area_negocio !== undefined) clientes.olvidarCodigoArea()
   res.json(await leerConfigs())
 })

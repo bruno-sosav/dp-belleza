@@ -1,5 +1,7 @@
 /** Clientas: alta con teléfonos escritos de cualquier forma, duplicados y unir fichas. */
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
+import type { RowDataPacket } from "mysql2"
+import { pool } from "../../src/core/database/conexion.js"
 import { api, cerrar, diaAbierto, libres, limpiar, servicioCorto, telefono, token } from "./ayuda.js"
 
 let auth: { Authorization: string }
@@ -38,6 +40,10 @@ describe("clientas", () => {
     const t = await api().post("/api/admin/turnos").set(auth).send({ clienteId: b.body.id, servicioId: servicio.id, fecha: dia, hora: (await libres(servicio.id, dia))[0] })
     expect(t.status).toBe(201)
 
+    // Un cobro de la caja de la ficha que se va a borrar (antes quedaba sin clienta al unir).
+    const cobro = await api().post("/api/admin/cobros").set(auth).send({ monto: 500, medio: "efectivo", concepto: "turno", turnoId: t.body.id })
+    expect(cobro.status).toBe(201)
+
     const sugeridas = await api().get(`/api/admin/clientes/${a.body.id}/posibles-duplicados`).set(auth)
     expect(sugeridas.body.map((x: { id: number }) => x.id)).toContain(b.body.id)
 
@@ -50,6 +56,8 @@ describe("clientas", () => {
     expect(ficha.body.notas).toContain("nota B")
     expect(ficha.body.turnos.map((x: { id: number }) => x.id)).toContain(t.body.id)
     expect((await api().get(`/api/admin/clientes/${b.body.id}`).set(auth)).status).toBe(404)
+    const [[c]] = await pool.query<RowDataPacket[]>("SELECT cliente_id FROM cobros WHERE id = ?", [cobro.body.id])
+    expect(c.cliente_id).toBe(a.body.id)
   })
 
   it("no une una ficha consigo misma", async () => {

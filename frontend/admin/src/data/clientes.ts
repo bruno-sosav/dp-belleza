@@ -9,6 +9,13 @@ import { api } from "../lib/api"
 import { useApi } from "../lib/useApi"
 import type { EstadoTurno } from "./turnos"
 
+/**
+ * Los tipos de acá son exactamente lo que devuelve el backend (los DTOs de
+ * backend/src/modules/customers/presentation/clientes.dto.ts): cada pantalla
+ * recibe solo lo que usa.
+ */
+
+/** Los datos de una clienta: lo que devuelven el alta y la edición. */
 export type Cliente = {
   id: number
   nombre: string
@@ -19,15 +26,12 @@ export type Cliente = {
   cumple: { dia: number; mes: number } | null
   /** Notas internas de la dueña. La clienta no las ve. */
   notas: string | null
-  /** "2026-06-18" */
-  clienteDesde: string
+}
+
+/** Una fila de la lista de Clientas (y lo que se elige al dar un turno). */
+export type ClienteEnLista = Pick<Cliente, "id" | "nombre" | "apellido" | "telefono"> & {
   /** Turnos completados. */
   visitas: number
-  /** Turnos en los que no vino. */
-  ausencias: number
-  /** Pedidos de la tienda no cancelados. */
-  compras: number
-  gastado: { turnos: number; tienda: number; total: number }
   ultimaVisita: string | null
   /** "2026-10-20 14:30" */
   proximoTurno: string | null
@@ -38,10 +42,8 @@ export type TurnoDeCliente = {
   estado: EstadoTurno
   fecha: string
   horaInicio: string
-  horaFin: string
   servicio: string
   precio: number
-  notas: string | null
 }
 
 export type PedidoDeCliente = {
@@ -52,14 +54,26 @@ export type PedidoDeCliente = {
   fecha: string
 }
 
-export type FichaCliente = Cliente & { turnos: TurnoDeCliente[]; pedidos: PedidoDeCliente[] }
+/** La ficha completa de una clienta. */
+export type FichaCliente = Cliente & {
+  /** "2026-06-18" */
+  clienteDesde: string
+  visitas: number
+  /** Turnos en los que no vino. */
+  ausencias: number
+  gastado: { turnos: number; tienda: number; total: number }
+  ultimaVisita: string | null
+  proximoTurno: string | null
+  turnos: TurnoDeCliente[]
+  pedidos: PedidoDeCliente[]
+}
 
 export type CambiosCliente = Partial<Pick<Cliente, "nombre" | "apellido" | "telefono" | "email" | "cumple" | "notas">>
 
 /** Lista, filtrada por nombre o teléfono. `q` vacío trae todas. */
 export function useClientes(q: string) {
   const pedir = useCallback(
-    () => api<Cliente[]>("/api/admin/clientes", { query: { q: q || undefined } }),
+    () => api<ClienteEnLista[]>("/api/admin/clientes", { query: { q: q || undefined } }),
     [q],
   )
   return useApi(pedir)
@@ -88,7 +102,7 @@ export const nombreCompleto = (c: Pick<Cliente, "nombre" | "apellido">) =>
   [c.nombre, c.apellido].filter(Boolean).join(" ")
 
 /** Otra ficha, en la forma corta que devuelve la sugerencia de duplicados. */
-export type FichaCorta = Pick<Cliente, "id" | "nombre" | "apellido" | "telefono" | "email">
+export type FichaCorta = Pick<Cliente, "id" | "nombre" | "apellido" | "telefono">
 
 /** Fichas que podrían ser la misma persona (mismo nombre y apellido, o mismo email). */
 export function usePosiblesDuplicados(id: number) {

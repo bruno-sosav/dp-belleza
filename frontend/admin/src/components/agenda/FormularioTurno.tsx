@@ -411,7 +411,7 @@ function Elegido({ children, onCambiar }: { children: ReactNode; onCambiar?: () 
 }
 
 /** Busca entre las clientas, o da de alta una nueva sin salir del turno. */
-function ElegirCliente({ onElegir }: { onElegir: (cliente: Cliente) => void }) {
+function ElegirCliente({ onElegir }: { onElegir: (cliente: ClienteElegido) => void }) {
   const [texto, setTexto] = useState("")
   const [busqueda, setBusqueda] = useState("")
   const [nueva, setNueva] = useState(false)

@@ -1,7 +1,8 @@
 import type { ResultSetHeader, RowDataPacket } from "mysql2"
 import { enTransaccion } from "../core/database/conexion.js"
 import { HttpError } from "../core/errores.js"
-import { buscarOCrearCliente } from "../shared/models/clientes.js"
+import { clientes } from "../modules/customers/customers.module.js"
+import { comoTransaccion } from "../core/database/MySqlUnidadDeTrabajo.js"
 import { agruparItems, redondear } from "../shared/models/pedidos.js"
 import type { NuevoPedido } from "./validacion.js"
 
@@ -10,7 +11,7 @@ export async function crearPedido(datos: NuevoPedido) {
   const items = agruparItems(datos.items)
 
   return enTransaccion(async (conn) => {
-    const clienteId = await buscarOCrearCliente(conn, datos.cliente)
+    const clienteId = await clientes.buscarOCrear(datos.cliente, comoTransaccion(conn))
 
     // FOR UPDATE bloquea las filas hasta el commit, así dos compras simultáneas no venden el mismo stock.
     const ids = items.map((i) => i.productoId)

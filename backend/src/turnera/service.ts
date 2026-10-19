@@ -11,7 +11,8 @@ import type { PoolConnection } from "mysql2/promise"
 import type { RowDataPacket } from "mysql2"
 import { pool, enTransaccion } from "../core/database/conexion.js"
 import { leerConfigNumero } from "../shared/configuracion.js"
-import { buscarOCrearCliente } from "../shared/models/clientes.js"
+import { clientes } from "../modules/customers/customers.module.js"
+import { comoTransaccion } from "../core/database/MySqlUnidadDeTrabajo.js"
 import { conflicto, HttpError, malaPeticion, noExiste } from "../core/errores.js"
 import {
   aDateTime,
@@ -270,18 +271,18 @@ export async function crearTurno(input: NuevoTurno): Promise<TurnoCreadoDTO> {
     notas: input.contacto.notas,
     estado: "reservado",
     respetarHorario: true,
-    // Alta/reuso del cliente con la funcion COMPARTIDA con la tienda
-    // (shared/models/clientes.ts): la misma persona que reserva un turno y
-    // despues compra un producto tiene que ser una sola fila en `clientes`.
+    // La clienta la resuelve el módulo de clientas (customers): la misma
+    // persona que reserva un turno y después compra en la tienda es UNA ficha.
     cliente: async (conn) => {
-      const partes = input.contacto.nombreCompleto.trim().split(/\s+/)
-      const clienteId = await buscarOCrearCliente(conn, {
-        nombre: partes.length > 1 ? partes.slice(0, -1).join(" ") : partes[0],
-        apellido: partes.length > 1 ? partes[partes.length - 1] : undefined,
-        telefono: input.contacto.telefono,
-        email: input.contacto.email,
-        cumple: input.contacto.cumple,
-      })
+      const clienteId = await clientes.buscarOCrear(
+        {
+          ...clientes.separarNombreCompleto(input.contacto.nombreCompleto),
+          telefono: input.contacto.telefono,
+          email: input.contacto.email,
+          cumple: input.contacto.cumple,
+        },
+        comoTransaccion(conn),
+      )
       // Tope de turnos pedidos por clienta: que nadie llene la agenda desde la web.
       const [[pedidos]] = await conn.query<RowDataPacket[]>(
         `SELECT COUNT(*) AS n FROM turnos

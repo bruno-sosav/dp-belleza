@@ -3,8 +3,7 @@ import { requiereLogin } from "../core/http/sesion.js"
 import { adminTienda } from "./tienda.js"
 import { adminStats } from "./stats.js"
 import { adminTurnos } from "./turnos.js"
-import { adminClientes } from "./clientes.js"
-import { adminClientesUnir } from "./clientesUnir.js"
+import { clientes } from "../modules/customers/customers.module.js"
 import { adminServicios } from "./servicios.js"
 import { adminAgenda } from "./agenda.js"
 import { adminConfiguracion } from "./configuracion.js"
@@ -19,8 +18,8 @@ admin.use(requiereLogin)
 admin.use(adminTienda)
 admin.use(adminStats)
 admin.use(adminTurnos)
-admin.use(adminClientes)
-admin.use(adminClientesUnir)
+// Módulos ya reorganizados (modules/): cada uno trae sus rutas de panel.
+admin.use(clientes.rutasPanel)
 admin.use(adminServicios)
 admin.use(adminAgenda)
 admin.use(adminConfiguracion)

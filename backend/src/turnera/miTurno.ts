@@ -20,7 +20,7 @@ import { enTransaccion, pool } from "../core/database/conexion.js"
 import { conflicto, HttpError } from "../core/errores.js"
 import { leerConfigNumero } from "../shared/configuracion.js"
 import { limitarPorIp } from "../core/http/limitarPorIp.js"
-import { normalizarTelefonoLocal } from "../shared/telefonoLocal.js"
+import { clientes } from "../modules/customers/customers.module.js"
 import { aDateTime, hoy, minutosAhora } from "./tiempo.js"
 
 export const miTurno = Router()
@@ -62,7 +62,7 @@ const identificacion = z.object({ codigo, telefono: z.string().trim().min(6).max
 
 /** El turno si el código y el teléfono coinciden; si no, el mismo error para los dos casos (no se revela cuál falló). */
 async function buscar(datos: z.infer<typeof identificacion>, conn: Pool | PoolConnection = pool, bloquear = false) {
-  const telefono = await normalizarTelefonoLocal(datos.telefono)
+  const telefono = await clientes.normalizarTelefono(datos.telefono)
   const noEncontrado = new HttpError(404, "No encontramos un turno con ese código y ese teléfono. Revisá los dos datos.")
   if (!telefono) throw noEncontrado
   const [rows] = await conn.query<RowDataPacket[]>(
