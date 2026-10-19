@@ -24,6 +24,7 @@ import { leerConfigNumero } from "../shared/configuracion.js"
 import { HttpError } from "../shared/errors.js"
 import { consultarPago, crearPreferencia, cuentaMercadoPago } from "../shared/mercadopago.js"
 import type { PagoMP } from "../shared/mercadopago.js"
+import { registrarCobro } from "../shared/models/cobros.js"
 import { seSolapan, aMinutos } from "./tiempo.js"
 
 /** Minutos que tiene la clienta para pagar antes de que se libere el horario. */
@@ -118,6 +119,15 @@ export async function aplicarPagoSena(turnoId: number, pago: PagoMP): Promise<vo
         WHERE id = ?`,
       [pago.id, estado, canceladoPor, canceladoPor, turnoId],
     )
+    // La seña entra a la caja sola (con el id del pago, así no entra dos veces).
+    await registrarCobro(conn, {
+      monto: Number(pago.transaction_amount),
+      medio: "mercadopago",
+      concepto: "sena",
+      turnoId,
+      clienteId: t.cliente_id,
+      mpPagoId: pago.id,
+    })
   })
 }
 

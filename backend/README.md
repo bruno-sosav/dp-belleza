@@ -111,6 +111,7 @@ mysql -u dp_dev -p dp_belleza < database/migrations/V7_cancelacion_desde_la_web.
 mysql -u dp_dev -p dp_belleza < database/migrations/V8_codigo_area_y_cuenta.sql
 mysql -u dp_dev -p dp_belleza < database/migrations/V9_sena_mercadopago.sql
 mysql -u dp_dev -p dp_belleza < database/migrations/V10_reglas_de_reserva.sql
+mysql -u dp_dev -p dp_belleza < database/migrations/V11_caja.sql
 mysql -u dp_dev -p dp_belleza < database/seeds/seed_01_servicios.sql
 mysql -u dp_dev -p dp_belleza < database/seeds/seed_02_horarios.sql
 mysql -u dp_dev -p dp_belleza < database/seeds/ecommerce-datos-ejemplo.sql

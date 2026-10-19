@@ -163,6 +163,8 @@ export default function AdminAgenda() {
                       turno={t}
                       ahora={ahora}
                       onCambiarEstado={(estado) => agenda.cambiarEstado(t.id, estado)}
+                      onCompletar={(cobro) => agenda.completar(t.id, cobro)}
+                      onCobrar={(cobro) => agenda.cobrar(t.id, cobro)}
                       onEditar={() => setFormulario({ fecha: t.fecha, turno: t })}
                     />
                   ))}
@@ -211,6 +213,8 @@ export default function AdminAgenda() {
           turno={elegido}
           ahora={ahora}
           onCambiarEstado={(estado) => agenda.cambiarEstado(elegido.id, estado)}
+          onCompletar={(cobro) => agenda.completar(elegido.id, cobro)}
+          onCobrar={(cobro) => agenda.cobrar(elegido.id, cobro)}
           onEditar={() => {
             setElegidoId(null)
             setFormulario({ fecha: elegido.fecha, turno: elegido })

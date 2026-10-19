@@ -103,7 +103,10 @@ export const anotarBloqueo = (id: number) => creados.bloqueos.add(id)
 export async function limpiar() {
   const [clientes] = await pool.query<RowDataPacket[]>("SELECT id FROM clientes WHERE telefono LIKE '54922355599%'")
   const ids = clientes.map((c) => c.id)
+  // Los cobros no se borran con el turno (quedan en la caja): se limpian primero.
+  await pool.query("DELETE FROM cobros WHERE descripcion LIKE 'TEST%'")
   if (ids.length) {
+    await pool.query("DELETE FROM cobros WHERE cliente_id IN (?) OR turno_id IN (SELECT id FROM turnos WHERE cliente_id IN (?))", [ids, ids])
     await pool.query("DELETE FROM recordatorios WHERE cliente_id IN (?) OR turno_id IN (SELECT id FROM turnos WHERE cliente_id IN (?))", [ids, ids])
     await pool.query("DELETE FROM turnos WHERE cliente_id IN (?)", [ids])
     await pool.query("DELETE FROM clientes WHERE id IN (?)", [ids])

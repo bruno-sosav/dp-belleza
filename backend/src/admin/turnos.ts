@@ -10,6 +10,7 @@
  */
 import { Router } from "express"
 import type { RowDataPacket } from "mysql2"
+import type { PoolConnection } from "mysql2/promise"
 import { z } from "zod"
 import { enTransaccion, pool } from "../shared/db.js"
 import { HttpError, conflicto, malaPeticion, noEncontrado } from "../shared/errors.js"
@@ -32,6 +33,7 @@ import {
 import { aDateTime, aMinutos, hoy, minutosAhora, seSolapan } from "../turnera/tiempo.js"
 import type { FechaISO } from "../turnera/tiempo.js"
 import { consultaDisponibilidad, fechaISO, horaHM } from "../turnera/validacion.js"
+import { MEDIOS_PAGO, registrarCobro } from "../shared/models/cobros.js"
 
 export const adminTurnos = Router()
 
@@ -61,6 +63,7 @@ function diasEntre(desde: string, hasta: string): number {
 
 export const SELECT_TURNO = `
   SELECT t.id, t.estado, t.cancelado_por, t.precio, t.sena_monto, t.sena_estado, t.notas, t.fecha_hora_inicio, t.fecha_hora_fin,
+         (SELECT COALESCE(SUM(cb.monto), 0) FROM cobros cb WHERE cb.turno_id = t.id) AS cobrado,
          s.id AS servicio_id, s.nombre AS servicio_nombre, s.duracion_min,
          c.id AS cliente_id, c.nombre, c.apellido, c.telefono, c.email
     FROM turnos t
@@ -76,6 +79,8 @@ export function aTurno(r: RowDataPacket) {
     /** Solo en cancelados: "clienta" si lo canceló ella desde la web. */
     canceladoPor: (r.cancelado_por ?? null) as "local" | "clienta" | "sistema" | null,
     /** Solo turnos reservados en la web con seña. */
+    /** Lo que ya entró a la caja por este turno (seña + lo cobrado al terminar). */
+    cobrado: Number(r.cobrado ?? 0),
     sena: r.sena_estado ? { monto: Number(r.sena_monto), estado: r.sena_estado as "pendiente" | "pagada" | "vencida" } : null,
     // "2026-10-20 14:30:00" -> fecha y hora por separado. Se cortan strings y
     // no se pasa por Date por lo explicado en shared/db.ts (dateStrings).
@@ -296,49 +301,81 @@ adminTurnos.patch("/turnos/:id", async (req, res) => {
  *   - un turno cancelado deja de aparecer solo en Recordatorios (la lista se
  *     arma con los turnos pedidos), no hay nada que limpiar.
  */
+/**
+ * Cambia el estado de un turno dentro de una transacción, con todas las reglas.
+ * Lo usan PATCH /estado y POST /completar (que además anota el cobro).
+ */
+async function cambiarEstado(conn: PoolConnection, id: number, estado: EstadoTurno) {
+  const [rows] = await conn.query<RowDataPacket[]>(
+    "SELECT estado, fecha_hora_inicio, fecha_hora_fin FROM turnos WHERE id = ? FOR UPDATE",
+    [id],
+  )
+  if (!rows[0]) throw noEncontrado("Turno")
+  const actual = rows[0].estado as EstadoTurno
+  const inicio = String(rows[0].fecha_hora_inicio)
+  const fin = String(rows[0].fecha_hora_fin)
+
+  if (actual === estado) return
+  if (!puedeCambiarEstadoTurno(actual, estado)) {
+    throw new HttpError(409, `No se puede pasar un turno de "${actual}" a "${estado}"`)
+  }
+
+  // Strings "YYYY-MM-DD HH:MM:SS": se comparan bien en orden alfabético.
+  const ahora = aDateTime(hoy(), minutosAhora())
+  if (requiereHaberEmpezado(estado) && inicio > ahora) {
+    throw malaPeticion(`Todavía no es la hora del turno: no se puede marcar como "${estado}".`)
+  }
+
+  if (ocupaAgenda(estado) && !ocupaAgenda(actual)) {
+    const fecha = inicio.slice(0, 10)
+    const desde = aMinutos(inicio.slice(11, 16))
+    const hasta = aMinutos(fin.slice(11, 16))
+    const ocupados = [...(await turnosDelDia(fecha, conn, true)), ...(await bloqueosDelDia(fecha, conn))]
+    if (ocupados.some((o) => seSolapan(desde, hasta, o.desde, o.hasta))) {
+      throw conflicto("Ese horario ya lo ocupa otro turno o un bloqueo.")
+    }
+  }
+
+  await conn.query(
+    estado === "cancelado"
+      ? "UPDATE turnos SET estado = ?, cancelado_por = 'local', cancelado_at = NOW() WHERE id = ?"
+      : "UPDATE turnos SET estado = ? WHERE id = ?",
+    [estado, id],
+  )
+
+  // Deshacer un "completado" (tocó el botón equivocado): lo que se anotó como
+  // cobrado al terminar el turno sale de la caja. La seña no, esa se pagó igual.
+  if (actual === "completado") {
+    await conn.query("DELETE FROM cobros WHERE turno_id = ? AND concepto = 'turno'", [id])
+  }
+}
+
 adminTurnos.patch("/turnos/:id/estado", async (req, res) => {
   const id = idParam.parse(req.params.id)
   const { estado } = z.object({ estado: z.enum(ESTADOS_TURNO) }).parse(req.body)
+  await enTransaccion((conn) => cambiarEstado(conn, id, estado))
+  res.json(await buscarTurno(id))
+})
 
+/**
+ * POST /api/admin/turnos/:id/completar   { "cobro": { "monto": 16800, "medio": "efectivo" } }
+ *
+ * Marca el turno como completado y, en la misma operación, anota lo que se
+ * cobró. `cobro: null` = "todavía no cobré" (queda en Caja → sin cobrar).
+ */
+adminTurnos.post("/turnos/:id/completar", async (req, res) => {
+  const id = idParam.parse(req.params.id)
+  const { cobro } = z
+    .object({
+      cobro: z.object({ monto: z.number().positive().max(100_000_000), medio: z.enum(MEDIOS_PAGO) }).nullable(),
+    })
+    .parse(req.body)
   await enTransaccion(async (conn) => {
-    const [rows] = await conn.query<RowDataPacket[]>(
-      "SELECT estado, fecha_hora_inicio, fecha_hora_fin FROM turnos WHERE id = ? FOR UPDATE",
-      [id],
-    )
-    if (!rows[0]) throw noEncontrado("Turno")
-    const actual = rows[0].estado as EstadoTurno
-    const inicio = String(rows[0].fecha_hora_inicio)
-    const fin = String(rows[0].fecha_hora_fin)
-
-    if (actual === estado) return
-    if (!puedeCambiarEstadoTurno(actual, estado)) {
-      throw new HttpError(409, `No se puede pasar un turno de "${actual}" a "${estado}"`)
+    await cambiarEstado(conn, id, "completado")
+    if (cobro) {
+      const [[t]] = await conn.query<RowDataPacket[]>("SELECT cliente_id FROM turnos WHERE id = ?", [id])
+      await registrarCobro(conn, { ...cobro, concepto: "turno", turnoId: id, clienteId: t.cliente_id })
     }
-
-    // Strings "YYYY-MM-DD HH:MM:SS": se comparan bien en orden alfabético.
-    const ahora = aDateTime(hoy(), minutosAhora())
-    if (requiereHaberEmpezado(estado) && inicio > ahora) {
-      throw malaPeticion(`Todavía no es la hora del turno: no se puede marcar como "${estado}".`)
-    }
-
-    if (ocupaAgenda(estado) && !ocupaAgenda(actual)) {
-      const fecha = inicio.slice(0, 10)
-      const desde = aMinutos(inicio.slice(11, 16))
-      const hasta = aMinutos(fin.slice(11, 16))
-      const ocupados = [...(await turnosDelDia(fecha, conn, true)), ...(await bloqueosDelDia(fecha, conn))]
-      if (ocupados.some((o) => seSolapan(desde, hasta, o.desde, o.hasta))) {
-        throw conflicto("Ese horario ya lo ocupa otro turno o un bloqueo.")
-      }
-    }
-
-    await conn.query(
-      estado === "cancelado"
-        ? "UPDATE turnos SET estado = ?, cancelado_por = 'local', cancelado_at = NOW() WHERE id = ?"
-        : "UPDATE turnos SET estado = ? WHERE id = ?",
-      [estado, id],
-    )
-
   })
-
   res.json(await buscarTurno(id))
 })

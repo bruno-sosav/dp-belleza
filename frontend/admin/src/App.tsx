@@ -6,6 +6,7 @@ import AdminClients from "./pages/AdminClients"
 import AdminClientDetail from "./pages/AdminClientDetail"
 import AdminAgenda from "./pages/AdminAgenda"
 import AdminBookingStats from "./pages/AdminBookingStats"
+import AdminCash from "./pages/AdminCash"
 import AdminSales from "./pages/AdminSales"
 import AdminProducts from "./pages/AdminProducts"
 import AdminProductNew from "./pages/AdminProductNew"
@@ -37,6 +38,7 @@ export default function App() {
         <Route path="/servicios/:id" element={<AdminServiceForm />} />
         <Route path="/finanzas" element={<AdminFinances />} />
         <Route path="/finanzas/turnos" element={<AdminBookingStats />} />
+        <Route path="/finanzas/caja" element={<AdminCash />} />
         <Route path="/turnos" element={<AdminAgenda />} />
         <Route path="/turnos/horario" element={<AdminSchedule />} />
         <Route path="/turnos/dias-cerrados" element={<AdminClosedDays />} />

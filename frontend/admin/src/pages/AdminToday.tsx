@@ -118,6 +118,8 @@ export default function AdminToday() {
       ahora={ahora}
       mostrarFecha={mostrarFecha}
       onCambiarEstado={(estado) => agenda.cambiarEstado(t.id, estado)}
+      onCompletar={(cobro) => agenda.completar(t.id, cobro)}
+      onCobrar={(cobro) => agenda.cobrar(t.id, cobro)}
       onEditar={() => setFormulario({ turno: t })}
     />
   )

@@ -8,6 +8,8 @@
 import { useCallback, useState } from "react"
 import { api } from "../lib/api"
 import { useApi } from "../lib/useApi"
+import type { MedioPago } from "../lib/medios"
+import { registrarCobro } from "./caja"
 
 export type EstadoTurno = "reservado" | "confirmado" | "completado" | "ausente" | "cancelado"
 
@@ -16,6 +18,8 @@ export type Turno = {
   estado: EstadoTurno
   /** Solo en cancelados: "clienta" si lo canceló ella desde la web ("Mi turno"). */
   canceladoPor: "local" | "clienta" | "sistema" | null
+  /** Lo que ya entró a la caja por este turno (seña + lo cobrado al terminar). */
+  cobrado: number
   /** Solo turnos reservados en la web con seña de Mercado Pago. */
   sena: { monto: number; estado: "pendiente" | "pagada" | "vencida" } | null
   /** "2026-10-15" */
@@ -59,6 +63,17 @@ export function crearTurno(datos: NuevoTurno) {
   return api<Turno>("/api/admin/turnos", { metodo: "POST", cuerpo: datos })
 }
 
+/**
+ * Marca el turno como completado y anota lo que se cobró, en una sola
+ * operación. `cobro: null` = "todavía no cobré" (queda en Caja → sin cobrar).
+ */
+export function completarTurno(id: number, cobro: { monto: number; medio: MedioPago } | null) {
+  return api<Turno>(`/api/admin/turnos/${id}/completar`, { metodo: "POST", cuerpo: { cobro } })
+}
+
+/** Lo que falta cobrar de un turno: el precio menos lo que ya entró (la seña, por ejemplo). */
+export const faltaCobrar = (t: Pick<Turno, "precio" | "cobrado">) => Math.max(0, t.precio - t.cobrado)
+
 export type CambiosTurno = {
   fecha?: string
   hora?: string
@@ -94,9 +109,10 @@ export function useAgenda(desde: string, hasta: string) {
   const turnos = carga.datos?.map((t) => vigentes?.get(t.id) ?? t) ?? null
 
   const { datos, recargar } = carga
-  const cambiarEstado = useCallback(
-    async (id: number, estado: EstadoTurno) => {
-      const actualizado = await cambiarEstadoTurno(id, estado)
+  /** Muestra enseguida el turno que devolvió el servidor y recarga la lista en segundo plano. */
+  const aplicar = useCallback(
+    async (id: number, pedido: Promise<Turno>) => {
+      const actualizado = await pedido
       setCambios((prev) => ({
         base: datos,
         porId: new Map(prev.base === datos ? prev.porId : []).set(id, actualizado),
@@ -105,8 +121,22 @@ export function useAgenda(desde: string, hasta: string) {
     },
     [datos, recargar],
   )
+  const cambiarEstado = useCallback((id: number, estado: EstadoTurno) => aplicar(id, cambiarEstadoTurno(id, estado)), [aplicar])
+  const completar = useCallback(
+    (id: number, cobro: { monto: number; medio: MedioPago } | null) => aplicar(id, completarTurno(id, cobro)),
+    [aplicar],
+  )
 
-  return { ...carga, turnos, cambiarEstado }
+  /** Cobrar lo que falta de un turno ya completado (por ejemplo, pagó después). */
+  const cobrar = useCallback(
+    async (id: number, cobro: { monto: number; medio: MedioPago }) => {
+      await registrarCobro({ ...cobro, concepto: "turno", turnoId: id })
+      recargar()
+    },
+    [recargar],
+  )
+
+  return { ...carga, turnos, cambiarEstado, completar, cobrar }
 }
 
 /** Un turno abierto todavía espera que la dueña diga qué pasó. */

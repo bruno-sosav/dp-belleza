@@ -1,11 +1,13 @@
 import { useState } from "react"
 import { formatPrice } from "@dp/shared/lib/format"
 import EstadoBadge from "./EstadoBadge"
+import FormCobro from "../caja/FormCobro"
+import type { MedioPago } from "../../lib/medios"
 import BotonWhatsApp from "./BotonWhatsApp"
 import { ApiError } from "../../lib/api"
 import { formatLongDate, formatShortDate } from "../../lib/format"
 import type { Ahora } from "../../lib/useAhora"
-import { estaAbierto, nombreCliente } from "../../data/turnos"
+import { estaAbierto, faltaCobrar, nombreCliente } from "../../data/turnos"
 import type { EstadoTurno, Turno } from "../../data/turnos"
 
 const botonGrande =
@@ -28,12 +30,18 @@ export default function TurnoFila({
   turno,
   ahora,
   onCambiarEstado,
+  onCompletar,
+  onCobrar,
   onEditar,
   mostrarFecha = false,
 }: {
   turno: Turno
   ahora: Ahora
   onCambiarEstado: (estado: EstadoTurno) => Promise<void>
+  /** ✅ Completado: marca el turno y anota lo cobrado (null = "todavía no cobré"). */
+  onCompletar: (cobro: { monto: number; medio: MedioPago } | null) => Promise<void>
+  /** Cobrar lo que falta de un turno ya completado. */
+  onCobrar: (cobro: { monto: number; medio: MedioPago }) => Promise<void>
   /** Abre el formulario para cambiar día, hora, servicio o nota. */
   onEditar?: () => void
   /** Para listas de varios días: muestra "lun 13/10" arriba de la hora. */
@@ -42,6 +50,10 @@ export default function TurnoFila({
   const [ocupado, setOcupado] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [confirmandoCancelar, setConfirmandoCancelar] = useState(false)
+  /** "completar": ✅ Completado pidiendo el cobro. "cobrar": cobrar lo que falta de uno ya completado. */
+  const [cobrando, setCobrando] = useState<"completar" | "cobrar" | null>(null)
+  const falta = faltaCobrar(turno)
+  const detalleCobro = `Precio ${formatPrice(turno.precio)}${turno.cobrado ? ` · ya pagó ${formatPrice(turno.cobrado)}` : ""}`
 
   const esHoy = turno.fecha === ahora.fecha
   const empezo = turno.fecha < ahora.fecha || (esHoy && turno.horaInicio <= ahora.hora)
@@ -103,7 +115,26 @@ export default function TurnoFila({
       </div>
 
       <div className="mt-4 border-t border-cream-dark pt-4">
-        {abierto ? (
+        {cobrando ? (
+          <FormCobro
+            montoSugerido={falta}
+            detalle={detalleCobro}
+            textoGuardar={cobrando === "completar" ? "✅ Completado y cobrado" : "Guardar cobro"}
+            onGuardar={async (cobro) => {
+              await (cobrando === "completar" ? onCompletar(cobro) : onCobrar(cobro))
+              setCobrando(null)
+            }}
+            onSinCobrar={
+              cobrando === "completar"
+                ? async () => {
+                    await onCompletar(null)
+                    setCobrando(null)
+                  }
+                : undefined
+            }
+            onCancelar={() => setCobrando(null)}
+          />
+        ) : abierto ? (
           confirmandoCancelar ? (
             <div className="flex flex-wrap items-center gap-3">
               <p className="w-full text-base font-medium text-ink sm:w-auto">¿Seguro que querés cancelar este turno?</p>
@@ -119,7 +150,7 @@ export default function TurnoFila({
               <button
                 type="button"
                 disabled={ocupado || !empezo}
-                onClick={() => cambiar("completado")}
+                onClick={() => setCobrando("completar")}
                 className={`${botonGrande} bg-[#1f8a4c] text-white hover:bg-[#18703d] disabled:bg-cream-dark disabled:text-ink-soft`}
               >
                 ✅ Completado
@@ -135,11 +166,33 @@ export default function TurnoFila({
               {!empezo && (
                 <p className="col-span-2 text-sm text-ink-soft">Se puede marcar como completado desde las {turno.horaInicio}.</p>
               )}
+              {turno.estado === "reservado" && (
+                <button
+                  type="button"
+                  disabled={ocupado}
+                  onClick={() => cambiar("confirmado")}
+                  className="col-span-2 min-h-12 rounded-xl border-2 border-cream-dark text-base font-medium text-ink transition hover:border-ink disabled:opacity-40"
+                >
+                  ✓ Confirmó que viene
+                </button>
+              )}
             </div>
           )
         ) : (
           <div className="flex flex-wrap items-center gap-4">
             <EstadoBadge estado={turno.estado} grande />
+            {turno.estado === "completado" &&
+              (falta > 0 ? (
+                <button
+                  type="button"
+                  onClick={() => setCobrando("cobrar")}
+                  className="min-h-12 rounded-xl bg-[#fdf3dc] px-4 text-base font-semibold text-ink ring-1 ring-[#e0b44a] hover:bg-[#fbe9bf]"
+                >
+                  Falta cobrar {formatPrice(falta)} · Cobrar
+                </button>
+              ) : (
+                <span className="text-base text-ink-soft">Cobrado {formatPrice(turno.cobrado)}</span>
+              ))}
             {turno.canceladoPor === "clienta" && <span className="text-base text-ink-soft">Lo canceló la clienta desde la web</span>}
             {turno.canceladoPor === "sistema" && <span className="text-base text-ink-soft">No pagó la seña a tiempo</span>}
             {(turno.estado === "completado" || turno.estado === "ausente") && (

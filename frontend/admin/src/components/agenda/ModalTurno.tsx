@@ -4,6 +4,7 @@ import TurnoFila from "../turnos/TurnoFila"
 import { formatLongDate } from "../../lib/format"
 import type { Ahora } from "../../lib/useAhora"
 import type { EstadoTurno, Turno } from "../../data/turnos"
+import type { MedioPago } from "../../lib/medios"
 
 /**
  * El detalle de un turno al tocarlo en el calendario. Usa la misma fila que la
@@ -16,12 +17,16 @@ export default function ModalTurno({
   turno,
   ahora,
   onCambiarEstado,
+  onCompletar,
+  onCobrar,
   onEditar,
   onCerrar,
 }: {
   turno: Turno
   ahora: Ahora
   onCambiarEstado: (estado: EstadoTurno) => Promise<void>
+  onCompletar: (cobro: { monto: number; medio: MedioPago } | null) => Promise<void>
+  onCobrar: (cobro: { monto: number; medio: MedioPago }) => Promise<void>
   onEditar: () => void
   onCerrar: () => void
 }) {
@@ -55,7 +60,7 @@ export default function ModalTurno({
         </div>
 
         <ul>
-          <TurnoFila turno={turno} ahora={ahora} onCambiarEstado={onCambiarEstado} onEditar={onEditar} />
+          <TurnoFila turno={turno} ahora={ahora} onCambiarEstado={onCambiarEstado} onCompletar={onCompletar} onCobrar={onCobrar} onEditar={onEditar} />
         </ul>
 
         <Link to={`/clientes/${turno.cliente.id}`} className="mt-4 inline-block text-base text-rose-dark underline underline-offset-4 hover:text-ink">

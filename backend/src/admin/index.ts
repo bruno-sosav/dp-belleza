@@ -11,6 +11,7 @@ import { adminConfiguracion } from "./configuracion.js"
 import { adminRecordatorios } from "./recordatorios.js"
 import { adminMercadoPago } from "./mercadopago.js"
 import { adminCuenta } from "./cuenta.js"
+import { adminCaja } from "./caja.js"
 
 // Endpoints del panel, montados en /api/admin. Todos piden sesión iniciada.
 export const admin = Router()
@@ -26,3 +27,4 @@ admin.use(adminConfiguracion)
 admin.use(adminRecordatorios)
 admin.use(adminMercadoPago)
 admin.use(adminCuenta)
+admin.use(adminCaja)
