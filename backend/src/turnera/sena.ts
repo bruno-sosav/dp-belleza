@@ -127,7 +127,7 @@ export const senaPublica = Router()
 
 async function porToken(token: string) {
   const [rows] = await pool.query<RowDataPacket[]>(
-    `SELECT t.id, t.estado, t.fecha_hora_inicio, t.precio, t.sena_monto, t.sena_estado, t.sena_vence_at, t.sena_token,
+    `SELECT t.id, t.estado, t.cancelado_por, t.fecha_hora_inicio, t.precio, t.sena_monto, t.sena_estado, t.sena_vence_at, t.sena_token,
             (t.sena_vence_at < NOW()) AS vencida, s.nombre AS servicio
        FROM turnos t JOIN servicios s ON s.id = t.servicio_id
       WHERE t.sena_token = ?`,
@@ -142,6 +142,8 @@ function aRespuesta(r: RowDataPacket) {
   return {
     codigo: `DP-${String(r.id).padStart(6, "0")}`,
     estado: r.estado as string,
+    /** Si está cancelado: "clienta" (lo canceló ella en Mi turno), "sistema" (no pagó a tiempo) o "local". */
+    canceladoPor: (r.cancelado_por ?? null) as "local" | "clienta" | "sistema" | null,
     sena: { monto: Number(r.sena_monto), estado: r.sena_estado as "pendiente" | "pagada" | "vencida" },
     servicio: r.servicio as string,
     fecha: inicio.slice(0, 10),

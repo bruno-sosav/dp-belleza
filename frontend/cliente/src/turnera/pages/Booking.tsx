@@ -68,7 +68,8 @@ export default function Booking() {
         return
       }
       const state: ConfirmedBooking = { booking, service: current, contact }
-      navigate("/reserva-confirmada", { state, replace: true })
+      // El token en la URL hace que la confirmación sobreviva a un F5; el state la muestra al instante.
+      navigate(`/reserva-confirmada${booking.token ? `?t=${booking.token}` : ""}`, { state, replace: true })
     } catch (err) {
       setSending(false)
       // 409: alguien reservó ese horario mientras ella completaba los datos (o
@@ -131,7 +132,7 @@ export default function Booking() {
               <section>
                 <h2 className="font-display text-lg font-semibold text-ink">1. Elegí el día</h2>
                 <div className="mt-4 max-w-md">
-                  <Calendar selected={date} onSelect={pickDate} hours={hours.data} />
+                  <Calendar selected={date} onSelect={pickDate} hours={hours.data} maxDays={negocio?.reservaMaxDias} />
                 </div>
               </section>
 

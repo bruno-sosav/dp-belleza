@@ -8,6 +8,8 @@ export type EstadoSena = {
   /** "DP-000123" */
   codigo: string
   estado: "reservado" | "confirmado" | "completado" | "ausente" | "cancelado"
+  /** Si está cancelado, quién lo canceló. */
+  canceladoPor: "local" | "clienta" | "sistema" | null
   sena: { monto: number; estado: "pendiente" | "pagada" | "vencida" }
   servicio: string
   fecha: string

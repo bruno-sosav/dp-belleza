@@ -15,9 +15,11 @@ type Props = {
   onSelect: (date: Date) => void
   /** Agenda semanal del local: los días que no figuran salen tachados. */
   hours: OpeningHours[]
+  /** Hasta cuántos días para adelante se puede reservar (Turnos → Reglas). */
+  maxDays?: number
 }
 
-export default function Calendar({ selected, onSelect, hours }: Props) {
+export default function Calendar({ selected, onSelect, hours, maxDays }: Props) {
   const today = startOfToday()
   const [view, setView] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1))
 
@@ -77,7 +79,8 @@ export default function Calendar({ selected, onSelect, hours }: Props) {
 
         {Array.from({ length: daysInMonth }).map((_, i) => {
           const date = new Date(year, month, i + 1)
-          const selectable = !isPast(date) && isOpen(date, hours)
+          const tooFar = maxDays !== undefined && date.getTime() > today.getTime() + maxDays * 86_400_000
+          const selectable = !isPast(date) && !tooFar && isOpen(date, hours)
           const isSelected = selected !== null && isSameDay(date, selected)
           const isToday = isSameDay(date, today)
 

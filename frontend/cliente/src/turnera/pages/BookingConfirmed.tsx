@@ -1,6 +1,9 @@
-import { Link, useLocation } from "react-router-dom"
+import { useCallback } from "react"
+import { Link, useLocation, useSearchParams } from "react-router-dom"
 import type { ConfirmedBooking } from "../data/booking"
-import { bookingCode } from "../data/booking"
+import { bookingCode, fetchConfirmedBooking } from "../data/booking"
+import { useApi } from "../lib/useApi"
+import { PageLoading } from "../components/LoadState"
 import { textoCancelacion } from "../data/miTurno"
 import { useNegocio } from "../../shared/lib/negocio"
 import { parseDateKey } from "../data/availability"
@@ -18,12 +21,27 @@ function Row({ label, value }: { label: string; value: string }) {
   )
 }
 
+/**
+ * "¡Turno reservado!" (/reserva-confirmada?t=<token>).
+ *
+ * Al llegar desde la reserva, los datos vienen en el `state` de la navegación
+ * y se muestran al instante. Si se recarga la página (F5) el state se pierde:
+ * entonces se piden a la API con el token de la URL.
+ */
 export default function BookingConfirmed() {
   const location = useLocation()
-  // Llega por `state` desde Booking. Si se entra directo a la URL (o se
-  // recarga en otro navegador) no hay nada que mostrar.
-  const confirmed = location.state as ConfirmedBooking | null
+  const [params] = useSearchParams()
+  const token = params.get("t")
+  const enState = location.state as ConfirmedBooking | null
+  const pedir = useCallback(
+    () => (enState || !token ? Promise.resolve(enState) : fetchConfirmedBooking(token)),
+    [enState, token],
+  )
+  const carga = useApi(pedir)
+  const confirmed = enState ?? carga.data
   const negocio = useNegocio()
+
+  if (!confirmed && carga.loading) return <PageLoading />
 
   if (!confirmed) {
     return (

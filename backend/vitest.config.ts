@@ -12,5 +12,6 @@ export default defineConfig({
     // Comparten la base: uno por vez, así no se pisan los horarios.
     fileParallelism: !integracion,
     testTimeout: 15_000,
+    ...(integracion ? { globalSetup: ["test/integracion/preparar.ts"] } : {}),
   },
 })

@@ -18,6 +18,9 @@ z.config(z.locales.es())
 // Una sola app: cada módulo es un grupo de rutas montado acá.
 export const app = express()
 
+// La IP real de quien llama, aunque haya un proxy delante (ver config.proxies).
+if (config.proxies > 0) app.set("trust proxy", config.proxies)
+
 app.use(cors({ origin: config.corsOrigins }))
 app.use(express.json({ limit: "100kb" }))
 

@@ -26,6 +26,7 @@ import {
 import type { NuevoTurno } from "./validacion.js"
 import { ESTADOS_OCUPAN } from "./estados.js"
 import { linkDePago, montoSena, nuevoTokenSena, porcentajeSena, SENA_MINUTOS, SQL_SENA_NO_VENCIDA } from "./sena.js"
+import { leerReglasReserva, MAX_TURNOS_PEDIDOS_WEB, problemaDeAnticipacion } from "./reglasReserva.js"
 
 // ---------------------------------------------------------------- servicios
 
@@ -74,12 +75,17 @@ export async function listarServicios(): Promise<ServicioDTO[]> {
   return rows.map(aServicioDTO)
 }
 
-export async function obtenerServicio(id: number): Promise<ServicioDTO> {
+/**
+ * Un servicio por id. Por defecto solo si está activo (lo que se puede
+ * reservar); `incluirPausados` es para el panel, que tiene que poder
+ * reprogramar los turnos que ya existían de un servicio que después se pausó.
+ */
+export async function obtenerServicio(id: number, { incluirPausados = false } = {}): Promise<ServicioDTO> {
   const [rows] = await pool.query<RowDataPacket[]>(
     `SELECT id, nombre, categoria, descripcion_corta, descripcion, imagen_url,
             incluye, profesional, badge, sesiones_recomendadas, duracion_min, precio
        FROM servicios
-      WHERE id = ? AND activo = 1`,
+      WHERE id = ? ${incluirPausados ? "" : "AND activo = 1"}`,
     [id],
   )
   if (rows.length === 0) throw noExiste(`No existe el servicio ${id}.`)
@@ -172,8 +178,11 @@ export async function calcularDisponibilidad(
   fecha: FechaISO,
   /** El panel, al reprogramar: el horario actual del turno se muestra libre. */
   excluirTurnoId = 0,
+  /** La web aplica las reglas de anticipación (Turnos → Reglas); el panel no. */
+  { reglasWeb = false } = {},
 ): Promise<SlotDTO[]> {
-  const servicio = await obtenerServicio(servicioId)
+  // Al reprogramar, el servicio del turno puede estar pausado: igual hay que poder moverlo.
+  const servicio = await obtenerServicio(servicioId, { incluirPausados: excluirTurnoId > 0 })
 
   const horarios = (await listarHorarios()).filter((h) => h.diaSemana === diaSemanaISO(fecha))
   if (horarios.length === 0) return [] // cerrado
@@ -183,6 +192,11 @@ export async function calcularDisponibilidad(
 
   const esHoy = fecha === hoy()
   const ahora = minutosAhora()
+  const reglas = reglasWeb ? await leerReglasReserva() : null
+  // Más allá del máximo de días, la web no ofrece nada ese día.
+  if (reglas && problemaDeAnticipacion(fecha, 23 * 60 + 59, { fecha: hoy(), minutos: 0 }, { minHoras: 0, maxDias: reglas.maxDias })) {
+    return []
+  }
 
   const slots: SlotDTO[] = []
   for (const horario of horarios) {
@@ -194,7 +208,8 @@ export async function calcularDisponibilidad(
       const fin = inicio + servicio.durationMin
       const pisado = ocupados.some((o) => seSolapan(inicio, fin, o.desde, o.hasta))
       const yaPaso = esHoy && inicio <= ahora
-      slots.push({ time: aHora(inicio), available: !pisado && !yaPaso })
+      const muyPronto = reglas !== null && problemaDeAnticipacion(fecha, inicio, { fecha: hoy(), minutos: ahora }, reglas) !== null
+      slots.push({ time: aHora(inicio), available: !pisado && !yaPaso && !muyPronto })
     }
   }
   return slots
@@ -228,6 +243,8 @@ export type TurnoCreadoDTO = {
   horaFin: string
   precio: number
   estado: string
+  /** Solo reservas de la web: para la URL de la confirmación (/reserva-confirmada?t=…). */
+  token?: string
   /** Solo si se cobra seña: a dónde mandar a la clienta a pagar. */
   sena?: { monto: number; porcentaje: number; link: string; token: string; venceEnMinutos: number }
 }
@@ -237,12 +254,16 @@ export type TurnoCreadoDTO = {
  * teléfono, o se la crea.
  */
 export async function crearTurno(input: NuevoTurno): Promise<TurnoCreadoDTO> {
+  const problema = problemaDeAnticipacion(input.fecha, aMinutos(input.hora), { fecha: hoy(), minutos: minutosAhora() }, await leerReglasReserva())
+  if (problema) throw malaPeticion(problema)
+
   // Seña: solo si la dueña puso un porcentaje y Mercado Pago está conectado.
   const porcentaje = await porcentajeSena()
   const token = porcentaje > 0 ? nuevoTokenSena() : null
 
   const creado = await agendarTurno({
     sena: token ? { porcentaje, token } : undefined,
+    tokenPublico: nuevoTokenSena(),
     servicioId: input.servicioId,
     fecha: input.fecha,
     hora: input.hora,
@@ -252,15 +273,25 @@ export async function crearTurno(input: NuevoTurno): Promise<TurnoCreadoDTO> {
     // Alta/reuso del cliente con la funcion COMPARTIDA con la tienda
     // (shared/models/clientes.ts): la misma persona que reserva un turno y
     // despues compra un producto tiene que ser una sola fila en `clientes`.
-    cliente: (conn) => {
+    cliente: async (conn) => {
       const partes = input.contacto.nombreCompleto.trim().split(/\s+/)
-      return buscarOCrearCliente(conn, {
+      const clienteId = await buscarOCrearCliente(conn, {
         nombre: partes.length > 1 ? partes.slice(0, -1).join(" ") : partes[0],
         apellido: partes.length > 1 ? partes[partes.length - 1] : undefined,
         telefono: input.contacto.telefono,
         email: input.contacto.email,
         cumple: input.contacto.cumple,
       })
+      // Tope de turnos pedidos por clienta: que nadie llene la agenda desde la web.
+      const [[pedidos]] = await conn.query<RowDataPacket[]>(
+        `SELECT COUNT(*) AS n FROM turnos
+          WHERE cliente_id = ? AND estado IN ('reservado', 'confirmado') AND fecha_hora_inicio > NOW() AND ${SQL_SENA_NO_VENCIDA}`,
+        [clienteId],
+      )
+      if (Number(pedidos.n) >= MAX_TURNOS_PEDIDOS_WEB) {
+        throw conflicto(`Ya tenés ${MAX_TURNOS_PEDIDOS_WEB} turnos reservados. Para reservar otro, escribinos por WhatsApp.`)
+      }
+      return clienteId
     },
   })
   if (!token) return creado
@@ -297,6 +328,8 @@ export type AgendarTurno = {
   cliente: (conn: PoolConnection) => Promise<number>
   /** Solo reservas de la web con seña: el turno nace esperando el pago (ver sena.ts). */
   sena?: { porcentaje: number; token: string }
+  /** Solo reservas de la web: identifica la reserva en la URL de la confirmación. */
+  tokenPublico?: string
 }
 
 /**
@@ -344,8 +377,8 @@ export async function agendarTurno(input: AgendarTurno): Promise<TurnoCreadoDTO>
     const [result] = await conn.query(
       `INSERT INTO turnos
            (cliente_id, servicio_id, fecha_hora_inicio, fecha_hora_fin, estado, precio, notas,
-            sena_monto, sena_estado, sena_vence_at, sena_token)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ${input.sena ? `NOW() + INTERVAL ${SENA_MINUTOS} MINUTE` : "NULL"}, ?)`,
+            sena_monto, sena_estado, sena_vence_at, sena_token, token_publico)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ${input.sena ? `NOW() + INTERVAL ${SENA_MINUTOS} MINUTE` : "NULL"}, ?, ?)`,
       [
         clienteId,
         servicio.id,
@@ -359,6 +392,7 @@ export async function agendarTurno(input: AgendarTurno): Promise<TurnoCreadoDTO>
         input.sena ? montoSena(servicio.price, input.sena.porcentaje) : null,
         input.sena ? "pendiente" : null,
         input.sena?.token ?? null,
+        input.tokenPublico ?? null,
       ],
     )
     const turnoId = (result as { insertId: number }).insertId
@@ -373,6 +407,7 @@ export async function agendarTurno(input: AgendarTurno): Promise<TurnoCreadoDTO>
       horaFin: aHora(fin),
       precio: servicio.price,
       estado: input.estado,
+      ...(input.tokenPublico ? { token: input.tokenPublico } : {}),
     }
   })
 }

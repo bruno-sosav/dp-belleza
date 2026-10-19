@@ -5,7 +5,7 @@ en `backend/`: dos copias se desincronizan.
 
 | | |
 |---|---|
-| `migrations/` | Scripts versionados. `V1_scriptInicial.sql` crea las 12 tablas; V2 y V3 ajustan `servicios` (V3: categoría como texto libre); V4 suma los datos de contacto a `configuracion`; V5 crea `tipos_recordatorio`; V6 suma recordatorios de después y de cumpleaños, el cumpleaños de las clientas y Mercado Pago; V7, cancelar el turno desde la web; V8, el código de área del local; V9, la seña de los turnos con Mercado Pago |
+| `migrations/` | Scripts versionados. `V1_scriptInicial.sql` crea las 12 tablas; V2 y V3 ajustan `servicios` (V3: categoría como texto libre); V4 suma los datos de contacto a `configuracion`; V5 crea `tipos_recordatorio`; V6 suma recordatorios de después y de cumpleaños, el cumpleaños de las clientas y Mercado Pago; V7, cancelar el turno desde la web; V8, el código de área del local; V9, la seña de los turnos con Mercado Pago; V10, reglas de anticipación para reservar |
 | `seeds/` | Datos de ejemplo para desarrollo. **No se corren en producción.** `ecommerce-datos-ejemplo.sql` carga categorías y los productos que muestra hoy la tienda |
 
 ## Tablas

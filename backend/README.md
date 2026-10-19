@@ -110,6 +110,7 @@ mysql -u dp_dev -p dp_belleza < database/migrations/V6_recordatorios_posteriores
 mysql -u dp_dev -p dp_belleza < database/migrations/V7_cancelacion_desde_la_web.sql
 mysql -u dp_dev -p dp_belleza < database/migrations/V8_codigo_area_y_cuenta.sql
 mysql -u dp_dev -p dp_belleza < database/migrations/V9_sena_mercadopago.sql
+mysql -u dp_dev -p dp_belleza < database/migrations/V10_reglas_de_reserva.sql
 mysql -u dp_dev -p dp_belleza < database/seeds/seed_01_servicios.sql
 mysql -u dp_dev -p dp_belleza < database/seeds/seed_02_horarios.sql
 mysql -u dp_dev -p dp_belleza < database/seeds/ecommerce-datos-ejemplo.sql

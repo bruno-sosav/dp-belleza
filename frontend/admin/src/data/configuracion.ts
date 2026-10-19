@@ -20,6 +20,9 @@ export type Configuracion = {
   cancelacion_horas_minimas: string
   /** % de seña al reservar desde la web. "0" = sin seña. */
   sena_porcentaje: string
+  /** Reglas de la reserva web (Turnos → Reglas). */
+  reserva_anticipacion_min_horas: string
+  reserva_anticipacion_max_dias: string
 }
 
 export type CambiosConfiguracion = Partial<{
@@ -31,6 +34,8 @@ export type CambiosConfiguracion = Partial<{
   intervalo_turnos_min: number
   cancelacion_horas_minimas: number
   sena_porcentaje: number
+  reserva_anticipacion_min_horas: number
+  reserva_anticipacion_max_dias: number
 }>
 
 export function useConfiguracion() {

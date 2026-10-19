@@ -20,6 +20,24 @@ export const pool = mysql.createPool({
   dateStrings: true,
 })
 
+/**
+ * Cada conexión a MySQL usa la misma zona horaria que Node (config.ts), así
+ * NOW() y la hora de Node dan lo mismo. Va como desfasaje ("-03:00") y no
+ * como nombre ("America/…"), porque los nombres necesitan tablas de zonas que
+ * muchos MySQL no tienen cargadas. Argentina no tiene horario de verano; si lo
+ * volviera a tener, el desfasaje se recalcula en cada conexión nueva.
+ */
+export function desfasajeMySQL(fecha = new Date()): string {
+  const minutos = -fecha.getTimezoneOffset()
+  const signo = minutos >= 0 ? "+" : "-"
+  const abs = Math.abs(minutos)
+  return `${signo}${String(Math.floor(abs / 60)).padStart(2, "0")}:${String(abs % 60).padStart(2, "0")}`
+}
+
+pool.pool.on("connection", (conexion) => {
+  conexion.query(`SET time_zone = '${desfasajeMySQL()}'`)
+})
+
 // Corre `fn` dentro de una transacción: commit si termina bien, rollback si tira error.
 export async function enTransaccion<T>(fn: (conn: mysql.PoolConnection) => Promise<T>): Promise<T> {
   const conn = await pool.getConnection()

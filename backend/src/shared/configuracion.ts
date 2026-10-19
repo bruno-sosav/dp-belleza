@@ -30,6 +30,8 @@ export const CLAVES_PUBLICAS = [
   "direccion_negocio",
   "email_negocio",
   "cancelacion_horas_minimas",
+  "reserva_anticipacion_min_horas",
+  "reserva_anticipacion_max_dias",
 ] as const
 
 export async function leerConfigs(claves?: readonly string[]): Promise<Record<string, string>> {

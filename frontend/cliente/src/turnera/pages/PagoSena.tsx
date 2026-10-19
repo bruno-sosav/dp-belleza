@@ -43,19 +43,31 @@ export default function PagoSena() {
   const t = estado.data
   const fecha = parseDateKey(t.fecha)
   const pagada = t.sena.estado === "pagada" && t.estado === "confirmado"
-  const vencida = t.sena.estado === "vencida" || (t.estado === "cancelado" && t.sena.estado !== "pagada")
+  // Cancelado por ella misma o por el local no es "se venció": se lo dice tal cual.
+  const cancelado = t.estado === "cancelado" && t.canceladoPor !== null && t.canceladoPor !== "sistema"
+  const vencida = !cancelado && (t.sena.estado === "vencida" || (t.estado === "cancelado" && t.sena.estado !== "pagada"))
 
   return (
     <div className={`${containerClass} py-12`}>
       <div className="mx-auto max-w-xl text-center">
         <span className={`mx-auto flex h-16 w-16 items-center justify-center rounded-full text-3xl ${pagada ? "bg-rose/25" : "bg-cream-dark"}`}>
-          {pagada ? "✓" : vencida ? "⌛" : "⏳"}
+          {pagada ? "✓" : cancelado ? "✕" : vencida ? "⌛" : "⏳"}
         </span>
         <h1 className="mt-6 font-display text-3xl font-semibold text-ink">
-          {pagada ? "¡Turno confirmado!" : vencida ? "Se venció el tiempo para pagar" : "Todavía no recibimos el pago"}
+          {pagada
+            ? "¡Turno confirmado!"
+            : cancelado
+              ? "Este turno está cancelado"
+              : vencida
+                ? "Se venció el tiempo para pagar"
+                : "Todavía no recibimos el pago"}
         </h1>
         <p className="mx-auto mt-3 max-w-md text-ink-soft">
-          {pagada
+          {cancelado
+            ? t.canceladoPor === "clienta"
+              ? "Lo cancelaste desde Mi turno. Si querés, reservá otro día."
+              : "El local canceló este turno. Escribinos si tenés dudas."
+            : pagada
             ? `Recibimos tu seña de ${formatPrice(t.sena.monto)}. El resto (${formatPrice(t.precio - t.sena.monto)}) lo abonás en el local.`
             : vencida
               ? "El horario se liberó porque la seña no se pagó a tiempo. Si todavía lo querés, reservalo de nuevo."
@@ -87,7 +99,7 @@ export default function PagoSena() {
                 Volver al inicio
               </Link>
             </>
-          ) : vencida ? (
+          ) : vencida || cancelado ? (
             <Link to="/servicios" className={primaryButtonClass}>
               Reservar de nuevo
             </Link>

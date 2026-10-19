@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { entraEnHorario, problemaEnFranjas } from "../src/turnera/horarios.js"
+import { problemaDeAnticipacion } from "../src/turnera/reglasReserva.js"
 
 describe("problemaEnFranjas", () => {
   it("acepta un horario normal, con un día cortado al mediodía", () => {
@@ -56,5 +57,29 @@ describe("entraEnHorario", () => {
 
   it("no entra en un día cerrado", () => {
     expect(entraEnHorario(7, "10:00", "11:00", franjas)).toBe(false)
+  })
+})
+
+describe("problemaDeAnticipacion (reglas de la web)", () => {
+  const reglas = { minHoras: 2, maxDias: 60 }
+  const ahora = { fecha: "2026-10-19", minutos: 10 * 60 } // lunes 10:00
+
+  it("con más de 2 horas de anticipación, se puede", () => {
+    expect(problemaDeAnticipacion("2026-10-19", 12 * 60, ahora, reglas)).toBeNull()
+  })
+  it("con menos, no", () => {
+    expect(problemaDeAnticipacion("2026-10-19", 11 * 60 + 59, ahora, reglas)).toMatch(/2 horas/)
+  })
+  it("la anticipación cruza la medianoche", () => {
+    const tarde = { fecha: "2026-10-19", minutos: 23 * 60 }
+    expect(problemaDeAnticipacion("2026-10-20", 30, tarde, reglas)).toMatch(/2 horas/)
+    expect(problemaDeAnticipacion("2026-10-20", 60, tarde, reglas)).toBeNull()
+  })
+  it("hasta 60 días sí; el 61 no", () => {
+    expect(problemaDeAnticipacion("2026-12-18", 10 * 60, ahora, reglas)).toBeNull()
+    expect(problemaDeAnticipacion("2026-12-19", 10 * 60, ahora, reglas)).toMatch(/60 días/)
+  })
+  it("con 0 horas, cualquier horario que no pasó", () => {
+    expect(problemaDeAnticipacion("2026-10-19", 10 * 60 + 1, ahora, { minHoras: 0, maxDias: 60 })).toBeNull()
   })
 })

@@ -5,6 +5,7 @@ import { z } from "zod"
 import { pool } from "../db.js"
 import { HttpError } from "../errors.js"
 import { firmarToken, requiereLogin } from "./middleware.js"
+import { limitarPorIp } from "../limitador.js"
 
 // Login del panel, montado en /api/auth.
 export const auth = Router()
@@ -14,7 +15,15 @@ const credenciales = z.object({
   password: z.string().min(1),
 })
 
-auth.post("/login", async (req, res) => {
+// Sin límite, se podrían probar contraseñas sin parar. 10 intentos cada 15
+// minutos alcanzan para equivocarse varias veces escribiendo la propia.
+const limiteLogin = limitarPorIp({
+  maximo: 10,
+  ventanaMs: 15 * 60_000,
+  mensaje: "Demasiados intentos. Esperá unos minutos y probá de nuevo.",
+})
+
+auth.post("/login", limiteLogin, async (req, res) => {
   const { email, password } = credenciales.parse(req.body)
   const [rows] = await pool.query<RowDataPacket[]>(
     "SELECT id, nombre, rol, password_hash FROM usuarios WHERE email = ? AND activo = 1",

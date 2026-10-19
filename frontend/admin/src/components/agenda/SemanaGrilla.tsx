@@ -1,4 +1,4 @@
-import { asignarCarriles, aMinutos, coloresBloque } from "../../lib/agenda"
+import { asignarCarriles, aMinutos, bloqueEsperandoSena, coloresBloque, esperandoSena } from "../../lib/agenda"
 import { diaSemanaISO, fromDateKey } from "../../lib/fechas"
 import { weekdayShort } from "../../lib/format"
 import type { Ahora } from "../../lib/useAhora"
@@ -158,8 +158,8 @@ export default function SemanaGrilla({
                       e.stopPropagation()
                       onElegir(t)
                     }}
-                    title={`${t.horaInicio} a ${t.horaFin} · ${nombreCliente(t)} · ${t.servicio.nombre}`}
-                    className={`absolute overflow-hidden rounded-lg border-l-4 px-2 py-1 text-left shadow-sm transition hover:z-10 hover:shadow-md focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-ink ${coloresBloque[t.estado]}`}
+                    title={`${t.horaInicio} a ${t.horaFin} · ${nombreCliente(t)} · ${t.servicio.nombre}${esperandoSena(t) ? " · esperando el pago de la seña" : ""}`}
+                    className={`absolute overflow-hidden rounded-lg border-l-4 px-2 py-1 text-left shadow-sm transition hover:z-10 hover:shadow-md focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-ink ${esperandoSena(t) ? bloqueEsperandoSena : coloresBloque[t.estado]}`}
                     style={{
                       top: y(inicio) + 1,
                       height: Math.max(y(fin) - y(inicio) - 2, 28),
@@ -168,6 +168,7 @@ export default function SemanaGrilla({
                     }}
                   >
                     <p className="text-sm font-semibold leading-tight">
+                      {esperandoSena(t) && "⏳ "}
                       {t.horaInicio}
                       {corto && <span className="font-normal"> · {t.cliente.nombre}</span>}
                     </p>

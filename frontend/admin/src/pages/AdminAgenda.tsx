@@ -9,7 +9,7 @@ import TurnoFila from "../components/turnos/TurnoFila"
 import { Cargando, ErrorCarga } from "../components/EstadoCarga"
 import { fromDateKey, lunesDeSemana, sumarDias } from "../lib/fechas"
 import { formatRangoSemana, weekdayShort } from "../lib/format"
-import { coloresBloque } from "../lib/agenda"
+import { bloqueEsperandoSena, coloresBloque } from "../lib/agenda"
 import { primaryButtonClass, secondaryButtonClass } from "../lib/styles"
 import { useAhora } from "../lib/useAhora"
 import { useAgenda } from "../data/turnos"
@@ -179,6 +179,9 @@ export default function AdminAgenda() {
                   {l.label}
                 </span>
               ))}
+              <span className="inline-flex items-center gap-2 text-sm text-ink">
+                <span className={`h-4 w-4 rounded border-l-4 ${bloqueEsperandoSena}`} /> ⏳ Esperando la seña
+              </span>
               <span className="inline-flex items-center gap-2 text-sm text-ink">
                 <span className="h-4 w-4 rounded bg-cream-dark" /> Cerrado
               </span>

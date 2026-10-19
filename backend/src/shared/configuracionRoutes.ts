@@ -19,6 +19,9 @@ configuracionPublica.get("/", async (_req, res) => {
     email: c.email_negocio ?? "",
     /** Hasta cuántas horas antes puede cancelar sola desde la web. */
     cancelacionHoras: Number(c.cancelacion_horas_minimas ?? 24),
+    /** Con cuántas horas de anticipación como mínimo, y hasta cuántos días para adelante, se reserva. */
+    reservaMinHoras: Number(c.reserva_anticipacion_min_horas ?? 2),
+    reservaMaxDias: Number(c.reserva_anticipacion_max_dias ?? 60),
     /** % de seña que se cobra al reservar. 0 si no hay, o si Mercado Pago no está conectado. */
     senaPorcentaje: await porcentajeSena(),
     /** null si el local no conectó Mercado Pago. */

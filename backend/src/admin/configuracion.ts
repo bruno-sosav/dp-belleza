@@ -31,6 +31,9 @@ const ajustes = z
     email_negocio: z.union([z.literal(""), z.email().max(150)]),
     // Seña al reservar desde la web, en % del precio. 0 = sin seña.
     sena_porcentaje: z.number().int().min(0).max(100),
+    // Reglas de la reserva desde la web (Turnos → Reglas).
+    reserva_anticipacion_min_horas: z.number().int().min(0).max(168),
+    reserva_anticipacion_max_dias: z.number().int().min(1).max(365),
     // 0 = puede cancelar hasta que empiece el turno.
     cancelacion_horas_minimas: z.number().int().min(0).max(168),
     intervalo_turnos_min: z.union([z.literal(5), z.literal(10), z.literal(15), z.literal(20), z.literal(30), z.literal(60)]),

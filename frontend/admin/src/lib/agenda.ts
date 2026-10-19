@@ -51,6 +51,15 @@ export function asignarCarriles(turnos: Turno[]): Map<number, Carril> {
   return resultado
 }
 
+/**
+ * Un turno reservado en la web que todavía espera el pago de la seña: puede
+ * liberarse solo si no la pagan a tiempo. En la agenda se ve punteado y con ⏳
+ * para que no parezca un turno firme.
+ */
+export const esperandoSena = (t: Turno) => t.estado === "reservado" && t.sena?.estado === "pendiente"
+
+export const bloqueEsperandoSena = "border-dashed border-[#e0b44a] bg-[#fdf3dc] text-ink"
+
 /** Color de cada turno en el calendario. Es la misma lógica que la etiqueta de estado. */
 export const coloresBloque: Record<EstadoTurno, string> = {
   reservado: "border-ink/25 bg-surface text-ink",

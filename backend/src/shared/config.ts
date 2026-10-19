@@ -6,6 +6,13 @@ import dotenv from "dotenv"
 // va en cada carpeta. `.env` se mantiene como respaldo por compatibilidad.
 dotenv.config({ path: [".env.local", ".env"], quiet: true })
 
+// Zona horaria del LOCAL, no la del servidor. Toda la agenda se calcula con la
+// hora de Node ("ya pasó", "faltan 24 hs") y con NOW() de MySQL (vencimiento de
+// señas, recordatorios). Los servidores suelen estar en UTC: sin esto, al
+// deployar todo quedaría corrido 3 horas. Se fija acá, antes de que nadie use
+// Date, y db.ts pone la misma zona en cada conexión a MySQL.
+process.env.TZ = process.env.ZONA_HORARIA ?? "America/Argentina/Buenos_Aires"
+
 function requerida(nombre: string): string {
   const valor = process.env[nombre]
   if (!valor) throw new Error(`Falta la variable de entorno ${nombre} (ver .env.example)`)
@@ -25,6 +32,11 @@ export const config = {
   // Dirección pública de ESTA API, si la tiene (en producción). Mercado Pago avisa
   // los pagos a <apiPublicUrl>/api/mercadopago/webhook. En local no existe.
   apiPublicUrl: process.env.API_PUBLIC_URL?.replace(/\/$/, "") || null,
+  // Cuántos proxies hay delante de la API (en un deploy, casi siempre 1: el de
+  // la plataforma). Sin esto, todos los pedidos parecen venir de la IP del
+  // proxy y el límite de intentos por IP bloquearía a todas las clientas juntas.
+  // En local no hay proxy: 0.
+  proxies: Number(process.env.TRUST_PROXY ?? 0),
   db: {
     host: process.env.DB_HOST ?? "127.0.0.1",
     port: Number(process.env.DB_PORT ?? 3306),

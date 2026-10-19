@@ -125,6 +125,9 @@ async function avisosAntes(tipos: Tipo[], negocio: string, ahora: string): Promi
   const [turnos] = await pool.query<RowDataPacket[]>(
     `${SELECT_TURNO}
       WHERE t.estado IN ('reservado', 'confirmado')
+        -- Con la seña sin pagar todavía no es un turno firme: puede liberarse
+        -- en minutos. Se recuerda recién cuando la pague.
+        AND (t.sena_estado IS NULL OR t.sena_estado = 'pagada')
         AND t.fecha_hora_inicio > ?
         AND t.fecha_hora_inicio <= DATE_ADD(?, INTERVAL ? HOUR)
       ORDER BY t.fecha_hora_inicio`,

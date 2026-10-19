@@ -44,6 +44,8 @@ export type CreatedBooking = {
   /** Precio congelado al momento de reservar. */
   precio: number
   estado: string
+  /** Para la URL de la confirmación (/reserva-confirmada?t=…). */
+  token?: string
   /** Solo si se cobra seña: hay que mandar a la clienta a `link` (Mercado Pago). */
   sena?: { monto: number; porcentaje: number; link: string; token: string; venceEnMinutos: number }
 }
@@ -102,4 +104,52 @@ export function createBooking({ serviceId, date, time, contact }: BookingRequest
 /** Código que ve la clienta: "DP-000123". Sale del id real, así lo puede dictar en el local. */
 export function bookingCode(id: number) {
   return `DP-${String(id).padStart(6, "0")}`
+}
+
+/** Lo que devuelve GET /api/turnos/reserva/:token. */
+type ReservaGuardada = {
+  id: number
+  estado: string
+  fecha: string
+  horaInicio: string
+  horaFin: string
+  precio: number
+  notas: string | null
+  servicio: { id: number; nombre: string; duracionMin: number; profesional: string | null }
+  cliente: { nombre: string; telefono: string; email: string | null }
+}
+
+/**
+ * La confirmación de una reserva a partir del token de la URL
+ * (/reserva-confirmada?t=…), para cuando la pantalla se recarga y ya no está
+ * el `state` de la navegación. Devuelve la misma forma que arma Booking.
+ */
+export async function fetchConfirmedBooking(token: string): Promise<ConfirmedBooking> {
+  const r = await api<ReservaGuardada>(`/api/turnos/reserva/${token}`)
+  return {
+    booking: {
+      id: r.id,
+      servicioId: r.servicio.id,
+      servicio: r.servicio.nombre,
+      clienteId: 0,
+      fecha: r.fecha,
+      horaInicio: r.horaInicio,
+      horaFin: r.horaFin,
+      precio: r.precio,
+      estado: r.estado,
+    },
+    service: {
+      id: r.servicio.id,
+      name: r.servicio.nombre,
+      category: "",
+      price: r.precio,
+      durationMin: r.servicio.duracionMin,
+      image: null,
+      shortDescription: null,
+      description: null,
+      includes: [],
+      ...(r.servicio.profesional ? { professional: r.servicio.profesional } : {}),
+    },
+    contact: { fullName: r.cliente.nombre, phone: r.cliente.telefono, email: r.cliente.email ?? "", notes: r.notas ?? "", birthDay: "", birthMonth: "" },
+  }
 }

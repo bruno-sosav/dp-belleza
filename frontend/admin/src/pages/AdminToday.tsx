@@ -51,13 +51,15 @@ export default function AdminToday() {
 
   const { recargar: recargarTurnos } = agenda
   const { recargar: recargarPedidos } = pedidos
+  const { recargar: recargarRecordatorios } = recordatorios
   useEffect(() => {
     const id = setInterval(() => {
       recargarTurnos()
       recargarPedidos()
+      recargarRecordatorios()
     }, REFRESCO_MS)
     return () => clearInterval(id)
-  }, [recargarTurnos, recargarPedidos])
+  }, [recargarTurnos, recargarPedidos, recargarRecordatorios])
 
   const header = (
     <PageHeader
