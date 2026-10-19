@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { armarMensaje, avisoQueToca, proximoCumple } from "../src/turnera/recordatorios.js"
-import { fechaLarga } from "../src/turnera/tiempo.js"
+import { fechaLarga } from "../src/core/tiempo.js"
 
 const confirmacion = { id: 1, horasAntes: 48 }
 const recordatorio = { id: 2, horasAntes: 24 }

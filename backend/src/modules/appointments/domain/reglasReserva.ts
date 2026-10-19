@@ -5,21 +5,12 @@
  *   - tope de turnos pedidos por teléfono, para que nadie llene la agenda.
  *
  * No aplican a los turnos que da la dueña desde el panel: ella sabe lo que hace.
- * Separado del router para poder probarlo sin base de datos.
+ * Dominio puro: los valores los lee la infraestructura (ConfiguracionDeReservas).
  */
-import { leerConfigNumero } from "../shared/configuracion.js"
-
 export type ReglasReserva = { minHoras: number; maxDias: number }
 
 /** Cuántos turnos pedidos (a futuro) puede tener una misma clienta reservados desde la web. */
 export const MAX_TURNOS_PEDIDOS_WEB = 3
-
-export async function leerReglasReserva(): Promise<ReglasReserva> {
-  return {
-    minHoras: await leerConfigNumero("reserva_anticipacion_min_horas", 2),
-    maxDias: await leerConfigNumero("reserva_anticipacion_max_dias", 60),
-  }
-}
 
 /** Minutos entre dos momentos "YYYY-MM-DD" + minutos desde medianoche (misma zona horaria). */
 function minutosEntre(fechaA: string, minA: number, fechaB: string, minB: number) {

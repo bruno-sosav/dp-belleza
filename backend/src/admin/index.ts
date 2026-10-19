@@ -6,7 +6,7 @@ import { adminTurnos } from "./turnos.js"
 import { clientes } from "../modules/customers/customers.module.js"
 import { catalogo } from "../modules/catalog/catalog.module.js"
 import { inventario } from "../modules/inventory/inventory.module.js"
-import { adminAgenda } from "./agenda.js"
+import { agenda } from "../modules/appointments/appointments.module.js"
 import { adminConfiguracion } from "./configuracion.js"
 import { adminRecordatorios } from "./recordatorios.js"
 import { adminMercadoPago } from "./mercadopago.js"
@@ -15,7 +15,11 @@ import { adminCaja } from "./caja.js"
 
 // Endpoints del panel, montados en /api/admin. Todos piden sesión iniciada.
 export const admin = Router()
+// Primero el login: TODO lo que sigue exige sesión.
 admin.use(requiereLogin)
+// La agenda antes que las rutas de turnos: /turnos/disponibilidad tiene que
+// ganarle a /turnos/:id.
+admin.use(agenda.rutasPanel)
 admin.use(adminTienda)
 admin.use(adminStats)
 admin.use(adminTurnos)
@@ -23,7 +27,6 @@ admin.use(adminTurnos)
 admin.use(clientes.rutasPanel)
 admin.use(catalogo.rutasPanel)
 admin.use(inventario.rutasPanel)
-admin.use(adminAgenda)
 admin.use(adminConfiguracion)
 admin.use(adminRecordatorios)
 admin.use(adminMercadoPago)

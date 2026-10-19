@@ -20,20 +20,18 @@ import {
   puedeCambiarEstadoTurno,
   requiereHaberEmpezado,
   type EstadoTurno,
-} from "../turnera/estados.js"
+} from "../modules/appointments/domain/estados.js"
 import {
   agendarTurno,
-  bloqueosDelDia,
-  calcularDisponibilidad,
-  turnosDelDia,
-  validarHorarioDeAtencion,
   yaEmpezo,
 } from "../turnera/service.js"
-import { aDateTime, aMinutos, hoy, minutosAhora, seSolapan } from "../turnera/tiempo.js"
-import type { FechaISO } from "../turnera/tiempo.js"
-import { consultaDisponibilidad, fechaISO, horaHM } from "../turnera/validacion.js"
+import { aDateTime, aMinutos, hoy, minutosAhora } from "../core/tiempo.js"
+import type { FechaISO } from "../core/tiempo.js"
+import { fechaISO, horaHM } from "../turnera/validacion.js"
 import { MEDIOS_PAGO, registrarCobro } from "../shared/models/cobros.js"
 import { catalogo } from "../modules/catalog/catalog.module.js"
+import { agenda } from "../modules/appointments/appointments.module.js"
+import { comoTransaccion } from "../core/database/MySqlUnidadDeTrabajo.js"
 
 export const adminTurnos = Router()
 
@@ -128,19 +126,6 @@ adminTurnos.get("/turnos", async (req, res) => {
     params,
   )
   res.json(rows.map(aTurno))
-})
-
-/**
- * GET /api/admin/turnos/disponibilidad?servicioId=2&fecha=2026-10-20&excluir=15
- *
- * Igual que la de la web, pero con `excluir`: al reprogramar un turno, el
- * horario que ocupa él mismo tiene que aparecer libre. Va antes de
- * /turnos/:id para que "disponibilidad" no se lea como un id.
- */
-adminTurnos.get("/turnos/disponibilidad", async (req, res) => {
-  const { servicioId, fecha } = consultaDisponibilidad.parse(req.query)
-  const { excluir } = z.object({ excluir: idParam.optional() }).parse(req.query)
-  res.json(await calcularDisponibilidad(servicioId, fecha, excluir))
 })
 
 adminTurnos.get("/turnos/:id", async (req, res) => {
@@ -263,13 +248,12 @@ adminTurnos.patch("/turnos/:id", async (req, res) => {
       }
       const hasta = desde + duracion
       if (hasta > 24 * 60) throw malaPeticion(`El turno de ${duracion} minutos terminaría pasada la medianoche.`)
-      if (!pasado && !cambios.fueraDeHorario) await validarHorarioDeAtencion(fecha, desde, hasta, duracion)
+      if (!pasado && !cambios.fueraDeHorario) await agenda.dentroDelHorario(fecha, desde, hasta, duracion)
 
       // Un "no vino" no ocupa la agenda (otra persona pudo tomar el horario),
       // así que no se lo controla contra los demás.
       if (estado !== "ausente") {
-        const ocupados = [...(await turnosDelDia(fecha, conn, true, id)), ...(await bloqueosDelDia(fecha, conn))]
-        if (ocupados.some((o) => seSolapan(desde, hasta, o.desde, o.hasta))) {
+        if (agenda.sePisa(await agenda.ocupado(fecha, comoTransaccion(conn), { excluirTurnoId: id }), desde, hasta)) {
           throw conflicto("Ese horario ya lo ocupa otro turno o un bloqueo.")
         }
       }
@@ -293,7 +277,7 @@ adminTurnos.patch("/turnos/:id", async (req, res) => {
 /**
  * PATCH /api/admin/turnos/:id/estado   { "estado": "completado" }
  *
- * Reglas, además de las transiciones de turnera/estados.ts:
+ * Reglas, además de las transiciones de modules/appointments/domain/estados.ts:
  *   - completado / ausente solo si el turno ya empezó (no se puede "no venir"
  *     a un turno de mañana).
  *   - si el turno vuelve a ocupar la agenda (deshacer un ausente), se revisa que
@@ -330,8 +314,7 @@ async function cambiarEstado(conn: PoolConnection, id: number, estado: EstadoTur
     const fecha = inicio.slice(0, 10)
     const desde = aMinutos(inicio.slice(11, 16))
     const hasta = aMinutos(fin.slice(11, 16))
-    const ocupados = [...(await turnosDelDia(fecha, conn, true)), ...(await bloqueosDelDia(fecha, conn))]
-    if (ocupados.some((o) => seSolapan(desde, hasta, o.desde, o.hasta))) {
+    if (agenda.sePisa(await agenda.ocupado(fecha, comoTransaccion(conn)), desde, hasta)) {
       throw conflicto("Ese horario ya lo ocupa otro turno o un bloqueo.")
     }
   }

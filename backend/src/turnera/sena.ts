@@ -25,7 +25,8 @@ import { HttpError } from "../core/errores.js"
 import { consultarPago, crearPreferencia, cuentaMercadoPago } from "../shared/mercadopago.js"
 import type { PagoMP } from "../shared/mercadopago.js"
 import { registrarCobro } from "../shared/models/cobros.js"
-import { seSolapan, aMinutos } from "./tiempo.js"
+import { seSolapan, aMinutos } from "../core/tiempo.js"
+import { SQL_SENA_NO_VENCIDA } from "../modules/appointments/infrastructure/sqlOcupacion.js"
 
 /** Minutos que tiene la clienta para pagar antes de que se libere el horario. */
 export const SENA_MINUTOS = 30
@@ -45,13 +46,8 @@ export async function porcentajeSena(): Promise<number> {
 
 export const nuevoTokenSena = () => randomBytes(16).toString("hex")
 
-/**
- * Condición SQL (sobre la tabla `turnos`, sin alias) que deja afuera los turnos
- * con la seña vencida sin pagar: esos ya no ocupan el horario, aunque
- * vencerSenas() todavía no haya pasado a cancelarlos.
- */
-export const SQL_SENA_NO_VENCIDA =
-  "NOT (estado = 'reservado' AND sena_estado = 'pendiente' AND sena_vence_at IS NOT NULL AND sena_vence_at < NOW())"
+/** La condición SQL de "seña no vencida" vive en la agenda (es lo que decide si un turno ocupa lugar). */
+export { SQL_SENA_NO_VENCIDA }
 
 /** Cancela los turnos cuya seña venció sin pagar. Corre cada minuto (index.ts). */
 export async function vencerSenas(): Promise<number> {

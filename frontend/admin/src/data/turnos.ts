@@ -142,5 +142,5 @@ export function useAgenda(desde: string, hasta: string) {
 /** Un turno abierto todavía espera que la dueña diga qué pasó. */
 export const estaAbierto = (t: Turno) => t.estado === "reservado" || t.estado === "confirmado"
 
-export const nombreCliente = (t: Turno) =>
+export const nombreCliente = (t: Pick<Turno, "cliente"> | { cliente: { nombre: string; apellido: string | null } }) =>
   [t.cliente.nombre, t.cliente.apellido].filter(Boolean).join(" ")

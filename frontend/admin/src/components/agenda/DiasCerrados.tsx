@@ -9,7 +9,7 @@ import { sumarDias } from "../../lib/fechas"
 import { inputClass, labelClass, primaryButtonClass, secondaryButtonClass } from "../../lib/styles"
 import { useAhora } from "../../lib/useAhora"
 import { crearBloqueo, quitarBloqueo, useBloqueos } from "../../data/horarios"
-import type { Turno } from "../../data/turnos"
+import type { TurnoParaAvisar } from "../../data/horarios"
 
 const campo = `${inputClass} py-3 text-base`
 
@@ -25,7 +25,7 @@ export default function DiasCerrados() {
   const [motivo, setMotivo] = useState("")
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [afectados, setAfectados] = useState<Turno[] | null>(null)
+  const [afectados, setAfectados] = useState<TurnoParaAvisar[] | null>(null)
 
   async function agregar(e: FormEvent) {
     e.preventDefault()

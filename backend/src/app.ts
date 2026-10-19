@@ -10,6 +10,7 @@ import { miTurno } from "./turnera/miTurno.js"
 import { senaPublica } from "./turnera/sena.js"
 import { admin } from "./admin/index.js"
 import { catalogo } from "./modules/catalog/catalog.module.js"
+import { agenda } from "./modules/appointments/appointments.module.js"
 import { configuracionPublica } from "./shared/configuracionRoutes.js"
 import { mercadopagoPublico } from "./shared/mercadopagoRoutes.js"
 
@@ -36,6 +37,7 @@ app.use("/api/tienda", tienda)
 app.use("/api/turnos/mi-turno", miTurno)
 app.use("/api/turnos/sena", senaPublica)
 app.use("/api/turnos", catalogo.rutasServiciosWeb)
+app.use("/api/turnos", agenda.rutasWeb)
 app.use("/api/turnos", turnos)
 app.use("/api/configuracion", configuracionPublica)
 app.use("/api/mercadopago", mercadopagoPublico)

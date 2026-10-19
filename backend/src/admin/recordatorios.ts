@@ -24,7 +24,7 @@ import { pool } from "../core/database/conexion.js"
 import { malaPeticion, noEncontrado } from "../core/errores.js"
 import { leerConfigs } from "../shared/configuracion.js"
 import { armarMensaje, avisoQueToca, proximoCumple, VENTANA_DESPUES_DIAS } from "../turnera/recordatorios.js"
-import { aDateTime, fechaLarga, hoy, minutosAhora, sumarDias } from "../turnera/tiempo.js"
+import { aDateTime, fechaLarga, hoy, minutosAhora, sumarDias } from "../core/tiempo.js"
 
 export const adminRecordatorios = Router()
 

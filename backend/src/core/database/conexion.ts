@@ -16,7 +16,7 @@ export const pool = mysql.createPool({
   // le muestra 07:00.
   //
   // Dejándolos como string, la hora que se guarda es la que se lee. Las cuentas
-  // de la agenda se hacen en minutos desde medianoche (src/turnera/tiempo.ts).
+  // de la agenda se hacen en minutos desde medianoche (src/core/tiempo.ts).
   dateStrings: true,
 })
 

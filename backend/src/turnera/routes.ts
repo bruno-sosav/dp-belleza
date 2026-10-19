@@ -2,7 +2,7 @@ import { Router } from "express"
 import { z } from "zod"
 import * as service from "./service.js"
 import type { RowDataPacket } from "mysql2"
-import { consultaDisponibilidad, nuevoTurno } from "./validacion.js"
+import { nuevoTurno } from "./validacion.js"
 import { pool } from "../core/database/conexion.js"
 import { HttpError } from "../core/errores.js"
 import { limitarPorIp } from "../core/http/limitarPorIp.js"
@@ -22,17 +22,8 @@ const limiteReservas = limitarPorIp({
 // probar sin levantar un servidor.
 export const turnos = Router()
 
-// Agenda semanal del local. El front la usa para saber qué días deshabilitar en
-// el calendario: los días que no aparecen están cerrados.
-turnos.get("/horarios", async (_req, res) => {
-  res.json(await service.listarHorarios())
-})
-
-// Horarios libres para un servicio en un día. Si el local no atiende, va vacío.
-turnos.get("/disponibilidad", async (req, res) => {
-  const { servicioId, fecha } = consultaDisponibilidad.parse(req.query)
-  res.json(await service.calcularDisponibilidad(servicioId, fecha, 0, { reglasWeb: true }))
-})
+// Horarios y disponibilidad para la web los sirve el módulo de turnos
+// (modules/appointments, `agenda.rutasWeb`).
 
 // Reserva. El cliente no tiene cuenta: se identifica por teléfono.
 turnos.post("/", limiteReservas, async (req, res) => {

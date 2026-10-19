@@ -4,7 +4,7 @@ import { ApiError } from "../../lib/api"
 import { inputClass, primaryButtonClass, secondaryButtonClass } from "../../lib/styles"
 import { guardarHorarios } from "../../data/horarios"
 import type { Horario } from "../../data/horarios"
-import type { Turno } from "../../data/turnos"
+import type { TurnoParaAvisar } from "../../data/horarios"
 
 const campo = `${inputClass} py-3 text-base`
 const dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
@@ -38,7 +38,7 @@ export default function EditorHorario({ horarios }: { horarios: Horario[] }) {
   const [semana, setSemana] = useState<Semana>(original)
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [resultado, setResultado] = useState<Turno[] | null>(null)
+  const [resultado, setResultado] = useState<TurnoParaAvisar[] | null>(null)
 
   const cambiado = JSON.stringify(semana) !== JSON.stringify(original)
 

@@ -1,8 +1,7 @@
 /**
- * Reglas del horario de atención, separadas del router para poder probarlas
- * sin base de datos (test/horarios.test.ts).
+ * El horario de atención: las franjas de cada día de la semana. Dominio puro.
  */
-import { aMinutos } from "./tiempo.js"
+import { aMinutos, diaSemanaISO, type FechaISO } from "../../../core/tiempo.js"
 
 /** Una franja de un día. 1 = lunes ... 7 = domingo. */
 export type Franja = { diaSemana: number; desde: string; hasta: string }
@@ -39,4 +38,21 @@ export function entraEnHorario(diaSemana: number, inicio: string, fin: string, f
   return franjas.some(
     (f) => f.diaSemana === diaSemana && aMinutos(inicio) >= aMinutos(f.desde) && aMinutos(fin) <= aMinutos(f.hasta),
   )
+}
+
+/** Las franjas de ese día (vacío = cerrado). */
+export function franjasDelDia(franjas: Franja[], fecha: FechaISO): Franja[] {
+  return franjas.filter((f) => f.diaSemana === diaSemanaISO(fecha))
+}
+
+/**
+ * Por qué un turno no entra en el horario de atención de ese día, o null si
+ * entra. Lo usan reservar y reprogramar (la dueña puede saltearlo a propósito).
+ */
+export function problemaDeHorario(delDia: Franja[], inicio: number, fin: number, duracionMin: number): string | null {
+  if (!delDia.length) return "Ese día el local no atiende."
+  if (!delDia.some((f) => inicio >= aMinutos(f.desde) && fin <= aMinutos(f.hasta))) {
+    return `El turno de ${duracionMin} minutos no entra en el horario de atención de ese día.`
+  }
+  return null
 }

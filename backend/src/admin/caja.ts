@@ -15,7 +15,7 @@ import { enTransaccion, pool } from "../core/database/conexion.js"
 import { conflicto, malaPeticion, noEncontrado } from "../core/errores.js"
 import { CONCEPTOS_COBRO, MEDIOS_PAGO, registrarCobro } from "../shared/models/cobros.js"
 import type { MedioPago } from "../shared/models/cobros.js"
-import { hoy } from "../turnera/tiempo.js"
+import { hoy } from "../core/tiempo.js"
 import { fechaISO } from "../turnera/validacion.js"
 
 export const adminCaja = Router()

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { entraEnHorario, problemaEnFranjas } from "../src/turnera/horarios.js"
-import { problemaDeAnticipacion } from "../src/turnera/reglasReserva.js"
+import { entraEnHorario, problemaEnFranjas } from "../src/modules/appointments/domain/horario.js"
+import { problemaDeAnticipacion } from "../src/modules/appointments/domain/reglasReserva.js"
 
 describe("problemaEnFranjas", () => {
   it("acepta un horario normal, con un día cortado al mediodía", () => {

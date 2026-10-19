@@ -1,14 +1,14 @@
 import BotonWhatsApp from "./BotonWhatsApp"
 import { formatLongDate } from "../../lib/format"
 import { nombreCliente } from "../../data/turnos"
-import type { Turno } from "../../data/turnos"
+import type { TurnoParaAvisar } from "../../data/horarios"
 
 /**
  * Turnos pedidos que quedaron afuera después de cerrar un día o cambiar el
  * horario. No se cancelan solos: la dueña le escribe a cada clienta (el
  * WhatsApp ya va con el mensaje armado) y decide si lo pasa a otro día.
  */
-export default function TurnosParaAvisar({ turnos, motivo }: { turnos: Turno[]; motivo: string }) {
+export default function TurnosParaAvisar({ turnos, motivo }: { turnos: TurnoParaAvisar[]; motivo: string }) {
   if (!turnos.length) return null
   return (
     <div className="rounded-xl border border-[#e0b44a] bg-[#fdf3dc] p-4" role="status">

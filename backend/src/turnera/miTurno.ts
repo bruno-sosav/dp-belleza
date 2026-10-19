@@ -21,7 +21,7 @@ import { conflicto, HttpError } from "../core/errores.js"
 import { leerConfigNumero } from "../shared/configuracion.js"
 import { limitarPorIp } from "../core/http/limitarPorIp.js"
 import { clientes } from "../modules/customers/customers.module.js"
-import { aDateTime, hoy, minutosAhora } from "./tiempo.js"
+import { aDateTime, hoy, minutosAhora } from "../core/tiempo.js"
 
 export const miTurno = Router()
 
