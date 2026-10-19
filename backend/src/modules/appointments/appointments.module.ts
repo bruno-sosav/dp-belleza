@@ -3,11 +3,13 @@
  * implementaciones concretas, las inyecta en los casos de uso y exporta solo
  * lo que el resto del sistema puede usar.
  *
- * Por ahora tiene la AGENDA: horario de atención, días cerrados, reglas de
- * reserva y disponibilidad. Reservar, reprogramar y cambiar el estado de un
- * turno siguen en turnera/ y admin/turnos.ts hasta el próximo paso, y usan la
- * agenda a través de `agenda`.
+ * Dos partes:
+ *   - la AGENDA (`agenda`): horario de atención, días cerrados, reglas de
+ *     reserva, disponibilidad y "¿está libre este lugar?";
+ *   - los TURNOS (`turnos`): reservar desde la web, Mi turno, la seña, y dar,
+ *     reprogramar, cambiar de estado y completar desde el panel.
  */
+import { unidadDeTrabajoMySql } from "../../core/database/MySqlUnidadDeTrabajo.js"
 import { relojDelSistema } from "../../core/reloj.js"
 import type { Transaccion } from "../../core/transaccion.js"
 import { CalcularDisponibilidad, CambiarHorario, ConsultarHorario, GestionarBloqueos, VerificarLugar } from "./application/agenda.js"
@@ -18,6 +20,31 @@ import { MySqlOcupacionDeAgenda } from "./infrastructure/MySqlOcupacionDeAgenda.
 import { ServiciosDesdeCatalogo } from "./infrastructure/ServiciosDesdeCatalogo.js"
 import { AgendaController } from "./presentation/agenda.controller.js"
 import { rutasAgendaPanel, rutasAgendaWeb } from "./presentation/agenda.routes.js"
+import {
+  CambiarEstadoTurno,
+  CompletarTurno,
+  DarTurno,
+  GestionarSenas,
+  MiTurno,
+  ReprogramarTurno,
+  ReservarTurno,
+  VerTurnos,
+  type TurnosDeps,
+} from "./application/turnos.js"
+import {
+  aPagoDeSena,
+  cajaDeTurnos,
+  clientesDeTurnos,
+  configuracionDeTurnos,
+  pasarelaMercadoPago,
+  recordatoriosDeTurnos,
+  serviciosDeTurnos,
+} from "./infrastructure/adaptadores.js"
+import { MySqlConsultasDeTurnos } from "./infrastructure/MySqlConsultasDeTurnos.js"
+import { MySqlTurnoRepository } from "./infrastructure/MySqlTurnoRepository.js"
+import { TurnosController } from "./presentation/turnos.controller.js"
+import { rutasTurnosPanel, rutasTurnosWeb } from "./presentation/turnos.routes.js"
+import type { PagoMP } from "../../shared/mercadopago.js"
 
 const horarios = new MySqlHorarioRepository()
 const bloqueos = new MySqlBloqueoRepository()
@@ -50,4 +77,51 @@ export const agenda = {
   sePisa: VerificarLugar.sePisa,
   /** Reglas de la reserva web (anticipación). */
   reglasDeReserva: () => configuracion.reglas(),
+}
+
+// ---------------------------------------------------------------- turnos
+
+const deps: TurnosDeps = {
+  turnos: new MySqlTurnoRepository(),
+  consultas: new MySqlConsultasDeTurnos(),
+  lugar: verificarLugar,
+  clientes: clientesDeTurnos,
+  servicios: serviciosDeTurnos,
+  pasarela: pasarelaMercadoPago,
+  caja: cajaDeTurnos,
+  configuracion: configuracionDeTurnos,
+  reservas: configuracion,
+  recordatorios: recordatoriosDeTurnos,
+  unidad: unidadDeTrabajoMySql,
+  reloj,
+}
+const cambiarEstado = new CambiarEstadoTurno(deps)
+const senas = new GestionarSenas(deps)
+const turnosController = new TurnosController(
+  {
+    reservar: new ReservarTurno(deps),
+    dar: new DarTurno(deps),
+    reprogramar: new ReprogramarTurno(deps),
+    cambiarEstado,
+    completar: new CompletarTurno(deps, cambiarEstado),
+    ver: new VerTurnos(deps),
+    miTurno: new MiTurno(deps),
+    senas,
+  },
+  reloj,
+)
+
+/** Lo que los turnos ofrecen al resto del sistema. */
+export const turnos = {
+  /** Reservar, Mi turno y la seña: se montan bajo /api/turnos (DESPUÉS de las de la agenda). */
+  rutasWeb: rutasTurnosWeb(turnosController),
+  /** Los turnos del panel: se montan bajo /api/admin, después de requiereLogin y de agenda.rutasPanel. */
+  rutasPanel: rutasTurnosPanel(turnosController),
+
+  /** Cancela los turnos cuya seña venció sin pagar. Lo corre index.ts cada minuto. */
+  vencerSenas: () => senas.vencer(),
+  /** Un pago de Mercado Pago con referencia "turno-<id>" (lo llama el aviso de Mercado Pago). */
+  aplicarPagoSena: (turnoId: number, pago: PagoMP) => senas.aplicarPago(turnoId, aPagoDeSena(pago)),
+  /** El % de seña que se cobra de verdad (0 si Mercado Pago no está conectado). */
+  porcentajeSena: () => senas.porcentaje(),
 }

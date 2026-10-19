@@ -6,7 +6,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import type { RowDataPacket } from "mysql2"
 import { pool } from "../../src/core/database/conexion.js"
-import { aplicarPagoSena, vencerSenas } from "../../src/turnera/sena.js"
+import { turnos } from "../../src/modules/appointments/appointments.module.js"
 import { api, cerrar, diaAbierto, libres, limpiar, ponerConfig, servicioCorto, telefonoEscrito, valorConfig } from "./ayuda.js"
 
 let dia: string
@@ -65,14 +65,14 @@ describe("seña", () => {
   it("si vence sin pagar, el horario se libera enseguida y después queda cancelado por el sistema", async () => {
     await pool.query("UPDATE turnos SET sena_vence_at = NOW() - INTERVAL 1 MINUTE WHERE id = ?", [turnoId])
     expect(await libres(servicioId, dia)).toContain(hora)
-    expect(await vencerSenas()).toBeGreaterThanOrEqual(1)
+    expect(await turnos.vencerSenas()).toBeGreaterThanOrEqual(1)
     const s = await api().get(`/api/turnos/sena/${token}`)
     expect(s.body).toMatchObject({ estado: "cancelado", sena: { estado: "vencida" } })
     expect((await api().post(`/api/turnos/sena/${token}/pagar`)).status).toBe(409)
   })
 
   it("si paga tarde y el horario sigue libre, el turno se recupera confirmado", async () => {
-    await aplicarPagoSena(turnoId, pagoAprobado(turnoId, 1000))
+    await turnos.aplicarPagoSena(turnoId, pagoAprobado(turnoId, 1000))
     const s = await api().get(`/api/turnos/sena/${token}`)
     expect(s.body).toMatchObject({ estado: "confirmado", sena: { estado: "pagada" } })
     expect(await libres(servicioId, dia)).not.toContain(hora)
@@ -81,8 +81,8 @@ describe("seña", () => {
   it("un pago de menos o no aprobado no confirma nada", async () => {
     const r = await api().post("/api/turnos").send({ servicioId, fecha: dia, hora: (await libres(servicioId, dia))[0], contacto: { nombreCompleto: "Test Sena", telefono: telefonoEscrito(62) } })
     await pool.query("UPDATE turnos SET sena_monto = 1000, sena_estado = 'pendiente', sena_vence_at = NOW() + INTERVAL 30 MINUTE, sena_token = ? WHERE id = ?", ["b".repeat(32), r.body.id])
-    await aplicarPagoSena(r.body.id, pagoAprobado(r.body.id, 500))
-    await aplicarPagoSena(r.body.id, { ...pagoAprobado(r.body.id, 1000), status: "rejected" })
+    await turnos.aplicarPagoSena(r.body.id, pagoAprobado(r.body.id, 500))
+    await turnos.aplicarPagoSena(r.body.id, { ...pagoAprobado(r.body.id, 1000), status: "rejected" })
     const s = await api().get(`/api/turnos/sena/${"b".repeat(32)}`)
     expect(s.body).toMatchObject({ estado: "reservado", sena: { estado: "pendiente" } })
   })

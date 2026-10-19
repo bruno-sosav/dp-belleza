@@ -10,6 +10,11 @@ afterAll(cerrar)
 
 const rutasDelPanel: [string, string][] = [
   ["get", "/api/admin/turnos"],
+  ["post", "/api/admin/turnos"],
+  ["get", "/api/admin/turnos/1"],
+  ["patch", "/api/admin/turnos/1"],
+  ["patch", "/api/admin/turnos/1/estado"],
+  ["post", "/api/admin/turnos/1/completar"],
   ["get", "/api/admin/turnos/disponibilidad?servicioId=1&fecha=2030-01-07"],
   ["put", "/api/admin/horarios"],
   ["get", "/api/admin/bloqueos"],

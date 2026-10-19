@@ -32,20 +32,16 @@ export type BookingRequest = {
   contact: BookingContact
 }
 
-/** El turno ya guardado (`TurnoCreadoDTO` en backend/src/turnera/service.ts). */
+/** El turno ya guardado (`aReservaHecha` en backend/src/modules/appointments/presentation/turnos.dto.ts). */
 export type CreatedBooking = {
   id: number
-  servicioId: number
-  servicio: string
-  clienteId: number
+  estado: string
   fecha: string
   horaInicio: string
-  horaFin: string
   /** Precio congelado al momento de reservar. */
   precio: number
-  estado: string
   /** Para la URL de la confirmación (/reserva-confirmada?t=…). */
-  token?: string
+  token: string
   /** Solo si se cobra seña: hay que mandar a la clienta a `link` (Mercado Pago). */
   sena?: { monto: number; porcentaje: number; link: string; token: string; venceEnMinutos: number }
 }
@@ -129,14 +125,11 @@ export async function fetchConfirmedBooking(token: string): Promise<ConfirmedBoo
   return {
     booking: {
       id: r.id,
-      servicioId: r.servicio.id,
-      servicio: r.servicio.nombre,
-      clienteId: 0,
+      estado: r.estado,
       fecha: r.fecha,
       horaInicio: r.horaInicio,
-      horaFin: r.horaFin,
       precio: r.precio,
-      estado: r.estado,
+      token,
     },
     service: {
       id: r.servicio.id,

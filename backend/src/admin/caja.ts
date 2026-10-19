@@ -1,8 +1,8 @@
 /**
  * Panel: Finanzas → Caja. Lo que entró cada día, por medio de pago.
  *
- * Los cobros llegan de tres lados: al completar un turno (admin/turnos.ts,
- * POST /completar), la seña de Mercado Pago (turnera/sena.ts, sola) y lo que
+ * Los cobros llegan de tres lados: al completar un turno (modules/appointments,
+ * POST /completar), la seña de Mercado Pago (modules/appointments, sola) y lo que
  * la dueña anota a mano acá (POST /cobros), por ejemplo un turno que alguien
  * pagó antes, o cualquier otra entrada.
  *
@@ -16,7 +16,7 @@ import { conflicto, malaPeticion, noEncontrado } from "../core/errores.js"
 import { CONCEPTOS_COBRO, MEDIOS_PAGO, registrarCobro } from "../shared/models/cobros.js"
 import type { MedioPago } from "../shared/models/cobros.js"
 import { hoy } from "../core/tiempo.js"
-import { fechaISO } from "../turnera/validacion.js"
+import { fechaISO } from "../core/validacion.js"
 
 export const adminCaja = Router()
 

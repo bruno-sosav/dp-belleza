@@ -29,8 +29,8 @@ export type Turno = {
   horaFin: string
   precio: number
   notas: string | null
-  servicio: { id: number; nombre: string; duracionMin: number }
-  cliente: { id: number; nombre: string; apellido: string | null; telefono: string; email: string | null }
+  servicio: { id: number; nombre: string }
+  cliente: { id: number; nombre: string; apellido: string | null; telefono: string }
 }
 
 /** Turnos entre dos fechas inclusive, ordenados por horario. Máximo 62 días. */

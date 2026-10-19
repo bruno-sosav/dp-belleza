@@ -1,16 +1,16 @@
 import { app } from "./app.js"
 import { config } from "./core/config.js"
 import { pool } from "./core/database/conexion.js"
-import { vencerSenas } from "./turnera/sena.js"
+import { turnos } from "./modules/appointments/appointments.module.js"
 
 const servidor = app.listen(config.port, () => {
   console.log(`API de DP Belleza escuchando en http://localhost:${config.port}`)
 })
 
-// Libera los horarios de las señas que vencieron sin pagar (ver turnera/sena.ts).
+// Libera los horarios de las señas que vencieron sin pagar (modules/appointments).
 // Aunque esto no corriera, esos turnos ya no ocupan el horario: es para que en
 // el panel figuren como cancelados.
-const liberar = () => vencerSenas().catch((err) => console.error("No se pudieron vencer las señas:", err))
+const liberar = () => turnos.vencerSenas().catch((err) => console.error("No se pudieron vencer las señas:", err))
 void liberar()
 const relojSenas = setInterval(liberar, 60_000)
 

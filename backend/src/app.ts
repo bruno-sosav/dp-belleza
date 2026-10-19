@@ -5,12 +5,9 @@ import { config } from "./core/config.js"
 import { manejarErrores } from "./core/http/manejarErrores.js"
 import { auth } from "./shared/auth/routes.js"
 import { tienda } from "./ecommerce/routes.js"
-import { turnos } from "./turnera/routes.js"
-import { miTurno } from "./turnera/miTurno.js"
-import { senaPublica } from "./turnera/sena.js"
 import { admin } from "./admin/index.js"
 import { catalogo } from "./modules/catalog/catalog.module.js"
-import { agenda } from "./modules/appointments/appointments.module.js"
+import { agenda, turnos } from "./modules/appointments/appointments.module.js"
 import { configuracionPublica } from "./shared/configuracionRoutes.js"
 import { mercadopagoPublico } from "./shared/mercadopagoRoutes.js"
 
@@ -33,12 +30,10 @@ app.get("/api/salud", (_req, res) => {
 app.use("/api/auth", auth)
 app.use("/api/tienda", catalogo.rutasTiendaWeb)
 app.use("/api/tienda", tienda)
-// Antes que /api/turnos: si no, "mi-turno" se leería como una ruta de turnos.
-app.use("/api/turnos/mi-turno", miTurno)
-app.use("/api/turnos/sena", senaPublica)
+// Reservar, Mi turno y la seña; después, servicios y agenda para la web.
+app.use("/api/turnos", turnos.rutasWeb)
 app.use("/api/turnos", catalogo.rutasServiciosWeb)
 app.use("/api/turnos", agenda.rutasWeb)
-app.use("/api/turnos", turnos)
 app.use("/api/configuracion", configuracionPublica)
 app.use("/api/mercadopago", mercadopagoPublico)
 app.use("/api/admin", admin)

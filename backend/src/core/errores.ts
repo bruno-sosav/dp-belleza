@@ -37,7 +37,7 @@ const tipoPorStatus: Record<number, TipoDeError> = { 400: "invalido", 401: "no_a
 
 /**
  * Forma vieja: un error con código HTTP. Queda mientras se mudan los módulos
- * viejos (turnera/, admin/, ecommerce/); por dentro es un ErrorDeNegocio.
+ * viejos (admin/, ecommerce/, shared/); por dentro es un ErrorDeNegocio.
  * Los módulos nuevos usan los helpers de arriba.
  */
 export class HttpError extends ErrorDeNegocio {

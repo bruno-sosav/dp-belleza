@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { puedeCancelar } from "../src/turnera/miTurno.js"
+import { puedeCancelar } from "../src/modules/appointments/domain/turno.js"
 import { ocupaAgenda, puedeCambiarEstadoTurno, requiereHaberEmpezado } from "../src/modules/appointments/domain/estados.js"
 
 describe("puedeCambiarEstadoTurno", () => {
