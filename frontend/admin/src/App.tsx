@@ -1,12 +1,11 @@
 import { Navigate, Route, Routes } from "react-router-dom"
 import AdminLayout from "./components/AdminLayout"
 import AdminToday from "./pages/AdminToday"
-import AdminFinances from "./pages/AdminFinances"
 import AdminClients from "./pages/AdminClients"
 import AdminClientDetail from "./pages/AdminClientDetail"
 import AdminAgenda from "./pages/AdminAgenda"
-import AdminBookingStats from "./pages/AdminBookingStats"
 import AdminCash from "./pages/AdminCash"
+import AdminAnalysis from "./pages/AdminAnalysis"
 import AdminSales from "./pages/AdminSales"
 import AdminProducts from "./pages/AdminProducts"
 import AdminProductNew from "./pages/AdminProductNew"
@@ -36,9 +35,11 @@ export default function App() {
         <Route path="/clientes/:id" element={<AdminClientDetail />} />
         <Route path="/servicios" element={<AdminServices />} />
         <Route path="/servicios/:id" element={<AdminServiceForm />} />
-        <Route path="/finanzas" element={<AdminFinances />} />
-        <Route path="/finanzas/turnos" element={<AdminBookingStats />} />
-        <Route path="/finanzas/caja" element={<AdminCash />} />
+        <Route path="/finanzas" element={<AdminCash />} />
+        <Route path="/finanzas/analisis" element={<AdminAnalysis />} />
+        {/* Direcciones viejas de Finanzas, por si quedaron guardadas */}
+        <Route path="/finanzas/caja" element={<Navigate to="/finanzas" replace />} />
+        <Route path="/finanzas/turnos" element={<Navigate to="/finanzas/analisis" replace />} />
         <Route path="/turnos" element={<AdminAgenda />} />
         <Route path="/turnos/horario" element={<AdminSchedule />} />
         <Route path="/turnos/dias-cerrados" element={<AdminClosedDays />} />

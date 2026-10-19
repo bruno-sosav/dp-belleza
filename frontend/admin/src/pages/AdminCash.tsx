@@ -16,8 +16,8 @@ import { useCaja } from "../data/caja"
 const botonDia = `${secondaryButtonClass} min-h-12 px-4 text-base`
 
 /**
- * Finanzas → Caja (/finanzas/caja): la plata que entró en un día, por medio de
- * pago. Arriba el total, después lo que falta cobrar de los turnos completados
+ * Finanzas → Caja (/finanzas, la pestaña principal de Finanzas): la plata que
+ * entró en un día, por medio de pago. Arriba el total, después lo que falta cobrar de los turnos completados
  * y la lista de cobros. Se navega día por día.
  */
 export default function AdminCash() {

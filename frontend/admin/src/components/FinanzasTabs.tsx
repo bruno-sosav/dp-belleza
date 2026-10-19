@@ -1,14 +1,13 @@
 import Pestanas from "./Pestanas"
 
-/** Finanzas: lo que se ganó, cómo vienen los turnos y la caja de cada día. */
+/** Finanzas: la caja de cada día (lo principal) y el análisis del negocio. */
 export default function FinanzasTabs() {
   return (
     <Pestanas
       etiqueta="Secciones de Finanzas"
       pestanas={[
-        { to: "/finanzas", end: true, label: "💰 Ganancias" },
-        { to: "/finanzas/turnos", label: "📊 Turnos" },
-        { to: "/finanzas/caja", label: "🧾 Caja" },
+        { to: "/finanzas", end: true, label: "🧾 Caja" },
+        { to: "/finanzas/analisis", label: "📈 Análisis" },
       ]}
     />
   )
