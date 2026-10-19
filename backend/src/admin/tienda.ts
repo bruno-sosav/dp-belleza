@@ -1,8 +1,8 @@
 import { Router } from "express"
 import type { ResultSetHeader, RowDataPacket } from "mysql2"
 import { z } from "zod"
-import { enTransaccion, pool } from "../shared/db.js"
-import { HttpError, noEncontrado } from "../shared/errors.js"
+import { enTransaccion, pool } from "../core/database/conexion.js"
+import { HttpError, noEncontrado } from "../core/errores.js"
 import { aProducto, SELECT_PRODUCTO } from "../shared/models/productos.js"
 import { ESTADOS_PEDIDO, puedeCambiarEstado, type EstadoPedido } from "../shared/models/pedidos.js"
 

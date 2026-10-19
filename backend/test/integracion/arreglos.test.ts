@@ -1,7 +1,7 @@
 /** Los arreglos de la revisión del 17/10: login, servicio pausado, recordatorios con seña, cancelado en la página de pago. */
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import type { RowDataPacket } from "mysql2"
-import { pool } from "../../src/shared/db.js"
+import { pool } from "../../src/core/database/conexion.js"
 import { api, cerrar, diaAbierto, libres, limpiar, servicioCorto, telefonoEscrito, token } from "./ayuda.js"
 
 let auth: { Authorization: string }

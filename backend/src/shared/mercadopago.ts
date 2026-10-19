@@ -14,9 +14,9 @@
  */
 import { createHmac, timingSafeEqual } from "node:crypto"
 import type { RowDataPacket } from "mysql2"
-import { pool } from "./db.js"
-import { descifrar } from "./cifrado.js"
-import { HttpError } from "./errors.js"
+import { pool } from "../core/database/conexion.js"
+import { descifrar } from "../core/seguridad/cifrado.js"
+import { HttpError } from "../core/errores.js"
 
 const API = "https://api.mercadopago.com"
 

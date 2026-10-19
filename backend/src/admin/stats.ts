@@ -26,7 +26,7 @@
 import { Router } from "express"
 import type { RowDataPacket } from "mysql2"
 import { z } from "zod"
-import { pool } from "../shared/db.js"
+import { pool } from "../core/database/conexion.js"
 import { hoy } from "../turnera/tiempo.js"
 
 export const adminStats = Router()

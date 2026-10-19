@@ -4,7 +4,7 @@
  * recordatorio, teléfono del local, etc.).
  */
 import type { RowDataPacket } from "mysql2"
-import { pool } from "./db.js"
+import { pool } from "../core/database/conexion.js"
 
 export async function leerConfig(clave: string): Promise<string | null> {
   const [rows] = await pool.query<RowDataPacket[]>(

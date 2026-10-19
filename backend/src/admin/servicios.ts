@@ -14,8 +14,8 @@
 import { Router } from "express"
 import type { PoolConnection, ResultSetHeader, RowDataPacket } from "mysql2/promise"
 import { z } from "zod"
-import { enTransaccion, pool } from "../shared/db.js"
-import { noEncontrado } from "../shared/errors.js"
+import { enTransaccion, pool } from "../core/database/conexion.js"
+import { noEncontrado } from "../core/errores.js"
 import { aServicioDTO, type ServicioDTO } from "../turnera/service.js"
 
 export const adminServicios = Router()

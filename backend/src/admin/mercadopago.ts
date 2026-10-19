@@ -13,9 +13,9 @@
 import { Router } from "express"
 import type { RowDataPacket } from "mysql2"
 import { z } from "zod"
-import { pool } from "../shared/db.js"
-import { cifrar, descifrar } from "../shared/cifrado.js"
-import { malaPeticion, noEncontrado } from "../shared/errors.js"
+import { pool } from "../core/database/conexion.js"
+import { cifrar, descifrar } from "../core/seguridad/cifrado.js"
+import { malaPeticion, noEncontrado } from "../core/errores.js"
 import { usuarioDelToken } from "../shared/mercadopago.js"
 
 export const adminMercadoPago = Router()

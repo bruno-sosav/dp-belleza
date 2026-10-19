@@ -14,7 +14,7 @@
 import request from "supertest"
 import type { RowDataPacket } from "mysql2"
 import { app } from "../../src/app.js"
-import { pool } from "../../src/shared/db.js"
+import { pool } from "../../src/core/database/conexion.js"
 
 export const api = () => request(app)
 

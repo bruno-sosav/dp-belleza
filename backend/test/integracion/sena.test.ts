@@ -5,7 +5,7 @@
  */
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import type { RowDataPacket } from "mysql2"
-import { pool } from "../../src/shared/db.js"
+import { pool } from "../../src/core/database/conexion.js"
 import { aplicarPagoSena, vencerSenas } from "../../src/turnera/sena.js"
 import { api, cerrar, diaAbierto, libres, limpiar, ponerConfig, servicioCorto, telefonoEscrito, valorConfig } from "./ayuda.js"
 

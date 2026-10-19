@@ -10,7 +10,7 @@
  * Formato guardado: "v1:<iv>:<tag>:<cifrado>", todo en base64.
  */
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from "node:crypto"
-import { config } from "./config.js"
+import { config } from "../config.js"
 
 function clave(): Buffer {
   const propia = process.env.CREDENCIALES_KEY

@@ -1,6 +1,6 @@
 import { app } from "./app.js"
-import { config } from "./shared/config.js"
-import { pool } from "./shared/db.js"
+import { config } from "./core/config.js"
+import { pool } from "./core/database/conexion.js"
 import { vencerSenas } from "./turnera/sena.js"
 
 const servidor = app.listen(config.port, () => {

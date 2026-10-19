@@ -11,7 +11,7 @@
  */
 import { Router } from "express"
 import { z } from "zod"
-import { pool } from "./db.js"
+import { pool } from "../core/database/conexion.js"
 import { consultarPago, cuentaMercadoPago, firmaValida } from "./mercadopago.js"
 import { aplicarPagoSena } from "../turnera/sena.js"
 

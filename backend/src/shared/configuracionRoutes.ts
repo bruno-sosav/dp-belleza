@@ -1,7 +1,7 @@
 import { Router } from "express"
 import type { RowDataPacket } from "mysql2"
 import { CLAVES_PUBLICAS, leerConfigs } from "./configuracion.js"
-import { pool } from "./db.js"
+import { pool } from "../core/database/conexion.js"
 import { porcentajeSena } from "../turnera/sena.js"
 
 // Datos de contacto del local para la web pública, montado en /api/configuracion.

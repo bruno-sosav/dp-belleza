@@ -9,10 +9,10 @@
  */
 import type { PoolConnection } from "mysql2/promise"
 import type { RowDataPacket } from "mysql2"
-import { pool, enTransaccion } from "../shared/db.js"
+import { pool, enTransaccion } from "../core/database/conexion.js"
 import { leerConfigNumero } from "../shared/configuracion.js"
 import { buscarOCrearCliente } from "../shared/models/clientes.js"
-import { conflicto, HttpError, malaPeticion, noExiste } from "../shared/errors.js"
+import { conflicto, HttpError, malaPeticion, noExiste } from "../core/errores.js"
 import {
   aDateTime,
   aHora,

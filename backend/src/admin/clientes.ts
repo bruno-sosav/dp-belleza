@@ -14,8 +14,8 @@
 import { Router } from "express"
 import type { ResultSetHeader, RowDataPacket } from "mysql2"
 import { z } from "zod"
-import { pool } from "../shared/db.js"
-import { conflicto, malaPeticion, noEncontrado } from "../shared/errors.js"
+import { pool } from "../core/database/conexion.js"
+import { conflicto, malaPeticion, noEncontrado } from "../core/errores.js"
 import { normalizarTelefonoLocal } from "../shared/telefonoLocal.js"
 import type { EstadoTurno } from "../turnera/estados.js"
 

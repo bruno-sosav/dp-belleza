@@ -9,8 +9,8 @@
  */
 import { Router } from "express"
 import { z } from "zod"
-import { enTransaccion } from "../shared/db.js"
-import { malaPeticion } from "../shared/errors.js"
+import { enTransaccion } from "../core/database/conexion.js"
+import { malaPeticion } from "../core/errores.js"
 import { leerConfigs } from "../shared/configuracion.js"
 import { normalizarTelefono } from "../shared/models/telefono.js"
 import { codigoAreaLocal, olvidarCodigoArea } from "../shared/telefonoLocal.js"

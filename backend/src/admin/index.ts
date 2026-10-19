@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { requiereLogin } from "../shared/auth/middleware.js"
+import { requiereLogin } from "../core/http/sesion.js"
 import { adminTienda } from "./tienda.js"
 import { adminStats } from "./stats.js"
 import { adminTurnos } from "./turnos.js"

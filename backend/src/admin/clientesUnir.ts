@@ -13,8 +13,8 @@ import { Router } from "express"
 import type { RowDataPacket } from "mysql2"
 import type { PoolConnection } from "mysql2/promise"
 import { z } from "zod"
-import { enTransaccion, pool } from "../shared/db.js"
-import { malaPeticion, noEncontrado } from "../shared/errors.js"
+import { enTransaccion, pool } from "../core/database/conexion.js"
+import { malaPeticion, noEncontrado } from "../core/errores.js"
 
 export const adminClientesUnir = Router()
 

@@ -1,5 +1,5 @@
 import type { PoolConnection, ResultSetHeader } from "mysql2/promise"
-import { HttpError } from "../errors.js"
+import { HttpError } from "../../core/errores.js"
 import { normalizarTelefonoLocal } from "../telefonoLocal.js"
 
 export type DatosCliente = {

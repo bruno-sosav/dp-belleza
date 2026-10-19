@@ -1,6 +1,6 @@
 import { createHmac } from "node:crypto"
 import { describe, expect, it } from "vitest"
-import { cifrar, descifrar } from "../src/shared/cifrado.js"
+import { cifrar, descifrar } from "../src/core/seguridad/cifrado.js"
 import { firmaValida } from "../src/shared/mercadopago.js"
 import { montoSena } from "../src/turnera/sena.js"
 

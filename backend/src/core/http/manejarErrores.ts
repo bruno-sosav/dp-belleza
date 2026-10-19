@@ -1,21 +1,21 @@
 import type { ErrorRequestHandler } from "express"
 import { ZodError } from "zod"
+import { ErrorDeNegocio } from "../errores.js"
+import type { TipoDeError } from "../errores.js"
 
-export class HttpError extends Error {
-  constructor(
-    public status: number,
-    message: string,
-    public detalle?: unknown,
-  ) {
-    super(message)
-  }
+/** El único lugar que sabe qué código HTTP corresponde a cada tipo de error de negocio. */
+const statusPorTipo: Record<TipoDeError, number> = {
+  invalido: 400,
+  no_autorizado: 401,
+  no_encontrado: 404,
+  conflicto: 409,
+  externo: 502,
 }
 
-export const noEncontrado = (que: string) => new HttpError(404, `${que} no encontrado`)
-export const noExiste = (mensaje: string) => new HttpError(404, mensaje)
-export const malaPeticion = (mensaje: string, detalle?: unknown) => new HttpError(400, mensaje, detalle)
-export const conflicto = (mensaje: string) => new HttpError(409, mensaje)
-
+/**
+ * Último middleware de la app: convierte cualquier error en una respuesta
+ * { error, detalle? }, que es la forma que esperan la web y el panel.
+ */
 export const manejarErrores: ErrorRequestHandler = (err, _req, res, _next) => {
   if (err instanceof ZodError) {
     res.status(400).json({
@@ -24,8 +24,8 @@ export const manejarErrores: ErrorRequestHandler = (err, _req, res, _next) => {
     })
     return
   }
-  if (err instanceof HttpError) {
-    res.status(err.status).json({ error: err.message, ...(err.detalle ? { detalle: err.detalle } : {}) })
+  if (err instanceof ErrorDeNegocio) {
+    res.status(statusPorTipo[err.tipo]).json({ error: err.message, ...(err.detalle ? { detalle: err.detalle } : {}) })
     return
   }
   // JSON mal formado en el body

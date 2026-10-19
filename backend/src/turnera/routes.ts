@@ -3,9 +3,9 @@ import { z } from "zod"
 import * as service from "./service.js"
 import type { RowDataPacket } from "mysql2"
 import { consultaDisponibilidad, nuevoTurno } from "./validacion.js"
-import { pool } from "../shared/db.js"
-import { HttpError } from "../shared/errors.js"
-import { limitarPorIp } from "../shared/limitador.js"
+import { pool } from "../core/database/conexion.js"
+import { HttpError } from "../core/errores.js"
+import { limitarPorIp } from "../core/http/limitarPorIp.js"
 
 // Cuántas reservas puede HACER una misma conexión por hora. Solo cuentan las
 // que salen bien: equivocarse de horario no gasta intentos. Junto con el tope

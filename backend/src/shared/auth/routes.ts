@@ -2,10 +2,10 @@ import { Router } from "express"
 import bcrypt from "bcryptjs"
 import type { RowDataPacket } from "mysql2"
 import { z } from "zod"
-import { pool } from "../db.js"
-import { HttpError } from "../errors.js"
-import { firmarToken, requiereLogin } from "./middleware.js"
-import { limitarPorIp } from "../limitador.js"
+import { pool } from "../../core/database/conexion.js"
+import { HttpError } from "../../core/errores.js"
+import { firmarToken, requiereLogin } from "../../core/http/sesion.js"
+import { limitarPorIp } from "../../core/http/limitarPorIp.js"
 
 // Login del panel, montado en /api/auth.
 export const auth = Router()

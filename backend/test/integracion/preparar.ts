@@ -5,7 +5,7 @@
  * web "hasta N días para adelante" (Turnos → Reglas) no lo permitiría. Mientras
  * corren, el máximo se estira; al terminar, queda como estaba.
  */
-import { pool } from "../../src/shared/db.js"
+import { pool } from "../../src/core/database/conexion.js"
 
 const CLAVE = "reserva_anticipacion_max_dias"
 let original: string | null = null

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { desfasajeMySQL } from "../src/shared/db.js"
+import { desfasajeMySQL } from "../src/core/database/conexion.js"
 
 describe("zona horaria", () => {
   it("el backend usa la hora de Argentina aunque el servidor esté en otra zona", () => {

@@ -1,6 +1,6 @@
 import type { ResultSetHeader, RowDataPacket } from "mysql2"
-import { enTransaccion } from "../shared/db.js"
-import { HttpError } from "../shared/errors.js"
+import { enTransaccion } from "../core/database/conexion.js"
+import { HttpError } from "../core/errores.js"
 import { buscarOCrearCliente } from "../shared/models/clientes.js"
 import { agruparItems, redondear } from "../shared/models/pedidos.js"
 import type { NuevoPedido } from "./validacion.js"
