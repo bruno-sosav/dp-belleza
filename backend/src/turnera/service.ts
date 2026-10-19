@@ -12,8 +12,9 @@ import type { RowDataPacket } from "mysql2"
 import { pool, enTransaccion } from "../core/database/conexion.js"
 import { leerConfigNumero } from "../shared/configuracion.js"
 import { clientes } from "../modules/customers/customers.module.js"
+import { catalogo } from "../modules/catalog/catalog.module.js"
 import { comoTransaccion } from "../core/database/MySqlUnidadDeTrabajo.js"
-import { conflicto, HttpError, malaPeticion, noExiste } from "../core/errores.js"
+import { conflicto, HttpError, malaPeticion } from "../core/errores.js"
 import {
   aDateTime,
   aHora,
@@ -28,70 +29,6 @@ import type { NuevoTurno } from "./validacion.js"
 import { ESTADOS_OCUPAN } from "./estados.js"
 import { linkDePago, montoSena, nuevoTokenSena, porcentajeSena, SENA_MINUTOS, SQL_SENA_NO_VENCIDA } from "./sena.js"
 import { leerReglasReserva, MAX_TURNOS_PEDIDOS_WEB, problemaDeAnticipacion } from "./reglasReserva.js"
-
-// ---------------------------------------------------------------- servicios
-
-/** Forma que espera el frontend (el tipo `Service` de @dp/shared/data/services). */
-export type ServicioDTO = {
-  id: number
-  name: string
-  category: string
-  price: number
-  durationMin: number
-  image: string | null
-  shortDescription: string | null
-  description: string | null
-  includes: string[]
-  professional?: string
-  badge?: string
-  recommendedSessions?: number
-}
-
-export function aServicioDTO(row: RowDataPacket): ServicioDTO {
-  return {
-    id: row.id,
-    name: row.nombre,
-    category: row.categoria,
-    price: row.precio,
-    durationMin: row.duracion_min,
-    image: row.imagen_url,
-    shortDescription: row.descripcion_corta,
-    description: row.descripcion,
-    // `incluye` es una columna JSON: mysql2 la devuelve ya parseada.
-    includes: Array.isArray(row.incluye) ? row.incluye : [],
-    ...(row.profesional ? { professional: row.profesional } : {}),
-    ...(row.badge ? { badge: row.badge } : {}),
-    ...(row.sesiones_recomendadas ? { recommendedSessions: row.sesiones_recomendadas } : {}),
-  }
-}
-
-export async function listarServicios(): Promise<ServicioDTO[]> {
-  const [rows] = await pool.query<RowDataPacket[]>(
-    `SELECT id, nombre, categoria, descripcion_corta, descripcion, imagen_url,
-            incluye, profesional, badge, sesiones_recomendadas, duracion_min, precio
-       FROM servicios
-      WHERE activo = 1
-      ORDER BY categoria, nombre`,
-  )
-  return rows.map(aServicioDTO)
-}
-
-/**
- * Un servicio por id. Por defecto solo si está activo (lo que se puede
- * reservar); `incluirPausados` es para el panel, que tiene que poder
- * reprogramar los turnos que ya existían de un servicio que después se pausó.
- */
-export async function obtenerServicio(id: number, { incluirPausados = false } = {}): Promise<ServicioDTO> {
-  const [rows] = await pool.query<RowDataPacket[]>(
-    `SELECT id, nombre, categoria, descripcion_corta, descripcion, imagen_url,
-            incluye, profesional, badge, sesiones_recomendadas, duracion_min, precio
-       FROM servicios
-      WHERE id = ? ${incluirPausados ? "" : "AND activo = 1"}`,
-    [id],
-  )
-  if (rows.length === 0) throw noExiste(`No existe el servicio ${id}.`)
-  return aServicioDTO(rows[0])
-}
 
 // ---------------------------------------------------------------- horarios
 
@@ -183,7 +120,7 @@ export async function calcularDisponibilidad(
   { reglasWeb = false } = {},
 ): Promise<SlotDTO[]> {
   // Al reprogramar, el servicio del turno puede estar pausado: igual hay que poder moverlo.
-  const servicio = await obtenerServicio(servicioId, { incluirPausados: excluirTurnoId > 0 })
+  const servicio = await catalogo.servicioReservable(servicioId, { incluirPausados: excluirTurnoId > 0 })
 
   const horarios = (await listarHorarios()).filter((h) => h.diaSemana === diaSemanaISO(fecha))
   if (horarios.length === 0) return [] // cerrado
@@ -205,8 +142,8 @@ export async function calcularDisponibilidad(
     const cierre = aMinutos(horario.hasta)
 
     // El turno tiene que terminar antes del cierre, no solo empezar antes.
-    for (let inicio = apertura; inicio + servicio.durationMin <= cierre; inicio += paso) {
-      const fin = inicio + servicio.durationMin
+    for (let inicio = apertura; inicio + servicio.duracionMin <= cierre; inicio += paso) {
+      const fin = inicio + servicio.duracionMin
       const pisado = ocupados.some((o) => seSolapan(inicio, fin, o.desde, o.hasta))
       const yaPaso = esHoy && inicio <= ahora
       const muyPronto = reglas !== null && problemaDeAnticipacion(fecha, inicio, { fecha: hoy(), minutos: ahora }, reglas) !== null
@@ -343,9 +280,9 @@ export type AgendarTurno = {
  * garantía, porque entre que se consulta y se confirma pasa tiempo.
  */
 export async function agendarTurno(input: AgendarTurno): Promise<TurnoCreadoDTO> {
-  const servicio = await obtenerServicio(input.servicioId)
+  const servicio = await catalogo.servicioReservable(input.servicioId)
   const inicio = aMinutos(input.hora)
-  const fin = inicio + servicio.durationMin
+  const fin = inicio + servicio.duracionMin
 
   // Solo un turno ya completado puede estar en el pasado: es la dueña
   // registrando a alguien que vino sin turno. Todo lo demás, para adelante.
@@ -357,11 +294,11 @@ export async function agendarTurno(input: AgendarTurno): Promise<TurnoCreadoDTO>
     throw malaPeticion("Todavía no es la hora de ese turno: no se puede cargar como completado.")
   }
   if (fin > 24 * 60) {
-    throw malaPeticion(`El turno de ${servicio.durationMin} minutos terminaría pasada la medianoche.`)
+    throw malaPeticion(`El turno de ${servicio.duracionMin} minutos terminaría pasada la medianoche.`)
   }
 
   if (input.respetarHorario) {
-    await validarHorarioDeAtencion(input.fecha, inicio, fin, servicio.durationMin)
+    await validarHorarioDeAtencion(input.fecha, inicio, fin, servicio.duracionMin)
   }
 
   return enTransaccion(async (conn) => {
@@ -388,9 +325,9 @@ export async function agendarTurno(input: AgendarTurno): Promise<TurnoCreadoDTO>
         input.estado,
         // Precio congelado: si mañana sube la lista, este turno conserva el que
         // la clienta vio al reservar.
-        servicio.price,
+        servicio.precio,
         input.notas ?? null,
-        input.sena ? montoSena(servicio.price, input.sena.porcentaje) : null,
+        input.sena ? montoSena(servicio.precio, input.sena.porcentaje) : null,
         input.sena ? "pendiente" : null,
         input.sena?.token ?? null,
         input.tokenPublico ?? null,
@@ -401,12 +338,12 @@ export async function agendarTurno(input: AgendarTurno): Promise<TurnoCreadoDTO>
     return {
       id: turnoId,
       servicioId: servicio.id,
-      servicio: servicio.name,
+      servicio: servicio.nombre,
       clienteId,
       fecha: input.fecha,
       horaInicio: aHora(inicio),
       horaFin: aHora(fin),
-      precio: servicio.price,
+      precio: servicio.precio,
       estado: input.estado,
       ...(input.tokenPublico ? { token: input.tokenPublico } : {}),
     }

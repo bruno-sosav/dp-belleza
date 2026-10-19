@@ -25,7 +25,6 @@ import {
   agendarTurno,
   bloqueosDelDia,
   calcularDisponibilidad,
-  obtenerServicio,
   turnosDelDia,
   validarHorarioDeAtencion,
   yaEmpezo,
@@ -34,6 +33,7 @@ import { aDateTime, aMinutos, hoy, minutosAhora, seSolapan } from "../turnera/ti
 import type { FechaISO } from "../turnera/tiempo.js"
 import { consultaDisponibilidad, fechaISO, horaHM } from "../turnera/validacion.js"
 import { MEDIOS_PAGO, registrarCobro } from "../shared/models/cobros.js"
+import { catalogo } from "../modules/catalog/catalog.module.js"
 
 export const adminTurnos = Router()
 
@@ -256,10 +256,10 @@ adminTurnos.patch("/turnos/:id", async (req, res) => {
 
       let duracion = duracionActual
       if (cambiaServicio) {
-        const servicio = await obtenerServicio(cambios.servicioId!)
-        duracion = servicio.durationMin
+        const servicio = await catalogo.servicioReservable(cambios.servicioId!)
+        duracion = servicio.duracionMin
         columnas.servicio_id = servicio.id
-        columnas.precio = servicio.price
+        columnas.precio = servicio.precio
       }
       const hasta = desde + duracion
       if (hasta > 24 * 60) throw malaPeticion(`El turno de ${duracion} minutos terminaría pasada la medianoche.`)

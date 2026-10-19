@@ -22,16 +22,6 @@ const limiteReservas = limitarPorIp({
 // probar sin levantar un servidor.
 export const turnos = Router()
 
-// Catálogo de servicios activos.
-turnos.get("/servicios", async (_req, res) => {
-  res.json(await service.listarServicios())
-})
-
-turnos.get("/servicios/:id", async (req, res) => {
-  const id = z.coerce.number().int().positive().parse(req.params.id)
-  res.json(await service.obtenerServicio(id))
-})
-
 // Agenda semanal del local. El front la usa para saber qué días deshabilitar en
 // el calendario: los días que no aparecen están cerrados.
 turnos.get("/horarios", async (_req, res) => {

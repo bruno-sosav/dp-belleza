@@ -1,10 +1,5 @@
 import { z } from "zod"
 
-export const filtrosProductos = z.object({
-  categoria: z.coerce.number().int().positive().optional(),
-  q: z.string().trim().min(1).max(100).optional(),
-})
-
 export const nuevoPedido = z.object({
   cliente: z.object({
     nombre: z.string().trim().min(1).max(100),
