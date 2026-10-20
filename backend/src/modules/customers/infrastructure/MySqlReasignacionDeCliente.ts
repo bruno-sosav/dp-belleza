@@ -1,8 +1,11 @@
 /**
- * TRANSITORIO. Implementa el puerto ReasignacionDeCliente moviendo de una
- * clienta a otra lo que tienen los demás módulos: turnos, pedidos, cobros de
- * la caja y recordatorios. Los cobros ya los mueve pagos (payments); el resto,
- * cuando se muden esos módulos, y este archivo desaparece.
+ * Implementa el puerto ReasignacionDeCliente moviendo de una clienta a otra
+ * lo que tienen los demás módulos. Los cobros los mueve pagos; los módulos
+ * que no pueden importarse desde acá (recordatorios) se anotan con
+ * `clientes.alUnirFichas` y se los llama en la misma transacción.
+ *
+ * TRANSITORIO: turnos y pedidos todavía se mueven con SQL directo; cuando se
+ * muden, se anotan igual y ese SQL desaparece.
  */
 import type { RowDataPacket } from "mysql2"
 import type { Transaccion } from "../../../core/transaccion.js"
@@ -10,7 +13,11 @@ import { ejecutor } from "../../../core/database/MySqlUnidadDeTrabajo.js"
 import type { ReasignacionDeCliente } from "../domain/ports.js"
 import { pagos } from "../../payments/payments.module.js"
 
+export type AlUnirFichas = (deId: number, aId: number, tx: Transaccion) => Promise<void>
+
 export class MySqlReasignacionDeCliente implements ReasignacionDeCliente {
+  constructor(private escuchas: AlUnirFichas[]) {}
+
   async reasignar(deId: number, aId: number, tx: Transaccion) {
     const conn = ejecutor(tx)
     const [[antes]] = await conn.query<RowDataPacket[]>(
@@ -22,14 +29,7 @@ export class MySqlReasignacionDeCliente implements ReasignacionDeCliente {
     await conn.query("UPDATE pedidos SET cliente_id = ? WHERE cliente_id = ?", [aId, deId])
     // Los cobros de la caja también: antes se quedaban sin clienta al borrar la otra ficha.
     await pagos.reasignarCliente(deId, aId, tx)
-    // Recordatorios de cumpleaños: si las dos ya tenían el mismo saludo de ese año, queda uno solo.
-    await conn.query(
-      `DELETE r FROM recordatorios r
-         JOIN recordatorios q ON q.cliente_id = ? AND q.tipo_id = r.tipo_id AND q.anio = r.anio
-        WHERE r.cliente_id = ?`,
-      [aId, deId],
-    )
-    await conn.query("UPDATE recordatorios SET cliente_id = ? WHERE cliente_id = ?", [aId, deId])
+    for (const escuchar of this.escuchas) await escuchar(deId, aId, tx)
     return { turnos: Number(antes.turnos), compras: Number(antes.compras) }
   }
 }

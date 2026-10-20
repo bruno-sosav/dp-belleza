@@ -1,7 +1,7 @@
 /**
  * Puertos de los turnos. Los de este módulo (repositorio, consultas) se
  * implementan con MySQL en infrastructure/; los que miran hacia otros módulos
- * (clientas, catálogo, pagos, caja, configuración, recordatorios) son
+ * (clientas, catálogo, pagos, caja, configuración) son
  * adaptadores a lo que esos módulos exportan.
  */
 import type { Transaccion } from "../../../core/transaccion.js"
@@ -122,7 +122,11 @@ export interface ConfiguracionDeTurnos {
   horasParaCancelar(): Promise<number>
 }
 
-/** De recordatorios (reminders): al mover un turno, hay que volver a avisarle. */
-export interface RecordatoriosDeTurnos {
-  olvidarEnviados(turnoId: number, tx: Transaccion): Promise<void>
+/**
+ * Lo que los turnos ANUNCIAN a quien se anote (recordatorios, por ejemplo),
+ * sin conocerlo: así ningún módulo de los que escuchan queda en círculo.
+ */
+export interface AvisosDeTurnos {
+  /** Se movió de día u hora un turno pedido. Corre dentro de la transacción. */
+  reprogramado(turnoId: number, tx: Transaccion): Promise<void>
 }

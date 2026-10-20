@@ -7,7 +7,8 @@ import type { Transaccion } from "../../core/transaccion.js"
 import { DevolverStock, ReponerOAjustarStock, ReservarStock } from "./application/casosDeUso.js"
 import type { Linea } from "./domain/stock.js"
 import { MySqlStockRepository } from "./infrastructure/MySqlStockRepository.js"
-import { InventarioController, rutasPanelInventario } from "./presentation/inventario.js"
+import { InventarioController } from "./presentation/inventario.controller.js"
+import { rutasPanelInventario } from "./presentation/inventario.routes.js"
 
 const repo = new MySqlStockRepository()
 const reservar = new ReservarStock(repo)

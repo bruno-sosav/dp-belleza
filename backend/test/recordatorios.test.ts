@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { armarMensaje, avisoQueToca, proximoCumple } from "../src/turnera/recordatorios.js"
+import { armarMensaje, avisoQueToca, proximoCumple } from "../src/modules/reminders/domain/recordatorio.js"
 import { fechaLarga } from "../src/core/tiempo.js"
 
 const confirmacion = { id: 1, horasAntes: 48 }

@@ -36,7 +36,6 @@ import {
   clientesDeTurnos,
   configuracionDeTurnos,
   pasarelaMercadoPago,
-  recordatoriosDeTurnos,
   serviciosDeTurnos,
 } from "./infrastructure/adaptadores.js"
 import { MySqlConsultasDeTurnos } from "./infrastructure/MySqlConsultasDeTurnos.js"
@@ -45,6 +44,7 @@ import { TurnosController } from "./presentation/turnos.controller.js"
 import { rutasTurnosPanel, rutasTurnosWeb } from "./presentation/turnos.routes.js"
 import { pagos } from "../payments/payments.module.js"
 import type { PagoDeSena } from "./domain/sena.js"
+import type { Transaccion as Tx } from "../../core/transaccion.js"
 
 const horarios = new MySqlHorarioRepository()
 const bloqueos = new MySqlBloqueoRepository()
@@ -81,6 +81,9 @@ export const agenda = {
 
 // ---------------------------------------------------------------- turnos
 
+// Quienes se anotaron para enterarse de un turno reprogramado (recordatorios).
+const alReprogramar: ((turnoId: number, tx: Tx) => Promise<void>)[] = []
+
 const deps: TurnosDeps = {
   turnos: new MySqlTurnoRepository(),
   consultas: new MySqlConsultasDeTurnos(cajaDeTurnos),
@@ -91,7 +94,11 @@ const deps: TurnosDeps = {
   caja: cajaDeTurnos,
   configuracion: configuracionDeTurnos,
   reservas: configuracion,
-  recordatorios: recordatoriosDeTurnos,
+  avisos: {
+    reprogramado: async (turnoId, tx) => {
+      for (const escuchar of alReprogramar) await escuchar(turnoId, tx)
+    },
+  },
   unidad: unidadDeTrabajoMySql,
   reloj,
 }
@@ -130,6 +137,10 @@ export const turnos = {
   vencerSenas: () => senas.vencer(),
   /** Un pago aprobado de la seña (normalmente llega solo, por el aviso de Mercado Pago). */
   aplicarPagoSena: (turnoId: number, pago: PagoDeSena) => senas.aplicarPago(turnoId, pago),
+  /** Anotarse para enterarse cuando un turno pedido se mueve de día u hora (corre dentro de la transacción). */
+  alReprogramar: (escuchar: (turnoId: number, tx: Tx) => Promise<void>) => {
+    alReprogramar.push(escuchar)
+  },
   /** El % de seña que se cobra de verdad (0 si Mercado Pago no está conectado). */
   porcentajeSena: () => senas.porcentaje(),
 }

@@ -13,13 +13,13 @@ import { montoSena, referenciaDeSena, resultadoDelPago, SENA_MINUTOS, type PagoD
 import { esPedido, problemaAlDar, problemaAlMover, puedeCancelar, yaEmpezo } from "../domain/turno.js"
 import type { ConfiguracionDeReservas } from "../domain/agenda.ports.js"
 import type {
+  AvisosDeTurnos,
   CajaDeTurnos,
   ClientesDeTurnos,
   ConfiguracionDeTurnos,
   ConsultasDeTurnos,
   EntradaClienta,
   PasarelaDeSenas,
-  RecordatoriosDeTurnos,
   ServiciosDeTurnos,
   TurnoDeLaClienta,
   TurnoDelPanel,
@@ -39,7 +39,7 @@ export type TurnosDeps = {
   caja: CajaDeTurnos
   configuracion: ConfiguracionDeTurnos
   reservas: ConfiguracionDeReservas
-  recordatorios: RecordatoriosDeTurnos
+  avisos: AvisosDeTurnos
   unidad: UnidadDeTrabajo
   reloj: Reloj
 }
@@ -237,8 +237,8 @@ export class ReprogramarTurno {
           throw conflicto("Ese horario ya lo ocupa otro turno o un bloqueo.")
         }
         Object.assign(cambios, { fecha, horaInicio: aHora(desde), horaFin: aHora(hasta) })
-        // Si se movió de día u hora, hay que volver a avisarle.
-        if (esPedido(t.estado) && (fecha !== t.fecha || desde !== desdeActual)) await d.recordatorios.olvidarEnviados(id, tx)
+        // Si se movió de día u hora, se anuncia (recordatorios vuelve a avisarle).
+        if (esPedido(t.estado) && (fecha !== t.fecha || desde !== desdeActual)) await d.avisos.reprogramado(id, tx)
       }
       if (Object.keys(cambios).length) await d.turnos.actualizar(id, cambios, tx)
     })

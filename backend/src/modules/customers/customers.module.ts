@@ -25,14 +25,16 @@ import { normalizarTelefono } from "./domain/telefono.js"
 import { CodigoAreaDesdeConfiguracion } from "./infrastructure/CodigoAreaDesdeConfiguracion.js"
 import { MySqlActividadDeClientes } from "./infrastructure/MySqlActividadDeClientes.js"
 import { MySqlClienteRepository } from "./infrastructure/MySqlClienteRepository.js"
-import { MySqlReasignacionDeCliente } from "./infrastructure/MySqlReasignacionDeCliente.js"
+import { MySqlReasignacionDeCliente, type AlUnirFichas } from "./infrastructure/MySqlReasignacionDeCliente.js"
 import { ClientesController } from "./presentation/clientes.controller.js"
 import { rutasPanelClientes } from "./presentation/clientes.routes.js"
 
 // Implementaciones concretas
 const repo = new MySqlClienteRepository()
 const actividad = new MySqlActividadDeClientes()
-const reasignacion = new MySqlReasignacionDeCliente()
+// Quienes se anotaron para enterarse de que se unieron dos fichas (recordatorios).
+const alUnirFichas: AlUnirFichas[] = []
+const reasignacion = new MySqlReasignacionDeCliente(alUnirFichas)
 const codigoArea = new CodigoAreaDesdeConfiguracion()
 
 // Casos de uso, con sus dependencias inyectadas
@@ -64,6 +66,11 @@ export const clientes = {
 
   /** Normalizar con un código de área dado (al guardar el WhatsApp del local en Ajustes). */
   normalizarTelefonoCon: normalizarTelefono,
+
+  /** Anotarse para mover lo propio cuando se unen dos fichas (corre dentro de la transacción). */
+  alUnirFichas: (escuchar: AlUnirFichas) => {
+    alUnirFichas.push(escuchar)
+  },
 
   /** El código de área del local, y olvidarlo cuando la dueña lo cambia. */
   codigoArea: () => codigoArea.obtener(),

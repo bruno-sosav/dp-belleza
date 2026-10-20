@@ -4,7 +4,7 @@ import { ErrorDeNegocio } from "../../src/core/errores.js"
 import { ActualizarServicio, CrearServicio, ListarServicios, VerServicio } from "../../src/modules/catalog/application/servicios.js"
 import { ActualizarProducto, CrearProducto, ListarProductos } from "../../src/modules/catalog/application/productos.js"
 import { disponible } from "../../src/modules/catalog/domain/producto.js"
-import type { CambiosProducto, Categoria, DatosProducto, Producto } from "../../src/modules/catalog/domain/producto.js"
+import type { CambiosProducto, Categoria, DatosProducto, Producto, ProductoVendible } from "../../src/modules/catalog/domain/producto.js"
 import { elegirCategoria, limpiarCategoria, servicioNuevo } from "../../src/modules/catalog/domain/servicio.js"
 import type { CambiosServicio, DatosServicio, Servicio } from "../../src/modules/catalog/domain/servicio.js"
 import type { CategoriaRepository, ProductoRepository, ServicioRepository, TurnosDeServicios } from "../../src/modules/catalog/domain/ports.js"
@@ -57,6 +57,14 @@ class ProductosEnMemoria implements ProductoRepository {
     if (!p) return false
     this.filas.set(id, { ...p, ...(c as Partial<Producto>) })
     return true
+  }
+  async vendibles(ids: number[]) {
+    const r = new Map<number, ProductoVendible>()
+    for (const id of ids) {
+      const p = this.filas.get(id)
+      if (p?.activo) r.set(id, { id, nombre: p.nombre, precio: p.precio })
+    }
+    return r
   }
 }
 

@@ -1,0 +1,7 @@
+{
+  // Solo para revisar tipos (npm run typecheck): además de src/, los scripts y
+  // los tests, que el build no compila pero también tienen que estar bien.
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "rootDir": ".", "noEmit": true },
+  "include": ["src", "scripts", "test"]
+}

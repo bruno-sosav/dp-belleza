@@ -1,8 +1,8 @@
 /**
  * Adaptadores: cumplen los puertos que los turnos tienen hacia OTROS módulos
  * usando lo que esos módulos exportan. Los que dicen TRANSITORIO apuntan a
- * código que todavía no se mudó a modules/ (configuración, recordatorios) y
- * cambian cuando se mude.
+ * código que todavía no se mudó a modules/ (configuración) y cambian cuando
+ * se mude.
  */
 import type { RowDataPacket } from "mysql2"
 import { config } from "../../../core/config.js"
@@ -17,7 +17,6 @@ import type {
   ClientesDeTurnos,
   ConfiguracionDeTurnos,
   PasarelaDeSenas,
-  RecordatoriosDeTurnos,
   ServiciosDeTurnos,
 } from "../domain/turnos.ports.js"
 
@@ -66,10 +65,4 @@ export const configuracionDeTurnos: ConfiguracionDeTurnos = {
   horasParaCancelar: () => leerConfigNumero("cancelacion_horas_minimas", 24),
 }
 
-/** TRANSITORIO (reminders): los recordatorios ya mandados de un turno. */
-export const recordatoriosDeTurnos: RecordatoriosDeTurnos = {
-  olvidarEnviados: async (turnoId, tx) => {
-    await ejecutor(tx).query("DELETE FROM recordatorios WHERE turno_id = ?", [turnoId])
-  },
-}
 

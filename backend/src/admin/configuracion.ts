@@ -51,7 +51,7 @@ adminConfiguracion.get("/configuracion", async (_req, res) => {
  *   que es lo que pide wa.me.
  *
  * Los recordatorios (anticipación y mensaje) tienen su propia sección:
- * admin/recordatorios.ts.
+ * modules/reminders.
  */
 adminConfiguracion.patch("/configuracion", async (req, res) => {
   const datos = ajustes.parse(req.body)

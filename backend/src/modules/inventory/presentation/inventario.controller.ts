@@ -1,0 +1,19 @@
+/** Controller del inventario (la "C" de MVC): valida, llama al caso de uso y devuelve el DTO. */
+import type { Request, Response } from "express"
+import type { ReponerOAjustarStock } from "../application/casosDeUso.js"
+import { aStock } from "./inventario.dto.js"
+import { ajuste, idParam, reposicion } from "./inventario.schemas.js"
+
+export class InventarioController {
+  constructor(private stock: ReponerOAjustarStock) {}
+
+  ajustar = async (req: Request, res: Response) => {
+    const productoId = idParam.parse(req.params.id)
+    res.json(aStock(productoId, await this.stock.ajustar(productoId, ajuste.parse(req.body).stock)))
+  }
+
+  reponer = async (req: Request, res: Response) => {
+    const productoId = idParam.parse(req.params.id)
+    res.json(aStock(productoId, await this.stock.reponer(productoId, reposicion.parse(req.body).cantidad)))
+  }
+}

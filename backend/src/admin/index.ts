@@ -7,7 +7,7 @@ import { catalogo } from "../modules/catalog/catalog.module.js"
 import { inventario } from "../modules/inventory/inventory.module.js"
 import { agenda, turnos } from "../modules/appointments/appointments.module.js"
 import { adminConfiguracion } from "./configuracion.js"
-import { adminRecordatorios } from "./recordatorios.js"
+import { recordatorios } from "../modules/reminders/reminders.module.js"
 import { adminCuenta } from "./cuenta.js"
 import { pagos } from "../modules/payments/payments.module.js"
 
@@ -26,6 +26,6 @@ admin.use(clientes.rutasPanel)
 admin.use(catalogo.rutasPanel)
 admin.use(inventario.rutasPanel)
 admin.use(adminConfiguracion)
-admin.use(adminRecordatorios)
+admin.use(recordatorios.rutasPanel)
 admin.use(adminCuenta)
 admin.use(pagos.rutasPanel)
