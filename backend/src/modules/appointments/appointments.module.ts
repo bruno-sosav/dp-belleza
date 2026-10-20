@@ -18,8 +18,8 @@ import { MySqlBloqueoRepository } from "./infrastructure/MySqlBloqueoRepository.
 import { MySqlHorarioRepository } from "./infrastructure/MySqlHorarioRepository.js"
 import { MySqlOcupacionDeAgenda } from "./infrastructure/MySqlOcupacionDeAgenda.js"
 import { ServiciosDesdeCatalogo } from "./infrastructure/ServiciosDesdeCatalogo.js"
-import { AgendaController } from "./presentation/agenda.controller.js"
-import { rutasAgendaPanel, rutasAgendaWeb } from "./presentation/agenda.routes.js"
+import { AgendaController } from "./presentation/controllers/agenda.controller.js"
+import { rutasAgendaPanel, rutasAgendaWeb } from "./presentation/routes/agenda.routes.js"
 import {
   CambiarEstadoTurno,
   CompletarTurno,
@@ -40,8 +40,8 @@ import {
 } from "./infrastructure/adaptadores.js"
 import { MySqlConsultasDeTurnos } from "./infrastructure/MySqlConsultasDeTurnos.js"
 import { MySqlTurnoRepository } from "./infrastructure/MySqlTurnoRepository.js"
-import { TurnosController } from "./presentation/turnos.controller.js"
-import { rutasTurnosPanel, rutasTurnosWeb } from "./presentation/turnos.routes.js"
+import { TurnosController } from "./presentation/controllers/turnos.controller.js"
+import { rutasTurnosPanel, rutasTurnosWeb } from "./presentation/routes/turnos.routes.js"
 import { pagos } from "../payments/payments.module.js"
 import type { PagoDeSena } from "./domain/sena.js"
 import type { Transaccion as Tx } from "../../core/transaccion.js"

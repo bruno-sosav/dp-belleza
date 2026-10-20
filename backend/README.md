@@ -6,6 +6,41 @@ Están hechos los dos módulos: **ecommerce** (tienda + su parte del panel) y
 **turnera** (servicios, disponibilidad y reserva de turnos), más lo compartido
 (conexión, login, models).
 
+## Arquitectura: módulos por dominio, en capas (en migración)
+
+El backend se está reorganizando en `src/core/` (lo transversal: config, base
+de datos, errores, sesión) y `src/modules/<dominio>/`, cada uno con sus capas:
+
+```
+modules/<dominio>/
+├── domain/            reglas puras y puertos (interfaces). Sin SQL ni Express.
+├── application/       casos de uso: orquestan el dominio a través de los puertos
+├── infrastructure/    implementaciones: MySQL, Mercado Pago, adaptadores a otros módulos
+├── presentation/      la capa HTTP (MVC)
+│   ├── controllers/   reciben el pedido, llaman al caso de uso y responden con un DTO
+│   ├── dto/           lo que SALE: solo los campos que usa cada pantalla
+│   ├── schemas/       lo que ENTRA: validado con zod
+│   └── routes/        qué URL va a qué método del controller
+└── <dominio>.module.ts  arma todo (inyección) y exporta lo único que ven los demás
+```
+
+Un controller no tiene SQL ni reglas de negocio, y nunca devuelve una fila ni
+una entidad entera: todo lo que sale pasa por un DTO.
+
+| módulo | controllers |
+|---|---|
+| `appointments` (turnos y agenda) | `agenda.controller.ts`, `turnos.controller.ts` |
+| `catalog` (servicios, productos, categorías) | `catalogo.controller.ts` |
+| `customers` (clientas) | `clientes.controller.ts` |
+| `inventory` (stock) | `inventario.controller.ts` |
+| `payments` (caja y Mercado Pago) | `payments.controller.ts` |
+| `reminders` (recordatorios) | `recordatorios.controller.ts` |
+
+Falta migrar: `admin` (estadísticas y configuración), `auth` (login y cuenta)
+y `orders` (pedidos de la tienda). Hasta entonces siguen en `src/admin/`,
+`src/shared/` y `src/ecommerce/`, y lo que sigue de este README describe esa
+estructura vieja.
+
 ## Regla principal: UNA sola app, módulos adentro
 
 `src/turnera/` y `src/ecommerce/` **no son dos servidores**. Son dos grupos de

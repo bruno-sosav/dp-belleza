@@ -26,8 +26,8 @@ import { CodigoAreaDesdeConfiguracion } from "./infrastructure/CodigoAreaDesdeCo
 import { MySqlActividadDeClientes } from "./infrastructure/MySqlActividadDeClientes.js"
 import { MySqlClienteRepository } from "./infrastructure/MySqlClienteRepository.js"
 import { MySqlReasignacionDeCliente, type AlUnirFichas } from "./infrastructure/MySqlReasignacionDeCliente.js"
-import { ClientesController } from "./presentation/clientes.controller.js"
-import { rutasPanelClientes } from "./presentation/clientes.routes.js"
+import { ClientesController } from "./presentation/controllers/clientes.controller.js"
+import { rutasPanelClientes } from "./presentation/routes/clientes.routes.js"
 
 // Implementaciones concretas
 const repo = new MySqlClienteRepository()

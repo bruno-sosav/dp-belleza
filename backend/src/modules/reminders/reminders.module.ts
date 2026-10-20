@@ -15,8 +15,8 @@ import { MySqlConsultasDeRecordatorios } from "./infrastructure/MySqlConsultasDe
 import { MySqlRegistroRepository } from "./infrastructure/MySqlRegistroRepository.js"
 import { MySqlTipoRepository } from "./infrastructure/MySqlTipoRepository.js"
 import { NombreDesdeConfiguracion } from "./infrastructure/NombreDesdeConfiguracion.js"
-import { RecordatoriosController } from "./presentation/recordatorios.controller.js"
-import { rutasPanelRecordatorios } from "./presentation/recordatorios.routes.js"
+import { RecordatoriosController } from "./presentation/controllers/recordatorios.controller.js"
+import { rutasPanelRecordatorios } from "./presentation/routes/recordatorios.routes.js"
 
 const tipos = new MySqlTipoRepository()
 const registros = new MySqlRegistroRepository()

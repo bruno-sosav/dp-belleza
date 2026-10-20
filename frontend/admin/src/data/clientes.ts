@@ -11,7 +11,7 @@ import type { EstadoTurno } from "./turnos"
 
 /**
  * Los tipos de acá son exactamente lo que devuelve el backend (los DTOs de
- * backend/src/modules/customers/presentation/clientes.dto.ts): cada pantalla
+ * backend/src/modules/customers/presentation/dto/clientes.dto.ts): cada pantalla
  * recibe solo lo que usa.
  */
 

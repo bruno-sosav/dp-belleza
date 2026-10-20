@@ -32,7 +32,7 @@ export type BookingRequest = {
   contact: BookingContact
 }
 
-/** El turno ya guardado (`aReservaHecha` en backend/src/modules/appointments/presentation/turnos.dto.ts). */
+/** El turno ya guardado (`aReservaHecha` en backend/src/modules/appointments/presentation/dto/turnos.dto.ts). */
 export type CreatedBooking = {
   id: number
   estado: string

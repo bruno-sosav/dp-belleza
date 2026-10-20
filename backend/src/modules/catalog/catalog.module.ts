@@ -11,8 +11,8 @@ import { MySqlCategoriaRepository } from "./infrastructure/MySqlCategoriaReposit
 import { MySqlProductoRepository } from "./infrastructure/MySqlProductoRepository.js"
 import { MySqlServicioRepository } from "./infrastructure/MySqlServicioRepository.js"
 import { MySqlTurnosDeServicios } from "./infrastructure/MySqlTurnosDeServicios.js"
-import { CatalogoController } from "./presentation/catalogo.controller.js"
-import { rutasPanelCatalogo, rutasServiciosWeb, rutasTiendaWeb } from "./presentation/catalogo.routes.js"
+import { CatalogoController } from "./presentation/controllers/catalogo.controller.js"
+import { rutasPanelCatalogo, rutasServiciosWeb, rutasTiendaWeb } from "./presentation/routes/catalogo.routes.js"
 
 const servicios = new MySqlServicioRepository()
 const productos = new MySqlProductoRepository()

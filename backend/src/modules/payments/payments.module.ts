@@ -19,8 +19,8 @@ import { MySqlCobroRepository } from "./infrastructure/MySqlCobroRepository.js"
 import { MySqlConsultasDeCaja } from "./infrastructure/MySqlConsultasDeCaja.js"
 import { MySqlCuentaRepository } from "./infrastructure/MySqlCuentaRepository.js"
 import { MySqlPagosRecibidos } from "./infrastructure/MySqlPagosRecibidos.js"
-import { PagosController } from "./presentation/payments.controller.js"
-import { rutasPagosPanel, rutasPagosWeb } from "./presentation/payments.routes.js"
+import { PagosController } from "./presentation/controllers/payments.controller.js"
+import { rutasPagosPanel, rutasPagosWeb } from "./presentation/routes/payments.routes.js"
 
 const cobros = new MySqlCobroRepository()
 const cuentas = new MySqlCuentaRepository()
