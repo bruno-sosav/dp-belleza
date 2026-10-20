@@ -16,14 +16,14 @@ export type Cobro = {
   concepto: "sena" | "turno" | "otro"
   descripcion: string | null
   turno: { id: number; servicio: string; fecha: string; hora: string } | null
-  cliente: { id: number; nombre: string } | null
+  cliente: { nombre: string } | null
 }
 
 export type SinCobrar = {
   turnoId: number
   hora: string
   servicio: string
-  cliente: { id: number; nombre: string }
+  cliente: { nombre: string }
   precio: number
   cobrado: number
   falta: number

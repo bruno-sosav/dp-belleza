@@ -17,10 +17,9 @@ const token = "a".repeat(32)
 
 const pagoAprobado = (turnoId: number, monto: number) => ({
   id: 123456789,
-  status: "approved",
-  status_detail: "accredited",
-  transaction_amount: monto,
-  external_reference: `turno-${turnoId}`,
+  aprobado: true,
+  monto,
+  referencia: `turno-${turnoId}`,
 })
 
 beforeAll(async () => {
@@ -82,7 +81,7 @@ describe("seña", () => {
     const r = await api().post("/api/turnos").send({ servicioId, fecha: dia, hora: (await libres(servicioId, dia))[0], contacto: { nombreCompleto: "Test Sena", telefono: telefonoEscrito(62) } })
     await pool.query("UPDATE turnos SET sena_monto = 1000, sena_estado = 'pendiente', sena_vence_at = NOW() + INTERVAL 30 MINUTE, sena_token = ? WHERE id = ?", ["b".repeat(32), r.body.id])
     await turnos.aplicarPagoSena(r.body.id, pagoAprobado(r.body.id, 500))
-    await turnos.aplicarPagoSena(r.body.id, { ...pagoAprobado(r.body.id, 1000), status: "rejected" })
+    await turnos.aplicarPagoSena(r.body.id, { ...pagoAprobado(r.body.id, 1000), aprobado: false })
     const s = await api().get(`/api/turnos/sena/${"b".repeat(32)}`)
     expect(s.body).toMatchObject({ estado: "reservado", sena: { estado: "pendiente" } })
   })

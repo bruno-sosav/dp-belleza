@@ -32,7 +32,6 @@ import {
   type TurnosDeps,
 } from "./application/turnos.js"
 import {
-  aPagoDeSena,
   cajaDeTurnos,
   clientesDeTurnos,
   configuracionDeTurnos,
@@ -44,7 +43,8 @@ import { MySqlConsultasDeTurnos } from "./infrastructure/MySqlConsultasDeTurnos.
 import { MySqlTurnoRepository } from "./infrastructure/MySqlTurnoRepository.js"
 import { TurnosController } from "./presentation/turnos.controller.js"
 import { rutasTurnosPanel, rutasTurnosWeb } from "./presentation/turnos.routes.js"
-import type { PagoMP } from "../../shared/mercadopago.js"
+import { pagos } from "../payments/payments.module.js"
+import type { PagoDeSena } from "./domain/sena.js"
 
 const horarios = new MySqlHorarioRepository()
 const bloqueos = new MySqlBloqueoRepository()
@@ -83,7 +83,7 @@ export const agenda = {
 
 const deps: TurnosDeps = {
   turnos: new MySqlTurnoRepository(),
-  consultas: new MySqlConsultasDeTurnos(),
+  consultas: new MySqlConsultasDeTurnos(cajaDeTurnos),
   lugar: verificarLugar,
   clientes: clientesDeTurnos,
   servicios: serviciosDeTurnos,
@@ -111,6 +111,14 @@ const turnosController = new TurnosController(
   reloj,
 )
 
+// Pagos no depende de turnos: turnos se conecta a pagos. Así la caja sabe de
+// quién es un turno al anotar un cobro, y el aviso de Mercado Pago de una seña
+// ("turno-<id>") llega acá.
+pagos.conectarTurnos({
+  clienteDelTurno: async (id, tx) => (await deps.turnos.porId(id, tx))?.clienteId ?? null,
+  aplicarPagoSena: (id, pago) => senas.aplicarPago(id, pago),
+})
+
 /** Lo que los turnos ofrecen al resto del sistema. */
 export const turnos = {
   /** Reservar, Mi turno y la seña: se montan bajo /api/turnos (DESPUÉS de las de la agenda). */
@@ -120,8 +128,8 @@ export const turnos = {
 
   /** Cancela los turnos cuya seña venció sin pagar. Lo corre index.ts cada minuto. */
   vencerSenas: () => senas.vencer(),
-  /** Un pago de Mercado Pago con referencia "turno-<id>" (lo llama el aviso de Mercado Pago). */
-  aplicarPagoSena: (turnoId: number, pago: PagoMP) => senas.aplicarPago(turnoId, aPagoDeSena(pago)),
+  /** Un pago aprobado de la seña (normalmente llega solo, por el aviso de Mercado Pago). */
+  aplicarPagoSena: (turnoId: number, pago: PagoDeSena) => senas.aplicarPago(turnoId, pago),
   /** El % de seña que se cobra de verdad (0 si Mercado Pago no está conectado). */
   porcentajeSena: () => senas.porcentaje(),
 }

@@ -1,32 +1,28 @@
 /**
- * Las vistas de los turnos (lo que se muestra): un turno con su clienta, su
- * servicio y lo cobrado. Son consultas de lectura que juntan tablas de otros
- * módulos para no hacer un pedido por fila.
- *
- * TRANSITORIO en cuanto a `cobrado`: la tabla `cobros` es de pagos (payments);
- * cuando se mude, este dato pasa a venir de ese módulo.
+ * Las vistas de los turnos (lo que se muestra): un turno con su clienta y su
+ * servicio. Son consultas de lectura que juntan tablas de otros módulos para
+ * no hacer un pedido por fila. Lo cobrado lo dice la caja (payments).
  */
 import type { RowDataPacket } from "mysql2"
 import { ejecutor } from "../../../core/database/MySqlUnidadDeTrabajo.js"
 import type { Transaccion } from "../../../core/transaccion.js"
 import type { EstadoTurno } from "../domain/estados.js"
-import type { ConsultasDeTurnos, TurnoDeLaClienta, TurnoDelPanel } from "../domain/turnos.ports.js"
+import type { CajaDeTurnos, ConsultasDeTurnos, TurnoDeLaClienta, TurnoDelPanel } from "../domain/turnos.ports.js"
 import { aTurno, COLUMNAS_TURNO } from "./MySqlTurnoRepository.js"
 
 const SELECT_PANEL = `
   SELECT ${COLUMNAS_TURNO},
-         (SELECT COALESCE(SUM(cb.monto), 0) FROM cobros cb WHERE cb.turno_id = t.id) AS cobrado,
          s.nombre AS servicio_nombre, s.duracion_min,
          c.nombre AS c_nombre, c.apellido AS c_apellido, c.telefono AS c_telefono
     FROM turnos t
     JOIN servicios s ON s.id = t.servicio_id
     JOIN clientes  c ON c.id = t.cliente_id`
 
-const aDelPanel = (r: RowDataPacket): TurnoDelPanel => ({
+const aDelPanel = (r: RowDataPacket, cobrado: Map<number, number>): TurnoDelPanel => ({
   ...aTurno(r),
   servicio: { id: r.servicio_id, nombre: r.servicio_nombre, duracionMin: r.duracion_min },
   cliente: { id: r.cliente_id, nombre: r.c_nombre, apellido: r.c_apellido, telefono: r.c_telefono },
-  cobrado: Number(r.cobrado ?? 0),
+  cobrado: cobrado.get(r.id) ?? 0,
 })
 
 const SELECT_CLIENTA = `
@@ -45,9 +41,16 @@ const aDeLaClienta = (r: RowDataPacket): TurnoDeLaClienta => ({
 })
 
 export class MySqlConsultasDeTurnos implements ConsultasDeTurnos {
+  constructor(private caja: Pick<CajaDeTurnos, "cobradoPorTurnos">) {}
+
+  private async conCobrado(rows: RowDataPacket[]) {
+    const cobrado = await this.caja.cobradoPorTurnos(rows.map((r) => r.id as number))
+    return rows.map((r) => aDelPanel(r, cobrado))
+  }
+
   async delPanel(id: number) {
     const [rows] = await ejecutor().query<RowDataPacket[]>(`${SELECT_PANEL} WHERE t.id = ?`, [id])
-    return rows[0] ? aDelPanel(rows[0]) : null
+    return (await this.conCobrado(rows))[0] ?? null
   }
 
   async delPanelEntre(desde: string, hasta: string, estado?: EstadoTurno) {
@@ -57,7 +60,7 @@ export class MySqlConsultasDeTurnos implements ConsultasDeTurnos {
         ORDER BY t.fecha_hora_inicio, t.id LIMIT 1000`,
       estado ? [desde, hasta, estado] : [desde, hasta],
     )
-    return rows.map(aDelPanel)
+    return this.conCobrado(rows)
   }
 
   async porTokenPublico(token: string) {

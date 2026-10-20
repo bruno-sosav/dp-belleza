@@ -30,12 +30,29 @@ const rutasDelPanel: [string, string][] = [
   ["get", "/api/admin/categorias"],
   ["get", "/api/admin/pedidos"],
   ["get", "/api/admin/caja"],
+  ["post", "/api/admin/cobros"],
+  ["delete", "/api/admin/cobros/1"],
   ["get", "/api/admin/recordatorios"],
   ["get", "/api/admin/configuracion"],
   ["get", "/api/admin/mercadopago"],
+  ["put", "/api/admin/mercadopago"],
+  ["post", "/api/admin/mercadopago/probar"],
+  ["delete", "/api/admin/mercadopago"],
   ["get", "/api/admin/cuenta"],
   ["get", "/api/admin/stats/dias"],
 ]
+
+describe("el aviso de Mercado Pago", () => {
+  it("lo que no es un pago se contesta 200 sin hacer nada (para que no reintente)", async () => {
+    const r = await api().post("/api/mercadopago/webhook").send({ type: "merchant_order", data: { id: "1" } })
+    expect(r.status).toBe(200)
+    expect(r.body).toEqual({ ignorado: true })
+  })
+
+  it("un id que no es un número se ignora", async () => {
+    expect((await api().post("/api/mercadopago/webhook").send({ type: "payment", data: { id: "1; DROP" } })).body).toEqual({ ignorado: true })
+  })
+})
 
 describe("el panel exige sesión", () => {
   it.each(rutasDelPanel)("%s %s sin sesión → 401", async (metodo, ruta) => {

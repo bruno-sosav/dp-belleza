@@ -249,19 +249,20 @@ el header `Authorization: Bearer <token>` (dura 8 horas). `GET /api/auth/yo` dev
 La dueña conecta la cuenta del local en el panel (**Ajustes → Mercado Pago**):
 pega la Public Key y el Access Token, el backend los prueba contra Mercado Pago
 y los guarda en `mercadopago_cuenta`, con el token **cifrado**
-(`src/shared/cifrado.ts`, clave en `CREDENCIALES_KEY` o derivada de
+(`src/core/seguridad/cifrado.ts`, clave en `CREDENCIALES_KEY` o derivada de
 `JWT_SECRET`). Nunca vuelven enteros al navegador.
 
-Para cobrar, usar `src/shared/mercadopago.ts`:
+Todo lo de pagos vive en el módulo `src/modules/payments`. Para cobrar desde
+otro módulo, usar su fachada:
 
 ```ts
-import { crearPreferencia } from "../shared/mercadopago.js"
+import { pagos } from "../payments/payments.module.js"
 
-const { link } = await crearPreferencia({
+const link = await pagos.crearLinkDePago({
   items: [{ titulo: "Crema hidratante", cantidad: 1, precioUnitario: 12000 }],
-  referenciaExterna: `pedido-${pedidoId}`,          // con esto se sabe qué se pagó
-  urlsDeVuelta: { exito: "…/pago/ok", pendiente: "…/pago/pendiente", error: "…/pago/error" },
-  urlNotificacion: "https://<api pública>/api/mercadopago/webhook",
+  referencia: `pedido-${pedidoId}`,                 // con esto se sabe qué se pagó
+  vuelta: { exito: "…/pago/ok", pendiente: "…/pago/pendiente", error: "…/pago/error" },
+  notificacion: "https://<api pública>/api/mercadopago/webhook",
 })
 // redirigir a la clienta a `link` (en modo prueba ya es el link de sandbox)
 ```
@@ -275,8 +276,11 @@ la firma si hay clave secreta cargada, y queda en `mercadopago_pagos` con su
 **En local el webhook no llega** (Mercado Pago no ve `localhost`). Para probarlo
 hace falta exponer la API, por ejemplo con `ngrok http 3000`, y usar esa URL.
 
-Falta (tienda): crear la preferencia al confirmar un pedido y pasar el pedido a
-`confirmado` cuando el pago llega `approved`.
+Falta (tienda): crear el link al confirmar un pedido y pasar el pedido a
+`confirmado` cuando el pago llega `approved`. El aviso ya reparte por la
+referencia (`destinoDelPago`): `turno-<id>` va a la seña del turno; para
+`pedido-<id>` hay que conectar los pedidos igual que se conectan los turnos
+(`pagos.conectarTurnos`, en `appointments.module.ts`).
 
 ## Pendiente de decidir
 

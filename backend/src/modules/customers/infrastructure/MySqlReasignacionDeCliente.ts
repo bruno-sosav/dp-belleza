@@ -1,13 +1,14 @@
 /**
  * TRANSITORIO. Implementa el puerto ReasignacionDeCliente moviendo de una
  * clienta a otra lo que tienen los demás módulos: turnos, pedidos, cobros de
- * la caja y recordatorios. Cuando se muden esos módulos, cada uno va a proveer
- * su propia reasignación y este archivo desaparece.
+ * la caja y recordatorios. Los cobros ya los mueve pagos (payments); el resto,
+ * cuando se muden esos módulos, y este archivo desaparece.
  */
 import type { RowDataPacket } from "mysql2"
 import type { Transaccion } from "../../../core/transaccion.js"
 import { ejecutor } from "../../../core/database/MySqlUnidadDeTrabajo.js"
 import type { ReasignacionDeCliente } from "../domain/ports.js"
+import { pagos } from "../../payments/payments.module.js"
 
 export class MySqlReasignacionDeCliente implements ReasignacionDeCliente {
   async reasignar(deId: number, aId: number, tx: Transaccion) {
@@ -20,7 +21,7 @@ export class MySqlReasignacionDeCliente implements ReasignacionDeCliente {
     await conn.query("UPDATE turnos  SET cliente_id = ? WHERE cliente_id = ?", [aId, deId])
     await conn.query("UPDATE pedidos SET cliente_id = ? WHERE cliente_id = ?", [aId, deId])
     // Los cobros de la caja también: antes se quedaban sin clienta al borrar la otra ficha.
-    await conn.query("UPDATE cobros  SET cliente_id = ? WHERE cliente_id = ?", [aId, deId])
+    await pagos.reasignarCliente(deId, aId, tx)
     // Recordatorios de cumpleaños: si las dos ya tenían el mismo saludo de ese año, queda uno solo.
     await conn.query(
       `DELETE r FROM recordatorios r

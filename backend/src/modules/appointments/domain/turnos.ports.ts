@@ -106,12 +106,14 @@ export interface PasarelaDeSenas {
   consultarPago(id: string): Promise<PagoDeSena>
 }
 
-/** De la caja (payments): lo cobrado por los turnos. */
+/** De la caja (payments). */
 export interface CajaDeTurnos {
   cobrarTurno(c: { turnoId: number; clienteId: number; monto: number; medio: string }, tx: Transaccion): Promise<void>
   cobrarSena(c: { turnoId: number; clienteId: number; monto: number; pagoId: number }, tx: Transaccion): Promise<void>
   /** Deshacer un "completado": lo cobrado al terminar sale de la caja (la seña no). */
   anularCobroDelTurno(turnoId: number, tx: Transaccion): Promise<void>
+  /** Cuánto entró por cada turno (seña + lo cobrado al terminar). */
+  cobradoPorTurnos(turnoIds: number[]): Promise<Map<number, number>>
 }
 
 /** De la configuración del negocio (admin). */

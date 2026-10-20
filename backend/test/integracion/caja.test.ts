@@ -85,7 +85,7 @@ describe("caja", () => {
     const dia = await diaAbierto(11)
     const r = await api().post("/api/turnos").send({ servicioId: servicio.id, fecha: dia, hora: (await libres(servicio.id, dia))[0], contacto: { nombreCompleto: "Test Caja", telefono: telefonoEscrito(91) } })
     await pool.query("UPDATE turnos SET sena_monto = 1500, sena_estado = 'pendiente', sena_vence_at = NOW() + INTERVAL 30 MINUTE, sena_token = ? WHERE id = ?", ["f".repeat(32), r.body.id])
-    const pago = { id: 987654321, status: "approved", status_detail: "accredited", transaction_amount: 1500, external_reference: `turno-${r.body.id}` }
+    const pago = { id: 987654321, aprobado: true, monto: 1500, referencia: `turno-${r.body.id}` }
     await turnos.aplicarPagoSena(r.body.id, pago)
     await turnos.aplicarPagoSena(r.body.id, pago) // llega dos veces (webhook + vuelta)
     const [cobros] = await pool.query<RowDataPacket[]>("SELECT id, medio, concepto, monto FROM cobros WHERE turno_id = ?", [r.body.id])

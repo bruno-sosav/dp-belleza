@@ -9,7 +9,7 @@ import { admin } from "./admin/index.js"
 import { catalogo } from "./modules/catalog/catalog.module.js"
 import { agenda, turnos } from "./modules/appointments/appointments.module.js"
 import { configuracionPublica } from "./shared/configuracionRoutes.js"
-import { mercadopagoPublico } from "./shared/mercadopagoRoutes.js"
+import { pagos } from "./modules/payments/payments.module.js"
 
 // Mensajes de validación en español
 z.config(z.locales.es())
@@ -35,7 +35,7 @@ app.use("/api/turnos", turnos.rutasWeb)
 app.use("/api/turnos", catalogo.rutasServiciosWeb)
 app.use("/api/turnos", agenda.rutasWeb)
 app.use("/api/configuracion", configuracionPublica)
-app.use("/api/mercadopago", mercadopagoPublico)
+app.use("/api/mercadopago", pagos.rutasWeb)
 app.use("/api/admin", admin)
 
 app.use((_req, res) => {
