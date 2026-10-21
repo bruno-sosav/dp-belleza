@@ -1,7 +1,7 @@
 /** Lo que SALE por HTTP de recordatorios: lo que usan las pestañas "Para mandar" y "Mensajes". */
-import type { Aviso } from "../../application/recordatorios.js"
-import type { Tipo } from "../../domain/recordatorio.js"
-import type { AvisoHecho } from "../../domain/reminders.ports.js"
+import type { Aviso } from "../../application/recordatorios.usecases.js"
+import type { Tipo } from "../../domain/recordatorio.model.js"
+import type { AvisoHecho } from "../../domain/recordatorios.ports.js"
 
 /** Un aviso de "Para mandar": quién, por qué y el mensaje armado. `registro` vuelve al marcarlo. */
 export const aAviso = (a: Aviso) => ({

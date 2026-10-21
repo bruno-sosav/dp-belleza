@@ -1,6 +1,6 @@
 import { app } from "./app.js"
-import { config } from "./core/config.js"
-import { pool } from "./core/database/conexion.js"
+import { config } from "./core/app.config.js"
+import { pool } from "./core/database/conexion.database.js"
 import { turnos } from "./modules/appointments/appointments.module.js"
 
 const servidor = app.listen(config.port, () => {

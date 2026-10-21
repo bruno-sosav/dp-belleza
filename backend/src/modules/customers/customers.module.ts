@@ -6,8 +6,8 @@
  * Ningún otro módulo importa archivos de adentro de customers/: usan lo que
  * exporta este archivo.
  */
-import { unidadDeTrabajoMySql } from "../../core/database/MySqlUnidadDeTrabajo.js"
-import type { Transaccion } from "../../core/transaccion.js"
+import { unidadDeTrabajoMySql } from "../../core/database/unidadDeTrabajo.database.js"
+import type { Transaccion } from "../../core/transaccion.port.js"
 import {
   ActualizarCliente,
   BuscarOCrearCliente,
@@ -19,13 +19,14 @@ import {
   UnirClientes,
   VerFichaCliente,
   type EntradaCliente,
-} from "./application/casosDeUso.js"
-import { separarNombreCompleto } from "./domain/cliente.js"
-import { normalizarTelefono } from "./domain/telefono.js"
-import { CodigoAreaDesdeConfiguracion } from "./infrastructure/CodigoAreaDesdeConfiguracion.js"
-import { MySqlActividadDeClientes } from "./infrastructure/MySqlActividadDeClientes.js"
-import { MySqlClienteRepository } from "./infrastructure/MySqlClienteRepository.js"
-import { MySqlReasignacionDeCliente, type AlUnirFichas } from "./infrastructure/MySqlReasignacionDeCliente.js"
+} from "./application/clientes.usecases.js"
+import { separarNombreCompleto } from "./domain/cliente.model.js"
+import { normalizarTelefono } from "./domain/telefono.model.js"
+import { CodigoAreaDesdeAjustes } from "./infrastructure/codigoArea.adapter.js"
+import { ajustes } from "../admin/admin.module.js"
+import { MySqlActividadDeClientes } from "./infrastructure/actividad.queries.js"
+import { MySqlClienteRepository } from "./infrastructure/cliente.repository.js"
+import { MySqlReasignacionDeCliente, type AlUnirFichas } from "./infrastructure/reasignacion.adapter.js"
 import { ClientesController } from "./presentation/controllers/clientes.controller.js"
 import { rutasPanelClientes } from "./presentation/routes/clientes.routes.js"
 
@@ -35,7 +36,10 @@ const actividad = new MySqlActividadDeClientes()
 // Quienes se anotaron para enterarse de que se unieron dos fichas (recordatorios).
 const alUnirFichas: AlUnirFichas[] = []
 const reasignacion = new MySqlReasignacionDeCliente(alUnirFichas)
-const codigoArea = new CodigoAreaDesdeConfiguracion()
+const codigoArea = new CodigoAreaDesdeAjustes()
+
+// El WhatsApp del local se normaliza con la misma regla que el de las clientas.
+ajustes.conectarTelefonos(normalizarTelefono)
 
 // Casos de uso, con sus dependencias inyectadas
 const telefonos = new NormalizarTelefono(codigoArea)
@@ -64,15 +68,8 @@ export const clientes = {
   /** Teléfono normalizado con el código de área del local, o null si no sirve. */
   normalizarTelefono: (texto: string) => telefonos.intentar(texto),
 
-  /** Normalizar con un código de área dado (al guardar el WhatsApp del local en Ajustes). */
-  normalizarTelefonoCon: normalizarTelefono,
-
   /** Anotarse para mover lo propio cuando se unen dos fichas (corre dentro de la transacción). */
   alUnirFichas: (escuchar: AlUnirFichas) => {
     alUnirFichas.push(escuchar)
   },
-
-  /** El código de área del local, y olvidarlo cuando la dueña lo cambia. */
-  codigoArea: () => codigoArea.obtener(),
-  olvidarCodigoArea: () => codigoArea.olvidar(),
 }

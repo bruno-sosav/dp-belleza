@@ -2,7 +2,7 @@
  * Horario de atención y bloqueos (vacaciones, feriados, un rato puntual).
  *
  * El horario se LEE del endpoint público de la turnera, el mismo que usa la web;
- * se guarda y los bloqueos se manejan por /api/admin (ver backend/src/admin/agenda.ts).
+ * se guarda y los bloqueos se manejan por /api/admin (ver backend/src/modules/appointments).
  */
 import { useCallback } from "react"
 import { api } from "../lib/api"

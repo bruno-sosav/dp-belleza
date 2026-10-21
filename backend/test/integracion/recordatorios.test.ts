@@ -1,7 +1,7 @@
 /** Recordatorios: quién aparece en "Para mandar" según cada tipo. */
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import type { RowDataPacket } from "mysql2"
-import { pool } from "../../src/core/database/conexion.js"
+import { pool } from "../../src/core/database/conexion.database.js"
 import { anotarTipo, api, cerrar, limpiar, servicioCorto, telefonoEscrito, token } from "./ayuda.js"
 
 let auth: { Authorization: string }

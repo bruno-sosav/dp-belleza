@@ -1,7 +1,7 @@
 // Crea (o actualiza la clave de) un usuario del panel de administración.
 // Uso: npm run crear-admin -- "Nombre" email@ejemplo.com "clave-segura"
 import bcrypt from "bcryptjs"
-import { pool } from "../src/core/database/conexion.js"
+import { pool } from "../src/core/database/conexion.database.js"
 
 const [nombre, email, password] = process.argv.slice(2)
 if (!nombre || !email || !password) {

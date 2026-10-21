@@ -1,8 +1,8 @@
 /** Lo que SALE por HTTP de la agenda: solo lo que usan la web y el panel. */
 import type { TurnoPedido } from "../../domain/agenda.ports.js"
-import type { Bloqueo } from "../../domain/bloqueo.js"
-import type { Slot } from "../../domain/disponibilidad.js"
-import type { Franja } from "../../domain/horario.js"
+import type { Bloqueo } from "../../domain/bloqueo.model.js"
+import type { Slot } from "../../domain/disponibilidad.model.js"
+import type { Franja } from "../../domain/horario.model.js"
 
 export const aFranja = (f: Franja) => ({ diaSemana: f.diaSemana, desde: f.desde, hasta: f.hasta })
 

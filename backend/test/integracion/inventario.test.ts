@@ -1,6 +1,6 @@
 /** Inventario por HTTP: vender descuenta, sin stock no se vende, cancelar devuelve, reponer y ajustar. */
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
-import { pool } from "../../src/core/database/conexion.js"
+import { pool } from "../../src/core/database/conexion.database.js"
 import { api, cerrar, limpiar, telefonoEscrito, token } from "./ayuda.js"
 
 let auth: { Authorization: string }

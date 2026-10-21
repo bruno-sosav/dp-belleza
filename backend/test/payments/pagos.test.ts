@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { problemaDeCobroManual, sePuedeBorrar, totalesPorMedio } from "../../src/modules/payments/domain/cobro.js"
-import { destinoDelPago, modoDeLaCuenta, problemaDeCredenciales } from "../../src/modules/payments/domain/mercadoPago.js"
+import { problemaDeCobroManual, sePuedeBorrar, totalesPorMedio } from "../../src/modules/payments/domain/cobro.model.js"
+import { destinoDelPago, modoDeLaCuenta, problemaDeCredenciales } from "../../src/modules/payments/domain/mercadoPago.model.js"
 
 describe("cobros", () => {
   it("uno de seña o de turno dice de qué turno es; 'otro' dice qué fue", () => {

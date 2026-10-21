@@ -1,6 +1,6 @@
 /** Catálogo por HTTP: servicios (web y panel), productos y categorías. Nada de esto tenía tests antes. */
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
-import { pool } from "../../src/core/database/conexion.js"
+import { pool } from "../../src/core/database/conexion.database.js"
 import { api, cerrar, limpiar, token } from "./ayuda.js"
 
 let auth: { Authorization: string }

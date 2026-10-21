@@ -3,9 +3,9 @@
  * pantalla que la pide (revisado contra la web y el panel); nunca la fila de
  * la base ni la entidad entera.
  */
-import type { EstadoMiTurno, ReservaHecha } from "../../application/turnos.js"
+import type { EstadoMiTurno, ReservaHecha } from "../../application/turnos.usecases.js"
 import type { TurnoDeLaClienta, TurnoDelPanel } from "../../domain/turnos.ports.js"
-import { codigoDeTurno } from "../../domain/turno.js"
+import { codigoDeTurno } from "../../domain/turno.model.js"
 
 const nombreCompleto = (c: { nombre: string; apellido: string | null }) => [c.nombre, c.apellido].filter(Boolean).join(" ")
 

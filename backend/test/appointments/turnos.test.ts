@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { montoSena, resultadoDelPago, type PagoDeSena } from "../../src/modules/appointments/domain/sena.js"
-import { codigoDeTurno, idDesdeCodigo, problemaAlDar, problemaAlMover, yaEmpezo } from "../../src/modules/appointments/domain/turno.js"
+import { montoSena, resultadoDelPago, type PagoDeSena } from "../../src/modules/appointments/domain/sena.model.js"
+import { codigoDeTurno, idDesdeCodigo, problemaAlDar, problemaAlMover, yaEmpezo } from "../../src/modules/appointments/domain/turno.model.js"
 
 const ahora = { fecha: "2030-01-10", minutos: 12 * 60 }
 

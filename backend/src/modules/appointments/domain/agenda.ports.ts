@@ -3,11 +3,11 @@
  * implementaciones están en infrastructure/; los servicios vienen del módulo
  * de catálogo a través de un adaptador.
  */
-import type { Transaccion } from "../../../core/transaccion.js"
-import type { Bloqueo } from "./bloqueo.js"
-import type { Ocupado } from "./disponibilidad.js"
-import type { Franja } from "./horario.js"
-import type { ReglasReserva } from "./reglasReserva.js"
+import type { Transaccion } from "../../../core/transaccion.port.js"
+import type { Bloqueo } from "./bloqueo.model.js"
+import type { Ocupado } from "./disponibilidad.model.js"
+import type { Franja } from "./horario.model.js"
+import type { ReglasReserva } from "./reglasReserva.model.js"
 
 export interface HorarioRepository {
   /** Ordenadas por día y hora. Los días que no aparecen están cerrados. */

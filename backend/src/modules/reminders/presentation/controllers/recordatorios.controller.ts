@@ -1,8 +1,8 @@
 /** Controller de recordatorios (la "C" de MVC): valida, llama al caso de uso y devuelve el DTO. */
 import type { Request, Response } from "express"
-import type { GestionarTipos, MarcarRecordatorio, VerRecordatorios } from "../../application/recordatorios.js"
+import type { GestionarTipos, MarcarRecordatorio, VerRecordatorios } from "../../application/recordatorios.usecases.js"
 import { aAviso, aHecho, aTipo } from "../dto/recordatorios.dto.js"
-import { datosTipo, idParam, marca } from "../schemas/recordatorios.schemas.js"
+import { datosTipo, idParam, marca } from "../schemas/recordatorios.schema.js"
 
 export type CasosDeUsoRecordatorios = { ver: VerRecordatorios; marcar: MarcarRecordatorio; tipos: GestionarTipos }
 

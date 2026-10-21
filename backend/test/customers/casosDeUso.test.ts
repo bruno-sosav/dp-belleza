@@ -1,6 +1,6 @@
 /** Casos de uso de clientas, probados con puertos en memoria (sin base de datos). */
 import { beforeEach, describe, expect, it } from "vitest"
-import { ErrorDeNegocio } from "../../src/core/errores.js"
+import { ErrorDeNegocio } from "../../src/core/negocio.error.js"
 import {
   ActualizarCliente,
   BuscarOCrearCliente,
@@ -9,7 +9,7 @@ import {
   ListarClientes,
   NormalizarTelefono,
   UnirClientes,
-} from "../../src/modules/customers/application/casosDeUso.js"
+} from "../../src/modules/customers/application/clientes.usecases.js"
 import { ActividadFija, ClientesEnMemoria, codigoArea223, ReasignacionAnotada, tx, unidadEnMemoria } from "./enMemoria.js"
 
 let repo: ClientesEnMemoria

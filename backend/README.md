@@ -27,17 +27,33 @@ modules/<dominio>/
 Un controller no tiene SQL ni reglas de negocio, y nunca devuelve una fila ni
 una entidad entera: todo lo que sale pasa por un DTO.
 
+**Nombres de archivo:** `nombre.rol.ts`, así cada archivo dice qué es sin
+abrirlo (por ejemplo `caja.controller.ts`, `cobro.model.ts`):
+
+| capa | rol | qué es |
+|---|---|---|
+| domain | `.model.ts` | una entidad y sus reglas puras |
+| domain | `.ports.ts` | las interfaces que la infraestructura implementa |
+| application | `.usecases.ts` | los casos de uso (clases con `ejecutar`) |
+| infrastructure | `.repository.ts` | lee y escribe las tablas del módulo |
+| infrastructure | `.queries.ts` | vistas de lectura (pueden juntar tablas de otros módulos, nunca las escriben) |
+| infrastructure | `.adapter.ts` | cumple un puerto usando otro módulo |
+| infrastructure | `.gateway.ts` | un servicio externo (Mercado Pago) |
+| presentation | `.controller.ts` `.dto.ts` `.schema.ts` `.routes.ts` | la capa HTTP |
+| raíz del módulo | `.module.ts` | arma todo y exporta la fachada |
+| core | `.middleware.ts` `.util.ts` `.config.ts` `.port.ts` `.database.ts` `.error.ts` | lo transversal |
+
 | módulo | controllers |
 |---|---|
+| `admin` (ajustes del negocio y estadísticas) | `ajustes.controller.ts`, `estadisticas.controller.ts` |
 | `appointments` (turnos y agenda) | `agenda.controller.ts`, `turnos.controller.ts` |
 | `catalog` (servicios, productos, categorías) | `catalogo.controller.ts` |
 | `customers` (clientas) | `clientes.controller.ts` |
 | `inventory` (stock) | `inventario.controller.ts` |
-| `payments` (caja y Mercado Pago) | `payments.controller.ts` |
+| `payments` (caja y Mercado Pago) | `pagos.controller.ts` |
 | `reminders` (recordatorios) | `recordatorios.controller.ts` |
 
-Falta migrar: `admin` (estadísticas y configuración), `auth` (login y cuenta)
-y `orders` (pedidos de la tienda). Hasta entonces siguen en `src/admin/`,
+Falta migrar: `auth` (login y cuenta) y `orders` (pedidos de la tienda). Hasta entonces siguen en `src/admin/`,
 `src/shared/` y `src/ecommerce/`, y lo que sigue de este README describe esa
 estructura vieja.
 
@@ -238,7 +254,7 @@ Todas las respuestas son JSON. Los errores tienen la forma `{ "error": "mensaje"
 **Días de la semana:** `horarios_atencion.dia_semana` usa **ISO 8601** (1 = lunes …
 7 = domingo), porque el CHECK de V1 es `BETWEEN 1 AND 7` y descarta el 0. **No** es la
 convención de JavaScript, donde `getDay()` devuelve 0 para domingo. La conversión está
-en un solo lugar: `diaSemanaISO()` en `src/turnera/tiempo.ts`.
+en un solo lugar: `diaSemanaISO()` en `src/core/tiempo.util.ts`.
 
 **Fechas y horas:** el pool usa `dateStrings: true` y las cuentas se hacen en minutos
 desde medianoche. Con `dateStrings: false` + `timezone: "Z"`, mysql2 lee un DATETIME
@@ -270,7 +286,7 @@ el header `Authorization: Bearer <token>` (dura 8 horas). `GET /api/auth/yo` dev
 | PATCH | `/api/admin/turnos/:id/estado` | Cambia el estado `{ "estado": "completado" }` |
 
 - Los productos **no se borran**: se dan de baja con `activo: false`, porque los pedidos viejos los siguen referenciando.
-- Estados de turno (`src/turnera/estados.ts`): `reservado → confirmado → completado`, más
+- Estados de turno (`src/modules/appointments/domain/estados.model.ts`): `reservado → confirmado → completado`, más
   `ausente` y `cancelado`. Se puede completar sin confirmar antes. `completado` y `ausente`
   se pueden deshacer (vuelven a `confirmado`); `cancelado` es final porque libera el horario.
   `completado`/`ausente` solo una vez que el turno empezó. Al cancelar, el recordatorio
@@ -284,7 +300,7 @@ el header `Authorization: Bearer <token>` (dura 8 horas). `GET /api/auth/yo` dev
 La dueña conecta la cuenta del local en el panel (**Ajustes → Mercado Pago**):
 pega la Public Key y el Access Token, el backend los prueba contra Mercado Pago
 y los guarda en `mercadopago_cuenta`, con el token **cifrado**
-(`src/core/seguridad/cifrado.ts`, clave en `CREDENCIALES_KEY` o derivada de
+(`src/core/seguridad/cifrado.util.ts`, clave en `CREDENCIALES_KEY` o derivada de
 `JWT_SECRET`). Nunca vuelven enteros al navegador.
 
 Todo lo de pagos vive en el módulo `src/modules/payments`. Para cobrar desde

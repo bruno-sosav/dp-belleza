@@ -12,9 +12,9 @@ import { Router } from "express"
 import bcrypt from "bcryptjs"
 import type { ResultSetHeader, RowDataPacket } from "mysql2"
 import { z } from "zod"
-import { pool } from "../core/database/conexion.js"
-import { conflicto, HttpError, noEncontrado } from "../core/errores.js"
-import { firmarToken } from "../core/http/sesion.js"
+import { pool } from "../core/database/conexion.database.js"
+import { conflicto, HttpError, noEncontrado } from "../core/negocio.error.js"
+import { firmarToken } from "../core/http/sesion.middleware.js"
 
 export const adminCuenta = Router()
 

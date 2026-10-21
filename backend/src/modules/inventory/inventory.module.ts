@@ -3,10 +3,10 @@
  * composición: arma los casos de uso con el repositorio MySQL y exporta solo
  * lo que el resto del sistema puede usar.
  */
-import type { Transaccion } from "../../core/transaccion.js"
-import { DevolverStock, ReponerOAjustarStock, ReservarStock } from "./application/casosDeUso.js"
-import type { Linea } from "./domain/stock.js"
-import { MySqlStockRepository } from "./infrastructure/MySqlStockRepository.js"
+import type { Transaccion } from "../../core/transaccion.port.js"
+import { DevolverStock, ReponerOAjustarStock, ReservarStock } from "./application/inventario.usecases.js"
+import type { Linea } from "./domain/stock.model.js"
+import { MySqlStockRepository } from "./infrastructure/stock.repository.js"
 import { InventarioController } from "./presentation/controllers/inventario.controller.js"
 import { rutasPanelInventario } from "./presentation/routes/inventario.routes.js"
 

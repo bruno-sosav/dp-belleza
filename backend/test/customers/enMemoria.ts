@@ -4,10 +4,10 @@
  * de uso solo conocen las interfaces, así que se les puede pasar cualquier
  * implementación.
  */
-import { conflicto } from "../../src/core/errores.js"
-import type { Transaccion, UnidadDeTrabajo } from "../../src/core/transaccion.js"
-import type { Actividad, CambiosCliente, Cliente, DatosCliente } from "../../src/modules/customers/domain/cliente.js"
-import type { ActividadDeClientes, ClienteRepository, CodigoAreaDelLocal, ReasignacionDeCliente } from "../../src/modules/customers/domain/ports.js"
+import { conflicto } from "../../src/core/negocio.error.js"
+import type { Transaccion, UnidadDeTrabajo } from "../../src/core/transaccion.port.js"
+import type { Actividad, CambiosCliente, Cliente, DatosCliente } from "../../src/modules/customers/domain/cliente.model.js"
+import type { ActividadDeClientes, ClienteRepository, CodigoAreaDelLocal, ReasignacionDeCliente } from "../../src/modules/customers/domain/clientes.ports.js"
 
 export class ClientesEnMemoria implements ClienteRepository {
   filas = new Map<number, Cliente>()
@@ -69,7 +69,7 @@ export class ReasignacionAnotada implements ReasignacionDeCliente {
   }
 }
 
-export const codigoArea223: CodigoAreaDelLocal = { obtener: async () => "223", olvidar: () => {} }
+export const codigoArea223: CodigoAreaDelLocal = { obtener: async () => "223" }
 
 /** "Transacción" en memoria: corre el trabajo y listo. */
 export const unidadEnMemoria: UnidadDeTrabajo = { ejecutar: (trabajo) => trabajo({} as Transaccion) }

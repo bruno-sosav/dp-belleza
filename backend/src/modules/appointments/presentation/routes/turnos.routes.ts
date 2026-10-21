@@ -4,7 +4,7 @@
  *   panel, bajo /api/admin: /turnos, /turnos/:id, /turnos/:id/estado, /turnos/:id/completar
  */
 import { Router } from "express"
-import { limitarPorIp } from "../../../../core/http/limitarPorIp.js"
+import { limitarPorIp } from "../../../../core/http/limitarPorIp.middleware.js"
 import type { TurnosController } from "../controllers/turnos.controller.js"
 
 export function rutasTurnosWeb(c: TurnosController): Router {

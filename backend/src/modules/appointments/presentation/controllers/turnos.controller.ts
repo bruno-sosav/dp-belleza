@@ -1,6 +1,6 @@
 /** Controller de los turnos (la "C" de MVC): valida, llama al caso de uso y devuelve el DTO. */
 import type { Request, Response } from "express"
-import type { Reloj } from "../../../../core/reloj.js"
+import type { Reloj } from "../../../../core/reloj.port.js"
 import type {
   CambiarEstadoTurno,
   CompletarTurno,
@@ -10,7 +10,7 @@ import type {
   ReprogramarTurno,
   ReservarTurno,
   VerTurnos,
-} from "../../application/turnos.js"
+} from "../../application/turnos.usecases.js"
 import { aLinkDePago, aMiTurno, aReserva, aReservaHecha, aSena, aTurnoDelPanel } from "../dto/turnos.dto.js"
 import {
   cambiosTurno,
@@ -24,7 +24,7 @@ import {
   tokenPublico,
   tokenSena,
   turnoDelPanel,
-} from "../schemas/turnos.schemas.js"
+} from "../schemas/turnos.schema.js"
 
 export type CasosDeUsoTurnos = {
   reservar: ReservarTurno

@@ -34,12 +34,15 @@ const rutasDelPanel: [string, string][] = [
   ["delete", "/api/admin/cobros/1"],
   ["get", "/api/admin/recordatorios"],
   ["get", "/api/admin/configuracion"],
+  ["patch", "/api/admin/configuracion"],
   ["get", "/api/admin/mercadopago"],
   ["put", "/api/admin/mercadopago"],
   ["post", "/api/admin/mercadopago/probar"],
   ["delete", "/api/admin/mercadopago"],
   ["get", "/api/admin/cuenta"],
   ["get", "/api/admin/stats/dias"],
+  ["get", "/api/admin/stats/servicios"],
+  ["get", "/api/admin/stats/servicios-del-dia?fecha=2030-01-07"],
 ]
 
 describe("el aviso de Mercado Pago", () => {

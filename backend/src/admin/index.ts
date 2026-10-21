@@ -1,12 +1,11 @@
 import { Router } from "express"
-import { requiereLogin } from "../core/http/sesion.js"
+import { requiereLogin } from "../core/http/sesion.middleware.js"
 import { adminTienda } from "./tienda.js"
-import { adminStats } from "./stats.js"
 import { clientes } from "../modules/customers/customers.module.js"
 import { catalogo } from "../modules/catalog/catalog.module.js"
 import { inventario } from "../modules/inventory/inventory.module.js"
 import { agenda, turnos } from "../modules/appointments/appointments.module.js"
-import { adminConfiguracion } from "./configuracion.js"
+import { ajustes, estadisticas } from "../modules/admin/admin.module.js"
 import { recordatorios } from "../modules/reminders/reminders.module.js"
 import { adminCuenta } from "./cuenta.js"
 import { pagos } from "../modules/payments/payments.module.js"
@@ -19,13 +18,13 @@ admin.use(requiereLogin)
 // ganarle a /turnos/:id.
 admin.use(agenda.rutasPanel)
 admin.use(adminTienda)
-admin.use(adminStats)
+admin.use(estadisticas.rutasPanel)
 admin.use(turnos.rutasPanel)
 // Módulos ya reorganizados (modules/): cada uno trae sus rutas de panel.
 admin.use(clientes.rutasPanel)
 admin.use(catalogo.rutasPanel)
 admin.use(inventario.rutasPanel)
-admin.use(adminConfiguracion)
+admin.use(ajustes.rutasPanel)
 admin.use(recordatorios.rutasPanel)
 admin.use(adminCuenta)
 admin.use(pagos.rutasPanel)

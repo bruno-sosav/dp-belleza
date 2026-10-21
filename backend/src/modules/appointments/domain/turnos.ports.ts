@@ -4,10 +4,10 @@
  * (clientas, catálogo, pagos, caja, configuración) son
  * adaptadores a lo que esos módulos exportan.
  */
-import type { Transaccion } from "../../../core/transaccion.js"
-import type { EstadoTurno } from "./estados.js"
-import type { PagoDeSena } from "./sena.js"
-import type { CanceladoPor, EstadoSena, Turno } from "./turno.js"
+import type { Transaccion } from "../../../core/transaccion.port.js"
+import type { EstadoTurno } from "./estados.model.js"
+import type { PagoDeSena } from "./sena.model.js"
+import type { CanceladoPor, EstadoSena, Turno } from "./turno.model.js"
 
 export type NuevoTurno = {
   clienteId: number

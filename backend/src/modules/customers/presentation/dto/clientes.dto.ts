@@ -3,8 +3,8 @@
  * pantalla que la pide, nunca la fila de la base ni el objeto del dominio
  * entero. (Revisado contra frontend/admin: lista, ficha, formulario y unir.)
  */
-import type { Cliente } from "../../domain/cliente.js"
-import type { ClienteConActividad, Ficha } from "../../application/casosDeUso.js"
+import type { Cliente } from "../../domain/cliente.model.js"
+import type { ClienteConActividad, Ficha } from "../../application/clientes.usecases.js"
 
 /** Una fila de la lista de Clientas, y lo que se elige al dar un turno. */
 export function aClienteEnLista(c: ClienteConActividad) {

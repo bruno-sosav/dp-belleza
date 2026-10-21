@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { conflicto, ErrorDeNegocio, externo, HttpError, invalido, noAutorizado, noEncontrado } from "../src/core/errores.js"
-import { manejarErrores } from "../src/core/http/manejarErrores.js"
+import { conflicto, ErrorDeNegocio, externo, HttpError, invalido, noAutorizado, noEncontrado } from "../src/core/negocio.error.js"
+import { manejarErrores } from "../src/core/http/manejarErrores.middleware.js"
 
 /** Llama al manejador de errores con una respuesta falsa y devuelve qué contestó. */
 function responder(err: unknown) {

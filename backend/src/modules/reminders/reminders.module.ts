@@ -7,14 +7,14 @@
  * no lo conocen: este módulo se anota en sus avisos ("se reprogramó un turno",
  * "se unieron dos fichas"), así no hay dependencias en círculo.
  */
-import { relojDelSistema } from "../../core/reloj.js"
+import { relojDelSistema } from "../../core/reloj.port.js"
 import { turnos } from "../appointments/appointments.module.js"
 import { clientes } from "../customers/customers.module.js"
-import { GestionarTipos, MarcarRecordatorio, VerRecordatorios } from "./application/recordatorios.js"
-import { MySqlConsultasDeRecordatorios } from "./infrastructure/MySqlConsultasDeRecordatorios.js"
-import { MySqlRegistroRepository } from "./infrastructure/MySqlRegistroRepository.js"
-import { MySqlTipoRepository } from "./infrastructure/MySqlTipoRepository.js"
-import { NombreDesdeConfiguracion } from "./infrastructure/NombreDesdeConfiguracion.js"
+import { GestionarTipos, MarcarRecordatorio, VerRecordatorios } from "./application/recordatorios.usecases.js"
+import { MySqlConsultasDeRecordatorios } from "./infrastructure/recordatorios.queries.js"
+import { MySqlRegistroRepository } from "./infrastructure/registro.repository.js"
+import { MySqlTipoRepository } from "./infrastructure/tipoRecordatorio.repository.js"
+import { NombreDesdeAjustes } from "./infrastructure/nombreNegocio.adapter.js"
 import { RecordatoriosController } from "./presentation/controllers/recordatorios.controller.js"
 import { rutasPanelRecordatorios } from "./presentation/routes/recordatorios.routes.js"
 
@@ -22,7 +22,7 @@ const tipos = new MySqlTipoRepository()
 const registros = new MySqlRegistroRepository()
 
 const controller = new RecordatoriosController({
-  ver: new VerRecordatorios(tipos, registros, new MySqlConsultasDeRecordatorios(), new NombreDesdeConfiguracion(), relojDelSistema),
+  ver: new VerRecordatorios(tipos, registros, new MySqlConsultasDeRecordatorios(), new NombreDesdeAjustes(), relojDelSistema),
   marcar: new MarcarRecordatorio(registros),
   tipos: new GestionarTipos(tipos),
 })

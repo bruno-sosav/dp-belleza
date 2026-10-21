@@ -7,20 +7,20 @@
  * pago y los avisos). No depende de turnos: es turnos quien se conecta acá
  * (`conectarTurnos`), así no hay dependencias en círculo.
  */
-import { unidadDeTrabajoMySql } from "../../core/database/MySqlUnidadDeTrabajo.js"
-import { relojDelSistema } from "../../core/reloj.js"
-import type { Transaccion } from "../../core/transaccion.js"
-import { AnotarCobro, BorrarCobro, CobrosDeTurnos, VerCaja, type ConexionConTurnos } from "./application/caja.js"
-import { CobrarConMercadoPago, ConfigurarMercadoPago, RecibirAvisoDePago } from "./application/mercadoPago.js"
-import type { MedioPago } from "./domain/cobro.js"
-import type { PasarelaDePago, TurnosDeLaCaja } from "./domain/payments.ports.js"
-import { MercadoPagoApi } from "./infrastructure/MercadoPagoApi.js"
-import { MySqlCobroRepository } from "./infrastructure/MySqlCobroRepository.js"
-import { MySqlConsultasDeCaja } from "./infrastructure/MySqlConsultasDeCaja.js"
-import { MySqlCuentaRepository } from "./infrastructure/MySqlCuentaRepository.js"
-import { MySqlPagosRecibidos } from "./infrastructure/MySqlPagosRecibidos.js"
-import { PagosController } from "./presentation/controllers/payments.controller.js"
-import { rutasPagosPanel, rutasPagosWeb } from "./presentation/routes/payments.routes.js"
+import { unidadDeTrabajoMySql } from "../../core/database/unidadDeTrabajo.database.js"
+import { relojDelSistema } from "../../core/reloj.port.js"
+import type { Transaccion } from "../../core/transaccion.port.js"
+import { AnotarCobro, BorrarCobro, CobrosDeTurnos, VerCaja, type ConexionConTurnos } from "./application/caja.usecases.js"
+import { CobrarConMercadoPago, ConfigurarMercadoPago, RecibirAvisoDePago } from "./application/mercadoPago.usecases.js"
+import type { MedioPago } from "./domain/cobro.model.js"
+import type { PasarelaDePago, TurnosDeLaCaja } from "./domain/pagos.ports.js"
+import { MercadoPagoApi } from "./infrastructure/mercadoPago.gateway.js"
+import { MySqlCobroRepository } from "./infrastructure/cobro.repository.js"
+import { MySqlConsultasDeCaja } from "./infrastructure/caja.queries.js"
+import { MySqlCuentaRepository } from "./infrastructure/cuentaMercadoPago.repository.js"
+import { MySqlPagosRecibidos } from "./infrastructure/pagoRecibido.repository.js"
+import { PagosController } from "./presentation/controllers/pagos.controller.js"
+import { rutasPagosPanel, rutasPagosWeb } from "./presentation/routes/pagos.routes.js"
 
 const cobros = new MySqlCobroRepository()
 const cuentas = new MySqlCuentaRepository()
@@ -68,5 +68,5 @@ export const pagos = {
   consultarPago: (id: string | number) => mercadoPago.consultarPago(id),
 }
 
-export type { PagoRecibido } from "./domain/mercadoPago.js"
-export type { MedioPago } from "./domain/cobro.js"
+export type { PagoRecibido } from "./domain/mercadoPago.model.js"
+export type { MedioPago } from "./domain/cobro.model.js"

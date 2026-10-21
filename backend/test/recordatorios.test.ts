@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { armarMensaje, avisoQueToca, proximoCumple } from "../src/modules/reminders/domain/recordatorio.js"
-import { fechaLarga } from "../src/core/tiempo.js"
+import { armarMensaje, avisoQueToca, proximoCumple } from "../src/modules/reminders/domain/recordatorio.model.js"
+import { fechaLarga } from "../src/core/tiempo.util.js"
 
 const confirmacion = { id: 1, horasAntes: 48 }
 const recordatorio = { id: 2, horasAntes: 24 }

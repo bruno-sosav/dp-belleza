@@ -6,10 +6,10 @@
  * Productos: la tienda pública no ve el stock exacto ni si está dado de baja;
  * ve si hay o no (`disponible`). El panel ve todo.
  */
-import type { Categoria, Producto } from "../../domain/producto.js"
-import { disponible } from "../../domain/producto.js"
-import type { Servicio } from "../../domain/servicio.js"
-import type { ServicioConTurnos } from "../../application/servicios.js"
+import type { Categoria, Producto } from "../../domain/producto.model.js"
+import { disponible } from "../../domain/producto.model.js"
+import type { Servicio } from "../../domain/servicio.model.js"
+import type { ServicioConTurnos } from "../../application/servicios.usecases.js"
 
 /** Un servicio en la web (catálogo, detalle y reserva). Los opcionales solo si tienen valor. */
 export function aServicioPublico(s: Servicio) {

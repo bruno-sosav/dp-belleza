@@ -1,8 +1,8 @@
 /** Controller de la agenda (la "C" de MVC): valida, llama al caso de uso y devuelve el DTO. */
 import type { Request, Response } from "express"
-import type { CalcularDisponibilidad, CambiarHorario, ConsultarHorario, GestionarBloqueos } from "../../application/agenda.js"
+import type { CalcularDisponibilidad, CambiarHorario, ConsultarHorario, GestionarBloqueos } from "../../application/agenda.usecases.js"
 import { aBloqueo, aFranja, aSlot, aTurnoParaAvisar } from "../dto/agenda.dto.js"
-import { consultaDisponibilidad, consultaDisponibilidadPanel, idParam, nuevoBloqueo, nuevoHorario, rangoBloqueos } from "../schemas/agenda.schemas.js"
+import { consultaDisponibilidad, consultaDisponibilidadPanel, idParam, nuevoBloqueo, nuevoHorario, rangoBloqueos } from "../schemas/agenda.schema.js"
 
 export type CasosDeUsoAgenda = {
   consultarHorario: ConsultarHorario

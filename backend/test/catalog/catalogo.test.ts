@@ -1,13 +1,13 @@
 /** Catálogo: reglas de dominio y casos de uso con repositorios en memoria (sin base de datos). */
 import { beforeEach, describe, expect, it } from "vitest"
-import { ErrorDeNegocio } from "../../src/core/errores.js"
-import { ActualizarServicio, CrearServicio, ListarServicios, VerServicio } from "../../src/modules/catalog/application/servicios.js"
-import { ActualizarProducto, CrearProducto, ListarProductos } from "../../src/modules/catalog/application/productos.js"
-import { disponible } from "../../src/modules/catalog/domain/producto.js"
-import type { CambiosProducto, Categoria, DatosProducto, Producto, ProductoVendible } from "../../src/modules/catalog/domain/producto.js"
-import { elegirCategoria, limpiarCategoria, servicioNuevo } from "../../src/modules/catalog/domain/servicio.js"
-import type { CambiosServicio, DatosServicio, Servicio } from "../../src/modules/catalog/domain/servicio.js"
-import type { CategoriaRepository, ProductoRepository, ServicioRepository, TurnosDeServicios } from "../../src/modules/catalog/domain/ports.js"
+import { ErrorDeNegocio } from "../../src/core/negocio.error.js"
+import { ActualizarServicio, CrearServicio, ListarServicios, VerServicio } from "../../src/modules/catalog/application/servicios.usecases.js"
+import { ActualizarProducto, CrearProducto, ListarProductos } from "../../src/modules/catalog/application/productos.usecases.js"
+import { disponible } from "../../src/modules/catalog/domain/producto.model.js"
+import type { CambiosProducto, Categoria, DatosProducto, Producto, ProductoVendible } from "../../src/modules/catalog/domain/producto.model.js"
+import { elegirCategoria, limpiarCategoria, servicioNuevo } from "../../src/modules/catalog/domain/servicio.model.js"
+import type { CambiosServicio, DatosServicio, Servicio } from "../../src/modules/catalog/domain/servicio.model.js"
+import type { CategoriaRepository, ProductoRepository, ServicioRepository, TurnosDeServicios } from "../../src/modules/catalog/domain/catalogo.ports.js"
 
 class ServiciosEnMemoria implements ServicioRepository {
   filas = new Map<number, Servicio>()

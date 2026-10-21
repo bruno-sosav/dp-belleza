@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { cumpleQueToca, horasEntre, problemaDeRegistro } from "../../src/modules/reminders/domain/recordatorio.js"
+import { cumpleQueToca, horasEntre, problemaDeRegistro } from "../../src/modules/reminders/domain/recordatorio.model.js"
 
 describe("recordatorios: reglas", () => {
   it("cumpleaños: el tipo más cercano que aplica y no se hizo", () => {

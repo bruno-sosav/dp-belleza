@@ -1,12 +1,12 @@
 /** Agenda: disponibilidad, horario y días cerrados, con un reloj FIJO y repositorios en memoria. */
 import { describe, expect, it } from "vitest"
-import { ErrorDeNegocio } from "../../src/core/errores.js"
-import type { Reloj } from "../../src/core/reloj.js"
-import { CalcularDisponibilidad, CambiarHorario, GestionarBloqueos } from "../../src/modules/appointments/application/agenda.js"
+import { ErrorDeNegocio } from "../../src/core/negocio.error.js"
+import type { Reloj } from "../../src/core/reloj.port.js"
+import { CalcularDisponibilidad, CambiarHorario, GestionarBloqueos } from "../../src/modules/appointments/application/agenda.usecases.js"
 import type { BloqueoRepository, OcupacionDeAgenda, TurnoPedido } from "../../src/modules/appointments/domain/agenda.ports.js"
-import { problemaDeBloqueo, type Bloqueo } from "../../src/modules/appointments/domain/bloqueo.js"
-import { horariosDelDia, recortarAlDia, type Ocupado } from "../../src/modules/appointments/domain/disponibilidad.js"
-import { problemaDeHorario, type Franja } from "../../src/modules/appointments/domain/horario.js"
+import { problemaDeBloqueo, type Bloqueo } from "../../src/modules/appointments/domain/bloqueo.model.js"
+import { horariosDelDia, recortarAlDia, type Ocupado } from "../../src/modules/appointments/domain/disponibilidad.model.js"
+import { problemaDeHorario, type Franja } from "../../src/modules/appointments/domain/horario.model.js"
 
 // lunes 19/10/2026 a las 10:00
 const reloj: Reloj = { ahora: () => ({ fecha: "2026-10-19", minutos: 10 * 60 }) }

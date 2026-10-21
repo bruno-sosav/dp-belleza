@@ -1,7 +1,7 @@
 /**
  * Cuentas de la agenda semanal: dónde va cada turno en la grilla.
  *
- * Todo en minutos desde medianoche, igual que el backend (turnera/tiempo.ts):
+ * Todo en minutos desde medianoche, igual que el backend (core/tiempo.util.ts):
  * así no se pasa por Date y no hay corrimientos de zona horaria.
  */
 import type { EstadoTurno, Turno } from "../data/turnos"

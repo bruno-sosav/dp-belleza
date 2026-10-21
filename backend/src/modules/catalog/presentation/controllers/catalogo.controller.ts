@@ -3,9 +3,9 @@
  * de uso y devuelve el DTO. Sin reglas de negocio ni SQL.
  */
 import type { Request, Response } from "express"
-import { servicioNuevo, type CambiosServicio } from "../../domain/servicio.js"
-import type { ActualizarProducto, CrearProducto, GestionarCategorias, ListarProductos, VerProducto } from "../../application/productos.js"
-import type { ActualizarServicio, CrearServicio, ListarServicios, VerServicio } from "../../application/servicios.js"
+import { servicioNuevo, type CambiosServicio } from "../../domain/servicio.model.js"
+import type { ActualizarProducto, CrearProducto, GestionarCategorias, ListarProductos, VerProducto } from "../../application/productos.usecases.js"
+import type { ActualizarServicio, CrearServicio, ListarServicios, VerServicio } from "../../application/servicios.usecases.js"
 import { aCategoriaPanel, aCategoriaPublica, aProductoPanel, aProductoPublico, aServicioPanel, aServicioPublico } from "../dto/catalogo.dto.js"
 import {
   cambiosCategoria,
@@ -16,7 +16,7 @@ import {
   nuevaCategoria,
   nuevoProducto,
   nuevoServicio,
-} from "../schemas/catalogo.schemas.js"
+} from "../schemas/catalogo.schema.js"
 
 export type CasosDeUsoCatalogo = {
   listarServicios: ListarServicios

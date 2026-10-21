@@ -1,7 +1,7 @@
 /** Caja: completar un turno cobrando, cobros a mano, sin cobrar y la seña de Mercado Pago. */
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import type { RowDataPacket } from "mysql2"
-import { pool } from "../../src/core/database/conexion.js"
+import { pool } from "../../src/core/database/conexion.database.js"
 import { turnos } from "../../src/modules/appointments/appointments.module.js"
 import { api, cerrar, diaAbierto, libres, limpiar, servicioCorto, telefonoEscrito, token } from "./ayuda.js"
 

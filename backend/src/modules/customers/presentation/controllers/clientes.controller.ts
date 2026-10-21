@@ -12,9 +12,9 @@ import type {
   ListarClientes,
   UnirClientes,
   VerFichaCliente,
-} from "../../application/casosDeUso.js"
+} from "../../application/clientes.usecases.js"
 import { aCliente, aClienteEnLista, aFicha, aFichaCorta, aUnion } from "../dto/clientes.dto.js"
-import { busqueda, cambiosCliente, idParam, nuevaCliente, unir } from "../schemas/clientes.schemas.js"
+import { busqueda, cambiosCliente, idParam, nuevaCliente, unir } from "../schemas/clientes.schema.js"
 
 export type CasosDeUsoClientes = {
   listar: ListarClientes

@@ -1,14 +1,14 @@
 import express from "express"
 import cors from "cors"
 import { z } from "zod"
-import { config } from "./core/config.js"
-import { manejarErrores } from "./core/http/manejarErrores.js"
+import { config } from "./core/app.config.js"
+import { manejarErrores } from "./core/http/manejarErrores.middleware.js"
 import { auth } from "./shared/auth/routes.js"
 import { tienda } from "./ecommerce/routes.js"
 import { admin } from "./admin/index.js"
 import { catalogo } from "./modules/catalog/catalog.module.js"
 import { agenda, turnos } from "./modules/appointments/appointments.module.js"
-import { configuracionPublica } from "./shared/configuracionRoutes.js"
+import { ajustes } from "./modules/admin/admin.module.js"
 import { pagos } from "./modules/payments/payments.module.js"
 
 // Mensajes de validación en español
@@ -34,7 +34,7 @@ app.use("/api/tienda", tienda)
 app.use("/api/turnos", turnos.rutasWeb)
 app.use("/api/turnos", catalogo.rutasServiciosWeb)
 app.use("/api/turnos", agenda.rutasWeb)
-app.use("/api/configuracion", configuracionPublica)
+app.use("/api/configuracion", ajustes.rutasWeb)
 app.use("/api/mercadopago", pagos.rutasWeb)
 app.use("/api/admin", admin)
 

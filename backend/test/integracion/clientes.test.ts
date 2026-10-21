@@ -1,7 +1,7 @@
 /** Clientas: alta con teléfonos escritos de cualquier forma, duplicados y unir fichas. */
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import type { RowDataPacket } from "mysql2"
-import { pool } from "../../src/core/database/conexion.js"
+import { pool } from "../../src/core/database/conexion.database.js"
 import { api, cerrar, diaAbierto, libres, limpiar, servicioCorto, telefono, token } from "./ayuda.js"
 
 let auth: { Authorization: string }

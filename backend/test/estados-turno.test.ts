@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { puedeCancelar } from "../src/modules/appointments/domain/turno.js"
-import { ocupaAgenda, puedeCambiarEstadoTurno, requiereHaberEmpezado } from "../src/modules/appointments/domain/estados.js"
+import { puedeCancelar } from "../src/modules/appointments/domain/turno.model.js"
+import { ocupaAgenda, puedeCambiarEstadoTurno, requiereHaberEmpezado } from "../src/modules/appointments/domain/estados.model.js"
 
 describe("puedeCambiarEstadoTurno", () => {
   it("permite el flujo normal", () => {
