@@ -46,6 +46,7 @@ abrirlo (por ejemplo `caja.controller.ts`, `cobro.model.ts`):
 | módulo | controllers |
 |---|---|
 | `admin` (ajustes del negocio y estadísticas) | `ajustes.controller.ts`, `estadisticas.controller.ts` |
+| `auth` (login y Tu cuenta) | `sesion.controller.ts`, `cuenta.controller.ts` |
 | `appointments` (turnos y agenda) | `agenda.controller.ts`, `turnos.controller.ts` |
 | `catalog` (servicios, productos, categorías) | `catalogo.controller.ts` |
 | `customers` (clientas) | `clientes.controller.ts` |
@@ -53,8 +54,8 @@ abrirlo (por ejemplo `caja.controller.ts`, `cobro.model.ts`):
 | `payments` (caja y Mercado Pago) | `pagos.controller.ts` |
 | `reminders` (recordatorios) | `recordatorios.controller.ts` |
 
-Falta migrar: `auth` (login y cuenta) y `orders` (pedidos de la tienda). Hasta entonces siguen en `src/admin/`,
-`src/shared/` y `src/ecommerce/`, y lo que sigue de este README describe esa
+Falta migrar: `orders` (pedidos de la tienda). Hasta entonces sigue en `src/admin/tienda.ts`,
+`src/shared/models/` y `src/ecommerce/`, y lo que sigue de este README describe esa
 estructura vieja.
 
 ## Regla principal: UNA sola app, módulos adentro
@@ -64,7 +65,7 @@ rutas que se montan en la misma aplicación (`src/app.ts`), con una sola conexi�
 a la base y un solo login:
 
 ```
-/api/auth/*       ->  src/shared/auth/   login del panel
+/api/auth/*       ->  src/modules/auth/  login del panel
 /api/tienda/*     ->  src/ecommerce/     (sub-equipo B)
 /api/turnos/*     ->  src/turnera/       (sub-equipo A)
 /api/admin/*      ->  src/admin/

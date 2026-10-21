@@ -3,13 +3,13 @@ import cors from "cors"
 import { z } from "zod"
 import { config } from "./core/app.config.js"
 import { manejarErrores } from "./core/http/manejarErrores.middleware.js"
-import { auth } from "./shared/auth/routes.js"
 import { tienda } from "./ecommerce/routes.js"
 import { admin } from "./admin/index.js"
 import { catalogo } from "./modules/catalog/catalog.module.js"
 import { agenda, turnos } from "./modules/appointments/appointments.module.js"
 import { ajustes } from "./modules/admin/admin.module.js"
 import { pagos } from "./modules/payments/payments.module.js"
+import { auth } from "./modules/auth/auth.module.js"
 
 // Mensajes de validación en español
 z.config(z.locales.es())
@@ -27,7 +27,7 @@ app.get("/api/salud", (_req, res) => {
   res.json({ ok: true })
 })
 
-app.use("/api/auth", auth)
+app.use("/api/auth", auth.rutasWeb)
 app.use("/api/tienda", catalogo.rutasTiendaWeb)
 app.use("/api/tienda", tienda)
 // Reservar, Mi turno y la seña; después, servicios y agenda para la web.
