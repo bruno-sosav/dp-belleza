@@ -2,14 +2,13 @@
 
 API de Dp.belleza. **Node + Express 5 + TypeScript + MySQL** (la propuesta del equipo).
 
-Están hechos los dos módulos: **ecommerce** (tienda + su parte del panel) y
-**turnera** (servicios, disponibilidad y reserva de turnos), más lo compartido
-(conexión, login, models).
+El porqué de la arquitectura está en el [README del proyecto](../README.md#arquitectura-del-backend);
+acá va el detalle.
 
-## Arquitectura: módulos por dominio, en capas (en migración)
+## Arquitectura
 
-El backend se está reorganizando en `src/core/` (lo transversal: config, base
-de datos, errores, sesión) y `src/modules/<dominio>/`, cada uno con sus capas:
+`src/core/` tiene lo transversal (config, base de datos, errores, sesión) y
+`src/modules/<dominio>/` cada parte del negocio, con estas carpetas:
 
 ```
 modules/<dominio>/
@@ -62,84 +61,31 @@ abrirlo (por ejemplo `caja.controller.ts`, `cobro.model.ts`):
 | `reminders` (recordatorios) | `recordatorios.controller.ts` |
 
 `orders` (pedidos de la tienda) es la parte de Alan: está en `modules/orders/` con
-su código tal cual, todavía sin puertos, casos de uso ni DTOs. Lo que sigue de este
-README describe la estructura vieja y se va a reescribir.
+su código tal cual, todavía sin puertos, casos de uso ni DTOs.
 
-## Regla principal: UNA sola app, módulos adentro
+### Cómo se hablan los módulos
 
-`src/turnera/` y `src/ecommerce/` **no son dos servidores**. Son dos grupos de
-rutas que se montan en la misma aplicación (`src/app.ts`), con una sola conexión
-a la base y un solo login:
-
-```
-/api/auth/*       ->  src/modules/auth/  login del panel
-/api/tienda/*     ->  src/ecommerce/     (sub-equipo B)
-/api/turnos/*     ->  src/turnera/       (sub-equipo A)
-/api/admin/*      ->  src/admin/
-```
-
-Un solo proceso, un solo deploy. Los dos sub-equipos trabajan en carpetas que no
-se tocan, sin pagar el costo de dos servicios.
-
-## Los models van en `shared/`, no en cada módulo
-
-Mirá el schema en `database/migrations/`: `clientes` lo usan **las dos** partes.
-
-```
-turnos.cliente_id   -> FK clientes(id)     (turnera)
-pedidos.cliente_id  -> FK clientes(id)     (ecommerce)
-```
-
-Un cliente es la misma persona en los dos lados: se identifica por teléfono
-(`uq_clientes_telefono`). Si alguien reservó un turno y después compra un
-producto, el checkout tiene que **encontrar** ese cliente, no crear otro.
-
-Por eso la operación "dado un teléfono, dame el cliente o creálo" está escrita
-**una vez**, en `shared/models/clientes.ts` (`buscarOCrearCliente`), y la llaman
-los dos módulos. El teléfono se normaliza siempre igual en `shared/models/telefono.ts`
-(`0223 15-123-4567` → `5492231234567`). Si cada equipo lo hiciera por su lado, la
-base terminaría con la misma persona duplicada: los turnos en un registro y las
-compras en el otro.
-
-Regla: **una tabla = un model = un dueño.** Lo mismo para `usuarios` y `configuracion`.
-
-## Estructura
+- Un módulo solo usa de otro lo que exporta su `.module.ts` (la fachada). Nunca
+  importa sus repositories ni sus services.
+- **Una tabla = un módulo dueño.** Solo ese módulo la escribe. Las vistas de
+  lectura (`.queries.ts`) pueden hacer JOIN con tablas ajenas para mostrar
+  datos, pero nunca escribirlas.
+- Una clienta es la misma persona en la turnera y en la tienda: se identifica
+  por teléfono y la busca o la crea `customers`, para que no quede duplicada.
+- Cuando dos módulos se necesitarían mutuamente (turnos ↔ pagos), uno se
+  *conecta* al otro al arrancar (`pagos.conectarTurnos`, `turnos.alReprogramar`)
+  en vez de importarlo, así no hay imports circulares.
+- El panel entero (`/api/admin`) está detrás de `requiereLogin`, en `app.ts`.
 
 ```
 backend/
 ├── src/
-│   ├── index.ts              arranca el servidor
-│   ├── app.ts                monta los módulos, CORS y manejo de errores
-│   │
-│   ├── shared/               lo que usan todos los módulos
-│   │   ├── config.ts         variables de entorno (.env.local)
-│   │   ├── db.ts             conexión a MySQL (una sola) y transacciones
-│   │   ├── errors.ts         errores -> respuestas HTTP (400, 401, 404, 409…)
-│   │   ├── configuracion.ts  lee la tabla `configuracion`
-│   │   ├── auth/
-│   │   │   ├── routes.ts     POST /api/auth/login, GET /api/auth/yo
-│   │   │   └── middleware.ts requiereLogin (JWT)
-│   │   └── models/
-│   │       ├── clientes.ts   buscarOCrearCliente (tienda y turnera)
-│   │       ├── telefono.ts   normalización de teléfonos
-│   │       ├── productos.ts  consulta y formato de productos
-│   │       └── pedidos.ts    estados del pedido y transiciones permitidas
-│   │
-│   ├── ecommerce/            /api/tienda
-│   │   ├── routes.ts         catálogo y checkout
-│   │   ├── service.ts        crearPedido (precios, stock, transacción)
-│   │   └── validacion.ts     qué datos se aceptan (zod)
-│   │
-│   ├── turnera/              /api/turnos — pendiente (sub-equipo A)
-│   │
-│   └── admin/                /api/admin — todo pide login
-│       ├── index.ts          exige login y junta los routers del panel
-│       ├── tienda.ts         categorías, productos y pedidos
-│       ├── stats.ts          estadísticas (SQL)
-│       └── turnos.ts         agenda y cambio de estado de turnos
-│
-├── test/                     tests unitarios (npm test)
-├── scripts/crear-admin.ts    crea un usuario del panel
+│   ├── index.ts        arranca el servidor
+│   ├── app.ts          monta las rutas de todos los módulos (web y panel)
+│   ├── core/           config, base de datos, errores, middlewares, cifrado
+│   └── modules/        un módulo por dominio (ver arriba)
+├── test/               unitarios (npm test) e integracion/ (npm run test:integracion)
+├── scripts/crear-admin.ts    crea o actualiza un usuario del panel
 ├── .env.example
 └── package.json
 ```
@@ -191,8 +137,9 @@ convención en todo el repo.
 |---|---|
 | `npm run dev` | Levanta la API y se reinicia sola al guardar |
 | `npm run build` / `npm start` | Compila a `dist/` y corre la versión compilada |
-| `npm run typecheck` | Chequea tipos |
-| `npm test` | Tests unitarios |
+| `npm run typecheck` | Chequea tipos (src, scripts y tests) |
+| `npm test` | Tests unitarios (sin base de datos) |
+| `npm run test:integracion` | Tests contra la base de desarrollo, por HTTP |
 
 ## Endpoints
 
@@ -218,7 +165,7 @@ Todas las respuestas son JSON. Los errores tienen la forma `{ "error": "mensaje"
 }
 ```
 
-- El cliente no tiene cuenta: se busca o se crea por **teléfono** (`buscarOCrearCliente`).
+- El cliente no tiene cuenta: se busca o se crea por **teléfono** (módulo `customers`).
 - Los **precios salen de la base**, no del navegador. Se congelan en `pedido_items.precio_unitario`.
 - Se **descuenta el stock** en la misma transacción. Si dos personas compran a la vez, no se vende más de lo que hay.
 - Respuestas: `201` con el pedido creado, `400` si faltan datos, `409` si algún producto no está disponible o no tiene stock
@@ -246,7 +193,7 @@ Todas las respuestas son JSON. Los errores tienen la forma `{ "error": "mensaje"
 ```
 
 - Igual que la tienda: el cliente no tiene cuenta y se identifica por **teléfono**,
-  con el mismo `buscarOCrearCliente`. Si Ana reservó un turno y después compra un
+  con el mismo módulo `customers`. Si Ana reservó un turno y después compra un
   producto, es **una sola fila** en `clientes`.
 - La disponibilidad **se revalida dentro de la transacción** con `FOR UPDATE`. No se
   confía en la que consultó el navegador: entre consultar y confirmar pasa tiempo, y
@@ -254,8 +201,6 @@ Todas las respuestas son JSON. Los errores tienen la forma `{ "error": "mensaje"
 - Un slot está libre si entra completo en el horario de atención, no se solapa con
   ningún turno (estados `reservado`, `confirmado`, `completado`) ni con un `bloqueo`,
   y todavía no pasó. El paso entre horarios sale de `configuracion.intervalo_turnos_min`.
-- Deja el recordatorio programado en `recordatorios`, según
-  `configuracion.recordatorio_horas_antes`. Mandarlos es otro proceso, todavía no existe.
 - Respuestas: `201` con el turno, `400` datos inválidos o fecha pasada,
   `404` servicio inexistente, `409` horario ocupado / día cerrado / no entra antes del cierre.
 
@@ -345,10 +290,9 @@ referencia (`destinoDelPago`): `turno-<id>` va a la seña del turno; para
 
 | Tema | Estado |
 |---|---|
-| **Stack** | El ecommerce arrancó en Node + Express + TypeScript (la propuesta del equipo). Confirmarlo para que la turnera use lo mismo |
 | CORS | Configurado para los dos orígenes con `CORS_ORIGINS` (en desarrollo `:5173` web y `:5174` panel). En producción: `https://dpbelleza.com.ar,https://admin.dpbelleza.com.ar` |
 | Sesión | Hoy es un token JWT en el header `Authorization`, no una cookie, así que no depende del dominio |
 | Envío | El checkout del frontend calcula envío (gratis desde $30.000, si no $2.500), pero `pedidos` no tiene columnas de envío ni de dirección. Hoy `total` es solo la suma de los productos |
 | Datos extra del frontend | `oldPrice`, `badge`, `rating`, `reviews` y `sizes` no existen en la tabla `productos` |
-| Pagos | No hay integración (por ejemplo Mercado Pago); el pedido queda `pendiente` |
+| Pagos de la tienda | Mercado Pago ya está para las señas de turnos; en la tienda el pedido todavía queda `pendiente` (ver arriba) |
 | Fotos | Se cargan como link (`imagenUrl`), no hay subida de archivos |

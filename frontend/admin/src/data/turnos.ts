@@ -2,7 +2,7 @@
  * Turnos del panel: pedidos a /api/admin/turnos.
  *
  * Las reglas de qué estado se puede pasar a cuál viven en el backend
- * (backend/src/modules/appointments/domain/estados.model.ts). Acá solo se decide qué botones mostrar; si
+ * (backend/src/modules/appointments/models/estados.model.ts). Acá solo se decide qué botones mostrar; si
  * el backend rechaza un cambio, el error llega como ApiError con su mensaje.
  */
 import { useCallback, useState } from "react"
@@ -84,7 +84,7 @@ export type CambiosTurno = {
 
 /**
  * Reprogramar o corregir un turno. Las reglas (qué se puede mover según el
- * estado, el precio al cambiar de servicio) están en backend/src/modules/appointments/domain/turno.model.ts.
+ * estado, el precio al cambiar de servicio) están en backend/src/modules/appointments/models/turno.model.ts.
  */
 export function editarTurno(id: number, cambios: CambiosTurno) {
   return api<Turno>(`/api/admin/turnos/${id}`, { metodo: "PATCH", cuerpo: cambios })

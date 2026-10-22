@@ -1,4 +1,4 @@
-/** Medios de pago de la caja, con el texto y el ícono que ve la dueña. Mismo orden que el backend (modules/payments/domain/cobro.model.ts). */
+/** Medios de pago de la caja, con el texto y el ícono que ve la dueña. Mismo orden que el backend (modules/payments/models/cobro.model.ts). */
 export const MEDIOS = [
   { valor: "efectivo", label: "Efectivo", icono: "💵" },
   { valor: "debito", label: "Débito", icono: "💳" },

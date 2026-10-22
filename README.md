@@ -1,145 +1,116 @@
 # dp-belleza
 
-Sistema de gestión para la estética **Dp.belleza**: web pública con turnera y
-tienda online, más un panel de administración para la dueña del local.
+Sistema para la estética **Dp.belleza**: una web pública (turnos y tienda online)
+y un panel para que la dueña maneje el local (agenda, clientas, caja, recordatorios).
 
-Monorepo con las tres partes del sistema: `database/`, `backend/`, `frontend/`.
-
-Stack del frontend: React 19 · TypeScript · Vite · Tailwind CSS 4 · React Router 7.
-
-## Cómo correrlo
-
-```bash
-npm install          # instala las dos apps de una sola vez (npm workspaces)
-
-npm run dev          # web pública   -> http://localhost:5173
-npm run dev:admin    # panel         -> http://localhost:5174
-
-npm run build        # typecheck + build de las dos apps
-npm run lint         # oxlint
-```
-
-Para entrar al panel hay que configurar la contraseña primero:
-
-```bash
-cp frontend/admin/.env.example frontend/admin/.env.local
-npm run admin:hash -- "tu-clave"    # pegar el hash en .env.local
-```
-
-## Estructura
+Es un monorepo con tres partes:
 
 ```
 dp-belleza/
-├── database/                 BASE DE DATOS
-│   ├── migrations/           Scripts SQL versionados (V1_, V2_, ...)
-│   └── seeds/                Datos de ejemplo para desarrollo
-│
-├── backend/                  API (Node + Express) — ver backend/README.md
-│   └── src/
-│       ├── shared/           models de TODAS las tablas, db, auth, config
-│       ├── turnera/          rutas /api/turnos       (sub-equipo A, pendiente)
-│       ├── ecommerce/        rutas /api/tienda       (sub-equipo B, hecho)
-│       └── admin/            rutas /api/admin
-│
+├── database/      MySQL: migraciones (V1, V2…) y datos de ejemplo
+├── backend/       API: Node + Express + TypeScript
 └── frontend/
-    ├── shared/               @dp/shared — lo que usan las DOS apps
-    │   ├── data/             MOCK: catálogo de productos y servicios
-    │   ├── lib/              formatPrice
-    │   └── styles/           theme.css (colores y tipografías)
-    │
-    ├── cliente/              WEB PÚBLICA  ->  dpbelleza.com.ar
-    │   └── src/
-    │       ├── App.tsx       rutas públicas
-    │       ├── shared/       Layout, Navbar, Footer, 404
-    │       ├── home/         página de inicio, Nosotros y Contacto
-    │       ├── turnera/      reserva de turnos
-    │       └── ecommerce/    tienda
-    │
-    └── admin/                PANEL  ->  admin.dpbelleza.com.ar
-        └── src/
-            ├── App.tsx       rutas del panel
-            ├── components/   AdminLayout (menú + login), charts/
-            ├── data/         history.ts (MOCK), productStore.ts
-            ├── lib/          auth, stats, format, usePeriod, styles
-            └── pages/        Resumen, Turnos, Ventas, Productos
+    ├── cliente/   web pública (React)
+    ├── admin/     panel de la dueña (React)
+    └── shared/    estilos y tipos que usan las dos apps
 ```
 
-### Por qué dos apps y no una
+## Cómo correrlo
 
-- La web pública es **un solo sitio**: la clienta pasa de reservar un turno a
-  comprar un producto con el mismo navbar y sin recargar. Turnera y tienda son
-  módulos de la misma app.
-- El panel es **otra app**: otro usuario, otro login, y no corresponde mandarle
-  su JavaScript a cada visitante de la tienda.
+Requisitos: Node 20+ y MySQL 8. La base y el usuario del panel se preparan una
+sola vez: los pasos están en [`backend/README.md`](backend/README.md#puesta-en-marcha).
 
-### Qué va en cada subcarpeta
+```bash
+npm install          # instala todo (npm workspaces)
 
-| Carpeta | Contenido |
-|---|---|
-| `pages/` | Una pantalla completa, asociada a una ruta en el `App.tsx` de su app |
-| `components/` | Piezas de UI reutilizables dentro de las páginas |
-| `context/` | Estado global compartido con React Context |
-| `data/` | Tipos, datos mock y acceso a datos (a futuro, llamadas a la API) |
-| `lib/` | Funciones auxiliares (formateo, constantes de estilos) |
+npm run dev:api      # API          -> http://localhost:3000
+npm run dev          # web pública  -> http://localhost:5173
+npm run dev:admin    # panel        -> http://localhost:5174
 
-### Reglas para mantener el orden
+npm test             # tests del backend
+npm run build        # typecheck + build de las dos apps
+```
 
-- **Las dos apps no se importan entre sí.** Si el panel y la web necesitan lo
-  mismo, va en `frontend/shared/`. Si no, va en la app que lo usa.
-- **En `frontend/shared/` no va nada que use `localStorage`**: el navegador aísla
-  el almacenamiento por dominio, y las dos apps viven en dominios distintos.
-- Toda página nueva se registra en el `App.tsx` **de su app**.
-- Todo SQL va en `database/migrations/`, nunca duplicado en `backend/`.
-- Un módulo nuevo del front va dentro de la app que lo usa, no en la raíz.
+## Arquitectura del backend
 
-## Rutas
+El backend está dividido **por dominio**: cada parte del negocio es un módulo
+con sus propias carpetas.
 
-### Web pública — `dpbelleza.com.ar`
+```
+backend/src/
+├── core/                 lo que usan todos: config, base de datos, errores, sesión
+├── modules/
+│   ├── appointments/     turnos y agenda
+│   ├── customers/        clientas
+│   ├── catalog/          servicios, productos y categorías
+│   ├── inventory/        stock
+│   ├── payments/         caja y Mercado Pago
+│   ├── reminders/        recordatorios por WhatsApp
+│   ├── admin/            ajustes del negocio y estadísticas
+│   ├── auth/             login del panel y "Tu cuenta"
+│   └── orders/           pedidos de la tienda
+└── app.ts                monta las rutas de todos los módulos
+```
 
-| URL | Página | Módulo |
-|---|---|---|
-| `/` | Home | home |
-| `/nosotros` | Redirige a `/#nosotros` | home |
-| `/contacto` | Contact | home |
-| `/tienda` | Shop | ecommerce |
-| `/producto/:id` | ProductDetail | ecommerce |
-| `/carrito` | Cart | ecommerce |
-| `/checkout` | Checkout | ecommerce |
-| `/servicios` | Services | turnera |
-| `/servicios/:id` | ServiceDetail | turnera |
-| `/reservar/:id` | Booking | turnera |
-| `/reserva-confirmada` | BookingConfirmed | turnera |
+Y adentro de cada módulo, las mismas carpetas (solo las que usa):
 
-### Panel — `admin.dpbelleza.com.ar`
+```
+modules/payments/
+├── controllers/     reciben el pedido HTTP y responden
+├── schemas/         qué datos entran (validación) y qué datos salen (DTO)
+├── services/        las reglas de cada operación ("cobrar", "anotar un cobro")
+├── repositories/    leen y escriben MySQL
+├── models/          las entidades, sus reglas y las interfaces
+├── integrations/    servicios de afuera (Mercado Pago) y otros módulos
+└── payments.module.ts   arma el módulo y exporta lo que pueden usar los demás
+```
 
-| URL | Página |
-|---|---|
-| `/` | Resumen |
-| `/turnos` | Turnos |
-| `/ventas` | Ventas tienda |
-| `/productos` | Productos |
-| `/productos/nuevo` | Alta de producto |
+Un pedido recorre siempre el mismo camino:
 
-No hay ningún link al panel desde el sitio público.
+```
+controller → service → repository → MySQL
+   (valida)   (reglas)   (SQL)
+```
 
-## Estado actual: falta el backend
+Cada archivo dice en el nombre qué es: `cobro.model.ts`, `caja.usecases.ts`,
+`pagos.controller.ts`, `pagos.dto.ts`.
 
-Todo el frontend está hardcodeado. Nada persiste, no hay una sola llamada HTTP.
+### Por qué así
 
-| Tema | Hoy | Cuando haya API |
-|---|---|---|
-| Catálogo de productos y servicios | Constantes en `frontend/shared/data/` | Productos: `GET /api/tienda/productos` (ya existe). Servicios: `GET /api/servicios` |
-| Estadísticas del panel | 6 meses de datos de demo en `admin/src/data/history.ts`, con la forma de las tablas `pedidos`, `pedido_items` y `turnos` | Reemplazar ese archivo por las llamadas reales |
-| Alta de productos del panel | `admin/src/data/productStore.ts` (localStorage) | `POST /api/admin/productos` (ya existe) |
-| Login del panel | Hash SHA-256 comparado en el navegador. Evita entradas casuales; **no es seguridad real** | `POST /api/auth/login` contra `usuarios.password_hash` (ya existe) |
-| Reserva de turno | No persiste nada | `POST /api/turnos` |
-| Fotos de productos | Se cargan como link | Subida de archivos |
+- **Cada cosa en su lugar.** Si hay que tocar algo de la caja, está todo en
+  `modules/payments/`. No hay que buscar en todo el proyecto.
+- **Las reglas del negocio no dependen de la base ni de Express.** Un service
+  usa interfaces (por ejemplo "un lugar donde guardar cobros") y el `.module.ts`
+  le pasa la implementación con MySQL. Por eso las reglas se pueden probar con
+  tests sin base de datos.
+- **Los módulos no se meten en las tablas de los otros.** Cada tabla tiene un
+  solo módulo dueño. Si turnos necesita algo de clientas, se lo pide a la
+  fachada de `customers`; no escribe en la tabla `clientes`.
+- **El frontend recibe solo lo que usa.** Ningún controller devuelve una fila
+  entera de la base: todo sale por un DTO que elige campo por campo. Así no se
+  filtran datos (como el hash de una contraseña) y la API no cambia si cambia
+  una tabla.
 
-> ⚠️ **Un producto cargado en el panel no aparece en la web.** El panel guarda en
-> el `localStorage` de su propio dominio, y el navegador no lo comparte con
-> `dpbelleza.com.ar`. No es un bug que se pueda arreglar desde el frontend: el
-> canal entre el panel y la web es la base de datos.
+Es arquitectura en capas + clean architecture + MVC, organizada por dominio:
+`models` es el dominio, `services` los casos de uso, `repositories` e
+`integrations` la infraestructura, y `controllers` + `schemas` la capa HTTP.
 
-> ⚠️ Los textos de la página de inicio (`frontend/cliente/src/home/data/content.ts`)
-> son de relleno: testimonios, métricas y dirección inventados. Hay que
-> reemplazarlos por los datos reales antes de mostrar el sitio.
+`orders` es la parte de Alan: está en su módulo, pero todavía con su
+estructura original.
+
+## Frontend
+
+Dos apps separadas:
+
+- **`cliente/`** es la web pública: un solo sitio para reservar un turno o
+  comprar, sin recargar.
+- **`admin/`** es el panel. Es otra app porque tiene otro usuario y otro login,
+  y no tiene sentido mandarle el código del panel a cada visitante de la web.
+
+Las dos hablan solo con la API: no comparten datos por el navegador. Lo que
+usan las dos (colores, tipografías, tipos) está en `frontend/shared/`.
+
+## Más detalle
+
+- [`backend/README.md`](backend/README.md): puesta en marcha, endpoints, Mercado Pago.
+- [`database/README.md`](database/README.md): cómo se versiona la base.
