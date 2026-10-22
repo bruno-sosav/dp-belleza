@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { agruparItems, puedeCambiarEstado, redondear } from "../src/shared/models/pedidos.js"
+import { agruparItems, puedeCambiarEstado, redondear } from "../src/modules/orders/models/pedido.model.js"
 
 describe("puedeCambiarEstado", () => {
   it("permite el flujo normal", () => {

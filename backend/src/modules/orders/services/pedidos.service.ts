@@ -1,12 +1,12 @@
 import type { ResultSetHeader } from "mysql2"
-import { enTransaccion } from "../core/database/conexion.database.js"
-import { ErrorDeNegocio } from "../core/negocio.error.js"
-import { catalogo } from "../modules/catalog/catalog.module.js"
-import { inventario } from "../modules/inventory/inventory.module.js"
-import { clientes } from "../modules/customers/customers.module.js"
-import { comoTransaccion } from "../core/database/unidadDeTrabajo.database.js"
-import { agruparItems, redondear } from "../shared/models/pedidos.js"
-import type { NuevoPedido } from "./validacion.js"
+import { enTransaccion } from "../../../core/database/conexion.database.js"
+import { ErrorDeNegocio } from "../../../core/negocio.error.js"
+import { catalogo } from "../../catalog/catalog.module.js"
+import { inventario } from "../../inventory/inventory.module.js"
+import { clientes } from "../../customers/customers.module.js"
+import { comoTransaccion } from "../../../core/database/unidadDeTrabajo.database.js"
+import { agruparItems, redondear } from "../models/pedido.model.js"
+import type { NuevoPedido } from "../schemas/pedido.schema.js"
 
 // Checkout: crea el pedido con los precios del catálogo y el stock del
 // inventario, todo en una transacción.

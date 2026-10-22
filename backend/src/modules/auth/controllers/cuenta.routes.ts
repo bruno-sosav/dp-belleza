@@ -1,5 +1,5 @@
 /**
- * Rutas de "Tu cuenta", bajo /api/admin (el login lo exige admin/index.ts):
+ * Rutas de "Tu cuenta", bajo /api/admin (el login lo exige app.ts):
  *   GET /cuenta   PATCH /cuenta   POST /cuenta/contrasena
  */
 import { Router } from "express"

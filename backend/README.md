@@ -57,12 +57,13 @@ abrirlo (por ejemplo `caja.controller.ts`, `cobro.model.ts`):
 | `catalog` (servicios, productos, categorías) | `catalogo.controller.ts` |
 | `customers` (clientas) | `clientes.controller.ts` |
 | `inventory` (stock) | `inventario.controller.ts` |
+| `orders` (pedidos de la tienda, de Alan) | `checkout.routes.ts`, `pedidosPanel.routes.ts` (sin controller aparte todavía) |
 | `payments` (caja y Mercado Pago) | `pagos.controller.ts` |
 | `reminders` (recordatorios) | `recordatorios.controller.ts` |
 
-Falta migrar: `orders` (pedidos de la tienda). Hasta entonces sigue en `src/admin/tienda.ts`,
-`src/shared/models/` y `src/ecommerce/`, y lo que sigue de este README describe esa
-estructura vieja.
+`orders` (pedidos de la tienda) es la parte de Alan: está en `modules/orders/` con
+su código tal cual, todavía sin puertos, casos de uso ni DTOs. Lo que sigue de este
+README describe la estructura vieja y se va a reescribir.
 
 ## Regla principal: UNA sola app, módulos adentro
 

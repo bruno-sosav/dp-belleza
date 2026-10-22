@@ -1,14 +1,14 @@
 import { Router } from "express"
 import type { RowDataPacket } from "mysql2"
 import { z } from "zod"
-import { enTransaccion, pool } from "../core/database/conexion.database.js"
-import { HttpError, noEncontrado } from "../core/negocio.error.js"
-import { inventario } from "../modules/inventory/inventory.module.js"
-import { comoTransaccion } from "../core/database/unidadDeTrabajo.database.js"
-import { ESTADOS_PEDIDO, puedeCambiarEstado, type EstadoPedido } from "../shared/models/pedidos.js"
+import { enTransaccion, pool } from "../../../core/database/conexion.database.js"
+import { HttpError, noEncontrado } from "../../../core/negocio.error.js"
+import { inventario } from "../../inventory/inventory.module.js"
+import { comoTransaccion } from "../../../core/database/unidadDeTrabajo.database.js"
+import { ESTADOS_PEDIDO, puedeCambiarEstado, type EstadoPedido } from "../models/pedido.model.js"
 
 // Panel: pedidos de la tienda. Categorías y productos están en el módulo de
-// catálogo (modules/catalog). El login lo exige admin/index.ts.
+// catálogo (modules/catalog). El login lo exige app.ts.
 export const adminTienda = Router()
 
 const idParam = z.coerce.number().int().positive()

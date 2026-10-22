@@ -30,15 +30,12 @@ export const noExiste = (mensaje: string) => new ErrorDeNegocio("no_encontrado",
 export const conflicto = (mensaje: string) => new ErrorDeNegocio("conflicto", mensaje)
 export const externo = (mensaje: string, detalle?: unknown) => new ErrorDeNegocio("externo", mensaje, detalle)
 
-/** Nombre viejo de `invalido`, para los módulos que todavía no se mudaron a modules/. */
-export const malaPeticion = invalido
-
 const tipoPorStatus: Record<number, TipoDeError> = { 400: "invalido", 401: "no_autorizado", 404: "no_encontrado", 409: "conflicto", 502: "externo" }
 
 /**
- * Forma vieja: un error con código HTTP. Queda mientras se mudan los módulos
- * viejos (admin/, ecommerce/, shared/); por dentro es un ErrorDeNegocio.
- * Los módulos nuevos usan los helpers de arriba.
+ * Forma vieja: un error con código HTTP. Queda porque la usa orders (código de
+ * Alan, todavía sin reorganizar); por dentro es un ErrorDeNegocio.
+ * Los demás módulos usan los helpers de arriba.
  */
 export class HttpError extends ErrorDeNegocio {
   constructor(status: number, message: string, detalle?: unknown) {

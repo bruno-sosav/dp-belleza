@@ -1,6 +1,6 @@
 import { Router } from "express"
-import { crearPedido } from "./service.js"
-import { nuevoPedido } from "./validacion.js"
+import { crearPedido } from "../services/pedidos.service.js"
+import { nuevoPedido } from "../schemas/pedido.schema.js"
 
 // Checkout de la tienda, montado en /api/tienda. Los productos y categorías
 // para la web los sirve el módulo de catálogo (modules/catalog).
