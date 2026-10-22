@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react"
 import type { ReactNode } from "react"
 import { Link, NavLink, Outlet } from "react-router-dom"
-import AdminLogin from "../pages/AdminLogin"
-import { cerrarSesion, EVENTO_SESION, haySesion, usuarioActual } from "../lib/auth"
-import type { Usuario } from "../lib/auth"
+import LoginPage from "../features/auth/pages/LoginPage"
+import { cerrarSesion, EVENTO_SESION, haySesion, usuarioActual } from "../shared/lib/sesion"
+import type { Usuario } from "../shared/lib/sesion"
 import type { Period } from "../shared/lib/stats"
 import type { AdminOutletContext } from "../shared/lib/usePeriod"
 
@@ -56,7 +56,7 @@ export default function AdminLayout() {
   }, [])
 
   // Sin token no renderiza ninguna ruta del panel.
-  if (!haySesion() || !usuario) return <AdminLogin onSuccess={setUsuario} />
+  if (!haySesion() || !usuario) return <LoginPage onSuccess={setUsuario} />
 
   const context: AdminOutletContext = { period, setPeriod }
 

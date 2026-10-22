@@ -1,8 +1,8 @@
 /** Ajustes → Tu cuenta: /api/admin/cuenta. */
 import { useCallback } from "react"
-import { api } from "../shared/lib/api"
-import { useApi } from "../shared/lib/useApi"
-import type { Usuario } from "../lib/auth"
+import { api } from "../../../shared/lib/api"
+import { useApi } from "../../../shared/lib/useApi"
+import type { Usuario } from "../../../shared/lib/sesion"
 
 export function useCuenta() {
   const pedir = useCallback(() => api<{ nombre: string; email: string }>("/api/admin/cuenta"), [])

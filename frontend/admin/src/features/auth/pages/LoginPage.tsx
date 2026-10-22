@@ -1,10 +1,10 @@
 import { useState } from "react"
 import type { FormEvent } from "react"
-import { iniciarSesion } from "../lib/auth"
-import type { Usuario } from "../lib/auth"
-import { cardClass, inputClass, labelClass, primaryButtonClass } from "../shared/lib/styles"
+import { iniciarSesion } from "../api/sesion.api"
+import type { Usuario } from "../../../shared/lib/sesion"
+import { cardClass, inputClass, labelClass, primaryButtonClass } from "../../../shared/lib/styles"
 
-export default function AdminLogin({ onSuccess }: { onSuccess: (usuario: Usuario) => void }) {
+export default function LoginPage({ onSuccess }: { onSuccess: (usuario: Usuario) => void }) {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
