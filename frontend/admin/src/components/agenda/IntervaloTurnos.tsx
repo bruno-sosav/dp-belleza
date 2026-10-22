@@ -3,7 +3,7 @@ import Panel from "../../shared/components/Panel"
 import { Cargando, ErrorCarga } from "../../shared/components/EstadoCarga"
 import { ApiError } from "../../shared/lib/api"
 import { inputClass, labelClass, primaryButtonClass } from "../../shared/lib/styles"
-import { guardarConfiguracion, useConfiguracion } from "../../data/configuracion"
+import { guardarConfiguracion, useConfiguracion } from "../../features/settings/api/ajustes.api"
 
 const intervalos = [10, 15, 20, 30, 60]
 

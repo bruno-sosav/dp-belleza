@@ -1,10 +1,10 @@
 /**
  * Ajustes del local: /api/admin/configuracion. Las validaciones de cada clave
- * están en backend/src/admin/configuracion.ts.
+ * están en backend/src/modules/admin/schemas/ajustes.schema.ts.
  */
 import { useCallback } from "react"
-import { api } from "../shared/lib/api"
-import { useApi } from "../shared/lib/useApi"
+import { api } from "../../../shared/lib/api"
+import { useApi } from "../../../shared/lib/useApi"
 
 /** Todo llega como texto (la tabla es clave/valor). */
 export type Configuracion = {

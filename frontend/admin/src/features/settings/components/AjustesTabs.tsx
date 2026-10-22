@@ -1,4 +1,4 @@
-import Pestanas from "../shared/components/Pestanas"
+import Pestanas from "../../../shared/components/Pestanas"
 
 /** Ajustes: los datos del local que muestra la web, la cuenta de Mercado Pago y la cuenta para entrar al panel. */
 export default function AjustesTabs() {

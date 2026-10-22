@@ -1,11 +1,11 @@
 import { useState } from "react"
 import type { FormEvent } from "react"
-import Panel from "../shared/components/Panel"
-import { Cargando, ErrorCarga } from "../shared/components/EstadoCarga"
-import { ApiError } from "../shared/lib/api"
-import { inputClass, labelClass, primaryButtonClass, secondaryButtonClass } from "../shared/lib/styles"
-import { desconectar, guardarCredenciales, probarConexion } from "../data/mercadopago"
-import type { useMercadoPago } from "../data/mercadopago"
+import Panel from "../../../shared/components/Panel"
+import { Cargando, ErrorCarga } from "../../../shared/components/EstadoCarga"
+import { ApiError } from "../../../shared/lib/api"
+import { inputClass, labelClass, primaryButtonClass, secondaryButtonClass } from "../../../shared/lib/styles"
+import { desconectar, guardarCredenciales, probarConexion } from "../api/mercadopago.api"
+import type { useMercadoPago } from "../api/mercadopago.api"
 
 const campo = `${inputClass} py-3 text-base font-mono`
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000"

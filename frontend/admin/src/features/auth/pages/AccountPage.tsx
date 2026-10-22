@@ -1,5 +1,5 @@
 import PageHeader from "../../../shared/components/PageHeader"
-import AjustesTabs from "../../../components/AjustesTabs"
+import AjustesTabs from "../../settings/components/AjustesTabs"
 import DatosCuenta from "../components/DatosCuenta"
 import CambiarContrasena from "../components/CambiarContrasena"
 

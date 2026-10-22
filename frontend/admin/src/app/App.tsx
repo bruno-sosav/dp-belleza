@@ -14,8 +14,8 @@ import AdminServiceForm from "../pages/AdminServiceForm"
 import AdminSchedule from "../pages/AdminSchedule"
 import AdminClosedDays from "../pages/AdminClosedDays"
 import AdminBookingRules from "../pages/AdminBookingRules"
-import AdminSettings from "../pages/AdminSettings"
-import AdminSettingsMercadoPago from "../pages/AdminSettingsMercadoPago"
+import BusinessPage from "../features/settings/pages/BusinessPage"
+import MercadoPagoPage from "../features/settings/pages/MercadoPagoPage"
 import AccountPage from "../features/auth/pages/AccountPage"
 import AdminReminders from "../pages/AdminReminders"
 import AdminReminderTypes from "../pages/AdminReminderTypes"
@@ -49,8 +49,8 @@ export default function App() {
         <Route path="/productos/nuevo" element={<AdminProductNew />} />
         <Route path="/recordatorios" element={<AdminReminders />} />
         <Route path="/recordatorios/mensajes" element={<AdminReminderTypes />} />
-        <Route path="/ajustes" element={<AdminSettings />} />
-        <Route path="/ajustes/mercadopago" element={<AdminSettingsMercadoPago />} />
+        <Route path="/ajustes" element={<BusinessPage />} />
+        <Route path="/ajustes/mercadopago" element={<MercadoPagoPage />} />
         <Route path="/ajustes/cuenta" element={<AccountPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

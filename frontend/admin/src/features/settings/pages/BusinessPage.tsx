@@ -1,14 +1,14 @@
 import { useState } from "react"
 import type { FormEvent, ReactNode } from "react"
-import PageHeader from "../shared/components/PageHeader"
-import Panel from "../shared/components/Panel"
+import PageHeader from "../../../shared/components/PageHeader"
+import Panel from "../../../shared/components/Panel"
 import AjustesTabs from "../components/AjustesTabs"
-import { Cargando, ErrorCarga } from "../shared/components/EstadoCarga"
-import { ApiError } from "../shared/lib/api"
-import { formatTelefono } from "../shared/lib/format"
-import { inputClass, labelClass, primaryButtonClass } from "../shared/lib/styles"
-import { guardarConfiguracion, useConfiguracion } from "../data/configuracion"
-import type { CambiosConfiguracion, Configuracion } from "../data/configuracion"
+import { Cargando, ErrorCarga } from "../../../shared/components/EstadoCarga"
+import { ApiError } from "../../../shared/lib/api"
+import { formatTelefono } from "../../../shared/lib/format"
+import { inputClass, labelClass, primaryButtonClass } from "../../../shared/lib/styles"
+import { guardarConfiguracion, useConfiguracion } from "../api/ajustes.api"
+import type { CambiosConfiguracion, Configuracion } from "../api/ajustes.api"
 
 const campo = `${inputClass} py-3 text-base`
 
@@ -18,7 +18,7 @@ const campo = `${inputClass} py-3 text-base`
  * código. Mercado Pago es la otra pestaña de Ajustes; cada cuánto se ofrecen
  * turnos está en Turnos → Horario.
  */
-export default function AdminSettings() {
+export default function BusinessPage() {
   const config = useConfiguracion()
 
   return (
