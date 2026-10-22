@@ -1,7 +1,7 @@
-/** Reglas puras de la clienta (domain/cliente.model.ts). */
+/** Reglas puras de la clienta (models/cliente.model.ts). */
 import { describe, expect, it } from "vitest"
-import { cumpleValido, datosParaCompletar, fusionarFichas, motivoParaNoEliminar, separarNombreCompleto } from "../../src/modules/customers/domain/cliente.model.js"
-import type { Cliente } from "../../src/modules/customers/domain/cliente.model.js"
+import { cumpleValido, datosParaCompletar, fusionarFichas, motivoParaNoEliminar, separarNombreCompleto } from "../../src/modules/customers/models/cliente.model.js"
+import type { Cliente } from "../../src/modules/customers/models/cliente.model.js"
 
 const ana: Cliente = { id: 1, nombre: "Ana", apellido: null, telefono: "5492235551111", email: null, cumple: null, notas: null, clienteDesde: "2026-01-01" }
 

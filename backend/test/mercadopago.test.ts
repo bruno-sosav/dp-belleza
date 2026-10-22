@@ -1,8 +1,8 @@
 import { createHmac } from "node:crypto"
 import { describe, expect, it } from "vitest"
 import { cifrar, descifrar } from "../src/core/seguridad/cifrado.util.js"
-import { firmaValida } from "../src/modules/payments/domain/mercadoPago.model.js"
-import { montoSena } from "../src/modules/appointments/domain/sena.model.js"
+import { firmaValida } from "../src/modules/payments/models/mercadoPago.model.js"
+import { montoSena } from "../src/modules/appointments/models/sena.model.js"
 
 describe("cifrado de credenciales", () => {
   it("lo cifrado se descifra igual", () => {

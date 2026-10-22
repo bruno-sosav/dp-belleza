@@ -6,15 +6,15 @@
  * No depende de ningún otro módulo. Verificar la sesión en cada pedido es de
  * core (requiereLogin), porque lo usan todas las rutas del panel.
  */
-import { CambiarContrasena, EditarCuenta, GuardarAdmin, VerCuenta } from "./application/cuenta.usecases.js"
-import { IniciarSesion } from "./application/sesion.usecases.js"
-import { contrasenasBcrypt } from "./infrastructure/bcrypt.adapter.js"
-import { sesionesJwt } from "./infrastructure/jwt.adapter.js"
-import { MySqlUsuariosRepository } from "./infrastructure/usuario.repository.js"
-import { CuentaController } from "./presentation/controllers/cuenta.controller.js"
-import { SesionController } from "./presentation/controllers/sesion.controller.js"
-import { rutasCuenta } from "./presentation/routes/cuenta.routes.js"
-import { rutasSesion } from "./presentation/routes/sesion.routes.js"
+import { CambiarContrasena, EditarCuenta, GuardarAdmin, VerCuenta } from "./services/cuenta.usecases.js"
+import { IniciarSesion } from "./services/sesion.usecases.js"
+import { contrasenasBcrypt } from "./integrations/bcrypt.adapter.js"
+import { sesionesJwt } from "./integrations/jwt.adapter.js"
+import { MySqlUsuariosRepository } from "./repositories/usuario.repository.js"
+import { CuentaController } from "./controllers/cuenta.controller.js"
+import { SesionController } from "./controllers/sesion.controller.js"
+import { rutasCuenta } from "./controllers/cuenta.routes.js"
+import { rutasSesion } from "./controllers/sesion.routes.js"
 
 const usuarios = new MySqlUsuariosRepository()
 const guardarAdmin = new GuardarAdmin(usuarios, contrasenasBcrypt)

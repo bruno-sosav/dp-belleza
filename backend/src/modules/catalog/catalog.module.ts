@@ -3,16 +3,16 @@
  * Raíz de composición: crea las implementaciones MySQL, las inyecta en los
  * casos de uso y exporta solo lo que el resto del sistema puede usar.
  */
-import { ActualizarProducto, CrearProducto, GestionarCategorias, ListarProductos, VerProducto } from "./application/productos.usecases.js"
-import { ActualizarServicio, CrearServicio, ListarServicios, VerServicio } from "./application/servicios.usecases.js"
-import type { ServicioReservable } from "./domain/servicio.model.js"
+import { ActualizarProducto, CrearProducto, GestionarCategorias, ListarProductos, VerProducto } from "./services/productos.usecases.js"
+import { ActualizarServicio, CrearServicio, ListarServicios, VerServicio } from "./services/servicios.usecases.js"
+import type { ServicioReservable } from "./models/servicio.model.js"
 import type { Transaccion } from "../../core/transaccion.port.js"
-import { MySqlCategoriaRepository } from "./infrastructure/categoria.repository.js"
-import { MySqlProductoRepository } from "./infrastructure/producto.repository.js"
-import { MySqlServicioRepository } from "./infrastructure/servicio.repository.js"
-import { MySqlTurnosDeServicios } from "./infrastructure/turnosDeServicios.queries.js"
-import { CatalogoController } from "./presentation/controllers/catalogo.controller.js"
-import { rutasPanelCatalogo, rutasServiciosWeb, rutasTiendaWeb } from "./presentation/routes/catalogo.routes.js"
+import { MySqlCategoriaRepository } from "./repositories/categoria.repository.js"
+import { MySqlProductoRepository } from "./repositories/producto.repository.js"
+import { MySqlServicioRepository } from "./repositories/servicio.repository.js"
+import { MySqlTurnosDeServicios } from "./repositories/turnosDeServicios.queries.js"
+import { CatalogoController } from "./controllers/catalogo.controller.js"
+import { rutasPanelCatalogo, rutasServiciosWeb, rutasTiendaWeb } from "./controllers/catalogo.routes.js"
 
 const servicios = new MySqlServicioRepository()
 const productos = new MySqlProductoRepository()

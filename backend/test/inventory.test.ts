@@ -2,9 +2,9 @@
 import { describe, expect, it } from "vitest"
 import { ErrorDeNegocio } from "../src/core/negocio.error.js"
 import type { Transaccion } from "../src/core/transaccion.port.js"
-import { DevolverStock, ReponerOAjustarStock, ReservarStock } from "../src/modules/inventory/application/inventario.usecases.js"
-import type { StockRepository } from "../src/modules/inventory/domain/inventario.ports.js"
-import { problemasDeStock, type Linea } from "../src/modules/inventory/domain/stock.model.js"
+import { DevolverStock, ReponerOAjustarStock, ReservarStock } from "../src/modules/inventory/services/inventario.usecases.js"
+import type { StockRepository } from "../src/modules/inventory/models/inventario.ports.js"
+import { problemasDeStock, type Linea } from "../src/modules/inventory/models/stock.model.js"
 
 class StockEnMemoria implements StockRepository {
   constructor(public stock: Map<number, number>) {}

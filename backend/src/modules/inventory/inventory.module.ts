@@ -4,11 +4,11 @@
  * lo que el resto del sistema puede usar.
  */
 import type { Transaccion } from "../../core/transaccion.port.js"
-import { DevolverStock, ReponerOAjustarStock, ReservarStock } from "./application/inventario.usecases.js"
-import type { Linea } from "./domain/stock.model.js"
-import { MySqlStockRepository } from "./infrastructure/stock.repository.js"
-import { InventarioController } from "./presentation/controllers/inventario.controller.js"
-import { rutasPanelInventario } from "./presentation/routes/inventario.routes.js"
+import { DevolverStock, ReponerOAjustarStock, ReservarStock } from "./services/inventario.usecases.js"
+import type { Linea } from "./models/stock.model.js"
+import { MySqlStockRepository } from "./repositories/stock.repository.js"
+import { InventarioController } from "./controllers/inventario.controller.js"
+import { rutasPanelInventario } from "./controllers/inventario.routes.js"
 
 const repo = new MySqlStockRepository()
 const reservar = new ReservarStock(repo)

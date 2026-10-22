@@ -13,16 +13,21 @@ de datos, errores, sesión) y `src/modules/<dominio>/`, cada uno con sus capas:
 
 ```
 modules/<dominio>/
-├── domain/            reglas puras y puertos (interfaces). Sin SQL ni Express.
-├── application/       casos de uso: orquestan el dominio a través de los puertos
-├── infrastructure/    implementaciones: MySQL, Mercado Pago, adaptadores a otros módulos
-├── presentation/      la capa HTTP (MVC)
-│   ├── controllers/   reciben el pedido, llaman al caso de uso y responden con un DTO
-│   ├── dto/           lo que SALE: solo los campos que usa cada pantalla
-│   ├── schemas/       lo que ENTRA: validado con zod
-│   └── routes/        qué URL va a qué método del controller
+├── controllers/     reciben el pedido, llaman al service y responden con un DTO; y las rutas
+├── schemas/         lo que ENTRA (zod) y lo que SALE (DTO: solo los campos que usa cada pantalla)
+├── services/        casos de uso: las reglas de cada operación
+├── repositories/    leen y escriben MySQL
+├── models/          entidades, reglas puras e interfaces (ports). Sin SQL ni Express
+├── integrations/    Mercado Pago y las conexiones con otros módulos
 └── <dominio>.module.ts  arma todo (inyección) y exporta lo único que ven los demás
 ```
+
+Cada módulo tiene solo las carpetas que usa. Las capas de clean architecture
+siguen estando, con estos nombres: `models` es el dominio, `services` la
+aplicación, `repositories` + `integrations` la infraestructura y
+`controllers` + `schemas` la presentación (MVC). Un service nunca importa un
+repository: usa la interfaz de `models/*.ports.ts`, y el `.module.ts` le pasa
+la implementación.
 
 Un controller no tiene SQL ni reglas de negocio, y nunca devuelve una fila ni
 una entidad entera: todo lo que sale pasa por un DTO.
@@ -30,16 +35,17 @@ una entidad entera: todo lo que sale pasa por un DTO.
 **Nombres de archivo:** `nombre.rol.ts`, así cada archivo dice qué es sin
 abrirlo (por ejemplo `caja.controller.ts`, `cobro.model.ts`):
 
-| capa | rol | qué es |
+| carpeta | rol | qué es |
 |---|---|---|
-| domain | `.model.ts` | una entidad y sus reglas puras |
-| domain | `.ports.ts` | las interfaces que la infraestructura implementa |
-| application | `.usecases.ts` | los casos de uso (clases con `ejecutar`) |
-| infrastructure | `.repository.ts` | lee y escribe las tablas del módulo |
-| infrastructure | `.queries.ts` | vistas de lectura (pueden juntar tablas de otros módulos, nunca las escriben) |
-| infrastructure | `.adapter.ts` | cumple un puerto usando otro módulo |
-| infrastructure | `.gateway.ts` | un servicio externo (Mercado Pago) |
-| presentation | `.controller.ts` `.dto.ts` `.schema.ts` `.routes.ts` | la capa HTTP |
+| models | `.model.ts` | una entidad y sus reglas puras |
+| models | `.ports.ts` | las interfaces que repositories e integrations implementan |
+| services | `.usecases.ts` | los casos de uso (clases con `ejecutar`) |
+| repositories | `.repository.ts` | lee y escribe las tablas del módulo |
+| repositories | `.queries.ts` | vistas de lectura (pueden juntar tablas de otros módulos, nunca las escriben) |
+| integrations | `.adapter.ts` | cumple un puerto usando otro módulo |
+| integrations | `.gateway.ts` | un servicio externo (Mercado Pago) |
+| controllers | `.controller.ts` `.routes.ts` | la capa HTTP |
+| schemas | `.schema.ts` `.dto.ts` | lo que entra y lo que sale |
 | raíz del módulo | `.module.ts` | arma todo y exporta la fachada |
 | core | `.middleware.ts` `.util.ts` `.config.ts` `.port.ts` `.database.ts` `.error.ts` | lo transversal |
 
@@ -287,7 +293,7 @@ el header `Authorization: Bearer <token>` (dura 8 horas). `GET /api/auth/yo` dev
 | PATCH | `/api/admin/turnos/:id/estado` | Cambia el estado `{ "estado": "completado" }` |
 
 - Los productos **no se borran**: se dan de baja con `activo: false`, porque los pedidos viejos los siguen referenciando.
-- Estados de turno (`src/modules/appointments/domain/estados.model.ts`): `reservado → confirmado → completado`, más
+- Estados de turno (`src/modules/appointments/models/estados.model.ts`): `reservado → confirmado → completado`, más
   `ausente` y `cancelado`. Se puede completar sin confirmar antes. `completado` y `ausente`
   se pueden deshacer (vuelven a `confirmado`); `cancelado` es final porque libera el horario.
   `completado`/`ausente` solo una vez que el turno empezó. Al cancelar, el recordatorio

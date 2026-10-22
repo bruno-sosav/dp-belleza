@@ -12,14 +12,14 @@
 import { unidadDeTrabajoMySql } from "../../core/database/unidadDeTrabajo.database.js"
 import { relojDelSistema } from "../../core/reloj.port.js"
 import type { Transaccion } from "../../core/transaccion.port.js"
-import { CalcularDisponibilidad, CambiarHorario, ConsultarHorario, GestionarBloqueos, VerificarLugar } from "./application/agenda.usecases.js"
-import { ConfiguracionDeReservasDesdeAjustes } from "./infrastructure/configuracionReservas.adapter.js"
-import { MySqlBloqueoRepository } from "./infrastructure/bloqueo.repository.js"
-import { MySqlHorarioRepository } from "./infrastructure/horario.repository.js"
-import { MySqlOcupacionDeAgenda } from "./infrastructure/ocupacion.queries.js"
-import { ServiciosDesdeCatalogo } from "./infrastructure/catalogo.adapter.js"
-import { AgendaController } from "./presentation/controllers/agenda.controller.js"
-import { rutasAgendaPanel, rutasAgendaWeb } from "./presentation/routes/agenda.routes.js"
+import { CalcularDisponibilidad, CambiarHorario, ConsultarHorario, GestionarBloqueos, VerificarLugar } from "./services/agenda.usecases.js"
+import { ConfiguracionDeReservasDesdeAjustes } from "./integrations/configuracionReservas.adapter.js"
+import { MySqlBloqueoRepository } from "./repositories/bloqueo.repository.js"
+import { MySqlHorarioRepository } from "./repositories/horario.repository.js"
+import { MySqlOcupacionDeAgenda } from "./repositories/ocupacion.queries.js"
+import { ServiciosDesdeCatalogo } from "./integrations/catalogo.adapter.js"
+import { AgendaController } from "./controllers/agenda.controller.js"
+import { rutasAgendaPanel, rutasAgendaWeb } from "./controllers/agenda.routes.js"
 import {
   CambiarEstadoTurno,
   CompletarTurno,
@@ -30,20 +30,20 @@ import {
   ReservarTurno,
   VerTurnos,
   type TurnosDeps,
-} from "./application/turnos.usecases.js"
+} from "./services/turnos.usecases.js"
 import {
   cajaDeTurnos,
   clientesDeTurnos,
   configuracionDeTurnos,
   pasarelaMercadoPago,
   serviciosDeTurnos,
-} from "./infrastructure/turnos.adapter.js"
-import { MySqlConsultasDeTurnos } from "./infrastructure/turnos.queries.js"
-import { MySqlTurnoRepository } from "./infrastructure/turno.repository.js"
-import { TurnosController } from "./presentation/controllers/turnos.controller.js"
-import { rutasTurnosPanel, rutasTurnosWeb } from "./presentation/routes/turnos.routes.js"
+} from "./integrations/turnos.adapter.js"
+import { MySqlConsultasDeTurnos } from "./repositories/turnos.queries.js"
+import { MySqlTurnoRepository } from "./repositories/turno.repository.js"
+import { TurnosController } from "./controllers/turnos.controller.js"
+import { rutasTurnosPanel, rutasTurnosWeb } from "./controllers/turnos.routes.js"
 import { pagos } from "../payments/payments.module.js"
-import type { PagoDeSena } from "./domain/sena.model.js"
+import type { PagoDeSena } from "./models/sena.model.js"
 import type { Transaccion as Tx } from "../../core/transaccion.port.js"
 
 const horarios = new MySqlHorarioRepository()

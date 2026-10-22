@@ -19,16 +19,16 @@ import {
   UnirClientes,
   VerFichaCliente,
   type EntradaCliente,
-} from "./application/clientes.usecases.js"
-import { separarNombreCompleto } from "./domain/cliente.model.js"
-import { normalizarTelefono } from "./domain/telefono.model.js"
-import { CodigoAreaDesdeAjustes } from "./infrastructure/codigoArea.adapter.js"
+} from "./services/clientes.usecases.js"
+import { separarNombreCompleto } from "./models/cliente.model.js"
+import { normalizarTelefono } from "./models/telefono.model.js"
+import { CodigoAreaDesdeAjustes } from "./integrations/codigoArea.adapter.js"
 import { ajustes } from "../admin/admin.module.js"
-import { MySqlActividadDeClientes } from "./infrastructure/actividad.queries.js"
-import { MySqlClienteRepository } from "./infrastructure/cliente.repository.js"
-import { MySqlReasignacionDeCliente, type AlUnirFichas } from "./infrastructure/reasignacion.adapter.js"
-import { ClientesController } from "./presentation/controllers/clientes.controller.js"
-import { rutasPanelClientes } from "./presentation/routes/clientes.routes.js"
+import { MySqlActividadDeClientes } from "./repositories/actividad.queries.js"
+import { MySqlClienteRepository } from "./repositories/cliente.repository.js"
+import { MySqlReasignacionDeCliente, type AlUnirFichas } from "./integrations/reasignacion.adapter.js"
+import { ClientesController } from "./controllers/clientes.controller.js"
+import { rutasPanelClientes } from "./controllers/clientes.routes.js"
 
 // Implementaciones concretas
 const repo = new MySqlClienteRepository()

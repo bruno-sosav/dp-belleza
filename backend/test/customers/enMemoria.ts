@@ -6,8 +6,8 @@
  */
 import { conflicto } from "../../src/core/negocio.error.js"
 import type { Transaccion, UnidadDeTrabajo } from "../../src/core/transaccion.port.js"
-import type { Actividad, CambiosCliente, Cliente, DatosCliente } from "../../src/modules/customers/domain/cliente.model.js"
-import type { ActividadDeClientes, ClienteRepository, CodigoAreaDelLocal, ReasignacionDeCliente } from "../../src/modules/customers/domain/clientes.ports.js"
+import type { Actividad, CambiosCliente, Cliente, DatosCliente } from "../../src/modules/customers/models/cliente.model.js"
+import type { ActividadDeClientes, ClienteRepository, CodigoAreaDelLocal, ReasignacionDeCliente } from "../../src/modules/customers/models/clientes.ports.js"
 
 export class ClientesEnMemoria implements ClienteRepository {
   filas = new Map<number, Cliente>()

@@ -10,13 +10,13 @@
 import { relojDelSistema } from "../../core/reloj.port.js"
 import { turnos } from "../appointments/appointments.module.js"
 import { clientes } from "../customers/customers.module.js"
-import { GestionarTipos, MarcarRecordatorio, VerRecordatorios } from "./application/recordatorios.usecases.js"
-import { MySqlConsultasDeRecordatorios } from "./infrastructure/recordatorios.queries.js"
-import { MySqlRegistroRepository } from "./infrastructure/registro.repository.js"
-import { MySqlTipoRepository } from "./infrastructure/tipoRecordatorio.repository.js"
-import { NombreDesdeAjustes } from "./infrastructure/nombreNegocio.adapter.js"
-import { RecordatoriosController } from "./presentation/controllers/recordatorios.controller.js"
-import { rutasPanelRecordatorios } from "./presentation/routes/recordatorios.routes.js"
+import { GestionarTipos, MarcarRecordatorio, VerRecordatorios } from "./services/recordatorios.usecases.js"
+import { MySqlConsultasDeRecordatorios } from "./repositories/recordatorios.queries.js"
+import { MySqlRegistroRepository } from "./repositories/registro.repository.js"
+import { MySqlTipoRepository } from "./repositories/tipoRecordatorio.repository.js"
+import { NombreDesdeAjustes } from "./integrations/nombreNegocio.adapter.js"
+import { RecordatoriosController } from "./controllers/recordatorios.controller.js"
+import { rutasPanelRecordatorios } from "./controllers/recordatorios.routes.js"
 
 const tipos = new MySqlTipoRepository()
 const registros = new MySqlRegistroRepository()

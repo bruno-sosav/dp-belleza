@@ -10,16 +10,16 @@
  *   - ESTADÍSTICAS (`estadisticas`): la serie diaria y los servicios más hechos.
  */
 import { relojDelSistema } from "../../core/reloj.port.js"
-import { GuardarAjustes, LeerAjustes, VerAjustesPublicos, type ConexionConTelefonos } from "./application/ajustes.usecases.js"
-import { VerEstadisticas } from "./application/estadisticas.usecases.js"
-import type { NormalizadorDeTelefono } from "./domain/ajustes.model.js"
-import { MySqlAjustesRepository } from "./infrastructure/ajustes.repository.js"
-import { MySqlConsultasDeEstadisticas } from "./infrastructure/estadisticas.queries.js"
-import { mercadoPagoDelLocal } from "./infrastructure/mercadoPago.adapter.js"
-import { AjustesController } from "./presentation/controllers/ajustes.controller.js"
-import { EstadisticasController } from "./presentation/controllers/estadisticas.controller.js"
-import { rutasAjustesPanel, rutasAjustesWeb } from "./presentation/routes/ajustes.routes.js"
-import { rutasEstadisticasPanel } from "./presentation/routes/estadisticas.routes.js"
+import { GuardarAjustes, LeerAjustes, VerAjustesPublicos, type ConexionConTelefonos } from "./services/ajustes.usecases.js"
+import { VerEstadisticas } from "./services/estadisticas.usecases.js"
+import type { NormalizadorDeTelefono } from "./models/ajustes.model.js"
+import { MySqlAjustesRepository } from "./repositories/ajustes.repository.js"
+import { MySqlConsultasDeEstadisticas } from "./repositories/estadisticas.queries.js"
+import { mercadoPagoDelLocal } from "./integrations/mercadoPago.adapter.js"
+import { AjustesController } from "./controllers/ajustes.controller.js"
+import { EstadisticasController } from "./controllers/estadisticas.controller.js"
+import { rutasAjustesPanel, rutasAjustesWeb } from "./controllers/ajustes.routes.js"
+import { rutasEstadisticasPanel } from "./controllers/estadisticas.routes.js"
 
 const repo = new MySqlAjustesRepository()
 const telefonos: ConexionConTelefonos = { normalizar: null }

@@ -10,17 +10,17 @@
 import { unidadDeTrabajoMySql } from "../../core/database/unidadDeTrabajo.database.js"
 import { relojDelSistema } from "../../core/reloj.port.js"
 import type { Transaccion } from "../../core/transaccion.port.js"
-import { AnotarCobro, BorrarCobro, CobrosDeTurnos, VerCaja, type ConexionConTurnos } from "./application/caja.usecases.js"
-import { CobrarConMercadoPago, ConfigurarMercadoPago, RecibirAvisoDePago } from "./application/mercadoPago.usecases.js"
-import type { MedioPago } from "./domain/cobro.model.js"
-import type { PasarelaDePago, TurnosDeLaCaja } from "./domain/pagos.ports.js"
-import { MercadoPagoApi } from "./infrastructure/mercadoPago.gateway.js"
-import { MySqlCobroRepository } from "./infrastructure/cobro.repository.js"
-import { MySqlConsultasDeCaja } from "./infrastructure/caja.queries.js"
-import { MySqlCuentaRepository } from "./infrastructure/cuentaMercadoPago.repository.js"
-import { MySqlPagosRecibidos } from "./infrastructure/pagoRecibido.repository.js"
-import { PagosController } from "./presentation/controllers/pagos.controller.js"
-import { rutasPagosPanel, rutasPagosWeb } from "./presentation/routes/pagos.routes.js"
+import { AnotarCobro, BorrarCobro, CobrosDeTurnos, VerCaja, type ConexionConTurnos } from "./services/caja.usecases.js"
+import { CobrarConMercadoPago, ConfigurarMercadoPago, RecibirAvisoDePago } from "./services/mercadoPago.usecases.js"
+import type { MedioPago } from "./models/cobro.model.js"
+import type { PasarelaDePago, TurnosDeLaCaja } from "./models/pagos.ports.js"
+import { MercadoPagoApi } from "./integrations/mercadoPago.gateway.js"
+import { MySqlCobroRepository } from "./repositories/cobro.repository.js"
+import { MySqlConsultasDeCaja } from "./repositories/caja.queries.js"
+import { MySqlCuentaRepository } from "./repositories/cuentaMercadoPago.repository.js"
+import { MySqlPagosRecibidos } from "./repositories/pagoRecibido.repository.js"
+import { PagosController } from "./controllers/pagos.controller.js"
+import { rutasPagosPanel, rutasPagosWeb } from "./controllers/pagos.routes.js"
 
 const cobros = new MySqlCobroRepository()
 const cuentas = new MySqlCuentaRepository()
@@ -68,5 +68,5 @@ export const pagos = {
   consultarPago: (id: string | number) => mercadoPago.consultarPago(id),
 }
 
-export type { PagoRecibido } from "./domain/mercadoPago.model.js"
-export type { MedioPago } from "./domain/cobro.model.js"
+export type { PagoRecibido } from "./models/mercadoPago.model.js"
+export type { MedioPago } from "./models/cobro.model.js"

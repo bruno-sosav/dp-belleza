@@ -9,7 +9,7 @@ import {
   ListarClientes,
   NormalizarTelefono,
   UnirClientes,
-} from "../../src/modules/customers/application/clientes.usecases.js"
+} from "../../src/modules/customers/services/clientes.usecases.js"
 import { ActividadFija, ClientesEnMemoria, codigoArea223, ReasignacionAnotada, tx, unidadEnMemoria } from "./enMemoria.js"
 
 let repo: ClientesEnMemoria

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { codigoAreaValido, comoNumero } from "../../src/modules/admin/domain/ajustes.model.js"
-import { rango, serieDiaria } from "../../src/modules/admin/domain/estadisticas.model.js"
+import { codigoAreaValido, comoNumero } from "../../src/modules/admin/models/ajustes.model.js"
+import { rango, serieDiaria } from "../../src/modules/admin/models/estadisticas.model.js"
 
 describe("ajustes", () => {
   it("un número mal cargado o vacío usa el valor por defecto", () => {

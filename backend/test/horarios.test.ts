@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { entraEnHorario, problemaEnFranjas } from "../src/modules/appointments/domain/horario.model.js"
-import { problemaDeAnticipacion } from "../src/modules/appointments/domain/reglasReserva.model.js"
+import { entraEnHorario, problemaEnFranjas } from "../src/modules/appointments/models/horario.model.js"
+import { problemaDeAnticipacion } from "../src/modules/appointments/models/reglasReserva.model.js"
 
 describe("problemaEnFranjas", () => {
   it("acepta un horario normal, con un día cortado al mediodía", () => {

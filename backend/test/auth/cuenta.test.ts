@@ -1,9 +1,9 @@
 /** Login y "Tu cuenta" con repositorio, contraseñas y sesiones en memoria. */
 import { beforeEach, describe, expect, it } from "vitest"
-import { CambiarContrasena, EditarCuenta, GuardarAdmin } from "../../src/modules/auth/application/cuenta.usecases.js"
-import { IniciarSesion } from "../../src/modules/auth/application/sesion.usecases.js"
-import type { Contrasenas, Sesiones, UsuariosRepository } from "../../src/modules/auth/domain/auth.ports.js"
-import { cambiaElEmail, problemaDeContrasena, type Usuario } from "../../src/modules/auth/domain/usuario.model.js"
+import { CambiarContrasena, EditarCuenta, GuardarAdmin } from "../../src/modules/auth/services/cuenta.usecases.js"
+import { IniciarSesion } from "../../src/modules/auth/services/sesion.usecases.js"
+import type { Contrasenas, Sesiones, UsuariosRepository } from "../../src/modules/auth/models/auth.ports.js"
+import { cambiaElEmail, problemaDeContrasena, type Usuario } from "../../src/modules/auth/models/usuario.model.js"
 
 // "Hash" de mentira: alcanza para saber qué clave quedó guardada.
 const contrasenas: Contrasenas = { hashear: async (c) => `h:${c}`, coincide: async (c, h) => h === `h:${c}` }
