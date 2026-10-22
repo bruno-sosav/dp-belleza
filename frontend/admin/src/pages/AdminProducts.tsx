@@ -2,7 +2,7 @@ import { useMemo, useState } from "react"
 import { Link, useLocation } from "react-router-dom"
 import { setProductActive, useAllProducts } from "../data/productStore"
 import { formatPrice } from "@dp/shared/lib/format"
-import { cardClass, inputClass, primaryButtonClass } from "../lib/styles"
+import { cardClass, inputClass, primaryButtonClass } from "../shared/lib/styles"
 
 type Filter = "active" | "inactive" | "all"
 

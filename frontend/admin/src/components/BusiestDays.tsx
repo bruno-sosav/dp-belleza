@@ -1,7 +1,7 @@
-import type { DayMetric, DayStats } from "../lib/stats"
-import { busiestDays, metricLabels } from "../lib/stats"
-import { formatShortDate } from "../lib/format"
-import { chartColors, heatLevel } from "./charts/theme"
+import type { DayMetric, DayStats } from "../shared/lib/stats"
+import { busiestDays, metricLabels } from "../shared/lib/stats"
+import { formatShortDate } from "../shared/lib/format"
+import { chartColors, heatLevel } from "../shared/components/charts/theme"
 
 /** Top de días más movidos del período. Al tocar uno se selecciona en el calendario. */
 export default function BusiestDays({

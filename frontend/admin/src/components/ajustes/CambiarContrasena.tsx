@@ -1,8 +1,8 @@
 import { useState } from "react"
 import type { FormEvent } from "react"
-import Panel from "../Panel"
-import { ApiError } from "../../lib/api"
-import { inputClass, labelClass, primaryButtonClass } from "../../lib/styles"
+import Panel from "../../shared/components/Panel"
+import { ApiError } from "../../shared/lib/api"
+import { inputClass, labelClass, primaryButtonClass } from "../../shared/lib/styles"
 import { cambiarContrasena } from "../../data/cuenta"
 
 const campo = `${inputClass} py-3 text-base`

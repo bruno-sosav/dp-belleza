@@ -1,6 +1,6 @@
 import { useState } from "react"
 import FormCobro from "./FormCobro"
-import { inputClass, labelClass, primaryButtonClass } from "../../lib/styles"
+import { inputClass, labelClass, primaryButtonClass } from "../../shared/lib/styles"
 import { registrarCobro } from "../../data/caja"
 
 /**

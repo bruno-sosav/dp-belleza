@@ -2,7 +2,7 @@ import { useState } from "react"
 import type { FormEvent } from "react"
 import { iniciarSesion } from "../lib/auth"
 import type { Usuario } from "../lib/auth"
-import { cardClass, inputClass, labelClass, primaryButtonClass } from "../lib/styles"
+import { cardClass, inputClass, labelClass, primaryButtonClass } from "../shared/lib/styles"
 
 export default function AdminLogin({ onSuccess }: { onSuccess: (usuario: Usuario) => void }) {
   const [email, setEmail] = useState("")

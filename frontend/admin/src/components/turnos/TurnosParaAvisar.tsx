@@ -1,5 +1,5 @@
 import BotonWhatsApp from "./BotonWhatsApp"
-import { formatLongDate } from "../../lib/format"
+import { formatLongDate } from "../../shared/lib/format"
 import { nombreCliente } from "../../data/turnos"
 import type { TurnoParaAvisar } from "../../data/horarios"
 

@@ -6,8 +6,8 @@
  * el backend rechaza un cambio, el error llega como ApiError con su mensaje.
  */
 import { useCallback, useState } from "react"
-import { api } from "../lib/api"
-import { useApi } from "../lib/useApi"
+import { api } from "../shared/lib/api"
+import { useApi } from "../shared/lib/useApi"
 import type { MedioPago } from "../lib/medios"
 import { registrarCobro } from "./caja"
 

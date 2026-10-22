@@ -3,8 +3,8 @@
  * pago. Completar un turno cobrando está en data/turnos.ts (completarTurno).
  */
 import { useCallback } from "react"
-import { api } from "../lib/api"
-import { useApi } from "../lib/useApi"
+import { api } from "../shared/lib/api"
+import { useApi } from "../shared/lib/useApi"
 import type { MedioPago } from "../lib/medios"
 
 export type Cobro = {

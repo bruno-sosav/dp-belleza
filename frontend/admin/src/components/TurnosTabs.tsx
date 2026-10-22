@@ -1,4 +1,4 @@
-import Pestanas from "./Pestanas"
+import Pestanas from "../shared/components/Pestanas"
 
 /** Turnos: la agenda, el horario de todas las semanas, los días que no se atiende y las reglas de la web. */
 export default function TurnosTabs() {

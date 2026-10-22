@@ -8,8 +8,8 @@
  */
 import { useCallback } from "react"
 import type { Service } from "@dp/shared/data/services"
-import { api } from "../lib/api"
-import { useApi } from "../lib/useApi"
+import { api } from "../shared/lib/api"
+import { useApi } from "../shared/lib/useApi"
 
 export type HorarioLibre = { time: string; available: boolean }
 

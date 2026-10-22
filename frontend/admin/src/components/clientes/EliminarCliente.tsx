@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { ApiError } from "../../lib/api"
-import { secondaryButtonClass } from "../../lib/styles"
+import { ApiError } from "../../shared/lib/api"
+import { secondaryButtonClass } from "../../shared/lib/styles"
 import { eliminarCliente } from "../../data/clientes"
 
 /**

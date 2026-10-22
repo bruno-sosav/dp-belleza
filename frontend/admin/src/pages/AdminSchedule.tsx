@@ -1,8 +1,8 @@
-import PageHeader from "../components/PageHeader"
-import Panel from "../components/Panel"
+import PageHeader from "../shared/components/PageHeader"
+import Panel from "../shared/components/Panel"
 import TurnosTabs from "../components/TurnosTabs"
 import EditorHorario from "../components/agenda/EditorHorario"
-import { Cargando, ErrorCarga } from "../components/EstadoCarga"
+import { Cargando, ErrorCarga } from "../shared/components/EstadoCarga"
 import { useHorarios } from "../data/horarios"
 
 /**

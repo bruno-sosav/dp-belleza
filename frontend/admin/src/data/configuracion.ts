@@ -3,8 +3,8 @@
  * están en backend/src/admin/configuracion.ts.
  */
 import { useCallback } from "react"
-import { api } from "../lib/api"
-import { useApi } from "../lib/useApi"
+import { api } from "../shared/lib/api"
+import { useApi } from "../shared/lib/useApi"
 
 /** Todo llega como texto (la tabla es clave/valor). */
 export type Configuracion = {

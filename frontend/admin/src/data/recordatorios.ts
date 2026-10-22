@@ -6,8 +6,8 @@
  * abre WhatsApp con ese texto y se registra que se mandó.
  */
 import { useCallback } from "react"
-import { api } from "../lib/api"
-import { useApi } from "../lib/useApi"
+import { api } from "../shared/lib/api"
+import { useApi } from "../shared/lib/useApi"
 
 /**
  * Desde dónde se cuenta:

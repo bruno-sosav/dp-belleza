@@ -1,9 +1,9 @@
 import { useState } from "react"
-import Panel from "../Panel"
+import Panel from "../../shared/components/Panel"
 import DayDetail from "../DayDetail"
 import BusiestDays from "../BusiestDays"
-import CalendarHeatmap from "../charts/CalendarHeatmap"
-import type { DayMetric, DayStats } from "../../lib/stats"
+import CalendarHeatmap from "../../shared/components/charts/CalendarHeatmap"
+import type { DayMetric, DayStats } from "../../shared/lib/stats"
 
 const opciones: { metrica: DayMetric; label: string; descripcion: string }[] = [
   { metrica: "total", label: "💰 Por plata", descripcion: "Cuanto más rojo, más se ganó ese día." },

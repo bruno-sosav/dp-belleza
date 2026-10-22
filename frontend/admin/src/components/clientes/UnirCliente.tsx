@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
-import { ApiError } from "../../lib/api"
-import { formatTelefono } from "../../lib/format"
-import { inputClass, primaryButtonClass, secondaryButtonClass } from "../../lib/styles"
+import { ApiError } from "../../shared/lib/api"
+import { formatTelefono } from "../../shared/lib/format"
+import { inputClass, primaryButtonClass, secondaryButtonClass } from "../../shared/lib/styles"
 import { nombreCompleto, unirClientes, useClientes, usePosiblesDuplicados } from "../../data/clientes"
 import type { FichaCorta } from "../../data/clientes"
 

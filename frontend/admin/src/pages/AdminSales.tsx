@@ -1,6 +1,6 @@
-import PageHeader from "../components/PageHeader"
-import Panel from "../components/Panel"
-import { Pendiente } from "../components/EstadoCarga"
+import PageHeader from "../shared/components/PageHeader"
+import Panel from "../shared/components/Panel"
+import { Pendiente } from "../shared/components/EstadoCarga"
 
 /**
  * Ventas de la tienda — PENDIENTE DE CONECTAR (módulo de ecommerce).

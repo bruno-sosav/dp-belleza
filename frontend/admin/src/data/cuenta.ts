@@ -1,7 +1,7 @@
 /** Ajustes → Tu cuenta: /api/admin/cuenta. */
 import { useCallback } from "react"
-import { api } from "../lib/api"
-import { useApi } from "../lib/useApi"
+import { api } from "../shared/lib/api"
+import { useApi } from "../shared/lib/useApi"
 import type { Usuario } from "../lib/auth"
 
 export function useCuenta() {

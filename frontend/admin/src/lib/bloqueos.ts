@@ -4,8 +4,8 @@
  */
 import type { Bloqueo } from "../data/horarios"
 import { aMinutos } from "./agenda"
-import { sumarDias } from "./fechas"
-import { formatLongDate } from "./format"
+import { sumarDias } from "../shared/lib/fechas"
+import { formatLongDate } from "../shared/lib/format"
 
 const fecha = (fh: string) => fh.slice(0, 10)
 const hora = (fh: string) => fh.slice(11, 16)

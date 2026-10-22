@@ -1,8 +1,8 @@
 import { useEffect } from "react"
 import { Link } from "react-router-dom"
 import TurnoFila from "../turnos/TurnoFila"
-import { formatLongDate } from "../../lib/format"
-import type { Ahora } from "../../lib/useAhora"
+import { formatLongDate } from "../../shared/lib/format"
+import type { Ahora } from "../../shared/lib/useAhora"
 import type { EstadoTurno, Turno } from "../../data/turnos"
 import type { MedioPago } from "../../lib/medios"
 

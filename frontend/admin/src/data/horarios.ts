@@ -5,8 +5,8 @@
  * se guarda y los bloqueos se manejan por /api/admin (ver backend/src/modules/appointments).
  */
 import { useCallback } from "react"
-import { api } from "../lib/api"
-import { useApi } from "../lib/useApi"
+import { api } from "../shared/lib/api"
+import { useApi } from "../shared/lib/useApi"
 /**
  * Un turno que quedó afuera de un cambio de horario o de un día cerrado: lo
  * que hace falta para avisarle a la clienta (el DTO aTurnoParaAvisar del backend).

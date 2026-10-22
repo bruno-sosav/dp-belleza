@@ -1,4 +1,4 @@
-import PageHeader from "../components/PageHeader"
+import PageHeader from "../shared/components/PageHeader"
 import AjustesTabs from "../components/AjustesTabs"
 import PanelMercadoPago from "../components/PanelMercadoPago"
 import SenaTurnos from "../components/ajustes/SenaTurnos"

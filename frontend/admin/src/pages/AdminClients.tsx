@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
-import PageHeader from "../components/PageHeader"
-import Panel from "../components/Panel"
+import PageHeader from "../shared/components/PageHeader"
+import Panel from "../shared/components/Panel"
 import BotonWhatsApp from "../components/turnos/BotonWhatsApp"
 import FormularioCliente from "../components/clientes/FormularioCliente"
-import { Cargando, ErrorCarga } from "../components/EstadoCarga"
-import { formatDayMonth, formatTelefono } from "../lib/format"
-import { inputClass, primaryButtonClass } from "../lib/styles"
+import { Cargando, ErrorCarga } from "../shared/components/EstadoCarga"
+import { formatDayMonth, formatTelefono } from "../shared/lib/format"
+import { inputClass, primaryButtonClass } from "../shared/lib/styles"
 import { nombreCompleto, useClientes } from "../data/clientes"
 
 /** Espera a que termine de escribir antes de buscar: un pedido por búsqueda, no por letra. */

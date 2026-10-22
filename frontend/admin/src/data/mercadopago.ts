@@ -5,8 +5,8 @@
  * el modo y los últimos 4 caracteres del token.
  */
 import { useCallback } from "react"
-import { api } from "../lib/api"
-import { useApi } from "../lib/useApi"
+import { api } from "../shared/lib/api"
+import { useApi } from "../shared/lib/useApi"
 
 export type EstadoMercadoPago =
   | { configurada: false }

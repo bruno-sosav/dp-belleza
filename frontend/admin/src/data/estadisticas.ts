@@ -6,9 +6,9 @@
  * (`history.ts`) y los promedios se sacaban en el cliente.
  */
 import { useCallback } from "react"
-import { api } from "../lib/api"
-import { useApi } from "../lib/useApi"
-import type { DayStats, Period } from "../lib/stats"
+import { api } from "../shared/lib/api"
+import { useApi } from "../shared/lib/useApi"
+import type { DayStats, Period } from "../shared/lib/stats"
 
 export type RankingApi = { id: number; name: string; count: number; revenue: number }
 

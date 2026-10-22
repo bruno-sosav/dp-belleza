@@ -1,10 +1,10 @@
 import { useState } from "react"
 import type { FormEvent } from "react"
 import { formatPrice } from "@dp/shared/lib/format"
-import { ApiError } from "../../lib/api"
+import { ApiError } from "../../shared/lib/api"
 import { MEDIOS } from "../../lib/medios"
 import type { MedioPago } from "../../lib/medios"
-import { inputClass, labelClass, primaryButtonClass, secondaryButtonClass } from "../../lib/styles"
+import { inputClass, labelClass, primaryButtonClass, secondaryButtonClass } from "../../shared/lib/styles"
 
 /**
  * "¿Cuánto cobraste y cómo?". Lo usan ✅ Completado (en cada turno) y la caja.

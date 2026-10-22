@@ -1,6 +1,6 @@
 import { useState } from "react"
-import { ApiError } from "../../lib/api"
-import { inputClass, primaryButtonClass } from "../../lib/styles"
+import { ApiError } from "../../shared/lib/api"
+import { inputClass, primaryButtonClass } from "../../shared/lib/styles"
 import { actualizarCliente } from "../../data/clientes"
 
 /**

@@ -4,8 +4,8 @@ import { Link, NavLink, Outlet } from "react-router-dom"
 import AdminLogin from "../pages/AdminLogin"
 import { cerrarSesion, EVENTO_SESION, haySesion, usuarioActual } from "../lib/auth"
 import type { Usuario } from "../lib/auth"
-import type { Period } from "../lib/stats"
-import type { AdminOutletContext } from "../lib/usePeriod"
+import type { Period } from "../shared/lib/stats"
+import type { AdminOutletContext } from "../shared/lib/usePeriod"
 
 const icon = (d: ReactNode) => (
   <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

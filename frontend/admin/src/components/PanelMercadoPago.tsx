@@ -1,9 +1,9 @@
 import { useState } from "react"
 import type { FormEvent } from "react"
-import Panel from "./Panel"
-import { Cargando, ErrorCarga } from "./EstadoCarga"
-import { ApiError } from "../lib/api"
-import { inputClass, labelClass, primaryButtonClass, secondaryButtonClass } from "../lib/styles"
+import Panel from "../shared/components/Panel"
+import { Cargando, ErrorCarga } from "../shared/components/EstadoCarga"
+import { ApiError } from "../shared/lib/api"
+import { inputClass, labelClass, primaryButtonClass, secondaryButtonClass } from "../shared/lib/styles"
 import { desconectar, guardarCredenciales, probarConexion } from "../data/mercadopago"
 import type { useMercadoPago } from "../data/mercadopago"
 

@@ -1,4 +1,4 @@
-import Pestanas from "./Pestanas"
+import Pestanas from "../shared/components/Pestanas"
 
 /** Recordatorios: a quién hay que mandarle hoy, y qué mensajes hay configurados. */
 export default function RecordatoriosTabs() {

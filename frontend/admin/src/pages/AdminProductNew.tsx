@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom"
 import { categories, productBadges } from "@dp/shared/data/products"
 import type { Product } from "@dp/shared/data/products"
 import { addProduct } from "../data/productStore"
-import { cardClass, inputClass, labelClass, primaryButtonClass, secondaryButtonClass } from "../lib/styles"
+import { cardClass, inputClass, labelClass, primaryButtonClass, secondaryButtonClass } from "../shared/lib/styles"
 
 type FormState = {
   name: string

@@ -1,8 +1,8 @@
 import { useState } from "react"
 import type { FormEvent } from "react"
-import { ApiError } from "../../lib/api"
-import { formatTelefono, nombresMeses } from "../../lib/format"
-import { inputClass, labelClass, primaryButtonClass, secondaryButtonClass } from "../../lib/styles"
+import { ApiError } from "../../shared/lib/api"
+import { formatTelefono, nombresMeses } from "../../shared/lib/format"
+import { inputClass, labelClass, primaryButtonClass, secondaryButtonClass } from "../../shared/lib/styles"
 import { actualizarCliente, crearCliente } from "../../data/clientes"
 import type { Cliente } from "../../data/clientes"
 

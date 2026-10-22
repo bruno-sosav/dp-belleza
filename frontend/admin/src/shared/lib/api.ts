@@ -9,7 +9,7 @@
  * ({ error, detalle? }), así que acá se traduce una sola vez a una excepción y
  * las pantallas no tienen que mirar `response.ok`.
  */
-import { leerToken, cerrarSesion } from "./auth"
+import { leerToken, cerrarSesion } from "../../lib/auth"
 
 const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3000"
 

@@ -1,10 +1,10 @@
 import { useState } from "react"
 import type { FormEvent } from "react"
-import Panel from "../Panel"
-import { Cargando, ErrorCarga } from "../EstadoCarga"
-import { ApiError } from "../../lib/api"
+import Panel from "../../shared/components/Panel"
+import { Cargando, ErrorCarga } from "../../shared/components/EstadoCarga"
+import { ApiError } from "../../shared/lib/api"
 import { actualizarSesion } from "../../lib/auth"
-import { inputClass, labelClass, primaryButtonClass } from "../../lib/styles"
+import { inputClass, labelClass, primaryButtonClass } from "../../shared/lib/styles"
 import { guardarCuenta, useCuenta } from "../../data/cuenta"
 
 const campo = `${inputClass} py-3 text-base`

@@ -1,4 +1,4 @@
-import Pestanas from "./Pestanas"
+import Pestanas from "../shared/components/Pestanas"
 
 /** Finanzas: la caja de cada día (lo principal) y el análisis del negocio. */
 export default function FinanzasTabs() {

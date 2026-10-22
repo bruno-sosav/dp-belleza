@@ -1,5 +1,5 @@
-import IconoWhatsApp from "../IconoWhatsApp"
-import { whatsappCliente } from "../../lib/whatsapp"
+import IconoWhatsApp from "../../shared/components/IconoWhatsApp"
+import { whatsappCliente } from "../../shared/lib/whatsapp"
 
 /** Botón redondo verde que abre el chat con la clienta. Mismo tamaño que los botones de acción, para tocarlo fácil. */
 export default function BotonWhatsApp({ telefono, nombre, mensaje }: { telefono: string; nombre: string; mensaje?: string }) {

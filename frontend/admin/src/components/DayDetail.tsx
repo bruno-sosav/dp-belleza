@@ -1,9 +1,9 @@
 import { formatPrice } from "@dp/shared/lib/format"
-import type { DayMetric, DayStats } from "../lib/stats"
-import { metricLabels, rankOfDay, sameDayLastWeek } from "../lib/stats"
+import type { DayMetric, DayStats } from "../shared/lib/stats"
+import { metricLabels, rankOfDay, sameDayLastWeek } from "../shared/lib/stats"
 import { useServiciosDelDia } from "../data/estadisticas"
-import { formatLongDate, formatShortDate, weekdayName } from "../lib/format"
-import { chartColors } from "./charts/theme"
+import { formatLongDate, formatShortDate, weekdayName } from "../shared/lib/format"
+import { chartColors } from "../shared/components/charts/theme"
 
 /**
  * Detalle de un día elegido en el calendario: cuánto se hizo, en qué puesto quedó

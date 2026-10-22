@@ -7,8 +7,8 @@
  * sección; acá solo se avisa que hay pedidos esperando.
  */
 import { useCallback } from "react"
-import { api } from "../lib/api"
-import { useApi } from "../lib/useApi"
+import { api } from "../shared/lib/api"
+import { useApi } from "../shared/lib/useApi"
 
 export type PedidoResumen = {
   id: number

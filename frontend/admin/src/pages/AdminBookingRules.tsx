@@ -1,4 +1,4 @@
-import PageHeader from "../components/PageHeader"
+import PageHeader from "../shared/components/PageHeader"
 import TurnosTabs from "../components/TurnosTabs"
 import IntervaloTurnos from "../components/agenda/IntervaloTurnos"
 import CancelacionWeb from "../components/agenda/CancelacionWeb"

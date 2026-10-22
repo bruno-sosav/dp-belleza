@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { formatPrice } from "@dp/shared/lib/format"
-import { ApiError } from "../../lib/api"
+import { ApiError } from "../../shared/lib/api"
 import { etiquetaMedio } from "../../lib/medios"
 import { borrarCobro } from "../../data/caja"
 import type { Cobro } from "../../data/caja"

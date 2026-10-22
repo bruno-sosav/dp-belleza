@@ -1,9 +1,9 @@
 import { useState } from "react"
 import { formatPrice } from "@dp/shared/lib/format"
-import Panel from "../Panel"
-import { Cargando, ErrorCarga } from "../EstadoCarga"
-import { ApiError } from "../../lib/api"
-import { inputClass, labelClass, primaryButtonClass } from "../../lib/styles"
+import Panel from "../../shared/components/Panel"
+import { Cargando, ErrorCarga } from "../../shared/components/EstadoCarga"
+import { ApiError } from "../../shared/lib/api"
+import { inputClass, labelClass, primaryButtonClass } from "../../shared/lib/styles"
 import { guardarConfiguracion, useConfiguracion } from "../../data/configuracion"
 
 const opciones = [0, 10, 20, 30, 40, 50, 100]
