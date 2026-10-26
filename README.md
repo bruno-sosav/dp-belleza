@@ -29,7 +29,19 @@ npm run dev:admin    # panel        -> http://localhost:5174
 
 npm test             # tests del backend
 npm run build        # typecheck + build de las dos apps
+npm run lint         # análisis estático (oxlint)
 ```
+
+### Reportes
+
+```bash
+npm run cobertura    # tests unitarios + integración con cobertura -> backend/coverage/todo/index.html
+npm run complejidad  # complejidad ciclomática por función         -> reportes/complejidad.html
+```
+
+La cobertura necesita la base levantada (corre los tests de integración). La
+complejidad usa [lizard](https://github.com/terryyin/lizard), que es de Python:
+`pip3 install lizard jinja2`. Los reportes no se suben al repo.
 
 ## Arquitectura del backend
 

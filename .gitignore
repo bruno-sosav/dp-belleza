@@ -5,3 +5,7 @@ dist
 # Variables de entorno locales (contraseña del panel, etc.)
 .env.local
 .env.*.local
+
+# Reportes generados (cobertura, complejidad, e2e)
+coverage/
+reportes/

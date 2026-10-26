@@ -15,7 +15,9 @@
     "build": "npm run build -w @dp/cliente && npm run build -w @dp/admin",
     "lint": "oxlint",
     "dev:api": "npm run dev -w @dp/backend",
-    "test": "npm run test -w @dp/backend"
+    "test": "npm run test -w @dp/backend",
+    "cobertura": "npm run cobertura:completa -w @dp/backend",
+    "complejidad": "mkdir -p reportes && python3 -m lizard -l typescript -l tsx backend/src frontend/admin/src frontend/cliente/src frontend/shared -x '*/node_modules/*' -o reportes/complejidad.html -i 999 && python3 -m lizard -l typescript -l tsx backend/src frontend/admin/src frontend/cliente/src frontend/shared -x '*/node_modules/*' -w -C 15 -i 999"
   },
   "dependencies": {
     "react": "^19.2.8",
