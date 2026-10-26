@@ -1,5 +1,7 @@
 # dp-belleza
 
+[![CI](https://github.com/bruno-sosav/dp-belleza/actions/workflows/ci.yml/badge.svg)](https://github.com/bruno-sosav/dp-belleza/actions/workflows/ci.yml)
+
 Sistema para la estética **Dp.belleza**: una web pública (turnos y tienda online)
 y un panel para que la dueña maneje el local (agenda, clientas, caja, recordatorios).
 
@@ -42,6 +44,20 @@ npm run complejidad  # complejidad ciclomática por función         -> reportes
 La cobertura necesita la base levantada (corre los tests de integración). La
 complejidad usa [lizard](https://github.com/terryyin/lizard), que es de Python:
 `pip3 install lizard jinja2`. Los reportes no se suben al repo.
+
+### CI
+
+Cada push y cada PR a `main` corre [GitHub Actions](.github/workflows/ci.yml)
+con tres trabajos:
+
+| Trabajo | Qué hace |
+|---|---|
+| Calidad | lint, tipos del backend, build de las dos apps y tests unitarios |
+| Cobertura | levanta MySQL, corre migraciones y seeds, tests unitarios + integración con cobertura |
+| Complejidad | reporte de complejidad ciclomática |
+
+Si algo falla, el push queda marcado en rojo. Los reportes quedan para
+descargar en cada corrida (pestaña *Actions* → la corrida → *Artifacts*).
 
 ## Arquitectura del backend
 

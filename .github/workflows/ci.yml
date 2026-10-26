@@ -1,0 +1,117 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Un push nuevo a la misma rama cancela la corrida anterior.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  calidad:
+    name: Lint, tipos, build y tests unitarios
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Análisis estático (oxlint)
+        run: npm run lint
+      - name: Tipos del backend
+        run: npm run typecheck -w @dp/backend
+      - name: Tipos y build de la web y el panel
+        run: npm run build
+      - name: Tests unitarios
+        run: npm test
+
+  cobertura:
+    name: Tests de integración y cobertura
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports: ["3306:3306"]
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+    env:
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_USER: dp_app
+      DB_PASSWORD: dp_app_local
+      DB_NAME: dp_belleza
+      JWT_SECRET: secreto-solo-para-el-ci-no-se-usa-en-ningun-lado
+      TEST_ADMIN_EMAIL: ci@dpbelleza.test
+      TEST_ADMIN_PASSWORD: clave-del-ci-2026
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Preparar la base (usuarios, migraciones y seeds)
+        run: |
+          # En el CI MySQL corre en un contenedor: los usuarios entran por red, no por localhost.
+          sed "s/'@'localhost'/'@'%'/g" database/setup.sql | mysql -h 127.0.0.1 -u root -proot
+          for f in $(ls database/migrations/*.sql | sort -V) database/seeds/seed_01_servicios.sql \
+                   database/seeds/seed_02_horarios.sql database/seeds/ecommerce-datos-ejemplo.sql \
+                   database/seeds/seed_03_turnos_demo.sql database/seeds/seed_04_turnos_proximos.sql; do
+            echo "→ $f"
+            mysql -h 127.0.0.1 -u dp_dev -pdp_dev_local dp_belleza < "$f"
+          done
+      - name: Usuaria del panel para los tests
+        run: npm run crear-admin -w @dp/backend -- "CI" "$TEST_ADMIN_EMAIL" "$TEST_ADMIN_PASSWORD"
+      - name: Tests unitarios + integración con cobertura
+        run: npm run cobertura
+      - name: Resumen de cobertura
+        if: always()
+        run: |
+          python3 - <<'EOF' >> "$GITHUB_STEP_SUMMARY"
+          import json, os
+          p = "backend/coverage/todo/coverage-summary.json"
+          if not os.path.exists(p):
+              print("No se generó el reporte de cobertura."); raise SystemExit
+          t = json.load(open(p))["total"]
+          print("## Cobertura del backend\n\n| | % | cubiertas / total |\n|---|---|---|")
+          for k, nombre in [("lines", "Líneas"), ("statements", "Sentencias"), ("branches", "Ramas"), ("functions", "Funciones")]:
+              print(f"| {nombre} | {t[k]['pct']}% | {t[k]['covered']} / {t[k]['total']} |")
+          EOF
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reporte-cobertura
+          path: backend/coverage/todo/
+
+  complejidad:
+    name: Complejidad ciclomática
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install lizard jinja2
+      - name: Reporte de complejidad
+        run: npm run complejidad
+      - name: Resumen de complejidad
+        run: |
+          {
+            echo "## Funciones con complejidad mayor a 15"
+            echo '```'
+            python3 -m lizard -l typescript -l tsx backend/src frontend/admin/src frontend/cliente/src frontend/shared -w -C 15 -i 999
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: reporte-complejidad
+          path: reportes/
