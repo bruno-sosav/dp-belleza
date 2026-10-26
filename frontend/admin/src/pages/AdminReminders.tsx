@@ -9,7 +9,7 @@ import { formatCumple, formatLongDate } from "../shared/lib/format"
 import { secondaryButtonClass } from "../shared/lib/styles"
 import { useAhora } from "../shared/lib/useAhora"
 import { whatsappCliente } from "../shared/lib/whatsapp"
-import { nombreCompleto } from "../data/clientes"
+import { nombreCompleto } from "../features/customers/api/clientes.api"
 import { deshacerAviso, registrarAviso, useRecordatorios } from "../data/recordatorios"
 import type { AvisoParaMandar } from "../data/recordatorios"
 

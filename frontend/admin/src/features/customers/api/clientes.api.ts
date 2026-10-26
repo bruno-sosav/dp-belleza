@@ -5,9 +5,9 @@
  * por teléfono), así que la ficha trae los dos historiales.
  */
 import { useCallback } from "react"
-import { api } from "../shared/lib/api"
-import { useApi } from "../shared/lib/useApi"
-import type { EstadoTurno } from "./turnos"
+import { api } from "../../../shared/lib/api"
+import { useApi } from "../../../shared/lib/useApi"
+import type { EstadoTurno } from "../../../data/turnos"
 
 /**
  * Los tipos de acá son exactamente lo que devuelve el backend (los DTOs de

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react"
-import { ApiError } from "../../shared/lib/api"
-import { formatTelefono } from "../../shared/lib/format"
-import { inputClass, primaryButtonClass, secondaryButtonClass } from "../../shared/lib/styles"
-import { nombreCompleto, unirClientes, useClientes, usePosiblesDuplicados } from "../../data/clientes"
-import type { FichaCorta } from "../../data/clientes"
+import { ApiError } from "../../../shared/lib/api"
+import { formatTelefono } from "../../../shared/lib/format"
+import { inputClass, primaryButtonClass, secondaryButtonClass } from "../../../shared/lib/styles"
+import { nombreCompleto, unirClientes, useClientes, usePosiblesDuplicados } from "../api/clientes.api"
+import type { FichaCorta } from "../api/clientes.api"
 
 const opcionClass =
   "flex min-h-14 w-full items-center justify-between gap-3 rounded-xl border border-cream-dark bg-surface px-4 py-3 text-left text-base text-ink transition hover:border-rose-dark hover:bg-rose/10"

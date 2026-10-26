@@ -1,10 +1,10 @@
 import { useState } from "react"
 import type { FormEvent } from "react"
-import { ApiError } from "../../shared/lib/api"
-import { formatTelefono, nombresMeses } from "../../shared/lib/format"
-import { inputClass, labelClass, primaryButtonClass, secondaryButtonClass } from "../../shared/lib/styles"
-import { actualizarCliente, crearCliente } from "../../data/clientes"
-import type { Cliente } from "../../data/clientes"
+import { ApiError } from "../../../shared/lib/api"
+import { formatTelefono, nombresMeses } from "../../../shared/lib/format"
+import { inputClass, labelClass, primaryButtonClass, secondaryButtonClass } from "../../../shared/lib/styles"
+import { actualizarCliente, crearCliente } from "../api/clientes.api"
+import type { Cliente } from "../api/clientes.api"
 
 /**
  * Formulario de una clienta: sirve para darla de alta (sin `cliente`) o para

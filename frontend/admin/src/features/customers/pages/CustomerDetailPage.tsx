@@ -1,20 +1,20 @@
 import { useState } from "react"
 import { Link, useParams } from "react-router-dom"
 import { formatPrice } from "@dp/shared/lib/format"
-import Panel from "../shared/components/Panel"
-import StatTile from "../shared/components/StatTile"
-import EstadoBadge from "../components/turnos/EstadoBadge"
-import IconoWhatsApp from "../shared/components/IconoWhatsApp"
-import NotasCliente from "../components/clientes/NotasCliente"
-import FormularioCliente from "../components/clientes/FormularioCliente"
-import EliminarCliente from "../components/clientes/EliminarCliente"
-import UnirCliente from "../components/clientes/UnirCliente"
-import { Cargando, ErrorCarga } from "../shared/components/EstadoCarga"
-import { formatCumple, formatDayMonth, formatShortDate, formatTelefono } from "../shared/lib/format"
-import { secondaryButtonClass } from "../shared/lib/styles"
-import { whatsappCliente } from "../shared/lib/whatsapp"
-import { nombreCompleto, useFichaCliente } from "../data/clientes"
-import type { FichaCliente } from "../data/clientes"
+import Panel from "../../../shared/components/Panel"
+import StatTile from "../../../shared/components/StatTile"
+import EstadoBadge from "../../../components/turnos/EstadoBadge"
+import IconoWhatsApp from "../../../shared/components/IconoWhatsApp"
+import NotasCliente from "../components/NotasCliente"
+import FormularioCliente from "../components/FormularioCliente"
+import EliminarCliente from "../components/EliminarCliente"
+import UnirCliente from "../components/UnirCliente"
+import { Cargando, ErrorCarga } from "../../../shared/components/EstadoCarga"
+import { formatCumple, formatDayMonth, formatShortDate, formatTelefono } from "../../../shared/lib/format"
+import { secondaryButtonClass } from "../../../shared/lib/styles"
+import { whatsappCliente } from "../../../shared/lib/whatsapp"
+import { nombreCompleto, useFichaCliente } from "../api/clientes.api"
+import type { FichaCliente } from "../api/clientes.api"
 
 /** Cuántos turnos se muestran antes del botón "Ver todos". */
 const TURNOS_VISIBLES = 10
@@ -30,7 +30,7 @@ const estadoPedido: Record<string, string> = {
  * Ficha de una clienta: cómo contactarla, qué tan seguido viene, cuánto gastó,
  * las notas de la dueña y los historiales de turnos y de compras.
  */
-export default function AdminClientDetail() {
+export default function CustomerDetailPage() {
   const id = Number(useParams().id)
   const { datos, cargando, error, recargar } = useFichaCliente(id)
 

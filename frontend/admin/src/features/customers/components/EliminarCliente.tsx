@@ -1,8 +1,8 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { ApiError } from "../../shared/lib/api"
-import { secondaryButtonClass } from "../../shared/lib/styles"
-import { eliminarCliente } from "../../data/clientes"
+import { ApiError } from "../../../shared/lib/api"
+import { secondaryButtonClass } from "../../../shared/lib/styles"
+import { eliminarCliente } from "../api/clientes.api"
 
 /**
  * Eliminar una clienta. Solo se permite si no tiene turnos ni compras: con

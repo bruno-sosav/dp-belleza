@@ -1,7 +1,7 @@
 import { useState } from "react"
-import { ApiError } from "../../shared/lib/api"
-import { inputClass, primaryButtonClass } from "../../shared/lib/styles"
-import { actualizarCliente } from "../../data/clientes"
+import { ApiError } from "../../../shared/lib/api"
+import { inputClass, primaryButtonClass } from "../../../shared/lib/styles"
+import { actualizarCliente } from "../api/clientes.api"
 
 /**
  * Notas internas sobre la clienta ("piel sensible", "prefiere la mañana"…).
