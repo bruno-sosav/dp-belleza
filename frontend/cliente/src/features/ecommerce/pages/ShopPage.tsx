@@ -1,41 +1,55 @@
 import { useMemo, useState } from "react"
 import { useSearchParams } from "react-router-dom"
-import { categories } from "@dp/shared/data/products"
-import { useProducts } from "../data/productStore"
+import { useCategorias, useProductos } from "../api/catalogo.api"
 import ProductCard from "../components/ProductCard"
+import { LoadError, Loading } from "../components/LoadState"
 
 const sortOptions = [
   { value: "relevance", label: "Relevancia" },
   { value: "price-asc", label: "Precio: menor a mayor" },
   { value: "price-desc", label: "Precio: mayor a menor" },
-  { value: "rating", label: "Mejor calificados" },
+  { value: "name", label: "Nombre (A-Z)" },
 ]
 
-export default function Shop() {
+/** El tope del filtro de precio: el producto más caro, redondeado para arriba a $1.000. */
+const topeDePrecio = (precios: number[]) => Math.max(1000, Math.ceil(Math.max(0, ...precios) / 1000) * 1000)
+
+export default function ShopPage() {
   const [searchParams, setSearchParams] = useSearchParams()
+  // ?categoria=Skincare (por nombre: así quedan lindos los links del menú)
   const activeCategory = searchParams.get("categoria")
   const [sort, setSort] = useState("relevance")
-  const [maxPrice, setMaxPrice] = useState(35000)
+  const [maxPrice, setMaxPrice] = useState<number | null>(null)
+  const [showOutOfStock, setShowOutOfStock] = useState(true)
   const [filtersOpen, setFiltersOpen] = useState(false)
-  const products = useProducts()
+  const productos = useProductos()
+  const categorias = useCategorias()
+
+  const all = useMemo(() => productos.data ?? [], [productos.data])
+  const tope = useMemo(() => topeDePrecio(all.map((p) => p.precio)), [all])
+  const precioMaximo = Math.min(maxPrice ?? tope, tope)
 
   const filtered = useMemo(() => {
-    let list = products.filter((p) => p.price <= maxPrice)
-    if (activeCategory) list = list.filter((p) => p.category === activeCategory)
+    let list = all.filter((p) => p.precio <= precioMaximo)
+    if (activeCategory) list = list.filter((p) => p.categoria?.nombre === activeCategory)
+    if (!showOutOfStock) list = list.filter((p) => p.disponible)
 
     switch (sort) {
       case "price-asc":
-        list = [...list].sort((a, b) => a.price - b.price)
+        list = [...list].sort((a, b) => a.precio - b.precio)
         break
       case "price-desc":
-        list = [...list].sort((a, b) => b.price - a.price)
+        list = [...list].sort((a, b) => b.precio - a.precio)
         break
-      case "rating":
-        list = [...list].sort((a, b) => b.rating - a.rating)
+      case "name":
+        list = [...list].sort((a, b) => a.nombre.localeCompare(b.nombre, "es"))
         break
+      default:
+        // Relevancia: primero lo que se puede comprar.
+        list = [...list].sort((a, b) => Number(b.disponible) - Number(a.disponible))
     }
     return list
-  }, [products, activeCategory, sort, maxPrice])
+  }, [all, activeCategory, sort, precioMaximo, showOutOfStock])
 
   const setCategory = (c: string | null) => {
     if (!c) {
@@ -53,7 +67,7 @@ export default function Shop() {
         <h1 className="mt-1 font-display text-3xl font-semibold text-ink">
           {activeCategory ?? "Todos los productos"}
         </h1>
-        <p className="mt-1 text-sm text-ink-soft">{filtered.length} productos</p>
+        {productos.data && <p className="mt-1 text-sm text-ink-soft">{filtered.length} productos</p>}
       </div>
 
       <div className="flex flex-col gap-8 lg:flex-row">
@@ -79,13 +93,13 @@ export default function Shop() {
                     Todas
                   </button>
                 </li>
-                {categories.map((c) => (
-                  <li key={c}>
+                {(categorias.data ?? []).map((c) => (
+                  <li key={c.id}>
                     <button
-                      onClick={() => setCategory(c)}
-                      className={`transition hover:text-rose ${activeCategory === c ? "font-medium text-rose" : "text-ink-soft"}`}
+                      onClick={() => setCategory(c.nombre)}
+                      className={`transition hover:text-rose ${activeCategory === c.nombre ? "font-medium text-rose" : "text-ink-soft"}`}
                     >
-                      {c}
+                      {c.nombre}
                     </button>
                   </li>
                 ))}
@@ -96,25 +110,26 @@ export default function Shop() {
               <h3 className="font-display text-sm font-semibold uppercase tracking-wide text-ink">Precio máximo</h3>
               <input
                 type="range"
-                min={5000}
-                max={35000}
+                min={0}
+                max={tope}
                 step={500}
-                value={maxPrice}
+                value={precioMaximo}
                 onChange={(e) => setMaxPrice(Number(e.target.value))}
                 className="mt-4 w-full accent-rose"
               />
-              <p className="mt-1 text-sm text-ink-soft">Hasta ${maxPrice.toLocaleString("es-AR")}</p>
+              <p className="mt-1 text-sm text-ink-soft">Hasta ${precioMaximo.toLocaleString("es-AR")}</p>
             </div>
 
             <div>
               <h3 className="font-display text-sm font-semibold uppercase tracking-wide text-ink">Disponibilidad</h3>
               <label className="mt-3 flex items-center gap-2 text-sm text-ink-soft">
-                <input type="checkbox" className="accent-rose" defaultChecked />
-                En stock
-              </label>
-              <label className="mt-2 flex items-center gap-2 text-sm text-ink-soft">
-                <input type="checkbox" className="accent-rose" />
-                Agotado
+                <input
+                  type="checkbox"
+                  className="accent-rose"
+                  checked={showOutOfStock}
+                  onChange={(e) => setShowOutOfStock(e.target.checked)}
+                />
+                Mostrar agotados
               </label>
             </div>
           </div>
@@ -135,7 +150,11 @@ export default function Shop() {
             </select>
           </div>
 
-          {filtered.length === 0 ? (
+          {productos.loading ? (
+            <Loading />
+          ) : productos.error ? (
+            <LoadError message={productos.error} onRetry={productos.reload} />
+          ) : filtered.length === 0 ? (
             <p className="py-20 text-center text-ink-soft">No se encontraron productos con estos filtros.</p>
           ) : (
             <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3">

@@ -1,5 +1,5 @@
 /** Estado de la seña al volver de Mercado Pago (/reserva/pago?t=<token>). */
-import { api } from "../lib/api"
+import { api } from "../../../shared/lib/api"
 
 export type EstadoSena = {
   /** "DP-000123" */

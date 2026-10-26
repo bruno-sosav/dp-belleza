@@ -1,14 +1,17 @@
-/** Cliente HTTP de la turnera (rutas públicas, sin login). Los errores { error, detalle? } pasan a ApiError. */
+/** Cliente HTTP de la web pública (rutas sin login). Los errores { error, detalle? } pasan a ApiError. */
 
 const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3000"
 
 export class ApiError extends Error {
   status: number
+  /** Lo que el backend manda en `detalle` (por ejemplo, qué productos no tienen stock). */
+  detalle?: unknown
 
-  constructor(status: number, message: string) {
+  constructor(status: number, message: string, detalle?: unknown) {
     super(message)
     this.name = "ApiError"
     this.status = status
+    this.detalle = detalle
   }
 }
 
@@ -35,7 +38,7 @@ export async function api<T>(path: string, { method = "GET", body, query }: Opti
 
   const data = await response.json().catch(() => null)
   if (!response.ok) {
-    throw new ApiError(response.status, (data?.error as string) ?? "Ocurrió un error. Probá de nuevo.")
+    throw new ApiError(response.status, (data?.error as string) ?? "Ocurrió un error. Probá de nuevo.", data?.detalle)
   }
   return data as T
 }

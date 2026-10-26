@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom"
 import { useCart } from "../context/CartContext"
 import { formatPrice } from "@dp/shared/lib/format"
+import ProductImage from "../components/ProductImage"
 
-export default function Cart() {
+export default function CartPage() {
   const { items, removeItem, updateQuantity, subtotal } = useCart()
 
   if (items.length === 0) {
@@ -20,8 +21,6 @@ export default function Cart() {
     )
   }
 
-  const shipping = subtotal > 30000 ? 0 : 2500
-
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <h1 className="mb-8 font-display text-3xl font-semibold text-ink">Carrito de compras</h1>
@@ -38,18 +37,17 @@ export default function Cart() {
           <ul className="divide-y divide-cream-dark">
             {items.map((item) => (
               <li
-                key={`${item.product.id}-${item.size ?? ""}`}
+                key={item.product.id}
                 className="grid grid-cols-1 items-center gap-4 py-5 sm:grid-cols-[2fr_1fr_1fr_1fr]"
               >
                 <div className="flex items-center gap-4">
-                  <img src={item.product.image} alt={item.product.name} className="h-20 w-16 rounded-md object-cover" />
+                  <ProductImage src={item.product.imagenUrl} alt={item.product.nombre} className="h-20 w-16 shrink-0 rounded-md text-[10px]" />
                   <div>
                     <Link to={`/producto/${item.product.id}`} className="font-display text-sm font-medium text-ink hover:text-rose">
-                      {item.product.name}
+                      {item.product.nombre}
                     </Link>
-                    {item.size && <p className="text-xs text-ink-soft">Tamaño: {item.size}</p>}
                     <button
-                      onClick={() => removeItem(item.product.id, item.size)}
+                      onClick={() => removeItem(item.product.id)}
                       className="mt-1 text-xs text-ink-soft underline hover:text-rose"
                     >
                       Quitar
@@ -57,18 +55,18 @@ export default function Cart() {
                   </div>
                 </div>
 
-                <span className="text-sm text-ink-soft">{formatPrice(item.product.price)}</span>
+                <span className="text-sm text-ink-soft">{formatPrice(item.product.precio)}</span>
 
                 <div className="flex items-center rounded-md border border-cream-dark w-fit">
                   <button
-                    onClick={() => updateQuantity(item.product.id, item.quantity - 1, item.size)}
+                    onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
                     className="px-3 py-1.5 text-ink-soft hover:text-ink"
                   >
                     −
                   </button>
                   <span className="w-8 text-center text-sm">{item.quantity}</span>
                   <button
-                    onClick={() => updateQuantity(item.product.id, item.quantity + 1, item.size)}
+                    onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
                     className="px-3 py-1.5 text-ink-soft hover:text-ink"
                   >
                     +
@@ -76,7 +74,7 @@ export default function Cart() {
                 </div>
 
                 <span className="text-right font-medium text-ink">
-                  {formatPrice(item.product.price * item.quantity)}
+                  {formatPrice(item.product.precio * item.quantity)}
                 </span>
               </li>
             ))}
@@ -90,17 +88,6 @@ export default function Cart() {
         <div className="h-fit rounded-lg border border-cream-dark bg-surface p-6">
           <h2 className="font-display text-lg font-semibold text-ink">Resumen del pedido</h2>
 
-          <div className="mt-4 flex gap-2">
-            <input
-              type="text"
-              placeholder="Código de descuento"
-              className="w-full rounded-md border border-cream-dark px-3 py-2 text-sm outline-none"
-            />
-            <button className="shrink-0 rounded-md border border-ink px-4 text-sm font-medium text-ink transition hover:bg-ink hover:text-cream">
-              Aplicar
-            </button>
-          </div>
-
           <div className="mt-5 space-y-2 border-t border-cream-dark pt-4 text-sm">
             <div className="flex justify-between text-ink-soft">
               <span>Subtotal</span>
@@ -108,13 +95,13 @@ export default function Cart() {
             </div>
             <div className="flex justify-between text-ink-soft">
               <span>Envío</span>
-              <span>{shipping === 0 ? "Gratis" : formatPrice(shipping)}</span>
+              <span>A coordinar</span>
             </div>
           </div>
 
           <div className="mt-4 flex justify-between border-t border-cream-dark pt-4">
             <span className="font-display font-semibold text-ink">Total</span>
-            <span className="font-display text-lg font-semibold text-ink">{formatPrice(subtotal + shipping)}</span>
+            <span className="font-display text-lg font-semibold text-ink">{formatPrice(subtotal)}</span>
           </div>
 
           <Link

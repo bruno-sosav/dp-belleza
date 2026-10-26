@@ -2,7 +2,7 @@
  * Reserva de turnos: lo que se manda a `POST /api/turnos` y lo que vuelve.
  */
 import type { Service } from "@dp/shared/types/servicio.types"
-import { api } from "../lib/api"
+import { api } from "../../../shared/lib/api"
 
 export type BookingContact = {
   fullName: string

@@ -56,12 +56,14 @@ abrirlo (por ejemplo `caja.controller.ts`, `cobro.model.ts`):
 | `catalog` (servicios, productos, categorías) | `catalogo.controller.ts` |
 | `customers` (clientas) | `clientes.controller.ts` |
 | `inventory` (stock) | `inventario.controller.ts` |
-| `orders` (pedidos de la tienda, de Alan) | `checkout.routes.ts`, `pedidosPanel.routes.ts` (sin controller aparte todavía) |
+| `orders` (pedidos de la tienda) | `checkout.controller.ts`, `pedidos.controller.ts` |
 | `payments` (caja y Mercado Pago) | `pagos.controller.ts` |
 | `reminders` (recordatorios) | `recordatorios.controller.ts` |
 
-`orders` (pedidos de la tienda) es la parte de Alan: está en `modules/orders/` con
-su código tal cual, todavía sin puertos, casos de uso ni DTOs.
+`orders` no tiene tablas ajenas: la clienta la busca o crea `customers`, los
+precios los da `catalog` y el stock lo descuenta y devuelve `inventory`, todo a
+través de sus fachadas (`integrations/pedidos.adapter.ts`) y dentro de la misma
+transacción del pedido.
 
 ### Cómo se hablan los módulos
 
@@ -292,7 +294,7 @@ referencia (`destinoDelPago`): `turno-<id>` va a la seña del turno; para
 |---|---|
 | CORS | Configurado para los dos orígenes con `CORS_ORIGINS` (en desarrollo `:5173` web y `:5174` panel). En producción: `https://dpbelleza.com.ar,https://admin.dpbelleza.com.ar` |
 | Sesión | Hoy es un token JWT en el header `Authorization`, no una cookie, así que no depende del dominio |
-| Envío | El checkout del frontend calcula envío (gratis desde $30.000, si no $2.500), pero `pedidos` no tiene columnas de envío ni de dirección. Hoy `total` es solo la suma de los productos |
+| Envío | `pedidos` no tiene columnas de entrega: el checkout manda la forma de entrega y la dirección en `notas`, y el costo del envío se coordina por WhatsApp. `total` es solo la suma de los productos |
 | Datos extra del frontend | `oldPrice`, `badge`, `rating`, `reviews` y `sizes` no existen en la tabla `productos` |
 | Pagos de la tienda | Mercado Pago ya está para las señas de turnos; en la tienda el pedido todavía queda `pendiente` (ver arriba) |
 | Fotos | Se cargan como link (`imagenUrl`), no hay subida de archivos |

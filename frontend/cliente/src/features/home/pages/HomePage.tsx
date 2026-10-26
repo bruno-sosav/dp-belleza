@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom"
-import { useProducts } from "../../../ecommerce/data/productStore"
-import ProductCard from "../../../ecommerce/components/ProductCard"
+import { useProductos } from "../../ecommerce/api/catalogo.api"
+import ProductCard from "../../ecommerce/components/ProductCard"
 import { useServices } from "../../turnera/api/servicios.api"
 import ServiceCard from "../../turnera/components/ServiceCard"
 import { about, bookingSteps, pillars, stats, testimonials } from "../data/content"
@@ -15,15 +15,12 @@ function Eyebrow({ children, light = false }: { children: string; light?: boolea
 }
 
 export default function HomePage() {
-  const products = useProducts()
   const negocio = useNegocio()
   // Los destacados son los que tienen etiqueta (Nuevo, Más elegido, Promo); si
   // la API no responde, la sección queda vacía en vez de romper la portada.
   const featuredServices = (useServices().data ?? []).filter((s) => s.badge).slice(0, 3)
-  // Primero los Bestseller; si no llegan a 4, se completa con los mejor calificados.
-  const bestsellers = [...products]
-    .sort((a, b) => Number(b.badge === "Bestseller") - Number(a.badge === "Bestseller") || b.rating - a.rating)
-    .slice(0, 4)
+  // Cuatro productos con stock. Si la API no responde, la sección no se muestra.
+  const destacados = (useProductos().data ?? []).filter((p) => p.disponible).slice(0, 4)
 
   return (
     <div>
@@ -151,25 +148,27 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Productos más vendidos (ecommerce) */}
-      <section className="bg-cream-dark/50 py-16 lg:py-20">
-        <div className={containerClass}>
-          <div className="mb-8 flex items-end justify-between gap-4">
-            <div>
-              <Eyebrow>Tienda</Eyebrow>
-              <h2 className="mt-2 font-display text-2xl font-semibold text-ink sm:text-3xl">Más vendidos</h2>
+      {/* Productos de la tienda (ecommerce) */}
+      {destacados.length > 0 && (
+        <section className="bg-cream-dark/50 py-16 lg:py-20">
+          <div className={containerClass}>
+            <div className="mb-8 flex items-end justify-between gap-4">
+              <div>
+                <Eyebrow>Tienda</Eyebrow>
+                <h2 className="mt-2 font-display text-2xl font-semibold text-ink sm:text-3xl">Para llevarte a casa</h2>
+              </div>
+              <Link to="/tienda" className="shrink-0 text-sm font-medium text-rose-dark hover:underline">
+                Ver tienda →
+              </Link>
             </div>
-            <Link to="/tienda" className="shrink-0 text-sm font-medium text-rose-dark hover:underline">
-              Ver tienda →
-            </Link>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
+              {destacados.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
           </div>
-          <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
-            {bestsellers.map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Nosotros */}
       <section id="nosotros" className={`${containerClass} scroll-mt-24 py-16 lg:py-24`}>

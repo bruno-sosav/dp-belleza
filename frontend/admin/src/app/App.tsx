@@ -7,8 +7,8 @@ import AgendaPage from "../features/appointments/pages/AgendaPage"
 import CashPage from "../features/payments/pages/CashPage"
 import AnalysisPage from "../features/analytics/pages/AnalysisPage"
 import AdminSales from "../pages/AdminSales"
-import AdminProducts from "../pages/AdminProducts"
-import AdminProductNew from "../pages/AdminProductNew"
+import ProductsPage from "../features/ecommerce/pages/ProductsPage"
+import ProductFormPage from "../features/ecommerce/pages/ProductFormPage"
 import ServicesPage from "../features/catalog/pages/ServicesPage"
 import ServiceFormPage from "../features/catalog/pages/ServiceFormPage"
 import SchedulePage from "../features/appointments/pages/SchedulePage"
@@ -40,8 +40,8 @@ export default function App() {
         <Route path="/turnos/dias-cerrados" element={<ClosedDaysPage />} />
         <Route path="/turnos/reglas" element={<BookingRulesPage />} />
         <Route path="/ventas" element={<AdminSales />} />
-        <Route path="/productos" element={<AdminProducts />} />
-        <Route path="/productos/nuevo" element={<AdminProductNew />} />
+        <Route path="/productos" element={<ProductsPage />} />
+        <Route path="/productos/nuevo" element={<ProductFormPage />} />
         <Route path="/recordatorios" element={<RemindersPage />} />
         <Route path="/recordatorios/mensajes" element={<ReminderTypesPage />} />
         <Route path="/ajustes" element={<BusinessPage />} />

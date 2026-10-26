@@ -95,9 +95,6 @@ Es arquitectura en capas + clean architecture + MVC, organizada por dominio:
 `models` es el dominio, `services` los casos de uso, `repositories` e
 `integrations` la infraestructura, y `controllers` + `schemas` la capa HTTP.
 
-`orders` es la parte de Alan: está en su módulo, pero todavía con su
-estructura original.
-
 ## Arquitectura del frontend
 
 Son dos apps de React separadas, más un paquete con lo que comparten:
@@ -122,6 +119,7 @@ admin/src/
 │   ├── reminders/        Recordatorios
 │   ├── customers/        Clientas
 │   ├── catalog/          Servicios
+│   ├── ecommerce/        Productos de la tienda
 │   ├── payments/         Finanzas → Caja
 │   ├── analytics/        Finanzas → Análisis
 │   ├── settings/         Ajustes: tu negocio, Mercado Pago
@@ -132,6 +130,7 @@ cliente/src/
 ├── app/                  arranque y rutas
 ├── features/
 │   ├── home/             portada y contacto
+│   ├── ecommerce/        tienda, carrito y checkout
 │   └── turnera/          servicios, reservar, mi turno, pago de seña
 └── shared/               navbar, footer, layout
 ```
@@ -187,8 +186,8 @@ El front nunca recibe una tabla entera. Pide lo que la pantalla muestra:
 | Análisis | 180 días **ya sumados en SQL**: un número por día, no los turnos |
 | Servicios | todos (son pocos y la web los muestra todos juntos) |
 
-`ecommerce/` (la tienda de Alan, en las dos apps) todavía tiene la estructura
-anterior.
+En el panel, "Ventas tienda" (`pages/AdminSales.tsx`) todavía no tiene
+endpoint: espera `GET /api/admin/stats/productos`.
 
 ## Más detalle
 

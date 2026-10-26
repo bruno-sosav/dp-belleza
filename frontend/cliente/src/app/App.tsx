@@ -4,10 +4,10 @@ import Layout from "../shared/components/Layout"
 import NotFoundPage from "../shared/pages/NotFoundPage"
 import HomePage from "../features/home/pages/HomePage"
 import ContactPage from "../features/home/pages/ContactPage"
-import Shop from "../ecommerce/pages/Shop"
-import ProductDetail from "../ecommerce/pages/ProductDetail"
-import Cart from "../ecommerce/pages/Cart"
-import Checkout from "../ecommerce/pages/Checkout"
+import ShopPage from "../features/ecommerce/pages/ShopPage"
+import ProductDetailPage from "../features/ecommerce/pages/ProductDetailPage"
+import CartPage from "../features/ecommerce/pages/CartPage"
+import CheckoutPage from "../features/ecommerce/pages/CheckoutPage"
 import ServicesPage from "../features/turnera/pages/ServicesPage"
 import ServiceDetailPage from "../features/turnera/pages/ServiceDetailPage"
 import BookingPage from "../features/turnera/pages/BookingPage"
@@ -38,11 +38,11 @@ export default function App() {
           <Route path="/nosotros" element={<Navigate to="/#nosotros" replace />} />
           <Route path="/contacto" element={<ContactPage />} />
 
-          {/* Tienda — ecommerce/ */}
-          <Route path="/tienda" element={<Shop />} />
-          <Route path="/producto/:id" element={<ProductDetail />} />
-          <Route path="/carrito" element={<Cart />} />
-          <Route path="/checkout" element={<Checkout />} />
+          {/* Tienda — features/ecommerce/ */}
+          <Route path="/tienda" element={<ShopPage />} />
+          <Route path="/producto/:id" element={<ProductDetailPage />} />
+          <Route path="/carrito" element={<CartPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
 
           {/* Turnera — turnera/ */}
           <Route path="/servicios" element={<ServicesPage />} />

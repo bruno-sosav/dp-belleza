@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Link, NavLink, useLocation } from "react-router-dom"
-import { categories } from "@dp/shared/data/products"
-import { useCart } from "../../ecommerce/context/CartContext"
+import { useCart } from "../../features/ecommerce/context/CartContext"
+import { useCategorias } from "../../features/ecommerce/api/catalogo.api"
 
 const links = [
   { to: "/", label: "Inicio" },
@@ -14,6 +14,7 @@ const links = [
 
 export default function Navbar() {
   const { count, openCart } = useCart()
+  const categorias = useCategorias()
   const [menuOpen, setMenuOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const { pathname, hash } = useLocation()
@@ -127,9 +128,9 @@ export default function Navbar() {
           ))}
           <div className="mt-2 border-t border-cream/15 pt-2">
             <p className="px-2 pb-1 text-xs uppercase tracking-wide text-cream/60">Categorías</p>
-            {categories.map((c) => (
+            {(categorias.data ?? []).map(({ id, nombre: c }) => (
               <NavLink
-                key={c}
+                key={id}
                 to={`/tienda?categoria=${encodeURIComponent(c)}`}
                 onClick={() => setMenuOpen(false)}
                 className="block rounded px-2 py-1.5 text-sm text-cream/85 hover:bg-cream/10 hover:text-cream"

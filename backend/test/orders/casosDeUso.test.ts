@@ -1,0 +1,160 @@
+/** Casos de uso de pedidos, probados con puertos en memoria (sin base de datos). */
+import { beforeEach, describe, expect, it } from "vitest"
+import { ErrorDeNegocio } from "../../src/core/negocio.error.js"
+import type { Transaccion, UnidadDeTrabajo } from "../../src/core/transaccion.port.js"
+import { CrearPedido } from "../../src/modules/orders/services/checkout.usecases.js"
+import { CambiarEstadoPedido, VerPedido } from "../../src/modules/orders/services/pedidos.usecases.js"
+import type {
+  CatalogoDePedidos,
+  ClientesDePedidos,
+  InventarioDePedidos,
+  PedidoRepository,
+  PedidosQueries,
+} from "../../src/modules/orders/models/pedidos.ports.js"
+import type { EstadoPedido, Linea, NuevoPedido } from "../../src/modules/orders/models/pedido.model.js"
+
+/** Una transacción en memoria: si el trabajo falla, se deshace lo que tocó el stock. */
+const stock = new Map<number, number>()
+const uow: UnidadDeTrabajo = {
+  async ejecutar(trabajo) {
+    const copia = new Map(stock)
+    try {
+      return await trabajo({} as Transaccion)
+    } catch (err) {
+      stock.clear()
+      for (const [k, v] of copia) stock.set(k, v)
+      throw err
+    }
+  },
+}
+
+const precios = new Map([
+  [1, { nombre: "Sérum", precio: 18900 }],
+  [2, { nombre: "Labial", precio: 8900.5 }],
+])
+const catalogo: CatalogoDePedidos = {
+  vendibles: async (ids) => new Map(ids.filter((id) => precios.has(id)).map((id) => [id, precios.get(id)!])),
+}
+const inventario: InventarioDePedidos = {
+  async reservar(lineas) {
+    const problemas = lineas
+      .filter((l) => (stock.get(l.productoId) ?? 0) < l.cantidad)
+      .map((l) => ({ productoId: l.productoId, motivo: `stock insuficiente (quedan ${stock.get(l.productoId) ?? 0})` }))
+    if (problemas.length) return { ok: false, problemas }
+    for (const l of lineas) stock.set(l.productoId, stock.get(l.productoId)! - l.cantidad)
+    return { ok: true }
+  },
+  async devolver(lineas) {
+    for (const l of lineas) stock.set(l.productoId, (stock.get(l.productoId) ?? 0) + l.cantidad)
+  },
+}
+const clientes: ClientesDePedidos = { buscarOCrear: async () => 7 }
+
+class PedidosEnMemoria implements PedidoRepository, PedidosQueries {
+  guardados = new Map<number, NuevoPedido & { estado: EstadoPedido }>()
+  async crear(p: NuevoPedido) {
+    const id = this.guardados.size + 1
+    this.guardados.set(id, { ...p, estado: "pendiente" })
+    return id
+  }
+  async estadoParaCambiar(id: number) {
+    return this.guardados.get(id)?.estado ?? null
+  }
+  async cambiarEstado(id: number, estado: EstadoPedido) {
+    this.guardados.get(id)!.estado = estado
+  }
+  async lineas(id: number): Promise<Linea[]> {
+    return this.guardados.get(id)!.lineas.map(({ productoId, cantidad }) => ({ productoId, cantidad }))
+  }
+  async listar() {
+    return []
+  }
+  async detalle(id: number) {
+    const p = this.guardados.get(id)
+    if (!p) return null
+    const cliente = { id: p.clienteId, nombre: "Ana", apellido: null, telefono: "5492231234567", email: null }
+    return { id, estado: p.estado, total: p.total, notas: p.notas, cliente, creadoEn: "", actualizadoEn: "", items: p.lineas }
+  }
+}
+
+let repo: PedidosEnMemoria
+let crear: CrearPedido
+const compra = (items: Linea[]) => crear.ejecutar({ cliente: { nombre: "Ana", telefono: "2231234567" }, items })
+
+const tipoDeError = async (p: Promise<unknown>) => {
+  try {
+    await p
+    return null
+  } catch (err) {
+    return err instanceof ErrorDeNegocio ? err.tipo : "otro"
+  }
+}
+
+beforeEach(() => {
+  stock.clear()
+  stock.set(1, 5).set(2, 1)
+  repo = new PedidosEnMemoria()
+  crear = new CrearPedido(repo, clientes, catalogo, inventario, uow)
+})
+
+describe("CrearPedido (checkout)", () => {
+  it("cobra el precio del catálogo, junta líneas repetidas y descuenta el stock", async () => {
+    const p = await compra([
+      { productoId: 1, cantidad: 1 },
+      { productoId: 2, cantidad: 1 },
+      { productoId: 1, cantidad: 2 },
+    ])
+    expect(p.total).toBe(65600.5)
+    expect(p.items.map((i) => [i.productoId, i.cantidad, i.precioUnitario])).toEqual([
+      [1, 3, 18900],
+      [2, 1, 8900.5],
+    ])
+    expect(repo.guardados.get(p.id)?.clienteId).toBe(7)
+    expect([stock.get(1), stock.get(2)]).toEqual([2, 0])
+  })
+
+  it("si un producto no está en el catálogo o falta stock, no guarda nada ni descuenta", async () => {
+    const err = await compra([
+      { productoId: 1, cantidad: 1 },
+      { productoId: 2, cantidad: 5 },
+      { productoId: 99, cantidad: 1 },
+    ]).catch((e) => e)
+    expect(err).toBeInstanceOf(ErrorDeNegocio)
+    expect(err.tipo).toBe("conflicto")
+    expect(err.detalle).toEqual([
+      { productoId: 99, motivo: "no disponible" },
+      { productoId: 2, motivo: "stock insuficiente (quedan 1)" },
+    ])
+    expect(repo.guardados.size).toBe(0)
+    expect([stock.get(1), stock.get(2)]).toEqual([5, 1])
+  })
+})
+
+describe("CambiarEstadoPedido (panel)", () => {
+  const cambiar = (id: number, estado: EstadoPedido) =>
+    new CambiarEstadoPedido(repo, inventario, new VerPedido(repo), uow).ejecutar(id, estado)
+
+  it("sigue el flujo pendiente → confirmado → entregado", async () => {
+    const { id } = await compra([{ productoId: 1, cantidad: 1 }])
+    expect((await cambiar(id, "confirmado")).estado).toBe("confirmado")
+    expect((await cambiar(id, "entregado")).estado).toBe("entregado")
+  })
+
+  it("no deja saltear pasos ni salir de un estado final", async () => {
+    const { id } = await compra([{ productoId: 1, cantidad: 1 }])
+    expect(await tipoDeError(cambiar(id, "entregado"))).toBe("conflicto")
+    await cambiar(id, "cancelado")
+    expect(await tipoDeError(cambiar(id, "pendiente"))).toBe("conflicto")
+  })
+
+  it("al cancelar, el stock vuelve", async () => {
+    const { id } = await compra([{ productoId: 1, cantidad: 4 }])
+    expect(stock.get(1)).toBe(1)
+    await cambiar(id, "cancelado")
+    expect(stock.get(1)).toBe(5)
+  })
+
+  it("un pedido que no existe es 404", async () => {
+    expect(await tipoDeError(cambiar(123, "confirmado"))).toBe("no_encontrado")
+  })
+})
