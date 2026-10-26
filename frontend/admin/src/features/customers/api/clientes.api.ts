@@ -7,7 +7,7 @@
 import { useCallback } from "react"
 import { api } from "../../../shared/lib/api"
 import { useApi } from "../../../shared/lib/useApi"
-import type { EstadoTurno } from "../../../data/turnos"
+import type { EstadoTurno } from "../../appointments/api/turnos.api"
 
 /**
  * Los tipos de acá son exactamente lo que devuelve el backend (los DTOs de

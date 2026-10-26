@@ -8,8 +8,8 @@
  */
 import { useEffect, useState } from "react"
 import { formatTelefono } from "@dp/shared/lib/format"
-import { describeOpeningHours } from "../../turnera/data/availability"
-import type { OpeningHours } from "../../turnera/data/availability"
+import { describeOpeningHours } from "../../features/turnera/api/disponibilidad.api"
+import type { OpeningHours } from "../../features/turnera/api/disponibilidad.api"
 
 const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3000"
 

@@ -7,7 +7,7 @@
  * la semana. Son como máximo 180 puntos, no miles de filas.
  *
  * Los rankings (servicios más pedidos, qué se hizo tal día) son endpoints
- * aparte: ver admin/data/estadisticas.ts.
+ * aparte: ver features/analytics/api/estadisticas.api.ts.
  *
  * Todas las funciones reciben los días por parámetro. Antes había un `allDays`
  * de módulo construido desde datos falsos; ahora los días llegan de la API y
