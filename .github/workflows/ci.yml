@@ -11,13 +11,23 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# Valores solo para los tests (los de backend/.env.local, que no se sube).
+# El backend los exige al cargar la config, aunque el test no use la base.
+env:
+  JWT_SECRET: secreto-solo-para-el-ci-no-se-usa-en-ningun-lado
+  DB_HOST: 127.0.0.1
+  DB_PORT: 3306
+  DB_USER: dp_app
+  DB_PASSWORD: dp_app_local
+  DB_NAME: dp_belleza
+
 jobs:
   calidad:
     name: Lint, tipos, build y tests unitarios
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: npm
@@ -44,17 +54,11 @@ jobs:
           --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
           --health-interval=5s --health-timeout=5s --health-retries=20
     env:
-      DB_HOST: 127.0.0.1
-      DB_PORT: 3306
-      DB_USER: dp_app
-      DB_PASSWORD: dp_app_local
-      DB_NAME: dp_belleza
-      JWT_SECRET: secreto-solo-para-el-ci-no-se-usa-en-ningun-lado
       TEST_ADMIN_EMAIL: ci@dpbelleza.test
       TEST_ADMIN_PASSWORD: clave-del-ci-2026
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: npm
@@ -86,7 +90,7 @@ jobs:
           for k, nombre in [("lines", "Líneas"), ("statements", "Sentencias"), ("branches", "Ramas"), ("functions", "Funciones")]:
               print(f"| {nombre} | {t[k]['pct']}% | {t[k]['covered']} / {t[k]['total']} |")
           EOF
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         if: always()
         with:
           name: reporte-cobertura
@@ -96,8 +100,8 @@ jobs:
     name: Complejidad ciclomática
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.13"
       - run: pip install lizard jinja2
@@ -111,7 +115,7 @@ jobs:
             python3 -m lizard -l typescript -l tsx backend/src frontend/admin/src frontend/cliente/src frontend/shared -w -C 15 -i 999
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: reporte-complejidad
           path: reportes/
