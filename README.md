@@ -38,22 +38,26 @@ npm run lint         # análisis estático (oxlint)
 
 ```bash
 npm run cobertura    # tests unitarios + integración con cobertura -> backend/coverage/todo/index.html
-npm run complejidad  # complejidad ciclomática por función         -> reportes/complejidad.html
+npm run complejidad  # complejidad ciclomática por función         -> reportes/complejidad.html y .csv
+npm run e2e          # tests end to end con Playwright             -> reportes/e2e/index.html
 ```
 
 La cobertura necesita la base levantada (corre los tests de integración). La
 complejidad usa [lizard](https://github.com/terryyin/lizard), que es de Python:
-`pip3 install lizard jinja2`. Los reportes no se suben al repo.
+`pip3 install lizard jinja2`. El E2E abre un Chromium de verdad (la primera vez:
+`npx playwright install chromium`) y reusa la API y las dos apps si ya están
+corriendo. Los reportes no se suben al repo.
 
 ### CI
 
 Cada push y cada PR a `main` corre [GitHub Actions](.github/workflows/ci.yml)
-con tres trabajos:
+con cuatro trabajos:
 
 | Trabajo | Qué hace |
 |---|---|
 | Calidad | lint, tipos del backend, build de las dos apps y tests unitarios |
 | Cobertura | levanta MySQL, corre migraciones y seeds, tests unitarios + integración con cobertura |
+| E2E | levanta MySQL, la API, la web y el panel, y Playwright recorre una reserva de punta a punta |
 | Complejidad | reporte de complejidad ciclomática |
 
 Si algo falla, el push queda marcado en rojo. Los reportes quedan para

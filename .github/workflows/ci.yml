@@ -20,6 +20,8 @@ env:
   DB_USER: dp_app
   DB_PASSWORD: dp_app_local
   DB_NAME: dp_belleza
+  TEST_ADMIN_EMAIL: ci@dpbelleza.test
+  TEST_ADMIN_PASSWORD: clave-del-ci-2026
 
 jobs:
   calidad:
@@ -53,9 +55,6 @@ jobs:
         options: >-
           --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
           --health-interval=5s --health-timeout=5s --health-retries=20
-    env:
-      TEST_ADMIN_EMAIL: ci@dpbelleza.test
-      TEST_ADMIN_PASSWORD: clave-del-ci-2026
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -63,18 +62,8 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - name: Preparar la base (usuarios, migraciones y seeds)
-        run: |
-          # En el CI MySQL corre en un contenedor: los usuarios entran por red, no por localhost.
-          sed "s/'@'localhost'/'@'%'/g" database/setup.sql | mysql -h 127.0.0.1 -u root -proot
-          for f in $(ls database/migrations/*.sql | sort -V) database/seeds/seed_01_servicios.sql \
-                   database/seeds/seed_02_horarios.sql database/seeds/ecommerce-datos-ejemplo.sql \
-                   database/seeds/seed_03_turnos_demo.sql database/seeds/seed_04_turnos_proximos.sql; do
-            echo "→ $f"
-            mysql -h 127.0.0.1 -u dp_dev -pdp_dev_local dp_belleza < "$f"
-          done
-      - name: Usuaria del panel para los tests
-        run: npm run crear-admin -w @dp/backend -- "CI" "$TEST_ADMIN_EMAIL" "$TEST_ADMIN_PASSWORD"
+      - name: Preparar la base (usuarios, migraciones, seeds y usuaria del panel)
+        run: bash .github/scripts/preparar-base.sh
       - name: Tests unitarios + integración con cobertura
         run: npm run cobertura
       - name: Resumen de cobertura
@@ -96,6 +85,39 @@ jobs:
           name: reporte-cobertura
           path: backend/coverage/todo/
 
+  e2e:
+    name: Tests end to end (Playwright)
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports: ["3306:3306"]
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Instalar Chromium para Playwright
+        run: npx playwright install --with-deps chromium
+      - name: Preparar la base (usuarios, migraciones, seeds y usuaria del panel)
+        run: bash .github/scripts/preparar-base.sh
+      - name: Tests E2E (levanta la API, la web y el panel)
+        run: npm run e2e
+      - uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: reporte-e2e
+          path: |
+            reportes/e2e/
+            reportes/e2e-resultados/
+
   complejidad:
     name: Complejidad ciclomática
     runs-on: ubuntu-latest
@@ -109,11 +131,17 @@ jobs:
         run: npm run complejidad
       - name: Resumen de complejidad
         run: |
+          FUENTES="backend/src frontend/admin/src frontend/cliente/src frontend/shared"
           {
+            echo "## Complejidad: totales del proyecto"
+            echo '```'
+            python3 -m lizard -l typescript -l tsx $FUENTES -i 999 | tail -4
+            echo '```'
             echo "## Funciones con complejidad mayor a 15"
             echo '```'
-            python3 -m lizard -l typescript -l tsx backend/src frontend/admin/src frontend/cliente/src frontend/shared -w -C 15 -i 999
+            python3 -m lizard -l typescript -l tsx $FUENTES -w -C 15 -i 999
             echo '```'
+            echo "El detalle de todas las funciones está en el artifact reporte-complejidad (HTML y CSV)."
           } >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v5
         with:
