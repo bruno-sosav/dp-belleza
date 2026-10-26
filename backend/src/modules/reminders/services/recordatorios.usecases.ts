@@ -18,10 +18,7 @@ import {
 } from "../models/recordatorio.model.js"
 import type { Clienta, ConsultasDeRecordatorios, NombreDelNegocio, RegistroRepository, TipoRepository, TurnoCandidato } from "../models/recordatorios.ports.js"
 
-/**
- * Un aviso para mandar. `registro` es lo que el panel manda de vuelta al
- * marcarlo: identifica el aviso sin que el panel sepa cómo se guarda.
- */
+/** `registro` vuelve tal cual al marcarlo: el panel no sabe cómo se guarda. */
 export type Aviso = {
   momento: Momento
   tipo: { id: number; nombre: string }
@@ -36,11 +33,7 @@ export type Aviso = {
 
 const turnoDe = (t: TurnoCandidato) => ({ id: t.id, fecha: t.inicio.slice(0, 10), hora: t.inicio.slice(11, 16), servicio: t.servicio })
 
-/**
- * Lo que hoy hay que mandar, con el mensaje ya armado: primero los de antes
- * del turno, después los de después de la visita y al final los cumpleaños.
- * Y lo hecho hoy, para poder deshacer.
- */
+/** Lo que hay que mandar hoy (antes, después, cumpleaños) con el mensaje armado, y lo hecho hoy. */
 export class VerRecordatorios {
   constructor(
     private tipos: TipoRepository,

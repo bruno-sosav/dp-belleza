@@ -1,9 +1,4 @@
-/**
- * Rutas del catálogo. Mismas URLs de antes de la reorganización:
- *   - servicios para la web, bajo /api/turnos   (/servicios, /servicios/:id)
- *   - tienda para la web, bajo /api/tienda      (/categorias, /productos…)
- *   - panel, bajo /api/admin (exige sesión)
- */
+/** Web: /api/turnos/servicios… y /api/tienda/… · Panel: /api/admin (con sesión). */
 import { Router } from "express"
 import type { CatalogoController } from "./catalogo.controller.js"
 

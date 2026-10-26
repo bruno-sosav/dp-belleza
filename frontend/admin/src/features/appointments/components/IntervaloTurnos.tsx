@@ -7,11 +7,7 @@ import { guardarConfiguracion, useConfiguracion } from "../../settings/api/ajust
 
 const intervalos = [10, 15, 20, 30, 60]
 
-/**
- * Cada cuántos minutos la web ofrece horarios (9:00, 9:15, 9:30… o 9:00,
- * 9:30…). Vive en Turnos → Reglas porque es parte de cómo se reserva, no un
- * dato del local.
- */
+/** Cada cuántos minutos la web ofrece horarios (9:00, 9:15… o 9:00, 9:30…). */
 export default function IntervaloTurnos() {
   const config = useConfiguracion()
 

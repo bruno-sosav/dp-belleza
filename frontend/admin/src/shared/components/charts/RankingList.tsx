@@ -2,10 +2,7 @@ import { formatPrice } from "@dp/shared/lib/format"
 
 export type RankingItem = { id: string | number; name: string; count: number; revenue: number; inactive?: boolean }
 
-/**
- * Ranking con barras horizontales (ej: productos más vendidos). Cada fila muestra
- * el número, así que funciona también como tabla: la barra solo ayuda a comparar.
- */
+/** Ranking con barras horizontales; cada fila muestra el número, así que también sirve de tabla. */
 export default function RankingList({
   items,
   color,

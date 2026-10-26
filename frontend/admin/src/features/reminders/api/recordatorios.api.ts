@@ -1,20 +1,9 @@
-/**
- * Recordatorios por WhatsApp: /api/admin/recordatorios.
- *
- * La dueña arma TIPOS (nombre, cuántas horas antes, mensaje) y el backend
- * calcula a quién le toca cada uno, con el mensaje ya escrito. Acá solo se
- * abre WhatsApp con ese texto y se registra que se mandó.
- */
+/** /api/admin/recordatorios. El backend calcula a quién le toca cada tipo, con el mensaje armado. */
 import { useCallback } from "react"
 import { api } from "../../../shared/lib/api"
 import { useApi } from "../../../shared/lib/useApi"
 
-/**
- * Desde dónde se cuenta:
- *   antes       X horas antes de un turno pedido
- *   despues     X días después de una visita completada (opcional: de un servicio)
- *   cumpleanos  X días antes del cumpleaños (0 = ese día)
- */
+/** antes: X horas antes de un turno · despues: X días tras una visita · cumpleanos: X días antes (0 = ese día). */
 export type Momento = "antes" | "despues" | "cumpleanos"
 
 export type TipoRecordatorio = {

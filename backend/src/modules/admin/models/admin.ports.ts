@@ -1,9 +1,4 @@
-/**
- * Puertos de admin. Los ajustes y las estadísticas se leen con MySQL; Mercado
- * Pago (para lo que ve la web) viene de pagos. Las clientas se conectan desde
- * su módulo (`ajustes.conectarTelefonos`), así admin no depende de nadie que
- * dependa de él.
- */
+/** Puertos de admin. Clientas se conectan desde su módulo para no crear dependencia circular. */
 import type { Ajustes, ClaveAjuste } from "./ajustes.model.js"
 import type { MovimientoDelDia, ServicioHecho } from "./estadisticas.model.js"
 

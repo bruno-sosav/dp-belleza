@@ -6,11 +6,7 @@ import { turnosConectados, type ConexionConTurnos } from "./caja.usecases.js"
 
 const SIN_CUENTA = "Mercado Pago no está configurado. Cargá las credenciales en Ajustes → Mercado Pago."
 
-/**
- * Ajustes → Mercado Pago. Antes de guardar se prueban las credenciales: si el
- * token no sirve no se guarda, así no queda una configuración rota que recién
- * se descubre al cobrar.
- */
+/** Prueba las credenciales antes de guardarlas: no queda una configuración rota. */
 export class ConfigurarMercadoPago {
   constructor(
     private cuentas: CuentaRepository,
@@ -82,11 +78,7 @@ export class CobrarConMercadoPago {
 
 export type ResultadoDelAviso = "ignorado" | "sin_cuenta" | "firma_invalida" | "procesado"
 
-/**
- * El aviso (webhook) de Mercado Pago. No se confía en lo que trae: solo se
- * toma el id del pago y se lo consulta con el token del local. Si hay clave
- * secreta cargada, se rechaza lo que no venga firmado.
- */
+/** Webhook: solo se toma el id y se consulta el pago. Con clave secreta, lo no firmado se rechaza. */
 export class RecibirAvisoDePago {
   constructor(
     private cuentas: CuentaRepository,

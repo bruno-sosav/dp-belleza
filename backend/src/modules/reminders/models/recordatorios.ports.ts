@@ -1,7 +1,4 @@
-/**
- * Puertos de recordatorios. Este módulo es dueño de los tipos y de lo ya
- * mandado; turnos y clientas los LEE con vistas de lectura (no los escribe).
- */
+/** Puertos de recordatorios: dueño de tipos y registros; turnos y clientas solo se leen. */
 import type { Transaccion } from "../../../core/transaccion.port.js"
 import type { DatosTipo, EstadoRecordatorio, Momento, Registro, Tipo } from "./recordatorio.model.js"
 
@@ -38,11 +35,7 @@ export type AvisoHecho = { id: number; estado: EstadoRecordatorio; tipo: string;
 export interface ConsultasDeRecordatorios {
   /** Turnos pedidos (con la seña pagada, si tiene) que empiezan entre `ahora` y `horas` después. */
   turnosPedidos(ahora: string, horas: number): Promise<TurnoCandidato[]>
-  /**
-   * Las ÚLTIMAS visitas completadas de cada clienta (de ese servicio, si se
-   * filtra) que cumplieron `dias` hace menos de `ventana` días, sin otro turno
-   * pedido y sin este tipo ya hecho.
-   */
+  /** Última visita completada por clienta que cumplió `dias` dentro de `ventana`, sin turno pedido ni este tipo hecho. */
   ultimasVisitas(p: { tipoId: number; servicioId: number | null; hoy: string; ahora: string; dias: number; ventana: number }): Promise<TurnoCandidato[]>
   clientasConCumple(): Promise<ClientaConCumple[]>
   /** Lo mandado u omitido desde `fecha`, del más nuevo al más viejo. */

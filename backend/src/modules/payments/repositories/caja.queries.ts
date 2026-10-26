@@ -1,8 +1,4 @@
-/**
- * Vistas de lectura de la caja. Juntan los cobros con turnos, servicios y
- * clientas (tablas de otros módulos) solo para MOSTRAR, en una consulta, en
- * vez de un pedido por fila. Nunca escriben esas tablas.
- */
+/** Lecturas de la caja con turnos, servicios y clientas en una consulta. Nunca escriben. */
 import type { RowDataPacket } from "mysql2"
 import { ejecutor } from "../../../core/database/unidadDeTrabajo.database.js"
 import type { ConsultasDeCaja } from "../models/pagos.ports.js"

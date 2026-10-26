@@ -1,7 +1,4 @@
-/**
- * El turno: una clienta, un servicio, un día y un horario. Dominio puro:
- * tipos y reglas, sin base de datos ni HTTP.
- */
+/** Turno: clienta, servicio, día y horario. Tipos y reglas. */
 import type { Momento } from "../../../core/reloj.port.js"
 import type { EstadoTurno } from "./estados.model.js"
 
@@ -42,11 +39,7 @@ export function yaEmpezo(fecha: string, inicioMin: number, ahora: Momento): bool
   return fecha < ahora.fecha || (fecha === ahora.fecha && inicioMin <= ahora.minutos)
 }
 
-/**
- * Por qué no se puede DAR un turno así, o null. Solo uno ya completado puede
- * estar en el pasado (la dueña registra a alguien que vino sin turno); todo lo
- * demás va para adelante. Y no puede pasar la medianoche.
- */
+/** Solo un completado puede estar en el pasado (vino sin turno). No puede pasar la medianoche. */
 export function problemaAlDar(estado: EstadoTurno, pasado: boolean, finMin: number, duracionMin: number): string | null {
   if (pasado && estado !== "completado") return "Ese horario ya pasó."
   if (!pasado && estado === "completado") return "Todavía no es la hora de ese turno: no se puede cargar como completado."
@@ -54,12 +47,7 @@ export function problemaAlDar(estado: EstadoTurno, pasado: boolean, finMin: numb
   return null
 }
 
-/**
- * Por qué no se puede MOVER un turno (otro día, hora o servicio), o null:
- *   - cancelado: no (liberó el horario; si vuelve, es un turno nuevo);
- *   - pedido (reservado/confirmado): solo de ahora en adelante;
- *   - completado o "no vino": es historia, se corrige pero sigue en el pasado.
- */
+/** cancelado: no se mueve · pedido: solo hacia adelante · completado/no vino: se corrige en el pasado. */
 export function problemaAlMover(estado: EstadoTurno, pasado: boolean): { tipo: "conflicto" | "invalido"; mensaje: string } | null {
   if (estado === "cancelado") return { tipo: "conflicto", mensaje: "Un turno cancelado no se puede cambiar de día. Dale un turno nuevo." }
   const pedido = estado === "reservado" || estado === "confirmado"
@@ -70,11 +58,7 @@ export function problemaAlMover(estado: EstadoTurno, pasado: boolean): { tipo: "
   return null
 }
 
-/**
- * Si la clienta todavía puede cancelar sola desde la web ("Mi turno"). Hasta
- * `horasMinimas` antes del turno sí; después tiene que avisar al local. Con 0,
- * hasta que empiece. Fechas "YYYY-MM-DD HH:MM[:SS]" del mismo reloj.
- */
+/** La clienta cancela sola hasta `horasMinimas` antes (0 = hasta que empiece). */
 export function puedeCancelar(inicio: string, ahora: string, horasMinimas: number): boolean {
   const aMs = (dt: string) => {
     const [f, h] = dt.split(" ")

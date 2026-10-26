@@ -1,9 +1,6 @@
 /**
- * Vistas de lectura de las estadísticas: agregan turnos y servicios (de otros
- * módulos) con GROUP BY en la base, en vez de traer miles de filas. Nunca
- * escriben esas tablas.
- *
- * TODO (tienda): sumar los pedidos por día cuando se conecte la tienda.
+ * Lecturas agregadas (GROUP BY) de turnos y servicios. Nunca escriben.
+ * TODO (tienda): sumar los pedidos por día.
  */
 import type { RowDataPacket } from "mysql2"
 import { ejecutor } from "../../../core/database/unidadDeTrabajo.database.js"

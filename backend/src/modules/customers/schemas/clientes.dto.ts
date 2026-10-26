@@ -1,8 +1,4 @@
-/**
- * Lo que SALE por HTTP: cada respuesta lleva solo los campos que usa la
- * pantalla que la pide, nunca la fila de la base ni el objeto del dominio
- * entero. (Revisado contra frontend/admin: lista, ficha, formulario y unir.)
- */
+/** Lo que sale por HTTP: solo los campos que usa cada pantalla del panel. */
 import type { Cliente } from "../models/cliente.model.js"
 import type { ClienteConActividad, Ficha } from "../services/clientes.usecases.js"
 

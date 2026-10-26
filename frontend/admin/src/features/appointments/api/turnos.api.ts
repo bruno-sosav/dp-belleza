@@ -1,10 +1,4 @@
-/**
- * Turnos del panel: pedidos a /api/admin/turnos.
- *
- * Las reglas de qué estado se puede pasar a cuál viven en el backend
- * (backend/src/modules/appointments/models/estados.model.ts). Acá solo se decide qué botones mostrar; si
- * el backend rechaza un cambio, el error llega como ApiError con su mensaje.
- */
+/** /api/admin/turnos. Las transiciones de estado las valida el backend (appointments/models/estados.model.ts). */
 import { useCallback, useState } from "react"
 import { api } from "../../../shared/lib/api"
 import { useApi } from "../../../shared/lib/useApi"
@@ -63,10 +57,7 @@ export function crearTurno(datos: NuevoTurno) {
   return api<Turno>("/api/admin/turnos", { metodo: "POST", cuerpo: datos })
 }
 
-/**
- * Marca el turno como completado y anota lo que se cobró, en una sola
- * operación. `cobro: null` = "todavía no cobré" (queda en Caja → sin cobrar).
- */
+/** Completa y registra el cobro en una sola operación. `cobro: null` = queda sin cobrar en Caja. */
 export function completarTurno(id: number, cobro: { monto: number; medio: MedioPago } | null) {
   return api<Turno>(`/api/admin/turnos/${id}/completar`, { metodo: "POST", cuerpo: { cobro } })
 }
@@ -82,21 +73,14 @@ export type CambiosTurno = {
   fueraDeHorario?: boolean
 }
 
-/**
- * Reprogramar o corregir un turno. Las reglas (qué se puede mover según el
- * estado, el precio al cambiar de servicio) están en backend/src/modules/appointments/models/turno.model.ts.
- */
+/** Reprogramar o corregir. Reglas en backend/src/modules/appointments/models/turno.model.ts. */
 export function editarTurno(id: number, cambios: CambiosTurno) {
   return api<Turno>(`/api/admin/turnos/${id}`, { metodo: "PATCH", cuerpo: cambios })
 }
 
 /**
- * Turnos de un rango + cómo cambiarles el estado.
- *
- * Al cambiar un estado se muestra enseguida el turno que devolvió el PATCH y se
- * recarga la lista en segundo plano. Los cambios se guardan junto con la lista
- * sobre la que se hicieron (`base`): cuando llega la lista recargada ya trae el
- * cambio, y los de la lista vieja se descartan solos, sin un efecto que limpie.
+ * Turnos de un rango + cambiar estado. El cambio se muestra al toque y se guarda junto a su `base`:
+ * cuando llega la lista recargada (que ya lo trae), los de la lista vieja se descartan solos.
  */
 export function useAgenda(desde: string, hasta: string) {
   const carga = useTurnos(desde, hasta)

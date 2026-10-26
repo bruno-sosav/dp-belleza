@@ -1,7 +1,3 @@
-/**
- * Casos de uso de la agenda: el horario de atención, los días cerrados y qué
- * horarios ofrecer. Sin SQL ni Express: reglas del dominio y puertos.
- */
 import { conflicto, invalido, noEncontrado } from "../../../core/negocio.error.js"
 import type { Reloj } from "../../../core/reloj.port.js"
 import { aDateTime, aMinutos, diaSemanaISO } from "../../../core/tiempo.util.js"
@@ -31,10 +27,7 @@ export class ConsultarHorario {
   }
 }
 
-/**
- * Reemplaza el horario de la semana. No cancela turnos: devuelve los pedidos
- * que quedaron afuera para que la dueña les avise.
- */
+/** Reemplaza la semana entera. No cancela turnos: devuelve los que quedaron afuera. */
 export class CambiarHorario {
   constructor(
     private horarios: HorarioRepository,
@@ -81,10 +74,7 @@ export class GestionarBloqueos {
   }
 }
 
-/**
- * Qué horarios ofrecer de un servicio un día. La web aplica las reglas de
- * anticipación; el panel no, y al reprogramar puede excluir el propio turno.
- */
+/** La web aplica las reglas de anticipación; el panel no, y puede excluir el turno que reprograma. */
 export class CalcularDisponibilidad {
   constructor(
     private horarios: HorarioRepository,
@@ -110,10 +100,7 @@ export class CalcularDisponibilidad {
   }
 }
 
-/**
- * Lo que necesitan reservar y reprogramar de la agenda: que el turno entre en
- * el horario y que el lugar esté libre. Corre dentro de su transacción.
- */
+/** Que el turno entre en el horario y el lugar esté libre. Corre dentro de la transacción. */
 export class VerificarLugar {
   constructor(
     private horarios: HorarioRepository,

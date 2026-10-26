@@ -19,12 +19,7 @@ function useDemorado(valor: string, ms = 300) {
   return demorado
 }
 
-/**
- * Lista de clientas con un buscador grande arriba. Tocar una clienta abre su ficha.
- *
- * Cada fila responde lo que la dueña quiere saber de un vistazo: quién es, cómo
- * escribirle, cuántas veces vino y si tiene un turno pedido.
- */
+/** Lista de clientas con buscador. Cada fila: quién es, cómo escribirle, visitas y si tiene turno pedido. */
 export default function CustomersPage() {
   const navigate = useNavigate()
   const eliminada = (useLocation().state as { eliminada?: string } | null)?.eliminada

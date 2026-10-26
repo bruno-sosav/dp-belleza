@@ -6,11 +6,7 @@ import type { AjustesRepository, MercadoPagoDelLocal } from "../models/admin.por
 /** Las clientas se conectan después (desde su módulo): hasta entonces, no hay. */
 export type ConexionConTelefonos = { normalizar: NormalizadorDeTelefono | null }
 
-/**
- * Leer ajustes: lo usan los otros módulos (por la fachada) y las pantallas.
- * El código de área se guarda un minuto en memoria: se usa en cada reserva y
- * cada alta de clienta, y casi nunca cambia (al guardarlo se olvida).
- */
+/** El código de área se cachea un minuto (se usa en cada reserva) y se olvida al guardar. */
 export class LeerAjustes {
   private codigoArea: { valor: string | undefined; hasta: number } | null = null
 
@@ -40,11 +36,7 @@ export class LeerAjustes {
   }
 }
 
-/**
- * Guardar ajustes (ya validados por la presentación). El WhatsApp del local se
- * normaliza igual que el de las clientas (549 + 10 dígitos, lo que pide
- * wa.me), con el código de área que viene en el mismo guardado si cambió.
- */
+/** El WhatsApp del local se normaliza como el de las clientas, con el código de área nuevo si cambió. */
 export class GuardarAjustes {
   constructor(
     private repo: AjustesRepository,

@@ -13,14 +13,7 @@ import { nombreCompleto } from "../../customers/api/clientes.api"
 import { deshacerAviso, registrarAviso, useRecordatorios } from "../api/recordatorios.api"
 import type { AvisoParaMandar } from "../api/recordatorios.api"
 
-/**
- * Recordatorios → Para mandar (/recordatorios).
- *
- * Las clientas a las que hoy les toca un aviso, según los tipos de la pestaña
- * Mensajes: antes de un turno, después de una visita o por su cumpleaños. Un toque en el botón verde abre WhatsApp en su chat con el mensaje
- * escrito: solo queda apretar enviar. El panel no puede saber si lo envió, así
- * que lo da por mandado y abajo queda "Deshacer" por si fue sin querer.
- */
+/** Recordatorios → Para mandar. Abrir WhatsApp lo da por mandado (no hay forma de saberlo); queda "Deshacer". */
 export default function RemindersPage() {
   const ahora = useAhora()
   const recordatorios = useRecordatorios()

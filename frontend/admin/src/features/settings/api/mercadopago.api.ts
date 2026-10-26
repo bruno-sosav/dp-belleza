@@ -1,9 +1,4 @@
-/**
- * Mercado Pago en Ajustes: /api/admin/mercadopago.
- *
- * Las credenciales nunca vuelven enteras: solo si está conectado, la cuenta,
- * el modo y los últimos 4 caracteres del token.
- */
+/** /api/admin/mercadopago. Las credenciales nunca vuelven: solo cuenta, modo y últimos 4 del token. */
 import { useCallback } from "react"
 import { api } from "../../../shared/lib/api"
 import { useApi } from "../../../shared/lib/useApi"

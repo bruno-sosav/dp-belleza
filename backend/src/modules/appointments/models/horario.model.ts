@@ -8,12 +8,7 @@ export type Franja = { diaSemana: number; desde: string; hasta: string }
 
 const nombresDia = ["", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"]
 
-/**
- * Por qué no se puede guardar este horario, o null si está bien. Un día puede
- * tener varias franjas (mañana y tarde, cerrando al mediodía), pero no se
- * pueden pisar entre sí: la disponibilidad las recorre por separado y ofrecería
- * horarios repetidos.
- */
+/** Motivo por el que el horario no sirve, o null. Las franjas de un día no se pueden pisar (repetiría horarios). */
 export function problemaEnFranjas(franjas: Franja[]): string | null {
   for (const f of franjas) {
     if (aMinutos(f.hasta) <= aMinutos(f.desde)) {
@@ -45,10 +40,7 @@ export function franjasDelDia(franjas: Franja[], fecha: FechaISO): Franja[] {
   return franjas.filter((f) => f.diaSemana === diaSemanaISO(fecha))
 }
 
-/**
- * Por qué un turno no entra en el horario de atención de ese día, o null si
- * entra. Lo usan reservar y reprogramar (la dueña puede saltearlo a propósito).
- */
+/** Motivo por el que el turno no entra en el horario del día, o null (la dueña puede saltearlo). */
 export function problemaDeHorario(delDia: Franja[], inicio: number, fin: number, duracionMin: number): string | null {
   if (!delDia.length) return "Ese día el local no atiende."
   if (!delDia.some((f) => inicio >= aMinutos(f.desde) && fin <= aMinutos(f.hasta))) {

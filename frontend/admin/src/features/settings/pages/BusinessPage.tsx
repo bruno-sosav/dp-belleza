@@ -12,12 +12,7 @@ import type { CambiosConfiguracion, Configuracion } from "../api/ajustes.api"
 
 const campo = `${inputClass} py-3 text-base`
 
-/**
- * Ajustes → Tu negocio (/ajustes): los datos del local que muestra la web
- * (Contacto, pie de página, botón de WhatsApp). Antes estaban escritos en el
- * código. Mercado Pago es la otra pestaña de Ajustes; cada cuánto se ofrecen
- * turnos está en Turnos → Horario.
- */
+/** Ajustes → Tu negocio: los datos del local que muestra la web (contacto, footer, WhatsApp). */
 export default function BusinessPage() {
   const config = useConfiguracion()
 

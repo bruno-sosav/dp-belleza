@@ -1,11 +1,6 @@
 /**
- * Implementa el puerto ReasignacionDeCliente moviendo de una clienta a otra
- * lo que tienen los demás módulos. Los cobros los mueve pagos; los módulos
- * que no pueden importarse desde acá (recordatorios) se anotan con
- * `clientes.alUnirFichas` y se los llama en la misma transacción.
- *
- * TRANSITORIO: turnos y pedidos todavía se mueven con SQL directo; cuando se
- * muden, se anotan igual y ese SQL desaparece.
+ * Al unir fichas, mueve lo de otros módulos: cobros vía pagos, recordatorios vía `clientes.alUnirFichas`.
+ * TRANSITORIO: turnos y pedidos todavía con SQL directo.
  */
 import type { RowDataPacket } from "mysql2"
 import type { Transaccion } from "../../../core/transaccion.port.js"

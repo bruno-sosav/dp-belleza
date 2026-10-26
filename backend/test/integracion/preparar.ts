@@ -1,10 +1,4 @@
-/**
- * Preparación global de los tests de integración (vitest globalSetup).
- *
- * Los tests reservan en 2030 para no pisar datos reales, pero la regla de la
- * web "hasta N días para adelante" (Turnos → Reglas) no lo permitiría. Mientras
- * corren, el máximo se estira; al terminar, queda como estaba.
- */
+/** globalSetup: estira el máximo de días para reservar (los tests usan 2030) y al final lo restaura. */
 import { pool } from "../../src/core/database/conexion.database.js"
 
 const CLAVE = "reserva_anticipacion_max_dias"

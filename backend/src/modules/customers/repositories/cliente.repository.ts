@@ -1,7 +1,4 @@
-/**
- * El repositorio de clientas en MySQL: el ÚNICO lugar que escribe SQL sobre
- * la tabla `clientes`. Implementa el puerto ClienteRepository.
- */
+/** Único lugar con SQL sobre `clientes`. */
 import type { ResultSetHeader, RowDataPacket } from "mysql2"
 import { conflicto } from "../../../core/negocio.error.js"
 import type { Transaccion } from "../../../core/transaccion.port.js"

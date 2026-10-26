@@ -8,10 +8,7 @@ export type Bloqueo = {
   motivo: string | null
 }
 
-/**
- * Por qué no se puede cerrar ese período, o null si se puede. Las fechas son
- * "YYYY-MM-DD HH:MM": se comparan bien en orden alfabético.
- */
+/** Motivo por el que no se puede cerrar el período, o null. "YYYY-MM-DD HH:MM" se compara como string. */
 export function problemaDeBloqueo(desde: string, hasta: string, ahora: string): string | null {
   if (hasta <= desde) return "El final tiene que ser después del comienzo."
   if (hasta <= ahora) return "Ese período ya pasó."

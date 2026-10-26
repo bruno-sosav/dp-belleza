@@ -3,10 +3,7 @@ import { ApiError } from "../../../shared/lib/api"
 import { inputClass, primaryButtonClass } from "../../../shared/lib/styles"
 import { actualizarCliente } from "../api/clientes.api"
 
-/**
- * Notas internas sobre la clienta ("piel sensible", "prefiere la mañana"…).
- * Solo las ve la dueña. El botón de guardar aparece recién cuando hay cambios.
- */
+/** Notas internas que solo ve la dueña. Guardar aparece recién cuando hay cambios. */
 export default function NotasCliente({ id, notas, onGuardado }: { id: number; notas: string | null; onGuardado: () => void }) {
   const [texto, setTexto] = useState(notas ?? "")
   const [guardando, setGuardando] = useState(false)

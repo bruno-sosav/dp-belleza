@@ -1,7 +1,4 @@
-/**
- * Seña con Mercado Pago: lo que ve la clienta cuando vuelve de pagar
- * (/reserva/pago?t=<token>). El token es aleatorio y viaja en la URL de vuelta.
- */
+/** Estado de la seña al volver de Mercado Pago (/reserva/pago?t=<token>). */
 import { api } from "../lib/api"
 
 export type EstadoSena = {

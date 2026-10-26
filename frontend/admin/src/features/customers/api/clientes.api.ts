@@ -1,19 +1,10 @@
-/**
- * Clientas del panel: pedidos a /api/admin/clientes.
- *
- * Una clienta es la misma persona en la turnera y en la tienda (se identifica
- * por teléfono), así que la ficha trae los dos historiales.
- */
+/** /api/admin/clientes. La clienta es la misma en turnera y tienda (por teléfono): la ficha trae ambos historiales. */
 import { useCallback } from "react"
 import { api } from "../../../shared/lib/api"
 import { useApi } from "../../../shared/lib/useApi"
 import type { EstadoTurno } from "../../appointments/api/turnos.api"
 
-/**
- * Los tipos de acá son exactamente lo que devuelve el backend (los DTOs de
- * backend/src/modules/customers/schemas/clientes.dto.ts): cada pantalla
- * recibe solo lo que usa.
- */
+/** Espejo de los DTOs de backend/src/modules/customers/schemas/clientes.dto.ts. */
 
 /** Los datos de una clienta: lo que devuelven el alta y la edición. */
 export type Cliente = {
@@ -110,10 +101,7 @@ export function usePosiblesDuplicados(id: number) {
   return useApi(pedir)
 }
 
-/**
- * Une `otraId` a la ficha `id`: le pasa turnos, compras y recordatorios, y la
- * borra. `telefonoDe` elige con qué teléfono se queda la ficha.
- */
+/** Pasa turnos, compras y recordatorios de `otraId` a `id` y la borra. `telefonoDe`: con cuál teléfono queda. */
 export function unirClientes(id: number, otraId: number, telefonoDe: "esta" | "otra") {
   return api<{ id: number; turnos: number; compras: number }>(`/api/admin/clientes/${id}/unir`, {
     metodo: "POST",

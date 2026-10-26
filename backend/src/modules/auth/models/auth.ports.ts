@@ -1,8 +1,4 @@
-/**
- * Puertos de auth. Las usuarias viven en MySQL, las contraseñas se guardan con
- * bcrypt y la sesión es un JWT: los casos de uso no saben ninguna de las tres
- * cosas.
- */
+/** Puertos de auth: los casos de uso no saben de MySQL, bcrypt ni JWT. */
 import type { Usuario, UsuarioDeSesion } from "./usuario.model.js"
 
 export interface UsuariosRepository {

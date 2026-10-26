@@ -5,10 +5,7 @@ import { useServiciosDelDia } from "../api/estadisticas.api"
 import { formatLongDate, formatShortDate, weekdayName } from "../../../shared/lib/format"
 import { chartColors } from "../../../shared/components/charts/theme"
 
-/**
- * Detalle de un día elegido en el calendario: cuánto se hizo, en qué puesto quedó
- * dentro del período y cómo le fue contra el mismo día de la semana anterior.
- */
+/** Detalle del día elegido: total, puesto en el período y comparación con la semana anterior. */
 export default function DayDetail({
   day,
   days,

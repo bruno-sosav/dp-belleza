@@ -13,10 +13,7 @@ const icon = (d: ReactNode) => (
   </svg>
 )
 
-/**
- * La web pública es otra app en otro dominio, así que el link "Ver sitio" no
- * puede ser un <Link> de react-router. En desarrollo apunta al Vite del cliente.
- */
+/** La web pública es otra app en otro dominio: por eso un <a> y no un <Link>. */
 const siteUrl = import.meta.env.VITE_SITE_URL ?? "http://localhost:5173"
 
 const navItems = [
@@ -30,11 +27,7 @@ const navItems = [
   { to: "/productos", label: "Productos", icon: icon(<><path d="M4 7l8-4 8 4-8 4-8-4z" /><path d="M4 7v10l8 4 8-4V7M12 11v10" /></>) },
 ]
 
-/**
- * Marco de todas las pantallas del panel: menú lateral (arriba en el celular),
- * login si no hay sesión y el período elegido, compartido entre secciones.
- * No usa el Layout de la tienda: sin navbar, carrito ni footer públicos.
- */
+/** Marco del panel: menú, login si no hay sesión y el período compartido entre secciones. */
 export default function AdminLayout() {
   const [usuario, setUsuario] = useState<Usuario | null>(usuarioActual)
   const [period, setPeriod] = useState<Period>(30)

@@ -2,10 +2,7 @@ import type { ReactNode } from "react"
 import { periodOptions } from "../lib/stats"
 import { usePeriod } from "../lib/usePeriod"
 
-/**
- * Título de la sección + filtro de período. El filtro afecta a todo lo que está
- * debajo, para que todos los números de la pantalla coincidan.
- */
+/** Título de la sección + filtro de período, que aplica a todo lo de abajo. */
 export default function PageHeader({ title, description, withPeriod = true, action }: { title: string; description?: string; withPeriod?: boolean; action?: ReactNode }) {
   const { period, setPeriod } = usePeriod()
 

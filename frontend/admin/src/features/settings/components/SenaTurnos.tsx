@@ -8,10 +8,7 @@ import { guardarConfiguracion, useConfiguracion } from "../api/ajustes.api"
 
 const opciones = [0, 10, 20, 30, 40, 50, 100]
 
-/**
- * Ajustes → Mercado Pago → Seña de los turnos: qué porcentaje del precio se
- * cobra al reservar desde la web. Solo se cobra con Mercado Pago conectado.
- */
+/** Porcentaje de seña al reservar desde la web. Solo aplica con Mercado Pago conectado. */
 export default function SenaTurnos({ conectado }: { conectado: boolean }) {
   const config = useConfiguracion()
   return (

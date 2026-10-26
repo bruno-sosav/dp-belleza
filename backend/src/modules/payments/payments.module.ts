@@ -1,12 +1,4 @@
-/**
- * Módulo de pagos (payments). Raíz de composición: crea las implementaciones
- * concretas, las inyecta en los casos de uso y exporta solo lo que el resto
- * del sistema puede usar.
- *
- * Tiene la CAJA (los cobros) y MERCADO PAGO (la cuenta del local, los links de
- * pago y los avisos). No depende de turnos: es turnos quien se conecta acá
- * (`conectarTurnos`), así no hay dependencias en círculo.
- */
+/** Raíz de composición de pagos: caja y Mercado Pago. Turnos se enchufa con `conectarTurnos`. */
 import { unidadDeTrabajoMySql } from "../../core/database/unidadDeTrabajo.database.js"
 import { relojDelSistema } from "../../core/reloj.port.js"
 import type { Transaccion } from "../../core/transaccion.port.js"

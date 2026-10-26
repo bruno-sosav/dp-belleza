@@ -2,10 +2,7 @@ import PageHeader from "../../../shared/components/PageHeader"
 import TurnosTabs from "../components/TurnosTabs"
 import DiasCerrados from "../components/DiasCerrados"
 
-/**
- * Turnos → Días cerrados (/turnos/dias-cerrados): feriados, vacaciones o un
- * rato puntual en que no se atiende. Esos horarios dejan de ofrecerse en la web.
- */
+/** Turnos → Días cerrados: feriados, vacaciones o un rato puntual. */
 export default function ClosedDaysPage() {
   return (
     <div>

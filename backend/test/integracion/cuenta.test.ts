@@ -1,7 +1,4 @@
-/**
- * Login y "Tu cuenta" por HTTP, con una usuaria de prueba (no la de la dueña):
- * se crea al empezar y se borra al terminar.
- */
+/** Login y Tu cuenta con una usuaria de prueba que se crea y se borra. */
 import bcrypt from "bcryptjs"
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import { pool } from "../../src/core/database/conexion.database.js"

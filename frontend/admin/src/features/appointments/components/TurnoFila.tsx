@@ -14,17 +14,8 @@ const botonGrande =
   "inline-flex min-h-12 items-center justify-center gap-2 rounded-xl px-5 text-base font-semibold transition disabled:cursor-not-allowed"
 
 /**
- * Un turno con DOS botones: ✅ y ❌. Pensado para que la dueña lo use sin pensar.
- *
- *   ✅ Completado  -> "completado". Se habilita cuando el turno ya empezó
- *                    (el backend no deja marcar como hecho algo que no pasó).
- *   ❌ Cancelar    -> antes de la hora del turno: "cancelado" (libera el horario).
- *   ❌ No vino     -> después de la hora: "ausente". Es el mismo botón, pero así
- *                    queda registrado quién falta sin avisar, que no es lo mismo
- *                    que cancelar.
- *
- * Una vez marcado, la fila muestra el resultado grande y un "Deshacer" chico
- * por si tocó el botón equivocado (cancelado no se deshace: libera el horario).
+ * Un turno con ✅ (se habilita cuando ya empezó) y ❌: "Cancelar" antes de la hora, "No vino" después.
+ * Lo marcado se puede deshacer, salvo cancelado (ya liberó el horario).
  */
 export default function TurnoFila({
   turno,

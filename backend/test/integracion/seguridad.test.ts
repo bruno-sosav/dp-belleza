@@ -1,8 +1,4 @@
-/**
- * Todo lo del panel (/api/admin) exige sesión. Con la reorganización por
- * módulos, cada uno monta sus rutas: si alguno quedara antes del control de
- * sesión, este test lo detecta.
- */
+/** Todo /api/admin exige sesión: detecta un módulo que monte rutas antes del control. */
 import { afterAll, describe, expect, it } from "vitest"
 import { api, cerrar } from "./ayuda.js"
 

@@ -5,6 +5,7 @@
   "type": "module",
   "exports": {
     "./lib/*": "./lib/*.ts",
+    "./types/*": "./types/*.ts",
     "./data/*": "./data/*.ts",
     "./styles/theme.css": "./styles/theme.css"
   }

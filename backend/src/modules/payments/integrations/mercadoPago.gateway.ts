@@ -1,7 +1,4 @@
-/**
- * La pasarela de pago con la API REST de Mercado Pago (sin SDK: son tres
- * llamadas). Docs: https://www.mercadopago.com.ar/developers/es/reference
- */
+/** API REST de Mercado Pago sin SDK. https://www.mercadopago.com.ar/developers/es/reference */
 import { externo, invalido } from "../../../core/negocio.error.js"
 import type { CuentaMercadoPago, PagoRecibido } from "../models/mercadoPago.model.js"
 import type { PasarelaDePago } from "../models/pagos.ports.js"

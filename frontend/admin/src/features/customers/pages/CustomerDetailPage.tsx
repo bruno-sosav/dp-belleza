@@ -26,10 +26,7 @@ const estadoPedido: Record<string, string> = {
   cancelado: "Cancelado",
 }
 
-/**
- * Ficha de una clienta: cómo contactarla, qué tan seguido viene, cuánto gastó,
- * las notas de la dueña y los historiales de turnos y de compras.
- */
+/** Ficha de una clienta: contacto, frecuencia, gasto, notas e historiales. */
 export default function CustomerDetailPage() {
   const id = Number(useParams().id)
   const { datos, cargando, error, recargar } = useFichaCliente(id)

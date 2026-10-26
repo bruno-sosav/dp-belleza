@@ -1,7 +1,6 @@
 /**
- * Rutas de los turnos. Mismas URLs de antes de la reorganización:
- *   web, bajo /api/turnos:  POST /, /reserva/:token, /mi-turno…, /sena/:token…
- *   panel, bajo /api/admin: /turnos, /turnos/:id, /turnos/:id/estado, /turnos/:id/completar
+ * Web (/api/turnos): POST /, /reserva/:token, /mi-turno…, /sena/:token…
+ * Panel (/api/admin): /turnos, /turnos/:id, /turnos/:id/estado, /turnos/:id/completar.
  */
 import { Router } from "express"
 import { limitarPorIp } from "../../../core/http/limitarPorIp.middleware.js"

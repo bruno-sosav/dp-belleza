@@ -1,8 +1,4 @@
-/**
- * La seña de un turno reservado desde la web: la clienta paga un porcentaje
- * con Mercado Pago y tiene SENA_MINUTOS para hacerlo; si no, el horario se
- * libera. Dominio puro.
- */
+/** Seña web por Mercado Pago: SENA_MINUTOS para pagar o se libera el horario. */
 import type { Turno } from "./turno.model.js"
 
 /** Minutos que tiene la clienta para pagar antes de que se libere el horario. */
@@ -21,13 +17,8 @@ export type PagoDeSena = { id: number; aprobado: boolean; monto: number; referen
 export const referenciaDeSena = (turnoId: number) => `turno-${turnoId}`
 
 /**
- * Qué hacer con un pago que llega para la seña de un turno. Puede llegar dos
- * veces (aviso y vuelta de la clienta) o tarde (después de que venció):
- *   - no aprobado, de menos, o la seña ya estaba pagada: nada;
- *   - turno esperando el pago: queda confirmado;
- *   - venció (cancelado por el sistema) y el horario sigue libre: se recupera;
- *   - venció y el horario ya lo tomó otra: sigue cancelado con la seña pagada
- *     (el panel avisa que hay que devolverla).
+ * El pago puede llegar repetido o tarde. Esperando → confirmado; vencido con lugar libre → se recupera;
+ * vencido y ocupado → sigue cancelado con seña pagada (hay que devolverla). Resto: nada.
  */
 export function resultadoDelPago(
   turno: Pick<Turno, "estado" | "canceladoPor" | "sena">,

@@ -1,14 +1,4 @@
-/**
- * Cliente HTTP del panel.
- *
- * Todas las rutas /api/admin/* del backend pasan por `requiereLogin`, así que
- * cada pedido viaja con el header `Authorization: Bearer <token>`. El token lo
- * guarda y lo lee sesion.ts.
- *
- * El backend contesta los errores siempre con la misma forma
- * ({ error, detalle? }), así que acá se traduce una sola vez a una excepción y
- * las pantallas no tienen que mirar `response.ok`.
- */
+/** Cliente HTTP del panel: agrega el token y convierte los errores { error, detalle? } en ApiError. */
 import { leerToken, cerrarSesion } from "./sesion"
 
 const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3000"

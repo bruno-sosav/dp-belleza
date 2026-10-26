@@ -1,9 +1,4 @@
-/**
- * Puertos de los turnos. Los de este módulo (repositorio, consultas) se
- * implementan con MySQL en repositories/; los que miran hacia otros módulos
- * (clientas, catálogo, pagos, caja, configuración) son
- * adaptadores a lo que esos módulos exportan.
- */
+/** Puertos de turnos: los propios con MySQL (repositories/), los de otros módulos con adaptadores. */
 import type { Transaccion } from "../../../core/transaccion.port.js"
 import type { EstadoTurno } from "./estados.model.js"
 import type { PagoDeSena } from "./sena.model.js"
@@ -122,10 +117,7 @@ export interface ConfiguracionDeTurnos {
   horasParaCancelar(): Promise<number>
 }
 
-/**
- * Lo que los turnos ANUNCIAN a quien se anote (recordatorios, por ejemplo),
- * sin conocerlo: así ningún módulo de los que escuchan queda en círculo.
- */
+/** Eventos de turnos para quien se suscriba (recordatorios), sin conocerlo: evita dependencias circulares. */
 export interface AvisosDeTurnos {
   /** Se movió de día u hora un turno pedido. Corre dentro de la transacción. */
   reprogramado(turnoId: number, tx: Transaccion): Promise<void>

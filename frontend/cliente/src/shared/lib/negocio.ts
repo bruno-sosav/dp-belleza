@@ -1,11 +1,4 @@
-/**
- * Datos de contacto del local: los carga la dueña en Ajustes del panel y la
- * web los lee de GET /api/configuracion. El horario sale de la agenda real
- * (GET /api/turnos/horarios), la misma que usa la turnera.
- *
- * Se piden una sola vez por visita y se comparten entre el pie de página, la
- * portada y Contacto.
- */
+/** Contacto (GET /api/configuracion) y horario (GET /api/turnos/horarios) del local, pedidos una vez por visita. */
 import { useEffect, useState } from "react"
 import { formatTelefono } from "@dp/shared/lib/format"
 import { describeOpeningHours } from "../../features/turnera/api/disponibilidad.api"

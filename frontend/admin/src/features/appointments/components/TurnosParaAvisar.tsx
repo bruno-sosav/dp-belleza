@@ -3,11 +3,7 @@ import { formatLongDate } from "../../../shared/lib/format"
 import { nombreCliente } from "../api/turnos.api"
 import type { TurnoParaAvisar } from "../api/agenda.api"
 
-/**
- * Turnos pedidos que quedaron afuera después de cerrar un día o cambiar el
- * horario. No se cancelan solos: la dueña le escribe a cada clienta (el
- * WhatsApp ya va con el mensaje armado) y decide si lo pasa a otro día.
- */
+/** Turnos que quedaron afuera de un cierre o cambio de horario. No se cancelan solos: WhatsApp con mensaje armado. */
 export default function TurnosParaAvisar({ turnos, motivo }: { turnos: TurnoParaAvisar[]; motivo: string }) {
   if (!turnos.length) return null
   return (

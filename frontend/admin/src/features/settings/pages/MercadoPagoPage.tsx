@@ -4,10 +4,7 @@ import PanelMercadoPago from "../components/PanelMercadoPago"
 import SenaTurnos from "../components/SenaTurnos"
 import { useMercadoPago } from "../api/mercadopago.api"
 
-/**
- * Ajustes → Mercado Pago (/ajustes/mercadopago): conectar la cuenta del local
- * y elegir la seña que se cobra al reservar desde la web.
- */
+/** Ajustes → Mercado Pago: conectar la cuenta y elegir la seña. */
 export default function MercadoPagoPage() {
   const estado = useMercadoPago()
   return (

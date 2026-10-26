@@ -8,10 +8,7 @@ const estilos: Record<EstadoTurno, { label: string; className: string }> = {
   cancelado: { label: "Cancelado", className: "bg-transparent text-ink-soft line-through ring-1 ring-cream-dark" },
 }
 
-/**
- * Etiqueta del estado de un turno. "ausente" se muestra como "No vino", que es
- * como lo dice la dueña. `grande` es para el resultado de un turno ya marcado.
- */
+/** Etiqueta del estado ("ausente" se muestra "No vino"). `grande`: resultado de un turno recién marcado. */
 export default function EstadoBadge({ estado, grande = false }: { estado: EstadoTurno; grande?: boolean }) {
   const { label, className } = estilos[estado]
   const tamaño = grande ? "px-4 py-2 text-base font-semibold" : "px-2.5 py-0.5 text-sm font-medium"

@@ -1,7 +1,4 @@
-/**
- * Un servicio de la estética (masaje, limpieza facial…): lo que se reserva
- * como turno. Dominio puro: tipos y reglas, sin base de datos ni HTTP.
- */
+/** Servicio de la estética: lo que se reserva como turno. */
 
 export const ETIQUETAS = ["Nuevo", "Más elegido", "Promo"] as const
 export type Etiqueta = (typeof ETIQUETAS)[number]
@@ -62,13 +59,7 @@ const clave = (texto: string) =>
     .normalize("NFD")
     .replace(/[̀-ͯ]/g, "")
 
-/**
- * Si la dueña escribe una categoría que ya existe escrita de otra forma
- * ("masajes", "MASAJES", "depilacion"), se usa la que ya existe. Así no
- * terminan siendo dos categorías distintas en la web.
- *
- * @param existentes las categorías en uso, de la más usada a la menos usada
- */
+/** Reusa una categoría existente si coincide sin mayúsculas ni tildes. `existentes`: de más a menos usada. */
 export function elegirCategoria(escrita: string, existentes: string[]): string {
   const limpia = limpiarCategoria(escrita)
   return existentes.find((e) => clave(e) === clave(limpia)) ?? limpia

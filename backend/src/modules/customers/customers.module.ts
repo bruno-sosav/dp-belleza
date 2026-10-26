@@ -1,11 +1,4 @@
-/**
- * Módulo de clientas (customers): acá se ARMA el módulo. Es la "raíz de
- * composición": se crean las implementaciones concretas (MySQL), se inyectan
- * en los casos de uso y se exporta solo lo que el resto del sistema puede usar.
- *
- * Ningún otro módulo importa archivos de adentro de customers/: usan lo que
- * exporta este archivo.
- */
+/** Raíz de composición de clientas. Los demás módulos usan solo lo que exporta este archivo. */
 import { unidadDeTrabajoMySql } from "../../core/database/unidadDeTrabajo.database.js"
 import type { Transaccion } from "../../core/transaccion.port.js"
 import {

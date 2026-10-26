@@ -26,11 +26,8 @@ const aFranjas = (semana: Semana): Horario[] =>
   semana.flatMap((franjas, i) => franjas.map((f) => ({ diaSemana: i + 1, ...f })))
 
 /**
- * El horario de la semana: un renglón por día, Abierto/Cerrado, y una o más
- * franjas (para cerrar al mediodía). Se guarda la semana entera de una vez.
- *
- * No cancela turnos: si el horario nuevo deja turnos pedidos afuera, se listan
- * con el botón de WhatsApp para avisarle a cada clienta.
+ * Horario semanal con una o más franjas por día; se guarda la semana entera.
+ * No cancela turnos: lista los que quedan afuera para avisar por WhatsApp.
  */
 export default function EditorHorario({ horarios }: { horarios: Horario[] }) {
   /** Lo último guardado: contra eso se compara para saber si hay cambios. */

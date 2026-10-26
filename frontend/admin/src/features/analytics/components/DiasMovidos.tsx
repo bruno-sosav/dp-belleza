@@ -10,11 +10,7 @@ const opciones: { metrica: DayMetric; label: string; descripcion: string }[] = [
   { metrica: "bookingCount", label: "📅 Por turnos", descripcion: "Cuanto más rojo, más turnos hubo ese día." },
 ]
 
-/**
- * "¿Qué días estuvo movido?": el calendario coloreado, los 5 días más fuertes
- * y el detalle del día elegido. Antes estaba dos veces (una en Ganancias por
- * plata, otra en Turnos por cantidad); ahora es uno solo con un selector.
- */
+/** Calendario de días movidos, top 5 y detalle del día, con selector plata/turnos. */
 export default function DiasMovidos({ days, allDays }: { days: DayStats[]; allDays: DayStats[] }) {
   const [metrica, setMetrica] = useState<DayMetric>("total")
   const [elegido, setElegido] = useState<string | null>(null)

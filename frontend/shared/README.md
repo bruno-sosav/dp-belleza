@@ -4,10 +4,10 @@ Lo que usan **las dos** apps del frontend (`cliente/` y `admin/`).
 
 | Carpeta | Qué es | Cuándo haya API |
 |---|---|---|
-| `lib/` | `formatPrice` | Se queda |
+| `lib/` | `formatPrice`, `formatTelefono`, `categoriesOf` | Se queda |
+| `types/servicio.types.ts` | Tipo `Service`: el contrato de `GET /api/turnos/servicios` | — |
 | `styles/theme.css` | Tokens de Tailwind (colores, tipografías) y estilos base | Se queda |
 | `data/products.ts` | **MOCK.** Catálogo de productos | Se reemplaza por `GET /api/tienda/productos` |
-| `data/services.ts` | Tipo `Service`: el contrato de `GET /api/turnos/servicios` (ya sin datos) | — |
 
 `data/` está acá porque productos y servicios son datos de dominio que las dos
 apps necesitan leer: la web para venderlos, el panel para hacer estadísticas.

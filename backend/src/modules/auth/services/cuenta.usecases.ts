@@ -1,11 +1,4 @@
-/**
- * Ajustes → Tu cuenta: la usuaria del panel cambia su nombre, su email de
- * ingreso y su contraseña.
- *
- * Cambiar el email o la contraseña pide la contraseña actual: si alguien
- * encuentra la sesión abierta en la compu del local, no puede quedarse con la
- * cuenta.
- */
+/** Tu cuenta. Cambiar email o contraseña pide la actual (sesión abierta en la compu del local). */
 import { invalido, noEncontrado } from "../../../core/negocio.error.js"
 import { cambiaElEmail, deSesion, problemaDeContrasena, type Usuario, type UsuarioDeSesion } from "../models/usuario.model.js"
 import type { Contrasenas, Sesiones, UsuariosRepository } from "../models/auth.ports.js"

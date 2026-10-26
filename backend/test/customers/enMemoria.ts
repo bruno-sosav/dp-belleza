@@ -1,9 +1,4 @@
-/**
- * Implementaciones EN MEMORIA de los puertos de clientas, para probar los
- * casos de uso sin MySQL. Es lo que permite la clean architecture: los casos
- * de uso solo conocen las interfaces, así que se les puede pasar cualquier
- * implementación.
- */
+/** Puertos de clientas en memoria, para probar los casos de uso sin MySQL. */
 import { conflicto } from "../../src/core/negocio.error.js"
 import type { Transaccion, UnidadDeTrabajo } from "../../src/core/transaccion.port.js"
 import type { Actividad, CambiosCliente, Cliente, DatosCliente } from "../../src/modules/customers/models/cliente.model.js"

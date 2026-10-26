@@ -1,15 +1,6 @@
 /**
- * Ayuda para los tests de integración: pegan contra la app de verdad
- * (supertest, sin levantar el puerto) y contra la base de desarrollo.
- *
- * Para no pisar datos reales:
- *   - las fechas son de 2030 (ningún seed llega ahí), y los días y horas se
- *     eligen según el horario que tenga cargado el local, no fijos,
- *   - los teléfonos son 223 555 99xx (ningún seed los usa),
- *   - todo lo que se crea se anota y `limpiar()` lo borra al final.
- *
- * Se puede apuntar a otra base con DB_NAME (por ejemplo una dp_belleza_test
- * con las mismas migraciones).
+ * Tests de integración contra la app (supertest) y la base de dev (o DB_NAME).
+ * Sin pisar datos: fechas 2030, teléfonos 223 555 99xx y `limpiar()` borra lo creado.
  */
 import request from "supertest"
 import type { RowDataPacket } from "mysql2"
@@ -25,11 +16,7 @@ export const telefonoEscrito = (n: number) => `223 555-99${String(n).padStart(2,
 
 const aClave = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
 
-/**
- * Un día de 2030 en que el local atiende, según el horario que tenga cargado
- * la dueña (no se asume ningún día ni hora). Cada archivo usa su `n`, así no se
- * pisan entre sí: es el n-ésimo día abierto a partir de la semana n de 2030.
- */
+/** N-ésimo día abierto de 2030 según el horario cargado; cada archivo usa su `n` para no pisarse. */
 export async function diaAbierto(n: number): Promise<string> {
   const horarios = (await api().get("/api/turnos/horarios")).body as { diaSemana: number }[]
   const abiertos = new Set(horarios.map((h) => h.diaSemana))

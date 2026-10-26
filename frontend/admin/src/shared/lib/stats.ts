@@ -1,20 +1,6 @@
 /**
- * Cuentas de presentación sobre la serie diaria que devuelve la API.
- *
- * Los totales por día los calcula el backend en SQL (GROUP BY). Acá quedan solo
- * las cuentas que se hacen sobre esa serie ya agregada: cortar el período,
- * comparar con el anterior, ordenar los días más movidos, promediar por día de
- * la semana. Son como máximo 180 puntos, no miles de filas.
- *
- * Los rankings (servicios más pedidos, qué se hizo tal día) son endpoints
- * aparte: ver features/analytics/api/estadisticas.api.ts.
- *
- * Todas las funciones reciben los días por parámetro. Antes había un `allDays`
- * de módulo construido desde datos falsos; ahora los días llegan de la API y
- * los provee el componente.
- *
- * Ganancia = ventas de la tienda + turnos completados (los cancelados y
- * ausentes no suman plata, pero se cuentan aparte).
+ * Cuentas sobre la serie diaria que ya agregó el backend: cortar período, comparar, rankear días.
+ * Ganancia = tienda + turnos completados (cancelados y ausentes no suman).
  */
 
 import { fromDateKey, toDateKey } from "./fechas"

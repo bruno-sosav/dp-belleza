@@ -1,7 +1,4 @@
-/**
- * Reglas de la cuenta de Mercado Pago del local y de los pagos que llegan.
- * Dominio puro: la API de Mercado Pago está detrás de PasarelaDePago.
- */
+/** Reglas de la cuenta de Mercado Pago y de los pagos. La API está detrás de PasarelaDePago. */
 import { createHmac, timingSafeEqual } from "node:crypto"
 
 export type ModoCuenta = "prueba" | "produccion"
@@ -54,11 +51,7 @@ export function destinoDelPago(referencia: string | null): { tipo: string; id: n
   return m ? { tipo: m[1], id: Number(m[2]) } : null
 }
 
-/**
- * Verifica la firma de un aviso de Mercado Pago (header x-signature: "ts=...,v1=...").
- * Mercado Pago firma con HMAC-SHA256 el texto "id:<data.id>;request-id:<x-request-id>;ts:<ts>;"
- * usando la "clave secreta" del webhook que se copia de su panel.
- */
+/** Firma del webhook (x-signature "ts=…,v1=…"): HMAC-SHA256 de "id:<data.id>;request-id:<x-request-id>;ts:<ts>;". */
 export function firmaValida(secreto: string, firma: string | undefined, requestId: string | undefined, dataId: string): boolean {
   if (!firma) return false
   const partes = Object.fromEntries(firma.split(",").map((p) => p.trim().split("=") as [string, string]))

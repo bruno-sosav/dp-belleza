@@ -1,8 +1,4 @@
-/**
- * Módulo del catálogo (catalog): servicios, productos, categorías y precios.
- * Raíz de composición: crea las implementaciones MySQL, las inyecta en los
- * casos de uso y exporta solo lo que el resto del sistema puede usar.
- */
+/** Raíz de composición del catálogo: servicios, productos y categorías. */
 import { ActualizarProducto, CrearProducto, GestionarCategorias, ListarProductos, VerProducto } from "./services/productos.usecases.js"
 import { ActualizarServicio, CrearServicio, ListarServicios, VerServicio } from "./services/servicios.usecases.js"
 import type { ServicioReservable } from "./models/servicio.model.js"
@@ -43,10 +39,7 @@ export const catalogo = {
   /** Todo el catálogo para el panel: se monta bajo /api/admin. */
   rutasPanel: rutasPanelCatalogo(controller),
 
-  /**
-   * Lo que necesita la agenda de un servicio para dar un turno (id, nombre,
-   * precio, duración). `incluirPausados` para reprogramar turnos que ya existían.
-   */
+  /** Datos del servicio para dar un turno. `incluirPausados`: para reprogramar turnos existentes. */
   servicioReservable: (id: number, opciones?: { incluirPausados?: boolean }): Promise<ServicioReservable> =>
     verServicio.reservable(id, opciones),
 

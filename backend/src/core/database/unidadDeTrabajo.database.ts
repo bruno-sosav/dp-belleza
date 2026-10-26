@@ -7,18 +7,12 @@ export const unidadDeTrabajoMySql: UnidadDeTrabajo = {
   ejecutar: (trabajo) => enTransaccion((conn) => trabajo(conn as unknown as Transaccion)),
 }
 
-/**
- * Para los módulos que todavía no se mudaron a modules/ y manejan su propia
- * conexión: la presentan como Transaccion para llamar a un módulo nuevo.
- */
+/** Envuelve una conexión propia como Transaccion, para código que todavía no está en modules/. */
 export function comoTransaccion(conn: PoolConnection): Transaccion {
   return conn as unknown as Transaccion
 }
 
-/**
- * Para los repositorios MySQL: la conexión de la transacción en curso, o el
- * pool si el caso de uso no abrió una.
- */
+/** La conexión de la transacción en curso, o el pool si no hay una. */
 export function ejecutor(tx?: Transaccion): Pool | PoolConnection {
   return tx ? (tx as unknown as PoolConnection) : pool
 }

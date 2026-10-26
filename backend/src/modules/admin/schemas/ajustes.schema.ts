@@ -1,8 +1,4 @@
-/**
- * Lo que ENTRA al guardar ajustes. Solo estas claves, cada una con su
- * validación: la tabla es clave/valor de texto, y un "abc" en
- * `intervalo_turnos_min` rompería la disponibilidad de la web.
- */
+/** Solo estas claves, validadas: un "abc" en intervalo_turnos_min rompería la disponibilidad. */
 import { z } from "zod"
 
 export const cambiosAjustes = z

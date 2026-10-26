@@ -8,13 +8,7 @@ import type { FichaCorta } from "../api/clientes.api"
 const opcionClass =
   "flex min-h-14 w-full items-center justify-between gap-3 rounded-xl border border-cream-dark bg-surface px-4 py-3 text-left text-base text-ink transition hover:border-rose-dark hover:bg-rose/10"
 
-/**
- * Unir esta ficha con otra de la misma persona (reservó con dos teléfonos).
- * Esta ficha queda; la otra le pasa sus turnos y compras y se borra.
- *
- * Arriba aparecen las que el sistema cree que son la misma persona; si no
- * está, se busca a mano.
- */
+/** Une otra ficha de la misma persona a esta (la otra se borra). Sugiere posibles duplicados o busca a mano. */
 export default function UnirCliente({ cliente, onUnida }: { cliente: FichaCorta; onUnida: () => void }) {
   const [abierto, setAbierto] = useState(false)
   const [otra, setOtra] = useState<FichaCorta | null>(null)

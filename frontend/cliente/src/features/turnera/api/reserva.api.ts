@@ -1,7 +1,7 @@
 /**
  * Reserva de turnos: lo que se manda a `POST /api/turnos` y lo que vuelve.
  */
-import type { Service } from "@dp/shared/data/services"
+import type { Service } from "@dp/shared/types/servicio.types"
 import { api } from "../lib/api"
 
 export type BookingContact = {
@@ -53,10 +53,7 @@ export type ConfirmedBooking = {
   contact: BookingContact
 }
 
-/**
- * Qué le falta al formulario para poder reservar, o `null` si está listo.
- * Mismos mínimos que valida el backend, para no mandar algo que va a rebotar.
- */
+/** Qué le falta al formulario (o `null`). Mismos mínimos que valida el backend. */
 export function contactProblem(contact: BookingContact): string | null {
   if (contact.fullName.trim().length < 3 || contact.phone.trim().length < 6) {
     return "Completá al menos tu nombre y tu teléfono para confirmar."
@@ -115,11 +112,7 @@ type ReservaGuardada = {
   cliente: { nombre: string; telefono: string; email: string | null }
 }
 
-/**
- * La confirmación de una reserva a partir del token de la URL
- * (/reserva-confirmada?t=…), para cuando la pantalla se recarga y ya no está
- * el `state` de la navegación. Devuelve la misma forma que arma Booking.
- */
+/** Confirmación por el token de la URL, para cuando se recarga y se perdió el `state`. */
 export async function fetchConfirmedBooking(token: string): Promise<ConfirmedBooking> {
   const r = await api<ReservaGuardada>(`/api/turnos/reserva/${token}`)
   return {

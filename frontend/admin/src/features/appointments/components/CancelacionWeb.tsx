@@ -14,10 +14,7 @@ const opciones = [
   { horas: 48, label: "Hasta 2 días antes" },
 ]
 
-/**
- * Hasta cuándo la clienta puede cancelar sola desde la web ("Mi turno").
- * Después de ese límite, la web le ofrece escribir por WhatsApp.
- */
+/** Hasta cuándo la clienta puede cancelar sola en "Mi turno"; después, WhatsApp. */
 export default function CancelacionWeb() {
   const config = useConfiguracion()
 

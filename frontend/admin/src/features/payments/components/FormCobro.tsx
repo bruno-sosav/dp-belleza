@@ -7,14 +7,8 @@ import type { MedioPago } from "../lib/medios"
 import { inputClass, labelClass, primaryButtonClass, secondaryButtonClass } from "../../../shared/lib/styles"
 
 /**
- * "¿Cuánto cobraste y cómo?". Lo usan ✅ Completado (en cada turno) y la caja.
- *
- * El monto viene puesto (lo que falta cobrar del turno) y se puede cambiar:
- * a veces se hace un descuento o se cobra algo de más. El medio son botones
- * grandes, uno por medio de pago.
- *
- * `onSinCobrar`: muestra "Todavía no cobré" (al completar un turno que se paga
- * después); el turno queda en Caja → sin cobrar.
+ * Monto (viene lo que falta, editable) y medio de pago. Lo usan ✅ Completado y Caja.
+ * `onSinCobrar` muestra "Todavía no cobré": el turno queda en Caja → sin cobrar.
  */
 export default function FormCobro({
   montoSugerido,

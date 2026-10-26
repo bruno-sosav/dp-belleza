@@ -4,12 +4,7 @@ import { ApiError } from "../../../shared/lib/api"
 import { secondaryButtonClass } from "../../../shared/lib/styles"
 import { eliminarCliente } from "../api/clientes.api"
 
-/**
- * Eliminar una clienta. Solo se permite si no tiene turnos ni compras: con
- * historial, borrarla haría desaparecer esa plata de Finanzas (el backend
- * también lo impide). En ese caso no se ofrece el botón y se explica por qué,
- * en vez de dejarla tocar algo que va a fallar.
- */
+/** Solo sin turnos ni compras (el backend también lo impide): con historial, borraría plata de Finanzas. */
 export default function EliminarCliente({ id, nombre, tieneHistorial }: { id: number; nombre: string; tieneHistorial: boolean }) {
   const navigate = useNavigate()
   const [confirmando, setConfirmando] = useState(false)

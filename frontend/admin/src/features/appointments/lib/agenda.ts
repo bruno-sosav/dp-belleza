@@ -1,9 +1,4 @@
-/**
- * Cuentas de la agenda semanal: dónde va cada turno en la grilla.
- *
- * Todo en minutos desde medianoche, igual que el backend (core/tiempo.util.ts):
- * así no se pasa por Date y no hay corrimientos de zona horaria.
- */
+/** Posición de cada turno en la grilla. En minutos desde medianoche, como el backend: sin Date ni zonas horarias. */
 import type { EstadoTurno, Turno } from "../api/turnos.api"
 
 /** "14:30" -> 870 */
@@ -14,12 +9,7 @@ export function aMinutos(hora: string): number {
 
 export type Carril = { carril: number; carriles: number }
 
-/**
- * Si dos turnos se pisan (puede pasar con un "no vino": libera el horario y
- * alguien más lo reserva), se dibujan uno al lado del otro en vez de uno encima
- * del otro. Devuelve, para cada turno, en qué carril va y cuántos carriles tiene
- * su grupo, para calcular el ancho.
- */
+/** Turnos que se pisan (un "no vino" libera el horario) se dibujan lado a lado: carril y total de carriles. */
 export function asignarCarriles(turnos: Turno[]): Map<number, Carril> {
   const resultado = new Map<number, Carril>()
   const ordenados = [...turnos].sort((a, b) => a.horaInicio.localeCompare(b.horaInicio))
@@ -51,11 +41,7 @@ export function asignarCarriles(turnos: Turno[]): Map<number, Carril> {
   return resultado
 }
 
-/**
- * Un turno reservado en la web que todavía espera el pago de la seña: puede
- * liberarse solo si no la pagan a tiempo. En la agenda se ve punteado y con ⏳
- * para que no parezca un turno firme.
- */
+/** Reservado en la web esperando seña: puede liberarse solo. Se dibuja punteado con ⏳. */
 export const esperandoSena = (t: Turno) => t.estado === "reservado" && t.sena?.estado === "pendiente"
 
 export const bloqueEsperandoSena = "border-dashed border-[#e0b44a] bg-[#fdf3dc] text-ink"

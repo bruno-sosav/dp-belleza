@@ -1,8 +1,4 @@
-/**
- * TRANSITORIO. Implementa el puerto TurnosDeServicios leyendo la tabla de
- * turnos, que no es de este módulo. Cuando se mude appointments/, ese módulo
- * provee este dato y este archivo desaparece.
- */
+/** TRANSITORIO: lee la tabla de turnos (de otro módulo). Debería proveerlo appointments. */
 import type { RowDataPacket } from "mysql2"
 import { ejecutor } from "../../../core/database/unidadDeTrabajo.database.js"
 import type { TurnosDeServicios } from "../models/catalogo.ports.js"

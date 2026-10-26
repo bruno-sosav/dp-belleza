@@ -1,22 +1,11 @@
-/**
- * Límite simple de pedidos por IP, en memoria. Para las rutas públicas donde
- * alguien podría abusar: probar combinaciones a lo bruto (el código de un turno
- * ajeno en "Mi turno", contraseñas en el login) o llenar la agenda de reservas.
- *
- * En memoria alcanza para una sola instancia de la API; si algún día corren
- * varias, esto pasa a Redis o similar.
- */
+/** Límite de pedidos por IP, en memoria (una sola instancia; con varias, Redis). Contra fuerza bruta y spam de reservas. */
 import type { RequestHandler } from "express"
 
 type Opciones = {
   maximo: number
   ventanaMs: number
   mensaje: string
-  /**
-   * Contar solo lo que salió bien (respuesta < 400). Para las reservas: una
-   * clienta que se equivoca de horario y prueba otro no debería gastar intentos;
-   * lo que se limita es cuántos turnos se toman.
-   */
+  /** Contar solo respuestas < 400: equivocarse de horario no gasta intentos, tomar turnos sí. */
   soloExitosos?: boolean
 }
 

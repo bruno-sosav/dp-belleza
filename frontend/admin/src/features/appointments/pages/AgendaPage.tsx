@@ -26,30 +26,14 @@ const leyenda: { estado: EstadoTurno; label: string }[] = [
 
 const botonNav = `${secondaryButtonClass} min-h-12 px-4 text-base`
 
-/**
- * Agenda: la semana en un calendario, para que la dueña vea de un vistazo qué
- * turnos tiene, cuándo y a qué hora.
- *
- * En la computadora es una grilla de lunes a domingo. En el celular no entra:
- * se elige el día arriba y abajo se ven los turnos de ese día, con los mismos
- * botones que en la pantalla de Hoy.
- *
- * Los turnos nuevos se dan desde acá: con el botón "Nuevo turno" o tocando un
- * espacio vacío del calendario (que ya trae el día y la hora).
- *
- * Los cancelados no se muestran por defecto: liberaron el horario y en la
- * grilla confunden. Se pueden mostrar con el botón de abajo.
- */
+/** Agenda semanal: grilla en desktop, un día a la vez en el celular. Los cancelados se ocultan por defecto. */
 export default function AgendaPage() {
   const ahora = useAhora()
   const [lunes, setLunes] = useState(() => lunesDeSemana(ahora.fecha))
   const [diaMovil, setDiaMovil] = useState(ahora.fecha)
   const [elegidoId, setElegidoId] = useState<number | null>(null)
   const [verCancelados, setVerCancelados] = useState(false)
-  /**
-   * El formulario de turno abierto: uno nuevo (con lo que ya se sabe: día y, si
-   * tocó la grilla, hora) o cambiar uno que existe.
-   */
+  /** Formulario abierto: nuevo (con día y quizás hora) o editar uno existente. */
   const [formulario, setFormulario] = useState<{ fecha: string; hora?: string; turno?: Turno } | null>(null)
 
   const dias = Array.from({ length: 7 }, (_, i) => sumarDias(lunes, i))

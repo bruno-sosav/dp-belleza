@@ -1,9 +1,4 @@
-/**
- * La clienta: una persona que reserva turnos y/o compra en la tienda. Es UNA
- * sola ficha aunque use las dos cosas, y se la identifica por el teléfono.
- *
- * Este archivo es dominio puro: tipos y reglas, sin base de datos ni HTTP.
- */
+/** La clienta: una sola ficha para turnos y tienda, identificada por teléfono. */
 
 export type Cumple = { dia: number; mes: number }
 
@@ -34,10 +29,7 @@ export type DatosCliente = {
 
 export type CambiosCliente = Partial<DatosCliente>
 
-/**
- * Lo que hizo la clienta en el resto del sistema (turnos y tienda). No es de
- * este módulo: lo proveen los otros a través del puerto ActividadDeClientes.
- */
+/** Actividad en otros módulos, provista por el puerto ActividadDeClientes. */
 export type Actividad = {
   /** Turnos completados. */
   visitas: number
@@ -73,21 +65,14 @@ export function cumpleValido({ dia, mes }: Cumple): boolean {
   return mes >= 1 && mes <= 12 && dia >= 1 && dia <= DIAS_DEL_MES[mes - 1]
 }
 
-/**
- * "Ana María Pérez" → nombre "Ana María", apellido "Pérez". Así llega el
- * nombre desde la web y la tienda: en un solo campo.
- */
+/** "Ana María Pérez" → nombre "Ana María", apellido "Pérez" (la web lo manda en un campo). */
 export function separarNombreCompleto(texto: string): { nombre: string; apellido: string | null } {
   const partes = texto.trim().split(/\s+/)
   if (partes.length === 1) return { nombre: partes[0], apellido: null }
   return { nombre: partes.slice(0, -1).join(" "), apellido: partes[partes.length - 1] }
 }
 
-/**
- * Cuando una clienta que ya existe vuelve a reservar o comprar: qué datos
- * nuevos se le agregan. NUNCA se pisa lo que ya tiene (la dueña pudo haber
- * corregido el nombre en la ficha); solo se completa lo que falta.
- */
+/** Clienta existente que vuelve: solo se completa lo que falta, nunca se pisa (la dueña pudo corregirlo). */
 export function datosParaCompletar(existente: Cliente, nuevos: DatosCliente): CambiosCliente {
   const cambios: CambiosCliente = {}
   if (!existente.apellido && nuevos.apellido) cambios.apellido = nuevos.apellido
@@ -96,10 +81,7 @@ export function datosParaCompletar(existente: Cliente, nuevos: DatosCliente): Ca
   return cambios
 }
 
-/**
- * Por qué no se puede borrar una clienta, o null si se puede. Con turnos o
- * compras no: esa plata desaparecería de Finanzas.
- */
+/** Con turnos o compras no se borra (esa plata desaparecería de Finanzas). */
 export function motivoParaNoEliminar(nombre: string, uso: { turnos: number; pedidos: number }): string | null {
   if (!uso.turnos && !uso.pedidos) return null
   const partes = [
@@ -109,11 +91,7 @@ export function motivoParaNoEliminar(nombre: string, uso: { turnos: number; pedi
   return `No se puede eliminar a ${nombre}: tiene ${partes.join(" y ")} registrados. Si se borrara, esa plata desaparecería de Finanzas.`
 }
 
-/**
- * Al unir dos fichas de la misma persona: cómo queda la que se conserva. Los
- * datos que le falten se completan con los de la otra, las notas se juntan y
- * el teléfono es el que se eligió.
- */
+/** Ficha que queda al unir: completa lo que falta con la otra, junta notas y usa el teléfono elegido. */
 export function fusionarFichas(queda: Cliente, otra: Cliente, telefonoDe: "esta" | "otra"): CambiosCliente {
   return {
     apellido: queda.apellido ?? otra.apellido,

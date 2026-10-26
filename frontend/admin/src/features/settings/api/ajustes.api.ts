@@ -1,7 +1,4 @@
-/**
- * Ajustes del local: /api/admin/configuracion. Las validaciones de cada clave
- * están en backend/src/modules/admin/schemas/ajustes.schema.ts.
- */
+/** /api/admin/configuracion. Validaciones en backend/src/modules/admin/schemas/ajustes.schema.ts. */
 import { useCallback } from "react"
 import { api } from "../../../shared/lib/api"
 import { useApi } from "../../../shared/lib/useApi"

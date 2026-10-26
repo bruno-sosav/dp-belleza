@@ -1,4 +1,4 @@
-import type { Service } from "@dp/shared/data/services"
+import type { Service } from "@dp/shared/types/servicio.types"
 import { formatPrice } from "@dp/shared/lib/format"
 import ServiceImage from "./ServiceImage"
 import { formatDuration, formatLongDate, formatTime } from "../lib/format"

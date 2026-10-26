@@ -1,8 +1,4 @@
-/**
- * Puertos de la agenda (horario, días cerrados y disponibilidad). Las
- * implementaciones están en repositories/; los servicios vienen del módulo
- * de catálogo a través de un adaptador.
- */
+/** Puertos de la agenda. Implementaciones en repositories/; los servicios llegan por catalogo.adapter. */
 import type { Transaccion } from "../../../core/transaccion.port.js"
 import type { Bloqueo } from "./bloqueo.model.js"
 import type { Ocupado } from "./disponibilidad.model.js"
@@ -40,11 +36,7 @@ export type TurnoPedido = {
 
 /** Lo que ocupa la agenda: los turnos que ya están tomados. */
 export interface OcupacionDeAgenda {
-  /**
-   * Turnos que ocupan ese día (los de seña vencida no). `bloquear`: que nadie
-   * tome un horario hasta que termine la transacción. `excluirTurnoId`: al
-   * reprogramar, el horario del propio turno no cuenta.
-   */
+  /** Turnos que ocupan el día (sin los de seña vencida). `bloquear`: FOR UPDATE · `excluirTurnoId`: al reprogramar. */
   turnosDelDia(fecha: string, opciones?: { tx?: Transaccion; bloquear?: boolean; excluirTurnoId?: number }): Promise<Ocupado[]>
   /** Turnos pedidos (reservados o confirmados) de ahora en adelante; opcionalmente solo los que pisan un rango. */
   pedidosFuturos(ahora: string, rango?: { desde: string; hasta: string }): Promise<TurnoPedido[]>

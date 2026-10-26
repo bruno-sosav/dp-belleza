@@ -1,13 +1,6 @@
 /**
- * Módulo de turnos (appointments). Raíz de composición: crea las
- * implementaciones concretas, las inyecta en los casos de uso y exporta solo
- * lo que el resto del sistema puede usar.
- *
- * Dos partes:
- *   - la AGENDA (`agenda`): horario de atención, días cerrados, reglas de
- *     reserva, disponibilidad y "¿está libre este lugar?";
- *   - los TURNOS (`turnos`): reservar desde la web, Mi turno, la seña, y dar,
- *     reprogramar, cambiar de estado y completar desde el panel.
+ * Raíz de composición de turnos. `agenda`: horario, días cerrados, reglas y disponibilidad.
+ * `turnos`: reservar, Mi turno, seña, y dar/reprogramar/completar desde el panel.
  */
 import { unidadDeTrabajoMySql } from "../../core/database/unidadDeTrabajo.database.js"
 import { relojDelSistema } from "../../core/reloj.port.js"

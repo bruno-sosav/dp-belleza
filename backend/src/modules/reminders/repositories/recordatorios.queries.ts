@@ -1,8 +1,4 @@
-/**
- * Vistas de lectura de recordatorios: leen turnos, servicios y clientas (de
- * otros módulos) para calcular a quién le toca cada aviso, en una consulta.
- * Nunca escriben esas tablas.
- */
+/** Lecturas de turnos, servicios y clientas para calcular avisos. Nunca escriben. */
 import type { RowDataPacket } from "mysql2"
 import { ejecutor } from "../../../core/database/unidadDeTrabajo.database.js"
 import type { ConsultasDeRecordatorios, TurnoCandidato } from "../models/recordatorios.ports.js"

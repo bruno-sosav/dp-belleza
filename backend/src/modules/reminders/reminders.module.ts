@@ -1,12 +1,4 @@
-/**
- * Módulo de recordatorios (reminders). Raíz de composición: crea las
- * implementaciones concretas, las inyecta en los casos de uso y exporta solo
- * lo que el resto del sistema puede usar.
- *
- * Es dueño de los tipos de recordatorio y de lo ya mandado. Turnos y clientas
- * no lo conocen: este módulo se anota en sus avisos ("se reprogramó un turno",
- * "se unieron dos fichas"), así no hay dependencias en círculo.
- */
+/** Raíz de composición de recordatorios. Se suscribe a avisos de turnos y clientas: nadie lo importa. */
 import { relojDelSistema } from "../../core/reloj.port.js"
 import { turnos } from "../appointments/appointments.module.js"
 import { clientes } from "../customers/customers.module.js"

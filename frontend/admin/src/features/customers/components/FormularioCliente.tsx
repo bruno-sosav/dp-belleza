@@ -6,14 +6,7 @@ import { inputClass, labelClass, primaryButtonClass, secondaryButtonClass } from
 import { actualizarCliente, crearCliente } from "../api/clientes.api"
 import type { Cliente } from "../api/clientes.api"
 
-/**
- * Formulario de una clienta: sirve para darla de alta (sin `cliente`) o para
- * corregir sus datos (con `cliente`).
- *
- * El teléfono es lo que identifica a la clienta (con él se la encuentra cuando
- * vuelve a reservar o compra), así que el backend lo normaliza y no deja poner
- * uno que ya tenga otra persona.
- */
+/** Alta (sin `cliente`) o edición. El teléfono identifica a la clienta: el backend lo normaliza y no lo deja repetir. */
 export default function FormularioCliente({
   cliente,
   onGuardado,

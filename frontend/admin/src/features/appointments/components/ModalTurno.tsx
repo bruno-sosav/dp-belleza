@@ -6,13 +6,7 @@ import type { Ahora } from "../../../shared/lib/useAhora"
 import type { EstadoTurno, Turno } from "../api/turnos.api"
 import type { MedioPago } from "../../payments/lib/medios"
 
-/**
- * El detalle de un turno al tocarlo en el calendario. Usa la misma fila que la
- * pantalla de Hoy, así los botones (✅ / ❌ / WhatsApp) son los mismos en todos
- * lados y la dueña aprende una sola forma de hacer las cosas.
- *
- * Se cierra con la X, tocando afuera o con Escape.
- */
+/** Detalle de un turno del calendario. Usa TurnoFila para tener los mismos botones que Hoy. */
 export default function ModalTurno({
   turno,
   ahora,

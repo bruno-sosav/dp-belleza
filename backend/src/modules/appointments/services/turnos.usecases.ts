@@ -1,7 +1,3 @@
-/**
- * Casos de uso de los turnos. Sin SQL ni Express: reglas del dominio, la
- * agenda (VerificarLugar) y los puertos hacia otros módulos.
- */
 import { randomBytes } from "node:crypto"
 import { conflicto, ErrorDeNegocio, externo, invalido, noEncontrado, noExiste } from "../../../core/negocio.error.js"
 import type { Reloj } from "../../../core/reloj.port.js"
@@ -45,9 +41,8 @@ export type TurnosDeps = {
 }
 
 /**
- * Lo común de reservar (web) y dar (panel): valida, verifica que el lugar
- * esté libre DENTRO de la transacción (con los turnos del día bloqueados: así
- * dos reservas simultáneas no toman el mismo horario) y guarda.
+ * Común a reservar y dar: valida y chequea el lugar dentro de la transacción con el día bloqueado
+ * (dos reservas simultáneas no toman el mismo horario).
  */
 async function agendar(
   d: TurnosDeps,
@@ -167,11 +162,7 @@ export class ReservarTurno {
   }
 }
 
-/**
- * Un turno que da la dueña: entra confirmado (lo arregló ella), o completado
- * si el horario ya pasó (vino sin turno). Puede darlo fuera de horario, pero
- * nunca encima de otro turno o de un día cerrado.
- */
+/** Entra confirmado, o completado si ya pasó. Puede ir fuera de horario, nunca encima de otro turno o bloqueo. */
 export class DarTurno {
   constructor(private d: TurnosDeps) {}
 
@@ -195,11 +186,7 @@ export class DarTurno {
   }
 }
 
-/**
- * Reprogramar o corregir un turno (día, hora, servicio, nota). Las reglas de
- * qué se puede mover según el estado están en el dominio (problemaAlMover).
- * Si cambia el servicio, toma el precio y la duración actuales del nuevo.
- */
+/** Reglas en problemaAlMover. Si cambia el servicio, toma su precio y duración actuales. */
 export class ReprogramarTurno {
   constructor(private d: TurnosDeps) {}
 
@@ -313,11 +300,7 @@ export class VerTurnos {
 
 export type EstadoMiTurno = { turno: TurnoDeLaClienta; puedeCancelar: boolean; fueraDeTermino: boolean; horasMinimas: number }
 
-/**
- * Mi turno: la clienta busca su turno con el código y el teléfono, y lo puede
- * cancelar sola hasta el límite que puso la dueña. Si el código o el teléfono
- * no coinciden, el mismo error para los dos (no se revela cuál falló).
- */
+/** Código o teléfono incorrecto dan el mismo error: no se revela cuál falló. */
 export class MiTurno {
   constructor(private d: TurnosDeps) {}
 

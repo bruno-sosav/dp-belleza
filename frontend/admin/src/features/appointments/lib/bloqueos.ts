@@ -1,7 +1,4 @@
-/**
- * Cuentas y textos de los bloqueos. Las fechas vienen como "2026-12-24 00:00":
- * se cortan strings, igual que con los turnos, sin pasar por Date.
- */
+/** Textos y cuentas de bloqueos. Fechas "2026-12-24 00:00": se cortan strings, sin Date. */
 import type { Bloqueo } from "../api/agenda.api"
 import { aMinutos } from "./agenda"
 import { sumarDias } from "../../../shared/lib/fechas"

@@ -1,9 +1,4 @@
-/**
- * Los ajustes del negocio (Ajustes en el panel): parámetros que la dueña
- * cambia sin tocar código. La tabla es clave/valor de texto; acá están las
- * claves que existen, sus valores por defecto y cuáles puede ver la web.
- * Dominio puro.
- */
+/** Claves de ajustes (tabla clave/valor de texto), sus defaults y cuáles ve la web. */
 
 /** Las claves que se pueden leer y cambiar. Cualquier otra fila de la tabla se ignora. */
 export const CLAVES_AJUSTES = [

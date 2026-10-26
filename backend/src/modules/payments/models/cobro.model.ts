@@ -1,8 +1,4 @@
-/**
- * Un cobro: plata que entró a la caja. Entra de tres lados: al completar un
- * turno, la seña de Mercado Pago (sola) y lo que la dueña anota a mano.
- * Dominio puro.
- */
+/** Plata que entró a la caja: al completar un turno, por seña de Mercado Pago o a mano. */
 export const MEDIOS_PAGO = ["efectivo", "debito", "credito", "transferencia", "mercadopago"] as const
 export type MedioPago = (typeof MEDIOS_PAGO)[number]
 
@@ -34,10 +30,7 @@ export type NuevoCobro = {
   mpPagoId?: number | null
 }
 
-/**
- * Por qué no se puede anotar este cobro a mano, o null. Uno de seña o de turno
- * dice de qué turno es; "otro" dice qué fue, para saberlo después.
- */
+/** Seña o turno dicen de qué turno son; "otro" lleva descripción. */
 export function problemaDeCobroManual(c: { concepto: ConceptoCobro; turnoId?: number; descripcion?: string }): string | null {
   if (c.concepto !== "otro" && !c.turnoId) return "Un cobro de seña o de turno tiene que decir de qué turno es."
   if (c.concepto === "otro" && !c.descripcion) return "Contá en una línea qué es este cobro (por ejemplo, “gift card”)."

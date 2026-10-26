@@ -1,7 +1,4 @@
-/**
- * Controller del catálogo (la "C" de MVC): valida la entrada, llama al caso
- * de uso y devuelve el DTO. Sin reglas de negocio ni SQL.
- */
+/** Valida la entrada, llama al caso de uso y devuelve el DTO. */
 import type { Request, Response } from "express"
 import { servicioNuevo, type CambiosServicio } from "../models/servicio.model.js"
 import type { ActualizarProducto, CrearProducto, GestionarCategorias, ListarProductos, VerProducto } from "../services/productos.usecases.js"

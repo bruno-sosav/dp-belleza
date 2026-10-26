@@ -16,13 +16,7 @@ function leerAhora(): Ahora {
   }
 }
 
-/**
- * Fecha y hora actuales, actualizadas cada minuto.
- *
- * La pantalla de inicio queda abierta todo el día en el local: sin esto, el
- * turno "en curso" y los botones de "Completado" se quedarían congelados en la
- * hora en que se abrió la página.
- */
+/** Fecha y hora actuales, refrescadas cada minuto: Hoy queda abierta todo el día en el local. */
 export function useAhora(): Ahora {
   const [ahora, setAhora] = useState(leerAhora)
   useEffect(() => {

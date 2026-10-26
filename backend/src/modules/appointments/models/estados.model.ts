@@ -1,13 +1,6 @@
 /**
- * Estados de un turno y a cuáles se puede pasar desde cada uno.
- *
- *   reservado   la clienta lo pidió por la web
- *   confirmado  la dueña lo confirmó (por WhatsApp, en persona…)
- *   completado  se hizo: es lo que suma plata en las estadísticas
- *   ausente     la clienta no vino
- *   cancelado   se dio de baja y el horario queda libre
- *
- * Está separado del router para poder probarlo sin base de datos.
+ * Estados y transiciones permitidas. reservado: web · confirmado: la dueña · completado: suma plata
+ * · ausente: no vino · cancelado: libera el horario.
  */
 export const ESTADOS_TURNO = ["reservado", "confirmado", "completado", "ausente", "cancelado"] as const
 export type EstadoTurno = (typeof ESTADOS_TURNO)[number]

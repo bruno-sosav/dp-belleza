@@ -44,11 +44,7 @@ export class VerServicio {
     return { ...s, turnosProximos: (await this.turnos.pedidosAFuturo([id])).get(id) ?? 0 }
   }
 
-  /**
-   * Lo que necesita la agenda para dar un turno. Por defecto solo si está
-   * activo; `incluirPausados` es para reprogramar turnos que ya existían de un
-   * servicio que después se pausó.
-   */
+  /** Solo activos, salvo `incluirPausados` (reprogramar un turno de un servicio que se pausó). */
   async reservable(id: number, { incluirPausados = false } = {}): Promise<ServicioReservable> {
     const s = await this.repo.porId(id, { incluirPausados })
     if (!s) throw noExiste(`No existe el servicio ${id}.`)

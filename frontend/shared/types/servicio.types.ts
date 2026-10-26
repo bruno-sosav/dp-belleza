@@ -1,10 +1,4 @@
-/**
- * Servicios de la estética — la forma que devuelve `GET /api/turnos/servicios`.
- *
- * Es el contrato con el backend (ver `ServicioDTO` en
- * backend/src/turnera/service.ts): si cambia uno, cambia el otro. Los datos ya
- * no viven acá, los carga la dueña desde el panel.
- */
+/** Lo que devuelve `GET /api/turnos/servicios`. Espejo de `ServicioDTO` (backend/src/modules/catalog/schemas/catalogo.dto.ts). */
 
 export type ServiceBadge = "Nuevo" | "Más elegido" | "Promo"
 
@@ -27,9 +21,4 @@ export type Service = {
   badge?: ServiceBadge
   /** Cantidad de sesiones recomendadas para ver resultados. */
   recommendedSessions?: number
-}
-
-/** Categorías en el orden en que aparecen, sin repetir. */
-export function categoriesOf(services: Service[]): string[] {
-  return [...new Set(services.map((s) => s.category))]
 }

@@ -1,9 +1,6 @@
 /**
- * Colores de los gráficos del panel. Validados con el checker de paletas
- * (daltonismo, contraste y escalones) contra la superficie de las tarjetas #fdfefb.
- *
- * - Tienda y Turnos: siempre el mismo color en todos los gráficos.
- * - Rojos: escala de "qué tan movido estuvo el día" (claro = tranquilo, oscuro = muy movido).
+ * Colores de los gráficos, validados (daltonismo y contraste) contra el fondo #fdfefb.
+ * Tienda y Turnos usan siempre el mismo color; los rojos son la escala de días movidos.
  */
 export const chartColors = {
   shop: "#2a78d6",

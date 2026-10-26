@@ -6,15 +6,7 @@ export function formatPrice(value: number) {
   }).format(value)
 }
 
-/**
- * "5492235550001" → "223 555-0001" · "5491112345678" → "11 1234-5678".
- *
- * Los teléfonos vienen normalizados de la base (549 + 10 dígitos). Para
- * mostrarlos se saca el 549 y se separa el código de área: 2 dígitos para
- * Buenos Aires (11), 3 para el resto, que es el caso de Mar del Plata (223).
- * Las áreas de 4 dígitos se ven con un corte distinto, pero los números son los
- * mismos. Cualquier otro formato se muestra tal cual.
- */
+/** "5492235550001" → "223 555-0001". Saca el 549 y corta el área (2 dígitos si es 11, si no 3). */
 export function formatTelefono(telefono: string) {
   if (!/^549\d{10}$/.test(telefono)) return telefono
   const nacional = telefono.slice(3)

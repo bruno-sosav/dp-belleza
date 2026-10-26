@@ -1,8 +1,8 @@
 import { useState } from "react"
 import type { FormEvent, ReactNode } from "react"
 import { Link, useNavigate, useParams } from "react-router-dom"
-import { categoriesOf } from "@dp/shared/data/services"
-import type { ServiceBadge } from "@dp/shared/data/services"
+import { categoriesOf } from "@dp/shared/lib/servicios"
+import type { ServiceBadge } from "@dp/shared/types/servicio.types"
 import PageHeader from "../../../shared/components/PageHeader"
 import Panel from "../../../shared/components/Panel"
 import { Cargando, ErrorCarga } from "../../../shared/components/EstadoCarga"
@@ -23,13 +23,7 @@ const etiquetas: { valor: ServiceBadge | ""; label: string }[] = [
   { valor: "Promo", label: "Promo" },
 ]
 
-/**
- * Alta y edición de un servicio (/servicios/nuevo y /servicios/:id).
- *
- * Arriba lo obligatorio (nombre, categoría, precio, duración), abajo lo que solo
- * hace más linda la página del servicio en la web. Así la dueña puede cargar
- * uno rápido y completarlo después.
- */
+/** Alta y edición de un servicio. Arriba lo obligatorio, abajo lo que solo decora la web. */
 export default function ServiceFormPage() {
   const { id } = useParams()
   const servicioId = id && id !== "nuevo" ? Number(id) : null

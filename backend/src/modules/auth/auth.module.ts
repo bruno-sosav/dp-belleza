@@ -1,11 +1,4 @@
-/**
- * Módulo de auth: el login del panel y "Tu cuenta". Raíz de composición: crea
- * las implementaciones concretas (MySQL, bcrypt, JWT), las inyecta en los
- * casos de uso y exporta solo lo que el resto del sistema puede usar.
- *
- * No depende de ningún otro módulo. Verificar la sesión en cada pedido es de
- * core (requiereLogin), porque lo usan todas las rutas del panel.
- */
+/** Raíz de composición de auth (MySQL, bcrypt, JWT). No depende de otros módulos; requiereLogin vive en core. */
 import { CambiarContrasena, EditarCuenta, GuardarAdmin, VerCuenta } from "./services/cuenta.usecases.js"
 import { IniciarSesion } from "./services/sesion.usecases.js"
 import { contrasenasBcrypt } from "./integrations/bcrypt.adapter.js"

@@ -10,12 +10,8 @@ import { cardClass, containerClass, primaryButtonClass, secondaryButtonClass } f
 import { PageError, PageLoading } from "../components/LoadState"
 
 /**
- * /reserva/pago?t=<token>: a donde vuelve la clienta después de pagar la seña
- * en Mercado Pago (que agrega `payment_id` y `status` a la URL).
- *
- * Con el payment_id el backend le pregunta a Mercado Pago y, si está aprobado,
- * confirma el turno. Muestra uno de tres finales: confirmado, todavía no se
- * acreditó (con botón para pagar o volver a revisar), o venció.
+ * Vuelta de Mercado Pago: con `payment_id` el backend consulta el pago y confirma el turno.
+ * Tres finales: confirmado, sin acreditar todavía o vencido.
  */
 export default function PagoSenaPage() {
   const [params] = useSearchParams()

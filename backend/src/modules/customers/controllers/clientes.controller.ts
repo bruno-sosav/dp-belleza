@@ -1,8 +1,4 @@
-/**
- * Controller de clientas (la "C" de MVC): toma el pedido HTTP, valida con los
- * schemas, llama al caso de uso y devuelve el DTO. No tiene reglas de negocio
- * ni SQL.
- */
+/** Valida con los schemas, llama al caso de uso y devuelve el DTO. */
 import type { Request, Response } from "express"
 import type {
   ActualizarCliente,

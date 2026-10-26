@@ -1,14 +1,6 @@
 /**
- * Conversión entre la clave de fecha que usa la API ("2026-10-19") y Date.
- *
- * Siempre en horario LOCAL. `new Date("2026-10-19")` interpreta el string como
- * UTC y en Argentina devuelve el 18 a las 21:00, así que un día del calendario
- * aparecería corrido. Por eso se parsea a mano y se usa el constructor de
- * año/mes/día, que sí es local.
- *
- * Estas funciones vivían en data/history.ts, junto al generador de datos falsos.
- * Al conectar el panel a la API ese archivo se eliminó, pero las conversiones
- * siguen haciendo falta.
+ * Claves de fecha de la API ("2026-10-19") ↔ Date, siempre en hora local:
+ * `new Date("2026-10-19")` es UTC y en Argentina cae el día anterior.
  */
 
 /** "2026-10-19" -> Date local. */

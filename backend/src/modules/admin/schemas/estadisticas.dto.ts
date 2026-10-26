@@ -1,7 +1,4 @@
-/**
- * Lo que SALE de las estadísticas. Los nombres en inglés son los que esperan
- * los gráficos del panel (`DayStats` y `RankingApi` en frontend/admin).
- */
+/** Nombres en inglés: los que esperan los gráficos del panel (DayStats, RankingApi). */
 import type { Dia, ServicioHecho } from "../models/estadisticas.model.js"
 
 export const aDia = (d: Dia) => ({

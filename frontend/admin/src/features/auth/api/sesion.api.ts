@@ -1,18 +1,10 @@
-/**
- * Login del panel: POST /api/auth/login.
- *
- * Este archivo NO usa api.ts: el login es el único pedido que no lleva token,
- * y así api.ts no depende de esta sección.
- */
+/** POST /api/auth/login. No usa api.ts porque es el único pedido sin token. */
 import { guardarSesion } from "../../../shared/lib/sesion"
 import type { Usuario } from "../../../shared/lib/sesion"
 
 const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3000"
 
-/**
- * Inicia sesión. Devuelve el usuario, o lanza con el mensaje que mandó el
- * servidor ("Email o contraseña incorrectos") para mostrarlo tal cual.
- */
+/** Devuelve el usuario o lanza con el mensaje del servidor, para mostrarlo tal cual. */
 export async function iniciarSesion(email: string, password: string): Promise<Usuario> {
   let respuesta: Response
   try {

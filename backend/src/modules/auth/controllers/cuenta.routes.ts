@@ -1,7 +1,4 @@
-/**
- * Rutas de "Tu cuenta", bajo /api/admin (el login lo exige app.ts):
- *   GET /cuenta   PATCH /cuenta   POST /cuenta/contrasena
- */
+/** Bajo /api/admin: GET /cuenta · PATCH /cuenta · POST /cuenta/contrasena. */
 import { Router } from "express"
 import type { CuentaController } from "./cuenta.controller.js"
 

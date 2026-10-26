@@ -1,8 +1,3 @@
-/**
- * Casos de uso de las estadísticas. Lo que sigue en el panel son cuentas de
- * presentación sobre la serie ya agregada (días más movidos, promedios por día
- * de la semana): son 180 puntos, no miles de filas.
- */
 import type { Reloj } from "../../../core/reloj.port.js"
 import { rango, serieDiaria, type Dia, type ServicioHecho } from "../models/estadisticas.model.js"
 import type { ConsultasDeEstadisticas } from "../models/admin.ports.js"
@@ -13,12 +8,7 @@ export class VerEstadisticas {
     private reloj: Reloj,
   ) {}
 
-  /**
-   * Serie diaria de los últimos `dias`. El panel pide 180 de una vez y va
-   * cortando según el período (7/30/90): cambiar de filtro no hace otro pedido.
-   * La tienda todavía no suma (`tiendaConectada: false`, para que el panel
-   * muestre "pendiente" en vez de un $0 que sería mentira).
-   */
+  /** Serie de los últimos `dias`. `tiendaConectada: false` hasta que sume la tienda: el panel muestra "pendiente". */
   async serie(dias: number): Promise<{ dias: Dia[]; tiendaConectada: boolean }> {
     const hoy = this.reloj.ahora().fecha
     const { desde, hasta } = rango(hoy, dias)

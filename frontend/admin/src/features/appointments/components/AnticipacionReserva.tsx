@@ -16,11 +16,7 @@ const minimos = [
 ]
 const maximos = [7, 14, 30, 60, 90, 180, 365]
 
-/**
- * Con cuánta anticipación se puede reservar desde la web: como mínimo (que
- * nadie reserve un turno que empieza en 5 minutos) y como máximo (hasta
- * cuántos días para adelante). Los turnos que da la dueña no tienen estas reglas.
- */
+/** Anticipación mínima y máxima para reservar desde la web. No aplica a los turnos que da la dueña. */
 export default function AnticipacionReserva() {
   const config = useConfiguracion()
   return (

@@ -1,11 +1,4 @@
-/**
- * Manejo de fechas y horas de la agenda.
- *
- * Todo se calcula en MINUTOS DESDE MEDIANOCHE y con fechas como string
- * "YYYY-MM-DD". Nunca se construye un `Date` para hacer las cuentas: el Date de
- * JavaScript aplica la zona horaria del proceso, y eso corre los turnos de hora
- * según dónde esté corriendo el servidor.
- */
+/** Fechas "YYYY-MM-DD" y minutos desde medianoche. Nunca Date para las cuentas: aplica la zona del proceso. */
 
 /** "2026-10-20" */
 export type FechaISO = string
@@ -25,14 +18,7 @@ export function aHora(minutos: number): HoraHM {
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`
 }
 
-/**
- * Día de la semana en ISO 8601: 1 = lunes ... 7 = domingo.
- *
- * `horarios_atencion.dia_semana` usa esta convención porque el CHECK de V1 es
- * `BETWEEN 1 AND 7`, que descarta el 0. OJO: NO es la de JavaScript, donde
- * getDay() devuelve 0 para domingo. El front usa la de JavaScript, así que al
- * conectar hay que convertir en un solo lado — acá.
- */
+/** ISO 8601: 1 = lunes … 7 = domingo (como horarios_atencion). Ojo: getDay() de JS usa 0 = domingo. */
 export function diaSemanaISO(fecha: FechaISO): number {
   const [y, m, d] = fecha.split("-").map(Number)
   const js = new Date(y, m - 1, d).getDay()

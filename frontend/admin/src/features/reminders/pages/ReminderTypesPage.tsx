@@ -45,12 +45,7 @@ const textoInicial: Record<Momento, string> = {
   cumpleanos: "¡Feliz cumpleaños {nombre}! 🎂 De regalo tenés un 15% en tu próximo turno en {negocio}.",
 }
 
-/**
- * Recordatorios → Mensajes (/recordatorios/mensajes).
- *
- * Cada tipo es una regla: "a las clientas que cumplen tal cosa, mandales este
- * mensaje". La pestaña Para mandar muestra a quién le toca hoy.
- */
+/** Recordatorios → Mensajes: cada tipo es una regla "a quien cumpla X, mandale este mensaje". */
 export default function ReminderTypesPage() {
   const tipos = useTiposRecordatorio()
   /** Qué se está editando: un tipo por id, "nuevo", o nada. */

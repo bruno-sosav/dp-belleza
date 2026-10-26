@@ -1,7 +1,4 @@
-/**
- * Adaptadores: cumplen los puertos que los turnos tienen hacia OTROS módulos
- * usando lo que esos módulos exportan.
- */
+/** Cumplen los puertos de turnos hacia otros módulos con lo que esos módulos exportan. */
 import type { RowDataPacket } from "mysql2"
 import { config } from "../../../core/app.config.js"
 import { ejecutor } from "../../../core/database/unidadDeTrabajo.database.js"

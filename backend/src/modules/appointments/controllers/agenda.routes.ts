@@ -1,8 +1,4 @@
-/**
- * Rutas de la agenda. Mismas URLs de antes de la reorganización:
- *   web, bajo /api/turnos:  /horarios, /disponibilidad
- *   panel, bajo /api/admin: /horarios, /bloqueos…, /turnos/disponibilidad
- */
+/** Web (/api/turnos): /horarios, /disponibilidad · Panel (/api/admin): /horarios, /bloqueos…, /turnos/disponibilidad. */
 import { Router } from "express"
 import type { AgendaController } from "./agenda.controller.js"
 

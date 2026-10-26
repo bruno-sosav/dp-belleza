@@ -1,8 +1,4 @@
-/**
- * Lo que SALE por HTTP de los turnos. Cada respuesta con lo que usa la
- * pantalla que la pide (revisado contra la web y el panel); nunca la fila de
- * la base ni la entidad entera.
- */
+/** Lo que sale por HTTP: solo lo que usa cada pantalla, nunca la fila entera. */
 import type { EstadoMiTurno, ReservaHecha } from "../services/turnos.usecases.js"
 import type { TurnoDeLaClienta, TurnoDelPanel } from "../models/turnos.ports.js"
 import { codigoDeTurno } from "../models/turno.model.js"

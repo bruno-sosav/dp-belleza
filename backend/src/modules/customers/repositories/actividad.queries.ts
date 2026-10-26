@@ -1,9 +1,4 @@
-/**
- * TRANSITORIO. Implementa el puerto ActividadDeClientes leyendo las tablas de
- * turnos y de la tienda. Esas tablas no son de este módulo: cuando se muden
- * appointments/ y orders/, cada uno va a proveer su parte de este puerto y este
- * archivo desaparece. Mientras tanto, es el único lugar de clientas que las lee.
- */
+/** TRANSITORIO: lee tablas de turnos y tienda. Cuando appointments y orders provean su parte, se borra. */
 import type { RowDataPacket } from "mysql2"
 import type { Transaccion } from "../../../core/transaccion.port.js"
 import { ejecutor } from "../../../core/database/unidadDeTrabajo.database.js"

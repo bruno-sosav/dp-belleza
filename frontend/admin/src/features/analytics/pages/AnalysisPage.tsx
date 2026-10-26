@@ -16,14 +16,7 @@ import { useDias, useRankingServicios } from "../api/estadisticas.api"
 const unDecimal = (n: number) => n.toLocaleString("es-AR", { maximumFractionDigits: 1 })
 const descripcion = "Cómo viene el negocio: lo que se ganó, cuántos turnos hubo y qué se pide más."
 
-/**
- * Finanzas → Análisis (/finanzas/analisis): todo lo que antes estaba en dos
- * pestañas (Ganancias y Turnos) en un solo panel, de arriba hacia abajo:
- * los números del período, la plata por día, qué días estuvo movido, qué días
- * de la semana son fuertes y qué se pide más.
- *
- * El filtro de período (7 / 30 / 90 días…) del encabezado afecta a todo.
- */
+/** Finanzas → Análisis: números del período, plata por día, días movidos y lo más pedido. */
 export default function AnalysisPage() {
   const { period } = usePeriod()
   const { datos, cargando, error, recargar } = useDias()

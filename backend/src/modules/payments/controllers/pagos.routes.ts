@@ -1,7 +1,6 @@
 /**
- * Rutas de pagos. Mismas URLs de antes de la reorganización:
- *   públicas, bajo /api/mercadopago: POST /webhook, GET /estado-pago
- *   panel, bajo /api/admin: /caja, /cobros, /cobros/:id, /mercadopago, /mercadopago/probar
+ * Públicas (/api/mercadopago): POST /webhook, GET /estado-pago
+ * Panel (/api/admin): /caja, /cobros, /cobros/:id, /mercadopago, /mercadopago/probar.
  */
 import { Router } from "express"
 import type { PagosController } from "./pagos.controller.js"

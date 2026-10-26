@@ -10,13 +10,7 @@ import type { useMercadoPago } from "../api/mercadopago.api"
 const campo = `${inputClass} py-3 text-base font-mono`
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000"
 
-/**
- * Ajustes → Mercado Pago. Conectar la cuenta del local para cobrar online.
- *
- * Las credenciales se pegan una vez: el backend las prueba contra Mercado Pago
- * antes de guardarlas y las guarda cifradas. Después solo se ve la cuenta y
- * los últimos 4 caracteres; para cambiarlas se cargan de nuevo.
- */
+/** Conectar Mercado Pago. El backend prueba las credenciales antes de guardarlas (cifradas). */
 export default function PanelMercadoPago({ estado }: { estado: ReturnType<typeof useMercadoPago> }) {
   const [cargando, setCargando] = useState(false)
   const [accessToken, setAccessToken] = useState("")

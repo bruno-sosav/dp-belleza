@@ -1,7 +1,4 @@
-/**
- * Usuarias del panel (tabla `usuarios`). Las reglas de la cuenta, sin saber
- * nada de MySQL, bcrypt ni JWT.
- */
+/** Usuarias del panel y reglas de la cuenta. */
 export type Rol = "admin" | "empleado"
 
 export type Usuario = {
@@ -17,10 +14,7 @@ export type UsuarioDeSesion = { id: number; nombre: string; rol: Rol }
 
 export const deSesion = (u: Pick<Usuario, "id" | "nombre" | "rol">): UsuarioDeSesion => ({ id: u.id, nombre: u.nombre, rol: u.rol })
 
-/**
- * Mínimo razonable para una persona que no usa gestor de contraseñas: largo,
- * sin reglas raras. null si sirve; si no, el motivo para mostrar.
- */
+/** `null` si sirve; si no, el motivo para mostrar. */
 export function problemaDeContrasena(clave: string): string | null {
   if (clave.length < 8) return "La contraseña nueva tiene que tener al menos 8 caracteres"
   if (clave.length > 100) return "La contraseña nueva es demasiado larga"

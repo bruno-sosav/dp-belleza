@@ -14,10 +14,7 @@ const PX_POR_HORA = 80
 const PASO_MIN = 15
 
 
-/**
- * Rango de horas a dibujar: del horario de apertura más temprano al cierre más
- * tarde de la semana, estirado si algún turno queda afuera. Redondeado a horas.
- */
+/** Del primer horario de apertura al último cierre, estirado si algún turno queda afuera. */
 function rangoDeHoras(horarios: Horario[], turnos: Turno[]) {
   const inicios = [...horarios.map((h) => aMinutos(h.desde)), ...turnos.map((t) => aMinutos(t.horaInicio))]
   const fines = [...horarios.map((h) => aMinutos(h.hasta)), ...turnos.map((t) => aMinutos(t.horaFin))]
@@ -27,12 +24,8 @@ function rangoDeHoras(horarios: Horario[], turnos: Turno[]) {
 }
 
 /**
- * La semana como en una agenda de papel: un día por columna, las horas para
- * abajo, y cada turno como un bloque del alto de lo que dura.
- *
- * Las horas en que el local está cerrado van en gris. Tocar un turno lo abre;
- * tocar un espacio vacío abre "Nuevo turno" con ese día y esa hora ya puestos
- * (en un día que ya pasó, para cargar a alguien que vino sin turno).
+ * Semana tipo agenda de papel: un día por columna, cada turno con el alto de lo que dura.
+ * Tocar un hueco abre "Nuevo turno" con día y hora puestos.
  */
 export default function SemanaGrilla({
   dias,

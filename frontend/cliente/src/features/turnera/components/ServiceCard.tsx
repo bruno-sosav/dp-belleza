@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom"
-import type { Service } from "@dp/shared/data/services"
+import type { Service } from "@dp/shared/types/servicio.types"
 import { formatPrice } from "@dp/shared/lib/format"
 import DurationPill from "./DurationPill"
 import ServiceImage from "./ServiceImage"

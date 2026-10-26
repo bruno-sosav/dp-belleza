@@ -1,7 +1,4 @@
-/**
- * Rutas del panel para clientas. Se montan bajo /api/admin, que exige sesión.
- * Las URLs son las mismas de antes de la reorganización: el panel no cambia.
- */
+/** Rutas de clientas bajo /api/admin (con sesión). */
 import { Router } from "express"
 import type { ClientesController } from "./clientes.controller.js"
 

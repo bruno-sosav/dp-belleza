@@ -1,10 +1,4 @@
-/**
- * Estadísticas del panel: pedidos a la API.
- *
- * Los números vienen YA CALCULADOS del backend (GROUP BY en SQL). Antes se
- * generaban 180 días de turnos y pedidos falsos acá en el navegador
- * (`history.ts`) y los promedios se sacaban en el cliente.
- */
+/** Estadísticas ya calculadas en el backend (GROUP BY en SQL). */
 import { useCallback } from "react"
 import { api } from "../../../shared/lib/api"
 import { useApi } from "../../../shared/lib/useApi"
@@ -18,13 +12,7 @@ type RespuestaDias = {
   tiendaConectada: boolean
 }
 
-/**
- * La serie diaria completa.
- *
- * Se piden 180 días de una sola vez porque el filtro de período (7/30/90) y su
- * comparación con el período anterior necesitan como máximo 180 días: así
- * cambiar el filtro no dispara otro pedido.
- */
+/** Serie diaria de 180 días de una vez: alcanza para cualquier período y su comparación sin volver a pedir. */
 export function useDias() {
   const pedir = useCallback(
     () => api<RespuestaDias>("/api/admin/stats/dias", { query: { dias: 180 } }),

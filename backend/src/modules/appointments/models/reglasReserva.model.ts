@@ -1,11 +1,6 @@
 /**
- * Reglas de la reserva desde la WEB (Turnos → Reglas en el panel):
- *   - anticipación mínima: no se puede reservar un turno que empieza en 5 minutos;
- *   - anticipación máxima: no se puede reservar para dentro de un año;
- *   - tope de turnos pedidos por teléfono, para que nadie llene la agenda.
- *
- * No aplican a los turnos que da la dueña desde el panel: ella sabe lo que hace.
- * Dominio puro: los valores los lee la infraestructura (ConfiguracionDeReservas).
+ * Reglas de la reserva web: anticipación mínima, máxima y tope de turnos pedidos por teléfono.
+ * No aplican a los turnos que da la dueña.
  */
 export type ReglasReserva = { minHoras: number; maxDias: number }
 
@@ -21,10 +16,7 @@ function minutosEntre(fechaA: string, minA: number, fechaB: string, minB: number
   return dia(fechaB) + minB - (dia(fechaA) + minA)
 }
 
-/**
- * Por qué no se puede reservar un turno en ese momento según las reglas, o
- * null si se puede. El mensaje es para la clienta.
- */
+/** Motivo para la clienta por el que no puede reservar ahí, o null. */
 export function problemaDeAnticipacion(
   fecha: string,
   inicioMin: number,

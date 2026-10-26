@@ -1,10 +1,4 @@
-/**
- * Productos y categorías de la tienda. Dominio puro.
- *
- * El stock es del módulo inventory/: el catálogo solo lo pone al crear el
- * producto (stock inicial) y lo muestra; venderlo, devolverlo, reponerlo o
- * corregirlo lo hace el inventario.
- */
+/** Productos y categorías. El stock lo maneja inventory/; acá solo el inicial y para mostrar. */
 
 export type Categoria = { id: number; nombre: string; activo: boolean }
 

@@ -26,10 +26,7 @@ function ScrollToTop() {
   return null
 }
 
-/**
- * Rutas de la web pública (dpbelleza.com.ar).
- * El panel de administración es otra app: frontend/admin/ -> admin.dpbelleza.com.ar
- */
+/** Rutas de la web pública. El panel es otra app (frontend/admin/). */
 export default function App() {
   return (
     <>

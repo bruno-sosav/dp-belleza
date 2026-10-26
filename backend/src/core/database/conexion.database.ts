@@ -7,26 +7,11 @@ export const pool = mysql.createPool({
   charset: "utf8mb4",
   // DECIMAL llega como number en vez de string (los precios entran sin problema en un double)
   decimalNumbers: true,
-  // Los DATETIME llegan como string "YYYY-MM-DD HH:MM:SS" y NO como Date.
-  //
-  // Con `dateStrings: false` + `timezone: "Z"`, mysql2 interpreta el DATETIME
-  // como UTC y lo pasa a hora local: un turno guardado a las 10:00 se lee como
-  // 07:00 en Argentina. Medido contra esta misma base. Para `pedidos.created_at`
-  // casi no se nota, pero en la turnera la clienta reserva a las 10 y el panel
-  // le muestra 07:00.
-  //
-  // Dejándolos como string, la hora que se guarda es la que se lee. Las cuentas
-  // de la agenda se hacen en minutos desde medianoche (src/core/tiempo.util.ts).
+  // DATETIME como string: con Date, mysql2 lo toma como UTC y un turno de las 10:00 se lee 07:00.
   dateStrings: true,
 })
 
-/**
- * Cada conexión a MySQL usa la misma zona horaria que Node (app.config.ts), así
- * NOW() y la hora de Node dan lo mismo. Va como desfasaje ("-03:00") y no
- * como nombre ("America/…"), porque los nombres necesitan tablas de zonas que
- * muchos MySQL no tienen cargadas. Argentina no tiene horario de verano; si lo
- * volviera a tener, el desfasaje se recalcula en cada conexión nueva.
- */
+/** Misma zona que Node en cada conexión. Como desfasaje ("-03:00"): muchos MySQL no tienen cargadas las zonas por nombre. */
 export function desfasajeMySQL(fecha = new Date()): string {
   const minutos = -fecha.getTimezoneOffset()
   const signo = minutos >= 0 ? "+" : "-"

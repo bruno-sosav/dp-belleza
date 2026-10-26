@@ -1,13 +1,6 @@
 /**
- * Cifrado de credenciales guardadas en la base (por ahora, las de Mercado Pago).
- *
- * AES-256-GCM: además de ocultar el texto, detecta si alguien lo modificó. La
- * clave sale de CREDENCIALES_KEY (64 caracteres hex, `openssl rand -hex 32`).
- * Si no está, se deriva de JWT_SECRET, así el proyecto arranca sin configurar
- * nada nuevo; en producción conviene tener una propia, porque cambiar
- * JWT_SECRET dejaría ilegibles las credenciales guardadas.
- *
- * Formato guardado: "v1:<iv>:<tag>:<cifrado>", todo en base64.
+ * AES-256-GCM para credenciales en la base. Clave: CREDENCIALES_KEY, o derivada de JWT_SECRET si falta
+ * (en producción conviene propia: cambiar JWT_SECRET las dejaría ilegibles). Formato "v1:<iv>:<tag>:<cifrado>".
  */
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from "node:crypto"
 import { config } from "../app.config.js"

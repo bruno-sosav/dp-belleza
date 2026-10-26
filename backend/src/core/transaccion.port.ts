@@ -1,11 +1,4 @@
-/**
- * Puerto de transacciones (clean architecture): los casos de uso dicen "hacé
- * esto todo junto o nada", sin saber que abajo hay MySQL.
- *
- * `Transaccion` es opaca para models/ y services/: solo la pasan de mano en
- * mano a los repositorios. Quien sabe que en realidad es una conexión de
- * mysql2 es la infraestructura (core/database/unidadDeTrabajo.database.ts).
- */
+/** Puerto de transacciones: opaco para models/ y services/; la implementación está en core/database. */
 export interface Transaccion {
   readonly __transaccion: true
 }

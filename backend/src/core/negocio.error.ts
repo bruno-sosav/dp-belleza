@@ -1,9 +1,4 @@
-/**
- * Errores de negocio. Los lanzan los casos de uso y las reglas de dominio
- * ("ese horario ya está ocupado", "la clienta no existe") SIN saber nada de
- * HTTP: el que los traduce a un código de respuesta es la capa de presentación
- * (core/http/manejarErrores.middleware.ts). Así el dominio no depende de Express.
- */
+/** Errores de negocio, sin saber de HTTP: el código lo pone manejarErrores.middleware.ts. */
 
 export type TipoDeError =
   | "invalido" //       los datos no sirven (400)
@@ -32,11 +27,7 @@ export const externo = (mensaje: string, detalle?: unknown) => new ErrorDeNegoci
 
 const tipoPorStatus: Record<number, TipoDeError> = { 400: "invalido", 401: "no_autorizado", 404: "no_encontrado", 409: "conflicto", 502: "externo" }
 
-/**
- * Forma vieja: un error con código HTTP. Queda porque la usa orders (código de
- * Alan, todavía sin reorganizar); por dentro es un ErrorDeNegocio.
- * Los demás módulos usan los helpers de arriba.
- */
+/** Forma vieja con código HTTP; la sigue usando orders (Alan). */
 export class HttpError extends ErrorDeNegocio {
   constructor(status: number, message: string, detalle?: unknown) {
     super(tipoPorStatus[status] ?? "invalido", message, detalle)

@@ -1,10 +1,4 @@
-/**
- * Casos de uso de clientas. Cada clase es una cosa que se puede HACER con
- * clientas; recibe por constructor los puertos que necesita (inyección de
- * dependencias), así se puede probar con implementaciones en memoria.
- *
- * Acá no hay SQL ni Express: solo reglas del dominio y llamadas a los puertos.
- */
+/** Casos de uso de clientas: una clase por acción, con sus puertos por constructor. */
 import { conflicto, invalido, noEncontrado } from "../../../core/negocio.error.js"
 import type { Transaccion, UnidadDeTrabajo } from "../../../core/transaccion.port.js"
 import {
@@ -57,11 +51,7 @@ function validarCumple(cumple: Cumple | null | undefined) {
   if (cumple && !cumpleValido(cumple)) throw invalido("Ese cumpleaños no existe: revisá el día y el mes.")
 }
 
-/**
- * La reserva web y la tienda: si la clienta ya existe (por teléfono) se usa
- * su ficha completando lo que le falte; si no, se crea. Corre dentro de la
- * transacción de quien la llama (la reserva o el pedido).
- */
+/** Reserva web y tienda: usa la ficha existente (por teléfono) o crea una. Corre en la transacción de quien llama. */
 export class BuscarOCrearCliente {
   constructor(
     private repo: ClienteRepository,
@@ -176,10 +166,7 @@ export class BuscarPosiblesDuplicados {
   }
 }
 
-/**
- * Unir dos fichas de la misma persona: la `otra` le pasa todo a la que queda
- * (turnos, compras, cobros, recordatorios) y se borra.
- */
+/** La `otra` le pasa todo a la que queda y se borra. */
 export class UnirClientes {
   constructor(
     private repo: ClienteRepository,

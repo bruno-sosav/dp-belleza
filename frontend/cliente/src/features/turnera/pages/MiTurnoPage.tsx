@@ -13,12 +13,8 @@ import { whatsappUrl } from "../../home/lib/whatsapp"
 import { useNegocio } from "../../../shared/lib/negocio"
 
 /**
- * Mi turno (/mi-turno): la clienta busca su turno con el código y el teléfono,
- * y lo puede cancelar ella sola hasta el límite que puso la dueña. Para
- * cambiarlo de día, lo cancela y reserva otro (la página la lleva directo).
- *
- * Desde la confirmación de la reserva llega con el código y el teléfono ya
- * cargados (por el `state` de la navegación, no por la URL).
+ * Buscar el turno con código + teléfono y cancelarlo hasta el límite que puso la dueña.
+ * Desde la confirmación llega con los datos cargados por `state`.
  */
 export default function MiTurnoPage() {
   const inicial = (useLocation().state as DatosMiTurno | null) ?? { codigo: "", telefono: "" }

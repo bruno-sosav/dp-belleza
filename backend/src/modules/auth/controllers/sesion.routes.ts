@@ -1,7 +1,4 @@
-/**
- * Rutas del login, bajo /api/auth (mismas URLs de antes):
- *   POST /login   GET /yo
- */
+/** Bajo /api/auth: POST /login · GET /yo. */
 import { Router } from "express"
 import { limitarPorIp } from "../../../core/http/limitarPorIp.middleware.js"
 import { requiereLogin } from "../../../core/http/sesion.middleware.js"

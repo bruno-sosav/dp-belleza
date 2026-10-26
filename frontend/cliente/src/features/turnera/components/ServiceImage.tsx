@@ -1,4 +1,4 @@
-import type { Service } from "@dp/shared/data/services"
+import type { Service } from "@dp/shared/types/servicio.types"
 
 type Props = {
   service: Service
@@ -6,11 +6,7 @@ type Props = {
   loading?: "lazy" | "eager"
 }
 
-/**
- * Foto del servicio. La foto es opcional en el panel: si la dueña no cargó una,
- * se muestra un bloque del mismo tamaño con la inicial, para que la grilla no
- * quede desarmada.
- */
+/** Foto del servicio o, si no tiene, un bloque con la inicial del mismo tamaño. */
 export default function ServiceImage({ service, className, loading }: Props) {
   if (service.image) {
     return <img src={service.image} alt={service.name} loading={loading} className={`${className} object-cover`} />

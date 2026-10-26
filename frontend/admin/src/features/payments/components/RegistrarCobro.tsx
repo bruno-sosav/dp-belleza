@@ -3,11 +3,7 @@ import FormCobro from "./FormCobro"
 import { inputClass, labelClass, primaryButtonClass } from "../../../shared/lib/styles"
 import { registrarCobro } from "../api/caja.api"
 
-/**
- * Anotar a mano una entrada que no es de un turno (una gift card, un producto
- * vendido en el local…). Los turnos se cobran desde el propio turno (✅
- * Completado) o desde "Sin cobrar".
- */
+/** Entrada manual que no es de un turno (gift card, producto en el local…). */
 export default function RegistrarCobro({ onCambio }: { onCambio: () => void }) {
   const [abierto, setAbierto] = useState(false)
   const [descripcion, setDescripcion] = useState("")

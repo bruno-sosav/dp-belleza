@@ -46,10 +46,7 @@ export const aEstadoMercadoPago = (r: ResumenCuenta | null) =>
       }
     : { configurada: false as const }
 
-/**
- * La respuesta al aviso de Mercado Pago: el código HTTP importa (con 200 no
- * reintenta). Lo que no es nuestro se contesta 200 para que no insista.
- */
+/** Con 200 Mercado Pago no reintenta: lo que no es nuestro se contesta 200. */
 export const aRespuestaDelAviso = (r: ResultadoDelAviso): { status: number; cuerpo: object } => {
   if (r === "ignorado") return { status: 200, cuerpo: { ignorado: true } }
   if (r === "sin_cuenta") return { status: 503, cuerpo: { error: "Mercado Pago no está configurado" } }

@@ -1,13 +1,9 @@
 /**
- * Servicios en el panel.
- *
- * Para dar un turno se usan los servicios activos (el endpoint público de la
- * web) y los horarios libres que calcula el backend, los mismos que vería una
- * clienta. La sección Servicios usa /api/admin/servicios, que trae también los
- * pausados.
+ * Servicios en el panel. Para dar un turno se usan los activos (endpoint público) y los
+ * horarios libres del backend; la sección Servicios usa /api/admin/servicios, con los pausados.
  */
 import { useCallback } from "react"
-import type { Service } from "@dp/shared/data/services"
+import type { Service } from "@dp/shared/types/servicio.types"
 import { api } from "../../../shared/lib/api"
 import { useApi } from "../../../shared/lib/useApi"
 
@@ -19,10 +15,7 @@ export function useServicios() {
   return useApi(pedir)
 }
 
-/**
- * Horarios de un servicio en un día. Sin servicio elegido no pide nada.
- * `excluir`: al cambiar un turno, el horario que ocupa él mismo aparece libre.
- */
+/** Horarios libres de un servicio en un día. `excluir`: el turno que se está cambiando no se pisa a sí mismo. */
 export function useHorariosLibres(servicioId: number | null, fecha: string, excluir?: number) {
   const pedir = useCallback(
     () =>

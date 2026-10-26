@@ -12,11 +12,7 @@ export const turnosConectados = (c: ConexionConTurnos): TurnosDeLaCaja => {
   return c.actual
 }
 
-/**
- * Un día de caja: lo que entró (del más nuevo al más viejo), los totales por
- * medio de pago y los turnos completados que todavía no se cobraron enteros
- * (para que no se escape ninguno).
- */
+/** Un día de caja: cobros, totales por medio y turnos completados sin cobrar entero. */
 export class VerCaja {
   constructor(private consultas: ConsultasDeCaja) {}
 

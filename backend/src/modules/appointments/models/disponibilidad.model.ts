@@ -1,8 +1,4 @@
-/**
- * Qué horarios ofrecer para un servicio en un día. Función PURA: recibe todo
- * lo que necesita (franjas, lo ocupado, la hora actual, las reglas) y no toca
- * la base. Antes estaba mezclada con las consultas en calcularDisponibilidad.
- */
+/** Horarios a ofrecer de un servicio en un día. Función pura: no toca la base. */
 import { aHora, aMinutos, seSolapan } from "../../../core/tiempo.util.js"
 import type { Momento } from "../../../core/reloj.port.js"
 import type { Franja } from "./horario.model.js"
@@ -44,10 +40,7 @@ export function horariosDelDia(p: {
   return slots
 }
 
-/**
- * La parte de un rango ("2026-12-24 00:00:00" a "2026-12-26 00:00:00") que cae
- * en ese día, en minutos. Un bloqueo puede empezar antes o terminar después.
- */
+/** La parte de un rango que cae en ese día, en minutos (un bloqueo puede abarcar varios días). */
 export function recortarAlDia(inicio: string, fin: string, fecha: string): Ocupado {
   return {
     desde: inicio.slice(0, 10) < fecha ? 0 : aMinutos(inicio.slice(11, 16)),

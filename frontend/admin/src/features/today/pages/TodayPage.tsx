@@ -27,14 +27,8 @@ const capitalizar = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
 
 
 /**
- * Pantalla de inicio del panel: lo que la dueña tiene que atender HOY.
- *
- * Los turnos del día con los botones para marcar qué pasó, los pedidos de la
- * tienda que hay que preparar y lo que viene. Las estadísticas de plata están
- * en Finanzas: esto es para operar, no para analizar.
- *
- * Marcar los turnos importa: Finanzas solo cuenta los "completado". Por eso
- * arriba de todo aparecen los turnos de días anteriores que quedaron abiertos.
+ * Inicio: turnos de hoy, pedidos a preparar y lo que viene. Para operar; analizar es Finanzas.
+ * Arriba van los turnos viejos sin marcar: Finanzas solo cuenta los completados.
  */
 export default function TodayPage() {
   const ahora = useAhora()

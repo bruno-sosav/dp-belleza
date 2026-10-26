@@ -1,8 +1,4 @@
-/**
- * Puertos de pagos. Los de este módulo (cobros, cuenta, pagos recibidos) se
- * implementan con MySQL; la pasarela, con la API de Mercado Pago. Los turnos
- * se conectan desde su módulo (TurnosDeLaCaja), así pagos no depende de turnos.
- */
+/** Puertos de pagos. Turnos se conecta desde su módulo (TurnosDeLaCaja): pagos no depende de turnos. */
 import type { Transaccion } from "../../../core/transaccion.port.js"
 import type { Cobro, MedioPago, NuevoCobro } from "./cobro.model.js"
 import type { CuentaMercadoPago, ModoCuenta, PagoRecibido, ResumenCuenta } from "./mercadoPago.model.js"

@@ -5,11 +5,7 @@ import EditorHorario from "../components/EditorHorario"
 import { Cargando, ErrorCarga } from "../../../shared/components/EstadoCarga"
 import { useHorarios } from "../api/agenda.api"
 
-/**
- * Turnos → Horario (/turnos/horario): los días y horas en que se atiende todas
- * las semanas. Es lo que decide qué puede reservar una clienta. Cada cuánto se
- * ofrecen horarios está en Turnos → Reglas.
- */
+/** Turnos → Horario: días y horas de atención semanales. */
 export default function SchedulePage() {
   const horarios = useHorarios()
 

@@ -1,8 +1,4 @@
-/**
- * Puertos del módulo de clientas: lo que el dominio y los casos de uso
- * NECESITAN, sin decir cómo se hace. Las implementaciones (MySQL) están en
- * repositories/ y integrations/, y se conectan en customers.module.ts.
- */
+/** Puertos de clientas; implementaciones en repositories/ e integrations/. */
 import type { Transaccion } from "../../../core/transaccion.port.js"
 import type { Actividad, CambiosCliente, Cliente, DatosCliente, PedidoDeCliente, TurnoDeCliente } from "./cliente.model.js"
 
@@ -22,20 +18,14 @@ export interface ClienteRepository {
   parecidas(cliente: Cliente): Promise<Cliente[]>
 }
 
-/**
- * Lo que hizo cada clienta en el resto del sistema. Lo proveen los módulos de
- * turnos (appointments) y de la tienda (orders): clientas no lee sus tablas.
- */
+/** Lo provee appointments y orders: clientas no lee sus tablas. */
 export interface ActividadDeClientes {
   resumenes(ids: number[]): Promise<Map<number, Actividad>>
   historial(id: number): Promise<{ turnos: TurnoDeCliente[]; pedidos: PedidoDeCliente[] }>
   uso(id: number, tx?: Transaccion): Promise<{ turnos: number; pedidos: number }>
 }
 
-/**
- * Al unir dos fichas, cada módulo pasa lo suyo (turnos, pedidos, cobros,
- * recordatorios) de una clienta a la otra. Devuelve cuánto se movió.
- */
+/** Al unir fichas cada módulo pasa lo suyo. Devuelve cuánto se movió. */
 export interface ReasignacionDeCliente {
   reasignar(deId: number, aId: number, tx: Transaccion): Promise<{ turnos: number; compras: number }>
 }

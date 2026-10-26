@@ -1,11 +1,4 @@
-/**
- * Disponibilidad de turnos.
- *
- * Los horarios salen del backend: la agenda semanal del local
- * (`GET /api/turnos/horarios`) y los huecos libres de un servicio en un día
- * (`GET /api/turnos/disponibilidad`), que ya descuentan turnos tomados,
- * bloqueos y horarios que pasaron. Acá quedan solo los helpers de fechas.
- */
+/** Horarios de la agenda y huecos libres (ya descuentan turnos, bloqueos y horas pasadas) + helpers de fechas. */
 import { useCallback } from "react"
 import { api } from "../lib/api"
 import { useApi } from "../lib/useApi"
@@ -104,10 +97,7 @@ export function describeOpenDays(hours: OpeningHours[]) {
   return labels.length === 1 ? labels[0] : `${labels.slice(0, -1).join(", ")} y ${labels[labels.length - 1]}`
 }
 
-/**
- * Horario completo en una línea, agrupando días seguidos con el mismo horario:
- * "Lun a Mié 9 a 19 hs · Jue y Vie 9 a 20 hs · Sáb 10 a 15 hs · Dom cerrado".
- */
+/** Horario en una línea agrupando días iguales: "Lun a Mié 9 a 19 hs · Dom cerrado". */
 export function describeOpeningHours(hours: OpeningHours[]) {
   const byDay = new Map<number, string>()
   for (const h of hours) {

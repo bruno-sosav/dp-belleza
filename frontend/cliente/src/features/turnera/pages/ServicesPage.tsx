@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react"
 import { Link } from "react-router-dom"
-import { categoriesOf } from "@dp/shared/data/services"
+import { categoriesOf } from "@dp/shared/lib/servicios"
 import { describeOpenDays, useOpeningHours } from "../api/disponibilidad.api"
 import { useServices } from "../api/servicios.api"
 import { useNegocio } from "../../../shared/lib/negocio"

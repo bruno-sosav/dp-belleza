@@ -1,8 +1,4 @@
-/**
- * Las vistas de los turnos (lo que se muestra): un turno con su clienta y su
- * servicio. Son consultas de lectura que juntan tablas de otros módulos para
- * no hacer un pedido por fila. Lo cobrado lo dice la caja (payments).
- */
+/** Lecturas de turnos con su clienta y servicio en una sola consulta. Lo cobrado lo da payments. */
 import type { RowDataPacket } from "mysql2"
 import { ejecutor } from "../../../core/database/unidadDeTrabajo.database.js"
 import type { Transaccion } from "../../../core/transaccion.port.js"

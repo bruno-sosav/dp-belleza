@@ -1,10 +1,6 @@
 /**
- * Lo que SALE por HTTP del catálogo.
- *
- * Servicios: claves en inglés porque es el contrato que ya usan la web y el
- * panel (el tipo `Service` de frontend/shared/data/services.ts).
- * Productos: la tienda pública no ve el stock exacto ni si está dado de baja;
- * ve si hay o no (`disponible`). El panel ve todo.
+ * Servicios con claves en inglés (contrato `Service` de frontend/shared/types/servicio.types.ts).
+ * Productos: la tienda solo ve `disponible`, no el stock; el panel ve todo.
  */
 import type { Categoria, Producto } from "../models/producto.model.js"
 import { disponible } from "../models/producto.model.js"

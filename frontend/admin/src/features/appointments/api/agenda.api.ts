@@ -1,16 +1,8 @@
-/**
- * Horario de atención y bloqueos (vacaciones, feriados, un rato puntual).
- *
- * El horario se LEE del endpoint público de la turnera, el mismo que usa la web;
- * se guarda y los bloqueos se manejan por /api/admin (ver backend/src/modules/appointments).
- */
+/** Horario de atención y bloqueos. El horario se lee del endpoint público; se guarda por /api/admin. */
 import { useCallback } from "react"
 import { api } from "../../../shared/lib/api"
 import { useApi } from "../../../shared/lib/useApi"
-/**
- * Un turno que quedó afuera de un cambio de horario o de un día cerrado: lo
- * que hace falta para avisarle a la clienta (el DTO aTurnoParaAvisar del backend).
- */
+/** Turno que quedó afuera de un cambio de horario o día cerrado (DTO aTurnoParaAvisar). */
 export type TurnoParaAvisar = {
   id: number
   fecha: string

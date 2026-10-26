@@ -1,9 +1,6 @@
 /**
- * Rutas de recordatorios en el panel (bajo /api/admin). Mismas URLs de antes:
- *   GET    /recordatorios               para mandar + hechos hoy
- *   POST   /recordatorios               marcar mandado u omitido
- *   DELETE /recordatorios/:id           deshacer
- *   GET/POST /recordatorios/tipos, PATCH/DELETE /recordatorios/tipos/:id
+ * Bajo /api/admin: GET/POST /recordatorios, DELETE /recordatorios/:id,
+ * GET/POST /recordatorios/tipos, PATCH/DELETE /recordatorios/tipos/:id.
  */
 import { Router } from "express"
 import type { RecordatoriosController } from "./recordatorios.controller.js"

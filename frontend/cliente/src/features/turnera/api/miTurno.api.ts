@@ -1,7 +1,4 @@
-/**
- * "Mi turno": buscar y cancelar un turno con el código y el teléfono.
- * Van por POST para que el teléfono no quede en la URL.
- */
+/** Buscar y cancelar con código + teléfono. Por POST para que el teléfono no quede en la URL. */
 import { api } from "../lib/api"
 
 export type MiTurno = {

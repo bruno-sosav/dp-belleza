@@ -8,13 +8,7 @@ export type Load<T> = {
   reload: () => void
 }
 
-/**
- * Pide datos y expone cargando / error / recargar.
- *
- * `request` tiene que ser estable (useCallback o definida fuera del componente):
- * cada vez que cambia se dispara un pedido nuevo. Una respuesta vieja nunca pisa
- * a una nueva, y mientras recarga se mantiene el dato anterior.
- */
+/** Cargando / error / recargar. `request` estable; una respuesta vieja nunca pisa a una nueva. */
 export function useApi<T>(request: () => Promise<T>): Load<T> {
   const [attempt, setAttempt] = useState(0)
   const [result, setResult] = useState<{

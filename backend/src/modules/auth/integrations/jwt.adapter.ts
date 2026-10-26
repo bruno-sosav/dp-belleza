@@ -1,7 +1,4 @@
-/**
- * La sesión es un JWT de 8 horas. Lo firma core (core/http/sesion.middleware),
- * que es también quien lo verifica en cada pedido del panel (requiereLogin).
- */
+/** JWT de 8 horas; lo firma y verifica core/http/sesion.middleware. */
 import { firmarToken } from "../../../core/http/sesion.middleware.js"
 import type { Sesiones } from "../models/auth.ports.js"
 

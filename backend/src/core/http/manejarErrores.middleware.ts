@@ -12,10 +12,7 @@ const statusPorTipo: Record<TipoDeError, number> = {
   externo: 502,
 }
 
-/**
- * Último middleware de la app: convierte cualquier error en una respuesta
- * { error, detalle? }, que es la forma que esperan la web y el panel.
- */
+/** Último middleware: cualquier error sale como { error, detalle? }. */
 export const manejarErrores: ErrorRequestHandler = (err, _req, res, _next) => {
   if (err instanceof ZodError) {
     res.status(400).json({

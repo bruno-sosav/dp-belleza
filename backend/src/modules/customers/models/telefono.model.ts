@@ -1,15 +1,7 @@
-// Teléfonos: se guardan normalizados en el formato que pide WhatsApp (wa.me):
-// 549 + código de área + número, solo dígitos. Ej: "223 555-1234" -> "5492235551234".
-//
-// La clienta escribe el número como lo dice en voz alta: "223 5551234", "0223 15 555-1234",
-// o directamente "155551234" si es de la misma ciudad. Todo eso tiene que dar lo mismo.
+// Teléfonos normalizados para wa.me: 549 + área + número ("223 555-1234" → "5492235551234").
+// "0223 15 555-1234", "155551234" y similares tienen que dar lo mismo.
 
-/**
- * Normaliza un teléfono. Devuelve null si no parece un número válido.
- *
- * @param codigoArea el del local (Ajustes → Tu negocio). Se usa cuando el número viene sin
- *   código de área: "15 555-1234" o "4951234" en Mar del Plata son "223 555-1234" y "223 495-1234".
- */
+/** null si no parece válido. `codigoArea`: el del local, para números que vienen sin área. */
 export function normalizarTelefono(entrada: string, codigoArea?: string): string | null {
   const conMas = /^\s*(\+|00)/.test(entrada)
   let digitos = entrada.replace(/\D/g, "")

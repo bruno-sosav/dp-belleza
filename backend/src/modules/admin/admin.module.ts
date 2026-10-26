@@ -1,13 +1,6 @@
 /**
- * Módulo de administración del negocio (admin). Raíz de composición: crea las
- * implementaciones concretas, las inyecta en los casos de uso y exporta solo
- * lo que el resto del sistema puede usar.
- *
- * Dos partes:
- *   - AJUSTES (`ajustes`): los parámetros del negocio. Los leen turnos,
- *     clientas y recordatorios, así que este módulo no importa a ninguno de
- *     ellos: las clientas se conectan acá (`conectarTelefonos`).
- *   - ESTADÍSTICAS (`estadisticas`): la serie diaria y los servicios más hechos.
+ * Raíz de composición de admin: ajustes y estadísticas.
+ * No importa otros módulos (todos leen ajustes); las clientas se enchufan con `conectarTelefonos`.
  */
 import { relojDelSistema } from "../../core/reloj.port.js"
 import { GuardarAjustes, LeerAjustes, VerAjustesPublicos, type ConexionConTelefonos } from "./services/ajustes.usecases.js"

@@ -20,12 +20,7 @@ import AccountPage from "../features/auth/pages/AccountPage"
 import RemindersPage from "../features/reminders/pages/RemindersPage"
 import ReminderTypesPage from "../features/reminders/pages/ReminderTypesPage"
 
-/**
- * Rutas del panel (admin.dpbelleza.com.ar).
- *
- * Al ser un subdominio propio, el panel vive en la raíz: "/" en vez de "/admin".
- * El login lo resuelve AdminLayout: sin sesión, ninguna ruta renderiza.
- */
+/** Rutas del panel. Vive en la raíz de su subdominio; sin sesión AdminLayout muestra el login. */
 export default function App() {
   return (
     <Routes>

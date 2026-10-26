@@ -1,10 +1,4 @@
-/**
- * Lo que se muestra mientras un panel carga o cuando falla.
- *
- * Un error de red no deja la pantalla en blanco ni muestra un cero: dice qué
- * pasó y ofrece reintentar. Un cero sería mentira — "no se pudo cargar" y "no
- * hubo ventas" son cosas distintas y el panel no las puede confundir.
- */
+/** Cargando / error con reintentar. Nunca un cero en lugar de un error: no es lo mismo. */
 import { secondaryButtonClass } from "../lib/styles"
 
 export function Cargando({ alto = "h-48" }: { alto?: string }) {

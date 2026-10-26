@@ -21,13 +21,7 @@ function Row({ label, value }: { label: string; value: string }) {
   )
 }
 
-/**
- * "¡Turno reservado!" (/reserva-confirmada?t=<token>).
- *
- * Al llegar desde la reserva, los datos vienen en el `state` de la navegación
- * y se muestran al instante. Si se recarga la página (F5) el state se pierde:
- * entonces se piden a la API con el token de la URL.
- */
+/** Turno reservado. Los datos llegan por `state`; si se recarga, se piden con el token de la URL. */
 export default function BookingConfirmedPage() {
   const location = useLocation()
   const [params] = useSearchParams()

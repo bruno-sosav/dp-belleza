@@ -1,14 +1,6 @@
 /**
- * Recordatorios por WhatsApp. La dueña define TIPOS, cada uno con un momento:
- *   antes       X horas antes de un turno pedido ("confirmame que venís")
- *   despues     X días después de una visita completada ("¿renovamos?"),
- *               opcionalmente solo para un servicio
- *   cumpleanos  X días antes del cumpleaños de la clienta (0 = ese día)
- *
- * A quién le toca cada uno se calcula en el momento; lo que se guarda es lo
- * que ya se mandó u omitió. No hay un proceso que los mande solo (eso necesita
- * un proveedor pago de WhatsApp): el panel abre WhatsApp con el mensaje
- * escrito y la dueña lo envía. Dominio puro.
+ * Tipos de recordatorio: antes (X horas antes del turno), despues (X días tras una visita, opcional por servicio)
+ * y cumpleanos (X días antes). A quién le toca se calcula; solo se guarda lo mandado u omitido.
  */
 
 export type Momento = "antes" | "despues" | "cumpleanos"
@@ -34,10 +26,7 @@ export type DatosTipo =
 
 export type EstadoRecordatorio = "enviado" | "omitido"
 
-/**
- * Qué identifica a un aviso ya hecho: por turno (antes/después) o por clienta
- * y año (cumpleaños: así el año que viene vuelve a aparecer).
- */
+/** Por turno (antes/después) o por clienta y año (cumpleaños). */
 export type Registro = { tipoId: number; turnoId?: number; clienteId?: number; anio?: number }
 
 /** Tiene que venir turnoId, o clienteId y anio (no las dos cosas). */
@@ -48,18 +37,8 @@ export function problemaDeRegistro(r: Registro): string | null {
 }
 
 /**
- * El aviso de "antes" que toca para un turno ahora, o null si ninguno.
- *
- * Un tipo "aplica" cuando faltan `horasAntes` o menos para el turno. Reglas:
- *   - De los que aplican, se muestra el MÁS CERCANO al turno (menos horas). Si
- *     alguien reserva 10 horas antes, aplican la confirmación de 48 hs y el
- *     recordatorio de 24 hs: con mandarle uno alcanza, y el que tiene sentido
- *     es el último.
- *   - Uno ya mandado (u omitido) tapa a los de más horas: si ya le llegó el de
- *     24 hs, la confirmación de 48 hs no vuelve a aparecer.
- *
- * @param horasHastaTurno horas que faltan (puede tener decimales)
- * @param hechos ids de los tipos ya mandados u omitidos para este turno
+ * Entre los que aplican (faltan ≤ horasAntes) va el más cercano al turno.
+ * Uno ya hecho tapa a los de más horas.
  */
 export function avisoQueToca<T extends { id: number; horasAntes: number }>(horasHastaTurno: number, tipos: T[], hechos: number[]): T | null {
   if (horasHastaTurno <= 0) return null
@@ -71,10 +50,7 @@ export function avisoQueToca<T extends { id: number; horasAntes: number }>(horas
   return aplican[0] ?? null
 }
 
-/**
- * El tipo de cumpleaños que toca: si hay varios (una promo una semana antes y
- * un saludo ese día), el más cercano que todavía no se hizo, como en "antes".
- */
+/** El más cercano que no se hizo, como en avisoQueToca. */
 export function cumpleQueToca<T extends { id: number; dias: number }>(faltan: number, tipos: T[], hechos: number[]): T | null {
   return tipos.filter((t) => faltan <= t.dias && !hechos.includes(t.id)).sort((a, b) => a.dias - b.dias)[0] ?? null
 }
@@ -86,11 +62,7 @@ export function armarMensaje(plantilla: string, datos: DatosMensaje) {
   return plantilla.replace(/\{(nombre|servicio|fecha|hora|negocio)\}/g, (_, clave: keyof DatosMensaje) => datos[clave])
 }
 
-/**
- * Cuántos días faltan para el próximo cumpleaños, y de qué año es ese
- * cumpleaños. Hoy mismo da 0. Un 29 de febrero se festeja el 28 en los años
- * que no son bisiestos.
- */
+/** Días al próximo cumpleaños y su año (hoy = 0). El 29/2 cae el 28 en años no bisiestos. */
 export function proximoCumple(hoy: string, dia: number, mes: number): { dias: number; anio: number } {
   const [y, m, d] = hoy.split("-").map(Number)
   const base = Date.UTC(y, m - 1, d)
@@ -114,10 +86,5 @@ export function horasEntre(desde: string, hasta: string): number {
   return (aMs(hasta) - aMs(desde)) / 3_600_000
 }
 
-/**
- * Hasta cuántos días después de la fecha en que "toca" un recordatorio de
- * después de la visita se lo sigue mostrando. Si la dueña no entra al panel
- * unos días, no lo pierde; pero una visita de hace un año no aparece de golpe
- * al crear un tipo nuevo.
- */
+/** Días que se sigue mostrando uno de "después": no se pierde si la dueña no entra, pero no aparecen visitas viejas. */
 export const VENTANA_DESPUES_DIAS = 14

@@ -1,10 +1,4 @@
-/**
- * Cliente HTTP de la turnera.
- *
- * Las rutas públicas (/api/turnos/*) no llevan login. El backend contesta los
- * errores siempre como { error, detalle? }, así que se traducen una sola vez a
- * `ApiError` y las pantallas solo leen `status` y `message`.
- */
+/** Cliente HTTP de la turnera (rutas públicas, sin login). Los errores { error, detalle? } pasan a ApiError. */
 
 const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3000"
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import type { ReactNode } from "react"
-import { categoriesOf } from "@dp/shared/data/services"
+import { categoriesOf } from "@dp/shared/lib/servicios"
 import { formatPrice } from "@dp/shared/lib/format"
 import FormularioCliente from "../../customers/components/FormularioCliente"
 import { Cargando, ErrorCarga } from "../../../shared/components/EstadoCarga"
@@ -23,29 +23,12 @@ const linkClass = "text-base text-rose-dark underline underline-offset-4 hover:t
 type ClienteElegido = Pick<Cliente, "id" | "nombre" | "apellido" | "telefono">
 type ServicioElegido = { id: number; name: string; durationMin: number; price: number }
 
-/**
- * Cómo se elige la hora:
- *   libres  los horarios libres del día, los mismos que vería una clienta.
- *   fuera   una hora a mano, fuera del horario de atención (igual no pisa otro turno).
- *   pasado  una hora a mano que ya pasó: alguien que vino sin turno, o corregir
- *           uno ya completado. Se guarda como completado.
- */
+/** libres: los de la web · fuera: a mano fuera de horario · pasado: ya ocurrió, se guarda completado. */
 type ModoHora = "libres" | "fuera" | "pasado"
 
 /**
- * Dar, cambiar o cargar un turno desde el panel.
- *
- * Tres preguntas, una debajo de la otra, y cada una aparece recién cuando la
- * anterior está respondida: ¿para quién?, ¿qué servicio?, ¿qué día y a qué
- * hora? Lo ya elegido queda como un renglón con "Cambiar", así la dueña ve
- * siempre lo que va a guardar.
- *
- * Con `turno`, edita ese turno: la clienta queda fija y lo demás arranca con lo
- * que tiene. Qué se puede cambiar depende del estado (las reglas están en el
- * backend, PATCH /api/admin/turnos/:id):
- *   - pedido (reservado/confirmado): se mueve de ahora en adelante.
- *   - completado / no vino: se corrige, pero sigue en el pasado.
- *   - cancelado: solo la nota.
+ * Dar, cambiar o cargar un turno: clienta → servicio → día y hora, cada paso aparece al completar el anterior.
+ * Con `turno` edita: pedido se mueve hacia adelante, completado/no vino se corrige en el pasado, cancelado solo nota.
  */
 export default function FormularioTurno({
   turno,

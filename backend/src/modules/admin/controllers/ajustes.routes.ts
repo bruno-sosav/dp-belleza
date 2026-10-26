@@ -1,8 +1,4 @@
-/**
- * Rutas de los ajustes. Mismas URLs de antes:
- *   web, bajo /api/configuracion:  GET /
- *   panel, bajo /api/admin:        GET /configuracion, PATCH /configuracion
- */
+/** Web: GET /api/configuracion · Panel: GET y PATCH /api/admin/configuracion. */
 import { Router } from "express"
 import type { AjustesController } from "./ajustes.controller.js"
 

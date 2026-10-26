@@ -1,18 +1,6 @@
 /**
- * Sesión del panel: dónde se guardan el token y el usuario. El pedido de login
- * está en features/auth/api/sesion.api.ts.
- *
- * El login se valida en el SERVIDOR: POST /api/auth/login compara la contraseña
- * contra `usuarios.password_hash` con bcrypt y devuelve un JWT que dura 8 horas.
- *
- * Antes esto se hacía en el navegador, comparando un hash SHA-256 contra una
- * variable de entorno (VITE_ADMIN_PASSWORD_HASH). Eso evitaba que alguien
- * entrara por casualidad, pero el hash viajaba en el bundle y cualquiera con las
- * herramientas de desarrollo lo leía: no era seguridad real. Ahora sí lo es.
- *
- * El token va en sessionStorage y no en localStorage a propósito: la sesión
- * muere al cerrar la pestaña. Si la dueña usa el panel en la tablet del local,
- * no queda abierto para el siguiente que lo agarre.
+ * Token y usuario de la sesión. En sessionStorage a propósito: muere al cerrar la pestaña.
+ * El login está en features/auth/api/sesion.api.ts.
  */
 
 const CLAVE_TOKEN = "dp-belleza:admin-token"

@@ -1,13 +1,4 @@
-/**
- * Carga de datos para las pantallas del panel.
- *
- * Todas las secciones necesitan lo mismo: pedir, mostrar "cargando", mostrar el
- * error si falla, y poder recargar. Esto lo resuelve una vez para no repetirlo
- * en cada pantalla.
- *
- * No usa react-query ni similar a propósito: el panel hace pedidos simples y
- * agregar una librería de 40 kB para esto no se justifica en el TP.
- */
+/** Pedir + cargando + error + recargar, para todas las pantallas. Sin react-query: no hace falta. */
 import { useCallback, useEffect, useState } from "react"
 import { ApiError } from "./api"
 
@@ -18,10 +9,7 @@ export type Carga<T> = {
   recargar: () => void
 }
 
-/**
- * `pedir` tiene que ser estable o venir de useCallback: cada vez que cambia se
- * dispara un pedido nuevo.
- */
+/** `pedir` tiene que ser estable (useCallback): si cambia, se pide de nuevo. */
 export function useApi<T>(pedir: () => Promise<T>): Carga<T> {
   const [intento, setIntento] = useState(0)
   // El resultado se guarda junto con QUÉ pedido lo produjo. Comparar eso con el

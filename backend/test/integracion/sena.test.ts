@@ -1,8 +1,4 @@
-/**
- * Seña: el ciclo del turno esperando el pago. No hay credenciales reales de
- * Mercado Pago en los tests, así que el turno con seña se arma directo en la
- * base y el pago se simula con un objeto como el que devuelve Mercado Pago.
- */
+/** Sin credenciales reales: el turno con seña se arma en la base y el pago se simula. */
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import type { RowDataPacket } from "mysql2"
 import { pool } from "../../src/core/database/conexion.database.js"

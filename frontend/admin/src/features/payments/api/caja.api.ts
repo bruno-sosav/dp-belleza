@@ -1,7 +1,4 @@
-/**
- * Caja: /api/admin/caja y /api/admin/cobros. La plata que entró, por medio de
- * pago. Completar un turno cobrando está en features/appointments/api/turnos.api.ts (completarTurno).
- */
+/** /api/admin/caja y /api/admin/cobros. Completar cobrando está en appointments (completarTurno). */
 import { useCallback } from "react"
 import { api } from "../../../shared/lib/api"
 import { useApi } from "../../../shared/lib/useApi"

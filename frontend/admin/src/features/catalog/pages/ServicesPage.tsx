@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Link, useLocation } from "react-router-dom"
-import { categoriesOf } from "@dp/shared/data/services"
+import { categoriesOf } from "@dp/shared/lib/servicios"
 import { formatPrice } from "@dp/shared/lib/format"
 import PageHeader from "../../../shared/components/PageHeader"
 import Panel from "../../../shared/components/Panel"
@@ -10,13 +10,7 @@ import { primaryButtonClass, secondaryButtonClass } from "../../../shared/lib/st
 import { actualizarServicio, formatDuracion, useServiciosAdmin } from "../api/catalogo.api"
 import type { ServicioAdmin } from "../api/catalogo.api"
 
-/**
- * El catálogo de servicios: lo que ve la clienta en la web y lo que se puede
- * reservar. Agrupado por categoría, igual que en la web.
- *
- * No se borra un servicio: se PAUSA. Pausado deja de verse en la web, pero los
- * turnos que ya tenía (y la plata que sumaron) siguen.
- */
+/** Catálogo de servicios por categoría. No se borra: se pausa, así los turnos viejos siguen sumando. */
 export default function ServicesPage() {
   const guardado = (useLocation().state as { guardado?: string } | null)?.guardado
   const { datos, cargando, error, recargar } = useServiciosAdmin()

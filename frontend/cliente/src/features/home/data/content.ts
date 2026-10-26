@@ -1,8 +1,4 @@
-/**
- * Textos fijos de la landing. Los productos y servicios destacados no viven acá:
- * se leen de ecommerce/data y turnera/data para que la landing siempre muestre
- * lo mismo que la tienda y la turnera.
- */
+/** Textos fijos de la portada. Los productos y servicios destacados salen de ecommerce y turnera. */
 
 export const pillars = [
   {
