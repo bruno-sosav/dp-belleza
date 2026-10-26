@@ -98,17 +98,97 @@ Es arquitectura en capas + clean architecture + MVC, organizada por dominio:
 `orders` es la parte de Alan: está en su módulo, pero todavía con su
 estructura original.
 
-## Frontend
+## Arquitectura del frontend
 
-Dos apps separadas:
+Son dos apps de React separadas, más un paquete con lo que comparten:
 
-- **`cliente/`** es la web pública: un solo sitio para reservar un turno o
-  comprar, sin recargar.
-- **`admin/`** es el panel. Es otra app porque tiene otro usuario y otro login,
-  y no tiene sentido mandarle el código del panel a cada visitante de la web.
+- **`cliente/`**: la web pública (dpbelleza.com.ar), para reservar un turno o comprar.
+- **`admin/`**: el panel de la dueña (admin.dpbelleza.com.ar). Es otra app porque
+  tiene otro usuario y otro login, y no tiene sentido mandarle el código del panel
+  a cada visitante de la web.
+- **`shared/`** (`@dp/shared`): colores, tipografías, tipos y formatos que usan las dos.
 
-Las dos hablan solo con la API: no comparten datos por el navegador. Lo que
-usan las dos (colores, tipografías, tipos) está en `frontend/shared/`.
+Las dos hablan solo con la API: no comparten datos por el navegador.
+
+Adentro, las dos apps tienen la misma forma. Están divididas **por feature**:
+cada sección del sitio es una carpeta, igual que los módulos del backend.
+
+```
+admin/src/
+├── app/                  arranque, rutas y el marco del panel (menú, login)
+├── features/
+│   ├── today/            Hoy
+│   ├── appointments/     Turnos: agenda, horario, días cerrados, reglas
+│   ├── reminders/        Recordatorios
+│   ├── customers/        Clientas
+│   ├── catalog/          Servicios
+│   ├── payments/         Finanzas → Caja
+│   ├── analytics/        Finanzas → Análisis
+│   ├── settings/         Ajustes: tu negocio, Mercado Pago
+│   └── auth/             login y "Tu cuenta"
+└── shared/               lo que usan varias secciones del panel
+
+cliente/src/
+├── app/                  arranque y rutas
+├── features/
+│   ├── home/             portada y contacto
+│   └── turnera/          servicios, reservar, mi turno, pago de seña
+└── shared/               navbar, footer, layout
+```
+
+Y adentro de cada feature, las mismas carpetas (solo las que usa):
+
+```
+features/appointments/
+├── pages/          una pantalla por ruta: AgendaPage.tsx, SchedulePage.tsx…
+├── components/     piezas de esas pantallas: SemanaGrilla, TurnoFila…
+├── api/            los pedidos al backend: turnos.api.ts, agenda.api.ts
+└── lib/            cuentas propias de la sección, sin React
+```
+
+Una pantalla recorre siempre el mismo camino:
+
+```
+page → components → api → backend
+       (muestran)   (pide)
+```
+
+Las páginas se llaman `XxxPage.tsx` y los pedidos `xxx.api.ts`, con el mismo
+nombre que el controller del backend al que le pegan (`turnos.api.ts` →
+`turnos.controller.ts`).
+
+### Por qué así
+
+- **Es la misma idea que el backend.** `features/` es `modules/`, `pages/` son
+  los `controllers/` (reciben al usuario), `api/` son los `repositories/`
+  (hablan con la fuente de datos) y `shared/` es `core/`.
+- **Cada cosa en su lugar.** Todo lo de la caja está en `features/payments/`.
+  Antes el panel estaba ordenado por tipo de archivo (`pages/`, `components/`,
+  `data/`) y para tocar una sección había que abrir cuatro carpetas.
+- **Lo compartido sube de a un nivel.** Algo arranca en su feature. Si lo
+  necesita otra sección, pasa a `src/shared/`, y si lo necesitan las dos apps,
+  a `frontend/shared/`.
+- **Las reglas están en el backend.** El front muestra y pide: no calcula
+  estadísticas ni decide si un turno se puede mover. Si el backend rechaza
+  algo, el front muestra el mensaje que vino.
+- **Sin librerías de más.** No hay Redux ni react-query: cada pantalla pide lo
+  suyo con un hook (`useApi`) que maneja cargando, error y recargar.
+
+### Cuántos datos pide
+
+El front nunca recibe una tabla entera. Pide lo que la pantalla muestra:
+
+| Pantalla | Qué pide |
+|---|---|
+| Agenda / Hoy | los turnos de esa semana o de ese día |
+| Caja | los cobros de un día |
+| Clientas | la búsqueda la hace el backend (SQL), tope de 500 |
+| Ficha de una clienta | sus últimos 200 turnos y compras |
+| Análisis | 180 días **ya sumados en SQL**: un número por día, no los turnos |
+| Servicios | todos (son pocos y la web los muestra todos juntos) |
+
+`ecommerce/` (la tienda de Alan, en las dos apps) todavía tiene la estructura
+anterior.
 
 ## Más detalle
 
