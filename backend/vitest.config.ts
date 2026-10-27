@@ -1,17 +1,25 @@
 import { configDefaults, defineConfig } from "vitest/config"
 
-// `npm test` corre solo los tests puros (sin base de datos), que son rápidos.
-// `npm run test:integracion` corre los de test/integracion/, que pegan contra
-// la API y MySQL de verdad (ver test/integracion/ayuda.ts).
-const integracion = process.env.TEST_INTEGRACION === "1"
+// TEST_INTEGRACION: sin definir = solo unitarios (sin base) · "1" = solo integración
+// (API + MySQL de verdad, ver test/integracion/ayuda.ts) · "todo" = los dos.
+const modo = process.env.TEST_INTEGRACION === "1" ? "integracion" : process.env.TEST_INTEGRACION === "todo" ? "todo" : "unitarios"
+const conBase = modo !== "unitarios"
 
 export default defineConfig({
   test: {
-    include: integracion ? ["test/integracion/**/*.test.ts"] : ["test/**/*.test.ts"],
-    exclude: integracion ? configDefaults.exclude : [...configDefaults.exclude, "test/integracion/**"],
+    include: modo === "integracion" ? ["test/integracion/**/*.test.ts"] : ["test/**/*.test.ts"],
+    exclude: conBase ? configDefaults.exclude : [...configDefaults.exclude, "test/integracion/**"],
     // Comparten la base: uno por vez, así no se pisan los horarios.
-    fileParallelism: !integracion,
+    fileParallelism: !conBase,
     testTimeout: 15_000,
-    ...(integracion ? { globalSetup: ["test/integracion/preparar.ts"] } : {}),
+    ...(conBase ? { globalSetup: ["test/integracion/preparar.ts"] } : {}),
+    coverage: {
+      provider: "v8",
+      include: ["src/**/*.ts"],
+      // index.ts solo arranca el servidor; los .ports.ts son solo interfaces.
+      exclude: ["src/index.ts", "src/**/*.ports.ts", "src/core/transaccion.port.ts"],
+      reporter: ["text-summary", "html", "json-summary"],
+      reportsDirectory: `coverage/${modo}`,
+    },
   },
 })

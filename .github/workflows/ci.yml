@@ -1,0 +1,149 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Un push nuevo a la misma rama cancela la corrida anterior.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# Valores solo para los tests (los de backend/.env.local, que no se sube).
+# El backend los exige al cargar la config, aunque el test no use la base.
+env:
+  JWT_SECRET: secreto-solo-para-el-ci-no-se-usa-en-ningun-lado
+  DB_HOST: 127.0.0.1
+  DB_PORT: 3306
+  DB_USER: dp_app
+  DB_PASSWORD: dp_app_local
+  DB_NAME: dp_belleza
+  TEST_ADMIN_EMAIL: ci@dpbelleza.test
+  TEST_ADMIN_PASSWORD: clave-del-ci-2026
+
+jobs:
+  calidad:
+    name: Lint, tipos, build y tests unitarios
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Análisis estático (oxlint)
+        run: npm run lint
+      - name: Tipos del backend
+        run: npm run typecheck -w @dp/backend
+      - name: Tipos y build de la web y el panel
+        run: npm run build
+      - name: Tests unitarios
+        run: npm test
+
+  cobertura:
+    name: Tests de integración y cobertura
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports: ["3306:3306"]
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Preparar la base (usuarios, migraciones, seeds y usuaria del panel)
+        run: bash .github/scripts/preparar-base.sh
+      - name: Tests unitarios + integración con cobertura
+        run: npm run cobertura
+      - name: Resumen de cobertura
+        if: always()
+        run: |
+          python3 - <<'EOF' >> "$GITHUB_STEP_SUMMARY"
+          import json, os
+          p = "backend/coverage/todo/coverage-summary.json"
+          if not os.path.exists(p):
+              print("No se generó el reporte de cobertura."); raise SystemExit
+          t = json.load(open(p))["total"]
+          print("## Cobertura del backend\n\n| | % | cubiertas / total |\n|---|---|---|")
+          for k, nombre in [("lines", "Líneas"), ("statements", "Sentencias"), ("branches", "Ramas"), ("functions", "Funciones")]:
+              print(f"| {nombre} | {t[k]['pct']}% | {t[k]['covered']} / {t[k]['total']} |")
+          EOF
+      - uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: reporte-cobertura
+          path: backend/coverage/todo/
+
+  e2e:
+    name: Tests end to end (Playwright)
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports: ["3306:3306"]
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Instalar Chromium para Playwright
+        run: npx playwright install --with-deps chromium
+      - name: Preparar la base (usuarios, migraciones, seeds y usuaria del panel)
+        run: bash .github/scripts/preparar-base.sh
+      - name: Tests E2E (levanta la API, la web y el panel)
+        run: npm run e2e
+      - uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: reporte-e2e
+          path: |
+            reportes/e2e/
+            reportes/e2e-resultados/
+
+  complejidad:
+    name: Complejidad ciclomática
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - run: pip install lizard jinja2
+      - name: Reporte de complejidad
+        run: npm run complejidad
+      - name: Resumen de complejidad
+        run: |
+          FUENTES="backend/src frontend/admin/src frontend/cliente/src frontend/shared"
+          {
+            echo "## Complejidad: totales del proyecto"
+            echo '```'
+            python3 -m lizard -l typescript -l tsx $FUENTES -i 999 | tail -4
+            echo '```'
+            echo "## Funciones con complejidad mayor a 15"
+            echo '```'
+            python3 -m lizard -l typescript -l tsx $FUENTES -w -C 15 -i 999
+            echo '```'
+            echo "El detalle de todas las funciones está en el artifact reporte-complejidad (HTML y CSV)."
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v5
+        with:
+          name: reporte-complejidad
+          path: reportes/
