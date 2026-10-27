@@ -1,5 +1,5 @@
 /** Nombres en inglés: los que esperan los gráficos del panel (DayStats, RankingApi). */
-import type { Dia, ServicioHecho } from "../models/estadisticas.model.js"
+import type { Dia, ProductoVendido, ServicioHecho } from "../models/estadisticas.model.js"
 
 export const aDia = (d: Dia) => ({
   date: d.fecha,
@@ -14,3 +14,6 @@ export const aDia = (d: Dia) => ({
 })
 
 export const aServicioHecho = (s: ServicioHecho) => ({ id: s.id, name: s.nombre, count: s.cantidad, revenue: s.ganancia })
+
+/** Mismo formato que el ranking de servicios, más `inactive` para marcar los dados de baja. */
+export const aProductoVendido = (p: ProductoVendido) => ({ id: p.id, name: p.nombre, count: p.cantidad, revenue: p.ganancia, inactive: !p.activo })

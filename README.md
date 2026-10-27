@@ -151,7 +151,7 @@ admin/src/
 │   ├── reminders/        Recordatorios
 │   ├── customers/        Clientas
 │   ├── catalog/          Servicios
-│   ├── ecommerce/        Productos de la tienda
+│   ├── ecommerce/        Productos y Ventas tienda
 │   ├── payments/         Finanzas → Caja
 │   ├── analytics/        Finanzas → Análisis
 │   ├── settings/         Ajustes: tu negocio, Mercado Pago
@@ -215,11 +215,8 @@ El front nunca recibe una tabla entera. Pide lo que la pantalla muestra:
 | Caja | los cobros de un día |
 | Clientas | la búsqueda la hace el backend (SQL), tope de 500 |
 | Ficha de una clienta | sus últimos 200 turnos y compras |
-| Análisis | 180 días **ya sumados en SQL**: un número por día, no los turnos |
+| Análisis y Ventas tienda | 180 días **ya sumados en SQL**: un número por día, no los turnos ni los pedidos |
 | Servicios | todos (son pocos y la web los muestra todos juntos) |
-
-En el panel, "Ventas tienda" (`pages/AdminSales.tsx`) todavía no tiene
-endpoint: espera `GET /api/admin/stats/productos`.
 
 ## Más detalle
 

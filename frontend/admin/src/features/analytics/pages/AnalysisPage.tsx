@@ -4,14 +4,14 @@ import FinanzasTabs from "../../payments/components/FinanzasTabs"
 import Panel from "../../../shared/components/Panel"
 import StatTile from "../../../shared/components/StatTile"
 import DiasMovidos from "../components/DiasMovidos"
-import { Cargando, ErrorCarga, Pendiente } from "../../../shared/components/EstadoCarga"
+import { Cargando, ErrorCarga } from "../../../shared/components/EstadoCarga"
 import ColumnChart from "../../../shared/components/charts/ColumnChart"
 import RankingList from "../../../shared/components/charts/RankingList"
 import { chartColors } from "../../../shared/components/charts/theme"
 import { daysInPeriod, previousPeriodDays, totals, weekdayAverages } from "../../../shared/lib/stats"
 import { formatCompactPrice, formatDayMonth, formatShortDate, weekdayName, weekdayShort } from "../../../shared/lib/format"
 import { usePeriod } from "../../../shared/lib/usePeriod"
-import { useDias, useRankingServicios } from "../api/estadisticas.api"
+import { useDias, useRankingProductos, useRankingServicios } from "../api/estadisticas.api"
 
 const unDecimal = (n: number) => n.toLocaleString("es-AR", { maximumFractionDigits: 1 })
 const descripcion = "Cómo viene el negocio: lo que se ganó, cuántos turnos hubo y qué se pide más."
@@ -21,6 +21,7 @@ export default function AnalysisPage() {
   const { period } = usePeriod()
   const { datos, cargando, error, recargar } = useDias()
   const ranking = useRankingServicios(period)
+  const productos = useRankingProductos(period)
 
   if (cargando) {
     return (
@@ -140,11 +141,13 @@ export default function AnalysisPage() {
       </div>
 
       <Panel title="Productos más vendidos" className="mt-6">
-        <Pendiente>
-          Pendiente: lo conecta el módulo de ecommerce,
-          <br />
-          desde <code>GET /api/admin/stats/productos</code>.
-        </Pendiente>
+        {productos.cargando ? (
+          <Cargando />
+        ) : productos.error ? (
+          <ErrorCarga mensaje={productos.error} onReintentar={productos.recargar} />
+        ) : (
+          <RankingList color={chartColors.shop} countLabel={(n) => `${n} u.`} items={(productos.datos ?? []).slice(0, 5)} />
+        )}
       </Panel>
     </div>
   )

@@ -124,6 +124,7 @@ mysql -u dp_dev -p dp_belleza < database/seeds/seed_02_horarios.sql
 mysql -u dp_dev -p dp_belleza < database/seeds/ecommerce-datos-ejemplo.sql
 mysql -u dp_dev -p dp_belleza < database/seeds/seed_03_turnos_demo.sql       # historial (para las estadísticas)
 mysql -u dp_dev -p dp_belleza < database/seeds/seed_04_turnos_proximos.sql   # agenda de hoy en adelante
+mysql -u dp_dev -p dp_belleza < database/seeds/seed_05_pedidos_demo.sql       # historial de la tienda (para las estadísticas)
 
 # Usuario para el panel
 npm run crear-admin -w @dp/backend -- "Nombre" email@ejemplo.com "clave-segura"
@@ -236,6 +237,8 @@ el header `Authorization: Bearer <token>` (dura 8 horas). `GET /api/auth/yo` dev
 | GET | `/api/admin/pedidos?estado=pendiente&desde=2026-10-01&hasta=2026-10-31` | Lista de pedidos (filtros opcionales) |
 | GET | `/api/admin/pedidos/:id` | Pedido con cliente e items |
 | PATCH | `/api/admin/pedidos/:id/estado` | Cambia el estado `{ "estado": "confirmado" }` |
+| GET | `/api/admin/stats/dias?dias=180` | Serie diaria: plata de turnos completados y de la tienda (pedidos confirmados o entregados) |
+| GET | `/api/admin/stats/productos?dias=30` | Productos más vendidos del período: `{ id, name, count, revenue, inactive }` |
 | GET | `/api/admin/turnos?desde=2026-10-15&hasta=2026-10-21&estado=reservado` | Turnos con cliente y servicio, por horario. Sin parámetros: los de hoy. Rango máximo 62 días |
 | GET | `/api/admin/turnos/:id` | Un turno |
 | PATCH | `/api/admin/turnos/:id/estado` | Cambia el estado `{ "estado": "completado" }` |

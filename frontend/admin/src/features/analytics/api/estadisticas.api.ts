@@ -4,11 +4,11 @@ import { api } from "../../../shared/lib/api"
 import { useApi } from "../../../shared/lib/useApi"
 import type { DayStats, Period } from "../../../shared/lib/stats"
 
-export type RankingApi = { id: number; name: string; count: number; revenue: number }
+export type RankingApi = { id: number; name: string; count: number; revenue: number; inactive?: boolean }
 
 type RespuestaDias = {
   dias: DayStats[]
-  /** false mientras el módulo de ecommerce no sume su parte a la serie. */
+  /** Si la serie ya suma la tienda (pedidos confirmados o entregados). */
   tiendaConectada: boolean
 }
 
@@ -26,6 +26,15 @@ export function useRankingServicios(period: Period) {
   const pedir = useCallback(
     () => api<RankingApi[]>("/api/admin/stats/servicios", { query: { dias: period } }),
     [period],
+  )
+  return useApi(pedir)
+}
+
+/** Productos más vendidos de los últimos `dias` (unidades y plata). `inactive`: dado de baja. */
+export function useRankingProductos(dias: number) {
+  const pedir = useCallback(
+    () => api<RankingApi[]>("/api/admin/stats/productos", { query: { dias } }),
+    [dias],
   )
   return useApi(pedir)
 }
