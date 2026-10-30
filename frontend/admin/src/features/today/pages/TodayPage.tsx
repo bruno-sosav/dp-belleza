@@ -252,17 +252,19 @@ function PanelPedidos({ pedidos }: { pedidos: ReturnType<typeof usePedidosPendie
       ) : (
         <ul className="divide-y divide-cream-dark">
           {pedidos.datos.map((p) => (
-            <li key={p.id} className="flex items-baseline justify-between gap-3 py-3 text-base">
-              <span className="min-w-0">
-                <span className="block truncate font-medium text-ink">
-                  #{p.id} · {[p.cliente.nombre, p.cliente.apellido].filter(Boolean).join(" ")}
+            <li key={p.id}>
+              <Link to={`/pedidos/${p.id}`} className="flex items-baseline justify-between gap-3 py-3 text-base transition hover:text-rose-dark">
+                <span className="min-w-0">
+                  <span className="block truncate font-medium text-ink">
+                    #{p.id} · {[p.cliente.nombre, p.cliente.apellido].filter(Boolean).join(" ")}
+                  </span>
+                  <span className="block text-sm text-ink-soft">
+                    {p.unidades} {p.unidades === 1 ? "producto" : "productos"} · {formatShortDate(p.creadoEn.slice(0, 10))}
+                    {p.estado === "confirmado" && " · confirmado"}
+                  </span>
                 </span>
-                <span className="block text-sm text-ink-soft">
-                  {p.unidades} {p.unidades === 1 ? "producto" : "productos"} · {formatShortDate(p.creadoEn.slice(0, 10))}
-                  {p.estado === "confirmado" && " · confirmado"}
-                </span>
-              </span>
-              <span className="shrink-0 font-medium tabular-nums text-ink">{formatPrice(p.total)}</span>
+                <span className="shrink-0 font-medium tabular-nums text-ink">{formatPrice(p.total)}</span>
+              </Link>
             </li>
           ))}
         </ul>
