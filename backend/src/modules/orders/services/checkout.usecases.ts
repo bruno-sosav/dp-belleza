@@ -1,7 +1,14 @@
 /** Casos de uso de la compra en la web. Sin SQL ni Express. */
+import { randomBytes } from "node:crypto"
 import { ErrorDeNegocio } from "../../../core/negocio.error.js"
 import type { UnidadDeTrabajo } from "../../../core/transaccion.port.js"
-import type { CatalogoDePedidos, ClientesDePedidos, InventarioDePedidos, PedidoRepository } from "../models/pedidos.ports.js"
+import type {
+  CatalogoDePedidos,
+  ClientesDePedidos,
+  InventarioDePedidos,
+  PasarelaDePedidos,
+  PedidoRepository,
+} from "../models/pedidos.ports.js"
 import { agruparItems, totalDe, type Linea, type LineaConPrecio, type ProblemaDeCompra } from "../models/pedido.model.js"
 
 export type EntradaCompra = {
@@ -10,12 +17,16 @@ export type EntradaCompra = {
   notas?: string
 }
 
-export type PedidoCreado = { id: number; estado: "pendiente"; total: number; items: LineaConPrecio[] }
+/** `pagoToken`: con Mercado Pago conectado, para ir a pagar (y volver). null = se coordina por WhatsApp. */
+export type PedidoCreado = { id: number; estado: "pendiente"; total: number; items: LineaConPrecio[]; pagoToken: string | null }
+
+const nuevoToken = () => randomBytes(16).toString("hex")
 
 /**
  * Checkout: busca o crea a la clienta por teléfono, toma los precios del
  * catálogo, descuenta el stock del inventario y guarda el pedido. Todo en una
  * transacción: si algo falla, no queda nada a medias (ni el stock descontado).
+ * Con Mercado Pago conectado, el pedido queda esperando el pago.
  */
 export class CrearPedido {
   constructor(
@@ -23,11 +34,13 @@ export class CrearPedido {
     private clientes: ClientesDePedidos,
     private catalogo: CatalogoDePedidos,
     private inventario: InventarioDePedidos,
+    private pasarela: PasarelaDePedidos,
     private uow: UnidadDeTrabajo,
   ) {}
 
-  ejecutar(entrada: EntradaCompra): Promise<PedidoCreado> {
+  async ejecutar(entrada: EntradaCompra): Promise<PedidoCreado> {
     const items = agruparItems(entrada.items)
+    const pago = (await this.pasarela.conectada()) ? { token: nuevoToken() } : null
 
     return this.uow.ejecutar(async (tx) => {
       const clienteId = await this.clientes.buscarOCrear(entrada.cliente, tx)
@@ -54,9 +67,9 @@ export class CrearPedido {
         return { ...i, nombre: p.nombre, precioUnitario: p.precio }
       })
       const total = totalDe(lineas)
-      const id = await this.pedidos.crear({ clienteId, total, notas: entrada.notas ?? null, lineas }, tx)
+      const id = await this.pedidos.crear({ clienteId, total, notas: entrada.notas ?? null, lineas, pago }, tx)
 
-      return { id, estado: "pendiente", total, items: lineas }
+      return { id, estado: "pendiente", total, items: lineas, pagoToken: pago?.token ?? null }
     })
   }
 }

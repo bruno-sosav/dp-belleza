@@ -10,7 +10,7 @@ export type Cobro = {
   fechaHora: string
   monto: number
   medio: MedioPago
-  concepto: "sena" | "turno" | "otro"
+  concepto: "sena" | "turno" | "pedido" | "otro"
   descripcion: string | null
   turno: { id: number; servicio: string; fecha: string; hora: string } | null
   cliente: { nombre: string } | null

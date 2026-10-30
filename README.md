@@ -151,7 +151,7 @@ admin/src/
 │   ├── reminders/        Recordatorios
 │   ├── customers/        Clientas
 │   ├── catalog/          Servicios
-│   ├── ecommerce/        Productos y Ventas tienda
+│   ├── ecommerce/        Pedidos, Ventas tienda y Productos
 │   ├── payments/         Finanzas → Caja
 │   ├── analytics/        Finanzas → Análisis
 │   ├── settings/         Ajustes: tu negocio, Mercado Pago

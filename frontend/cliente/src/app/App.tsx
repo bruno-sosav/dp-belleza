@@ -8,6 +8,7 @@ import ShopPage from "../features/ecommerce/pages/ShopPage"
 import ProductDetailPage from "../features/ecommerce/pages/ProductDetailPage"
 import CartPage from "../features/ecommerce/pages/CartPage"
 import CheckoutPage from "../features/ecommerce/pages/CheckoutPage"
+import PagoPedidoPage from "../features/ecommerce/pages/PagoPedidoPage"
 import ServicesPage from "../features/turnera/pages/ServicesPage"
 import ServiceDetailPage from "../features/turnera/pages/ServiceDetailPage"
 import BookingPage from "../features/turnera/pages/BookingPage"
@@ -43,6 +44,7 @@ export default function App() {
           <Route path="/producto/:id" element={<ProductDetailPage />} />
           <Route path="/carrito" element={<CartPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/pedido/pago" element={<PagoPedidoPage />} />
 
           {/* Turnera — turnera/ */}
           <Route path="/servicios" element={<ServicesPage />} />

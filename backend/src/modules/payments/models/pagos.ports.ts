@@ -62,6 +62,12 @@ export interface PasarelaDePago {
   consultarPago(cuenta: CuentaMercadoPago, id: string | number): Promise<{ pago: PagoRecibido; datos: unknown }>
 }
 
+/** Lo que pagos necesita de los pedidos de la tienda. Lo conecta orders (`pagos.conectarPedidos`). */
+export interface PedidosDeLaCaja {
+  /** Llegó un pago con referencia "pedido-<id>". */
+  aplicarPago(pedidoId: number, pago: PagoRecibido): Promise<void>
+}
+
 /** Lo que pagos necesita de los turnos. Lo conecta el módulo de turnos (`pagos.conectarTurnos`). */
 export interface TurnosDeLaCaja {
   clienteDelTurno(turnoId: number, tx: Transaccion): Promise<number | null>

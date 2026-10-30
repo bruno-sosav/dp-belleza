@@ -35,6 +35,8 @@ describe("checkout", () => {
       estado: "pendiente",
       total: 4501.5,
       items: [{ productoId, nombre: "TEST Crema", cantidad: 3, precioUnitario: 1500.5, subtotal: 4501.5 }],
+      // Sin Mercado Pago conectado (la base de desarrollo) no hay pago que esperar.
+      pagoToken: null,
     })
     const [clientes] = await pool.query("SELECT id FROM clientes WHERE telefono = ?", [telefono(70)])
     expect((clientes as unknown[]).length).toBe(1)

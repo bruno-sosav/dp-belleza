@@ -13,6 +13,7 @@ export const aCobro = (r: RowDataPacket): Cobro => ({
   concepto: r.concepto,
   descripcion: r.descripcion,
   turnoId: r.turno_id,
+  pedidoId: r.pedido_id ?? null,
   clienteId: r.cliente_id,
   mpPagoId: r.mp_pago_id,
 })
@@ -21,9 +22,9 @@ export class MySqlCobroRepository implements CobroRepository {
   async registrar(c: NuevoCobro, tx?: Transaccion) {
     // IGNORE: un mp_pago_id repetido (el aviso de Mercado Pago puede llegar dos veces) no entra de nuevo.
     const [r] = await ejecutor(tx).query<ResultSetHeader>(
-      `INSERT IGNORE INTO cobros (monto, medio, concepto, turno_id, cliente_id, descripcion, mp_pago_id)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [c.monto, c.medio, c.concepto, c.turnoId ?? null, c.clienteId ?? null, c.descripcion ?? null, c.mpPagoId ?? null],
+      `INSERT IGNORE INTO cobros (monto, medio, concepto, turno_id, pedido_id, cliente_id, descripcion, mp_pago_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [c.monto, c.medio, c.concepto, c.turnoId ?? null, c.pedidoId ?? null, c.clienteId ?? null, c.descripcion ?? null, c.mpPagoId ?? null],
     )
     return r.affectedRows ? r.insertId : null
   }

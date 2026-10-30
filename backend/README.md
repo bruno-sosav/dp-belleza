@@ -119,6 +119,7 @@ mysql -u dp_dev -p dp_belleza < database/migrations/V8_codigo_area_y_cuenta.sql
 mysql -u dp_dev -p dp_belleza < database/migrations/V9_sena_mercadopago.sql
 mysql -u dp_dev -p dp_belleza < database/migrations/V10_reglas_de_reserva.sql
 mysql -u dp_dev -p dp_belleza < database/migrations/V11_caja.sql
+mysql -u dp_dev -p dp_belleza < database/migrations/V12_pago_de_pedidos.sql
 mysql -u dp_dev -p dp_belleza < database/seeds/seed_01_servicios.sql
 mysql -u dp_dev -p dp_belleza < database/seeds/seed_02_horarios.sql
 mysql -u dp_dev -p dp_belleza < database/seeds/ecommerce-datos-ejemplo.sql
@@ -156,7 +157,9 @@ Todas las respuestas son JSON. Los errores tienen la forma `{ "error": "mensaje"
 | GET | `/api/tienda/categorias` | Categorías activas |
 | GET | `/api/tienda/productos?categoria=1&q=serum` | Productos activos (filtros opcionales) |
 | GET | `/api/tienda/productos/:id` | Un producto activo |
-| POST | `/api/tienda/pedidos` | Crea un pedido (checkout) |
+| POST | `/api/tienda/pedidos` | Crea un pedido (checkout). Con Mercado Pago conectado devuelve `pagoToken` |
+| GET | `/api/tienda/pedidos/pago/:token?payment_id=` | Cómo quedó el pago al volver de Mercado Pago (con `payment_id`, lo aplica) |
+| POST | `/api/tienda/pedidos/pago/:token/pagar` | Link de Mercado Pago para pagar el pedido o reintentar |
 
 **POST `/api/tienda/pedidos`**
 
@@ -285,11 +288,17 @@ la firma si hay clave secreta cargada, y queda en `mercadopago_pagos` con su
 **En local el webhook no llega** (Mercado Pago no ve `localhost`). Para probarlo
 hace falta exponer la API, por ejemplo con `ngrok http 3000`, y usar esa URL.
 
-Falta (tienda): crear el link al confirmar un pedido y pasar el pedido a
-`confirmado` cuando el pago llega `approved`. El aviso ya reparte por la
-referencia (`destinoDelPago`): `turno-<id>` va a la seña del turno; para
-`pedido-<id>` hay que conectar los pedidos igual que se conectan los turnos
-(`pagos.conectarTurnos`, en `appointments.module.ts`).
+**La tienda** cobra igual: con Mercado Pago conectado, el pedido nace con
+`pago_estado = 'pendiente'` y un `pago_token`; la web pide el link
+(`POST /api/tienda/pedidos/pago/:token/pagar`) y manda a la clienta a pagar.
+La vuelta es `/pedido/pago?t=<token>`. El aviso reparte por la referencia
+(`destinoDelPago`): `turno-<id>` va a la seña y `pedido-<id>` a orders, que se
+conecta con `pagos.conectarPedidos` (en `orders.module.ts`). Un pago aprobado
+por el total pasa el pedido de `pendiente` a `confirmado`, lo marca pagado y lo
+anota en la caja con concepto `pedido` (una sola vez aunque el aviso llegue
+dos veces). Sin Mercado Pago, `pago_estado` queda NULL y el pago se coordina
+por WhatsApp. Un pedido que nunca se paga sigue apartando el stock hasta que
+la dueña lo cancela.
 
 ## Pendiente de decidir
 
@@ -299,5 +308,5 @@ referencia (`destinoDelPago`): `turno-<id>` va a la seña del turno; para
 | Sesión | Hoy es un token JWT en el header `Authorization`, no una cookie, así que no depende del dominio |
 | Envío | `pedidos` no tiene columnas de entrega: el checkout manda la forma de entrega y la dirección en `notas`, y el costo del envío se coordina por WhatsApp. `total` es solo la suma de los productos |
 | Datos extra del frontend | `oldPrice`, `badge`, `rating`, `reviews` y `sizes` no existen en la tabla `productos` |
-| Pagos de la tienda | Mercado Pago ya está para las señas de turnos; en la tienda el pedido todavía queda `pendiente` (ver arriba) |
+| Pedidos sin pagar | Un pedido que espera el pago de Mercado Pago aparta el stock hasta que la dueña lo cancela. Se podría vencer solo, como la seña de los turnos |
 | Fotos | Se cargan como link (`imagenUrl`), no hay subida de archivos |

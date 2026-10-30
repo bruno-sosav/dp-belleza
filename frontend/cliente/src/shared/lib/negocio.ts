@@ -18,6 +18,8 @@ export type Negocio = {
   cancelacionHoras: number
   /** % de seña que se paga al reservar con Mercado Pago. 0 = sin seña. */
   senaPorcentaje: number
+  /** Si el local tiene Mercado Pago conectado (la tienda cobra por ahí). */
+  mercadoPago: boolean
   /** Reglas de la reserva: con cuántas horas como mínimo y hasta cuántos días para adelante. */
   reservaMinHoras: number
   reservaMaxDias: number
@@ -39,6 +41,7 @@ async function cargar(): Promise<Negocio> {
     horario: horarios ? describeOpeningHours(horarios) : "",
     cancelacionHoras: Number(config?.cancelacionHoras ?? 24),
     senaPorcentaje: Number(config?.senaPorcentaje ?? 0),
+    mercadoPago: Boolean(config?.mercadopagoPublicKey),
     reservaMinHoras: Number(config?.reservaMinHoras ?? 2),
     reservaMaxDias: Number(config?.reservaMaxDias ?? 60),
   }

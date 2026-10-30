@@ -2,15 +2,16 @@
 import type { RowDataPacket } from "mysql2"
 import { pool } from "../../../core/database/conexion.database.js"
 import type { PedidosQueries } from "../models/pedidos.ports.js"
-import type { EstadoPedido, FiltrosPedidos, PedidoResumen } from "../models/pedido.model.js"
+import type { EstadoPedido, FiltrosPedidos, PagoEstado, PedidoResumen } from "../models/pedido.model.js"
 
-const COLUMNAS = `p.id, p.estado, p.total, p.notas, p.created_at, p.updated_at,
+const COLUMNAS = `p.id, p.estado, p.pago_estado, p.total, p.notas, p.created_at, p.updated_at,
   c.id AS cliente_id, c.nombre, c.apellido, c.telefono, c.email`
 
 function aResumen(r: RowDataPacket): PedidoResumen {
   return {
     id: r.id as number,
     estado: r.estado as EstadoPedido,
+    pagoEstado: (r.pago_estado as PagoEstado) ?? null,
     total: Number(r.total),
     notas: r.notas as string | null,
     unidades: Number(r.unidades ?? 0),

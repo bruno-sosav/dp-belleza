@@ -1,9 +1,12 @@
-/** Plata que entró a la caja: al completar un turno, por seña de Mercado Pago o a mano. */
+/** Plata que entró a la caja: al completar un turno, por seña o pedido de Mercado Pago, o a mano. */
 export const MEDIOS_PAGO = ["efectivo", "debito", "credito", "transferencia", "mercadopago"] as const
 export type MedioPago = (typeof MEDIOS_PAGO)[number]
 
-export const CONCEPTOS_COBRO = ["sena", "turno", "otro"] as const
+export const CONCEPTOS_COBRO = ["sena", "turno", "pedido", "otro"] as const
 export type ConceptoCobro = (typeof CONCEPTOS_COBRO)[number]
+
+/** Los que puede anotar la dueña a mano. Los de pedidos entran solos, con el pago de Mercado Pago. */
+export const CONCEPTOS_MANUALES = ["sena", "turno", "otro"] as const
 
 export type Cobro = {
   id: number
@@ -14,6 +17,8 @@ export type Cobro = {
   concepto: ConceptoCobro
   descripcion: string | null
   turnoId: number | null
+  /** Solo los pagos de pedidos de la tienda. */
+  pedidoId: number | null
   clienteId: number | null
   /** Solo pagos de Mercado Pago. */
   mpPagoId: number | null
@@ -24,6 +29,7 @@ export type NuevoCobro = {
   medio: MedioPago
   concepto: ConceptoCobro
   turnoId?: number | null
+  pedidoId?: number | null
   clienteId?: number | null
   descripcion?: string | null
   /** Solo pagos de Mercado Pago: evita que el mismo pago entre dos veces. */

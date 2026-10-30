@@ -32,3 +32,7 @@ export const filtrosPedidos = z.object({
 })
 
 export const cambioDeEstado = z.object({ estado: z.enum(ESTADOS_PEDIDO) })
+
+/** El token del link de pago (32 caracteres hex) y el id de pago que agrega Mercado Pago al volver. */
+export const tokenDePago = z.string().regex(/^[0-9a-f]{32}$/, "Link de pago inválido")
+export const pagoId = z.string().regex(/^\d+$/).optional()

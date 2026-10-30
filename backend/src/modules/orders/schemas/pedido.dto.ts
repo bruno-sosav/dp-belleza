@@ -10,13 +10,19 @@ const aLinea = (l: LineaConPrecio) => ({
   subtotal: subtotal(l),
 })
 
-/** La respuesta del checkout: lo justo para mostrarle a la clienta su compra. */
-export const aPedidoCreado = (p: PedidoCreado) => ({ id: p.id, estado: p.estado, total: p.total, items: p.items.map(aLinea) })
+/** La respuesta del checkout: lo justo para mostrarle a la clienta su compra. `pagoToken` null = sin Mercado Pago. */
+export const aPedidoCreado = (p: PedidoCreado) => ({ id: p.id, estado: p.estado, total: p.total, items: p.items.map(aLinea), pagoToken: p.pagoToken })
+
+/** El pedido como lo ve la clienta al volver de Mercado Pago: sin datos de la clienta. */
+export const aPedidoPublico = (p: Pedido) => ({ id: p.id, estado: p.estado, pagoEstado: p.pagoEstado, total: p.total, items: p.items.map(aLinea) })
+
+export const aLinkDePago = (link: string) => ({ link })
 
 /** Un pedido en la lista del panel. */
 export const aPedidoResumen = (p: PedidoResumen) => ({
   id: p.id,
   estado: p.estado,
+  pagoEstado: p.pagoEstado,
   total: p.total,
   notas: p.notas,
   unidades: p.unidades,
@@ -29,6 +35,7 @@ export const aPedidoResumen = (p: PedidoResumen) => ({
 export const aPedidoDetalle = (p: Pedido) => ({
   id: p.id,
   estado: p.estado,
+  pagoEstado: p.pagoEstado,
   total: p.total,
   notas: p.notas,
   cliente: p.cliente,

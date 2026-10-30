@@ -1,11 +1,12 @@
 import { useState, type FormEvent, type ReactNode } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { formatPrice } from "@dp/shared/lib/format"
 import { ApiError } from "../../../shared/lib/api"
 import { useNegocio } from "../../../shared/lib/negocio"
 import { whatsappUrl } from "../../home/lib/whatsapp"
-import { crearPedido, problemasDeCompra, type PedidoCreado } from "../api/checkout.api"
+import { crearPedido, linkDePago, problemasDeCompra, type PedidoCreado } from "../api/checkout.api"
 import ProductImage from "../components/ProductImage"
+import ResumenDePedido from "../components/ResumenDePedido"
 import { useCart } from "../context/CartContext"
 
 type Entrega = "retiro" | "envio"
@@ -38,6 +39,8 @@ function armarNotas(entrega: Entrega, direccion: { calle: string; ciudad: string
 export default function CheckoutPage() {
   const { items, subtotal, clear } = useCart()
   const negocio = useNegocio()
+  const navigate = useNavigate()
+  const conMercadoPago = negocio?.mercadoPago ?? false
 
   const [cliente, setCliente] = useState({ nombre: "", apellido: "", telefono: "", email: "" })
   const [entrega, setEntrega] = useState<Entrega>("retiro")
@@ -46,6 +49,14 @@ export default function CheckoutPage() {
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState<{ mensaje: string; lista?: string[] } | null>(null)
   const [pedido, setPedido] = useState<PedidoCreado | null>(null)
+
+  const irAPagar = async (token: string) => {
+    try {
+      window.location.assign((await linkDePago(token)).link)
+    } catch {
+      navigate(`/pedido/pago?t=${token}`)
+    }
+  }
 
   const confirmar = async (e: FormEvent) => {
     e.preventDefault()
@@ -62,8 +73,13 @@ export default function CheckoutPage() {
         items: items.map((i) => ({ productoId: i.product.id, cantidad: i.quantity })),
         notas: armarNotas(entrega, direccion, comentario),
       })
-      setPedido(creado)
       clear()
+      if (creado.pagoToken) {
+        // Con Mercado Pago: a pagar. Si no se puede abrir, la pantalla del pago deja reintentar.
+        await irAPagar(creado.pagoToken)
+        return
+      }
+      setPedido(creado)
       window.scrollTo(0, 0)
     } catch (err) {
       const problemas = problemasDeCompra(err)
@@ -93,20 +109,7 @@ export default function CheckoutPage() {
             la entrega.
           </p>
 
-          <ul className="mt-8 divide-y divide-cream-dark text-left text-sm">
-            {pedido.items.map((i) => (
-              <li key={i.productoId} className="flex justify-between gap-4 py-2.5">
-                <span className="text-ink">
-                  {i.nombre} <span className="text-ink-soft">× {i.cantidad}</span>
-                </span>
-                <span className="text-ink-soft">{formatPrice(i.subtotal)}</span>
-              </li>
-            ))}
-          </ul>
-          <div className="mt-2 flex justify-between border-t border-cream-dark pt-4 text-left">
-            <span className="font-display font-semibold text-ink">Total</span>
-            <span className="font-display text-lg font-semibold text-ink">{formatPrice(pedido.total)}</span>
-          </div>
+          <ResumenDePedido items={pedido.items} total={pedido.total} />
 
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             {negocio?.telefono && (
@@ -277,8 +280,9 @@ export default function CheckoutPage() {
           <section className="rounded-lg border border-cream-dark bg-surface p-6">
             <h2 className="font-display text-lg font-semibold text-ink">3. Pago</h2>
             <p className="mt-3 text-sm text-ink-soft">
-              Después de confirmar te escribimos por WhatsApp para coordinar el pago (transferencia, efectivo al retirar o
-              link de pago).
+              {conMercadoPago
+                ? "Al confirmar te llevamos a Mercado Pago para pagar con tarjeta, dinero en cuenta u otros medios. Cuando se apruebe el pago, tu pedido queda confirmado."
+                : "Después de confirmar te escribimos por WhatsApp para coordinar el pago (transferencia, efectivo al retirar o link de pago)."}
             </p>
           </section>
         </div>
@@ -337,7 +341,7 @@ export default function CheckoutPage() {
             disabled={enviando}
             className="mt-6 w-full rounded-md bg-ink py-3 text-center text-sm font-medium text-cream transition hover:bg-rose-dark disabled:cursor-wait disabled:opacity-60"
           >
-            {enviando ? "Confirmando…" : "Confirmar pedido"}
+            {enviando ? "Confirmando…" : conMercadoPago ? "Confirmar y pagar" : "Confirmar pedido"}
           </button>
 
           <Link to="/carrito" className="mt-4 block text-center text-sm text-rose-dark hover:underline">

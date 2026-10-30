@@ -4,14 +4,17 @@ import { ErrorDeNegocio } from "../../src/core/negocio.error.js"
 import type { Transaccion, UnidadDeTrabajo } from "../../src/core/transaccion.port.js"
 import { CrearPedido } from "../../src/modules/orders/services/checkout.usecases.js"
 import { CambiarEstadoPedido, VerPedido } from "../../src/modules/orders/services/pedidos.usecases.js"
+import { PagarPedido } from "../../src/modules/orders/services/pagos.usecases.js"
 import type {
+  CajaDePedidos,
   CatalogoDePedidos,
   ClientesDePedidos,
   InventarioDePedidos,
+  PasarelaDePedidos,
   PedidoRepository,
   PedidosQueries,
 } from "../../src/modules/orders/models/pedidos.ports.js"
-import type { EstadoPedido, Linea, NuevoPedido } from "../../src/modules/orders/models/pedido.model.js"
+import type { EstadoPedido, Linea, NuevoPedido, PagoDePedido, PagoEstado } from "../../src/modules/orders/models/pedido.model.js"
 
 /** Una transacción en memoria: si el trabajo falla, se deshace lo que tocó el stock. */
 const stock = new Map<number, number>()
@@ -50,12 +53,41 @@ const inventario: InventarioDePedidos = {
 }
 const clientes: ClientesDePedidos = { buscarOCrear: async () => 7 }
 
+/** Mercado Pago de mentira: `conectado` decide si el pedido espera el pago; `pagos` son los que "existen". */
+let conectado = false
+const pagosDeMp = new Map<string, PagoDePedido>()
+const links: { pedidoId: number; token: string }[] = []
+const pasarela: PasarelaDePedidos = {
+  conectada: async () => conectado,
+  crearLink: async ({ pedidoId, token }) => {
+    links.push({ pedidoId, token })
+    return `https://mp.test/pagar/${pedidoId}`
+  },
+  consultarPago: async (id) => pagosDeMp.get(id)!,
+}
+const cobrados: { pedidoId: number; monto: number; pagoId: number }[] = []
+const caja: CajaDePedidos = {
+  cobrar: async (c) => {
+    if (!cobrados.some((x) => x.pagoId === c.pagoId)) cobrados.push(c)
+  },
+}
+
 class PedidosEnMemoria implements PedidoRepository, PedidosQueries {
-  guardados = new Map<number, NuevoPedido & { estado: EstadoPedido }>()
+  guardados = new Map<number, NuevoPedido & { estado: EstadoPedido; pagoEstado: PagoEstado; pagoId?: number }>()
   async crear(p: NuevoPedido) {
     const id = this.guardados.size + 1
-    this.guardados.set(id, { ...p, estado: "pendiente" })
+    this.guardados.set(id, { ...p, estado: "pendiente", pagoEstado: p.pago ? "pendiente" : null })
     return id
+  }
+  async paraPagar(id: number) {
+    const p = this.guardados.get(id)
+    return p ? { id, clienteId: p.clienteId, estado: p.estado, pagoEstado: p.pagoEstado, total: p.total } : null
+  }
+  async idPorToken(token: string) {
+    return [...this.guardados].find(([, p]) => p.pago?.token === token)?.[0] ?? null
+  }
+  async marcarPagado(id: number, pagoId: number, estado: EstadoPedido) {
+    Object.assign(this.guardados.get(id)!, { pagoEstado: "pagado", pagoId, estado })
   }
   async estadoParaCambiar(id: number) {
     return this.guardados.get(id)?.estado ?? null
@@ -73,7 +105,7 @@ class PedidosEnMemoria implements PedidoRepository, PedidosQueries {
     const p = this.guardados.get(id)
     if (!p) return null
     const cliente = { id: p.clienteId, nombre: "Ana", apellido: null, telefono: "5492231234567", email: null }
-    return { id, estado: p.estado, total: p.total, notas: p.notas, cliente, creadoEn: "", actualizadoEn: "", items: p.lineas }
+    return { id, estado: p.estado, pagoEstado: p.pagoEstado, total: p.total, notas: p.notas, cliente, creadoEn: "", actualizadoEn: "", items: p.lineas }
   }
 }
 
@@ -94,7 +126,11 @@ beforeEach(() => {
   stock.clear()
   stock.set(1, 5).set(2, 1)
   repo = new PedidosEnMemoria()
-  crear = new CrearPedido(repo, clientes, catalogo, inventario, uow)
+  conectado = false
+  pagosDeMp.clear()
+  links.length = 0
+  cobrados.length = 0
+  crear = new CrearPedido(repo, clientes, catalogo, inventario, pasarela, uow)
 })
 
 describe("CrearPedido (checkout)", () => {
@@ -156,5 +192,70 @@ describe("CambiarEstadoPedido (panel)", () => {
 
   it("un pedido que no existe es 404", async () => {
     expect(await tipoDeError(cambiar(123, "confirmado"))).toBe("no_encontrado")
+  })
+})
+
+describe("pago con Mercado Pago", () => {
+  const pagar = () => new PagarPedido(repo, repo, pasarela, caja, uow)
+  const aprobado = (pedidoId: number, monto: number, id = 555): PagoDePedido => ({ id, aprobado: true, monto, referencia: `pedido-${pedidoId}` })
+
+  it("sin Mercado Pago conectado el pedido no espera ningún pago", async () => {
+    const p = await compra([{ productoId: 1, cantidad: 1 }])
+    expect(p.pagoToken).toBeNull()
+    expect(repo.guardados.get(p.id)?.pagoEstado).toBeNull()
+  })
+
+  it("con Mercado Pago, el pedido nace esperando el pago y da el link con su referencia", async () => {
+    conectado = true
+    const p = await compra([{ productoId: 1, cantidad: 1 }])
+    expect(p.pagoToken).toMatch(/^[0-9a-f]{32}$/)
+    expect(repo.guardados.get(p.id)?.pagoEstado).toBe("pendiente")
+    expect(await pagar().link(p.pagoToken!)).toBe(`https://mp.test/pagar/${p.id}`)
+    expect(links).toEqual([{ pedidoId: p.id, token: p.pagoToken }])
+  })
+
+  it("el pago aprobado confirma el pedido y entra una sola vez a la caja, aunque llegue dos veces", async () => {
+    conectado = true
+    const p = await compra([{ productoId: 1, cantidad: 2 }])
+    await pagar().aplicar(p.id, aprobado(p.id, 37800))
+    await pagar().aplicar(p.id, aprobado(p.id, 37800))
+    expect(repo.guardados.get(p.id)).toMatchObject({ estado: "confirmado", pagoEstado: "pagado", pagoId: 555 })
+    expect(cobrados).toEqual([{ pedidoId: p.id, clienteId: 7, monto: 37800, pagoId: 555 }])
+    expect(await tipoDeError(pagar().link(p.pagoToken!))).toBe("conflicto")
+  })
+
+  it("un pago rechazado o de menos no cambia nada", async () => {
+    conectado = true
+    const p = await compra([{ productoId: 1, cantidad: 1 }])
+    await pagar().aplicar(p.id, { ...aprobado(p.id, 18900), aprobado: false })
+    await pagar().aplicar(p.id, aprobado(p.id, 100))
+    expect(repo.guardados.get(p.id)).toMatchObject({ estado: "pendiente", pagoEstado: "pendiente" })
+    expect(cobrados).toEqual([])
+  })
+
+  it("al volver de Mercado Pago se aplica el pago, pero solo si es de ESE pedido", async () => {
+    conectado = true
+    const p = await compra([{ productoId: 1, cantidad: 1 }])
+    pagosDeMp.set("1", aprobado(p.id + 99, 18900, 1))
+    expect((await pagar().consultar(p.pagoToken!, "1")).pagoEstado).toBe("pendiente")
+    pagosDeMp.set("2", aprobado(p.id, 18900, 2))
+    expect(await pagar().consultar(p.pagoToken!, "2")).toMatchObject({ estado: "confirmado", pagoEstado: "pagado" })
+  })
+
+  it("si se desconectó Mercado Pago, avisa a la clienta que coordine por WhatsApp", async () => {
+    conectado = true
+    const p = await compra([{ productoId: 1, cantidad: 1 }])
+    conectado = false
+    const err = await pagar().link(p.pagoToken!).catch((e) => e)
+    expect(err.tipo).toBe("conflicto")
+    expect(err.message).toContain("WhatsApp")
+  })
+
+  it("un pedido cancelado ya no se puede pagar; un token desconocido no existe", async () => {
+    conectado = true
+    const p = await compra([{ productoId: 1, cantidad: 1 }])
+    await new CambiarEstadoPedido(repo, inventario, new VerPedido(repo), uow).ejecutar(p.id, "cancelado")
+    expect(await tipoDeError(pagar().link(p.pagoToken!))).toBe("conflicto")
+    expect(await tipoDeError(pagar().link("f".repeat(32)))).toBe("no_encontrado")
   })
 })
