@@ -31,4 +31,15 @@ describe("estadísticas", () => {
     expect(s[1]).toMatchObject({ servicios: 5000, realizados: 2, cancelados: 1 })
     expect(s[2]).toMatchObject({ servicios: 0, realizados: 0 })
   })
+
+  it("la serie suma las ventas de la tienda en su día, sin mezclarlas con los turnos", () => {
+    const s = serieDiaria(
+      "2030-01-07",
+      3,
+      [{ fecha: "2030-01-06", ganancia: 5000, realizados: 2, cancelados: 0, ausentes: 0 }],
+      [{ fecha: "2030-01-07", ventas: 12000, pedidos: 2 }],
+    )
+    expect(s[1]).toMatchObject({ servicios: 5000, tienda: 0, pedidos: 0 })
+    expect(s[2]).toMatchObject({ servicios: 0, tienda: 12000, pedidos: 2 })
+  })
 })

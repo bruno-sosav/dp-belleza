@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { conflicto, ErrorDeNegocio, externo, HttpError, invalido, noAutorizado, noEncontrado } from "../src/core/negocio.error.js"
+import { conflicto, ErrorDeNegocio, externo, invalido, noAutorizado, noEncontrado } from "../src/core/negocio.error.js"
 import { manejarErrores } from "../src/core/http/manejarErrores.middleware.js"
 
 /** Llama al manejador de errores con una respuesta falsa y devuelve qué contestó. */
@@ -32,10 +32,6 @@ describe("errores de negocio → HTTP", () => {
   it("el dominio no conoce códigos HTTP: un error de negocio no tiene `status`", () => {
     expect("status" in conflicto("x")).toBe(false)
     expect(conflicto("x")).toBeInstanceOf(ErrorDeNegocio)
-  })
-
-  it("la forma vieja (HttpError) sigue funcionando mientras se mudan los módulos", () => {
-    expect(responder(new HttpError(409, "ocupado"))).toEqual({ status: 409, cuerpo: { error: "ocupado" } })
   })
 
   it("un error desconocido es un 500 sin detalles internos", () => {

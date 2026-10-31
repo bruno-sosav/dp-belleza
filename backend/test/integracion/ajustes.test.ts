@@ -48,7 +48,7 @@ describe("estadísticas", () => {
     const r = await api().get("/api/admin/stats/dias").set(auth).query({ dias: 7 })
     expect(r.body.dias).toHaveLength(7)
     expect(Object.keys(r.body.dias[0]).sort()).toEqual(["bookingCount", "cancelledCount", "date", "noShowCount", "orderCount", "services", "shop", "total", "weekday"])
-    expect(r.body.tiendaConectada).toBe(false)
+    expect(r.body.tiendaConectada).toBe(true)
   })
 
   it("ranking de servicios y detalle de un día", async () => {

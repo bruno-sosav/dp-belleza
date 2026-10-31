@@ -1,7 +1,7 @@
 import { useCallback } from "react"
 import type { Service } from "@dp/shared/types/servicio.types"
-import { api, ApiError } from "../lib/api"
-import { useApi } from "../lib/useApi"
+import { api, ApiError } from "../../../shared/lib/api"
+import { useApi } from "../../../shared/lib/useApi"
 
 const fetchServices = () => api<Service[]>("/api/turnos/servicios")
 

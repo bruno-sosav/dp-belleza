@@ -23,6 +23,7 @@ const navItems = [
   { to: "/clientes", label: "Clientas", icon: icon(<><circle cx="9" cy="8" r="3.5" /><path d="M2.5 20a6.5 6.5 0 0113 0M16 4.5a3.5 3.5 0 010 7M18 14.5a6.5 6.5 0 013.5 5.5" /></>) },
   { to: "/servicios", label: "Servicios", icon: icon(<><path d="M12 3c-3 3.5-3 7 0 10 3-3 3-6.5 0-10z" /><path d="M12 13c-4-2-7.5-1.5-9 1 2.5 3.5 6 4 9 2M12 13c4-2 7.5-1.5 9 1-2.5 3.5-6 4-9 2M12 16v5" /></>) },
   { to: "/finanzas", label: "Finanzas", icon: icon(<path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />) },
+  { to: "/pedidos", label: "Pedidos", icon: icon(<><path d="M5 4h14v16H5z" /><path d="M9 9h6M9 13h6M9 17h3" /></>) },
   { to: "/ventas", label: "Ventas tienda", short: "Ventas", icon: icon(<><path d="M6 7h12l-1 12.5a1.5 1.5 0 01-1.5 1.5h-7A1.5 1.5 0 017 19.5L6 7z" /><path d="M9 7a3 3 0 016 0" /></>) },
   { to: "/productos", label: "Productos", icon: icon(<><path d="M4 7l8-4 8 4-8 4-8-4z" /><path d="M4 7v10l8 4 8-4V7M12 11v10" /></>) },
 ]

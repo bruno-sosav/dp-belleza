@@ -1,5 +1,5 @@
 /** Buscar y cancelar con código + teléfono. Por POST para que el teléfono no quede en la URL. */
-import { api } from "../lib/api"
+import { api } from "../../../shared/lib/api"
 
 export type MiTurno = {
   /** "DP-000123" */

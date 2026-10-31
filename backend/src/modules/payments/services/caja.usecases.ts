@@ -2,7 +2,7 @@
 import { conflicto, invalido, noEncontrado } from "../../../core/negocio.error.js"
 import type { Transaccion, UnidadDeTrabajo } from "../../../core/transaccion.port.js"
 import { problemaDeCobroManual, sePuedeBorrar, totalesPorMedio, type ConceptoCobro, type MedioPago } from "../models/cobro.model.js"
-import type { CobroRepository, ConsultasDeCaja, TurnosDeLaCaja } from "../models/pagos.ports.js"
+import type { CobroRepository, ConsultasDeCaja, PedidosDeLaCaja, TurnosDeLaCaja } from "../models/pagos.ports.js"
 
 /** Los turnos se conectan después (desde su módulo): hasta entonces, no hay. */
 export type ConexionConTurnos = { actual: TurnosDeLaCaja | null }
@@ -11,6 +11,9 @@ export const turnosConectados = (c: ConexionConTurnos): TurnosDeLaCaja => {
   if (!c.actual) throw new Error("El módulo de turnos no se conectó a pagos (pagos.conectarTurnos)")
   return c.actual
 }
+
+/** Los pedidos se conectan después (desde orders). Sin conectar, un pago de pedido solo queda registrado. */
+export type ConexionConPedidos = { actual: PedidosDeLaCaja | null }
 
 /** Un día de caja: cobros, totales por medio y turnos completados sin cobrar entero. */
 export class VerCaja {
@@ -75,5 +78,26 @@ export class CobrosDeTurnos {
 
   cobrado(turnoIds: number[]) {
     return this.cobros.cobradoPorTurnos(turnoIds)
+  }
+}
+
+/** Lo que entra a la caja por los pedidos de la tienda (orders). */
+export class CobrosDePedidos {
+  constructor(private cobros: CobroRepository) {}
+
+  /** El pago de Mercado Pago de un pedido: entra solo, con el id del pago, así no entra dos veces. */
+  async mercadoPago(c: { pedidoId: number; clienteId: number; monto: number; pagoId: number }, tx: Transaccion) {
+    await this.cobros.registrar(
+      {
+        monto: c.monto,
+        medio: "mercadopago",
+        concepto: "pedido",
+        pedidoId: c.pedidoId,
+        clienteId: c.clienteId,
+        descripcion: `Pedido #${c.pedidoId} de la tienda`,
+        mpPagoId: c.pagoId,
+      },
+      tx,
+    )
   }
 }

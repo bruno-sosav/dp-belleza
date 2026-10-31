@@ -5,7 +5,7 @@ import { etiquetaMedio } from "../lib/medios"
 import { borrarCobro } from "../api/caja.api"
 import type { Cobro } from "../api/caja.api"
 
-const conceptos = { sena: "Seña", turno: "Turno", otro: "Otro" }
+const conceptos = { sena: "Seña", turno: "Turno", pedido: "Tienda", otro: "Otro" }
 
 /** Lo que entró en el día, del más nuevo al más viejo. Se puede borrar uno anotado por error (menos los de Mercado Pago). */
 export default function ListaCobros({ cobros, onCambio }: { cobros: Cobro[]; onCambio: () => void }) {

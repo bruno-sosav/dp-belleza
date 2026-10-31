@@ -56,12 +56,14 @@ abrirlo (por ejemplo `caja.controller.ts`, `cobro.model.ts`):
 | `catalog` (servicios, productos, categorías) | `catalogo.controller.ts` |
 | `customers` (clientas) | `clientes.controller.ts` |
 | `inventory` (stock) | `inventario.controller.ts` |
-| `orders` (pedidos de la tienda, de Alan) | `checkout.routes.ts`, `pedidosPanel.routes.ts` (sin controller aparte todavía) |
+| `orders` (pedidos de la tienda) | `checkout.controller.ts`, `pedidos.controller.ts` |
 | `payments` (caja y Mercado Pago) | `pagos.controller.ts` |
 | `reminders` (recordatorios) | `recordatorios.controller.ts` |
 
-`orders` (pedidos de la tienda) es la parte de Alan: está en `modules/orders/` con
-su código tal cual, todavía sin puertos, casos de uso ni DTOs.
+`orders` no tiene tablas ajenas: la clienta la busca o crea `customers`, los
+precios los da `catalog` y el stock lo descuenta y devuelve `inventory`, todo a
+través de sus fachadas (`integrations/pedidos.adapter.ts`) y dentro de la misma
+transacción del pedido.
 
 ### Cómo se hablan los módulos
 
@@ -117,11 +119,13 @@ mysql -u dp_dev -p dp_belleza < database/migrations/V8_codigo_area_y_cuenta.sql
 mysql -u dp_dev -p dp_belleza < database/migrations/V9_sena_mercadopago.sql
 mysql -u dp_dev -p dp_belleza < database/migrations/V10_reglas_de_reserva.sql
 mysql -u dp_dev -p dp_belleza < database/migrations/V11_caja.sql
+mysql -u dp_dev -p dp_belleza < database/migrations/V12_pago_de_pedidos.sql
 mysql -u dp_dev -p dp_belleza < database/seeds/seed_01_servicios.sql
 mysql -u dp_dev -p dp_belleza < database/seeds/seed_02_horarios.sql
 mysql -u dp_dev -p dp_belleza < database/seeds/ecommerce-datos-ejemplo.sql
 mysql -u dp_dev -p dp_belleza < database/seeds/seed_03_turnos_demo.sql       # historial (para las estadísticas)
 mysql -u dp_dev -p dp_belleza < database/seeds/seed_04_turnos_proximos.sql   # agenda de hoy en adelante
+mysql -u dp_dev -p dp_belleza < database/seeds/seed_05_pedidos_demo.sql       # historial de la tienda (para las estadísticas)
 
 # Usuario para el panel
 npm run crear-admin -w @dp/backend -- "Nombre" email@ejemplo.com "clave-segura"
@@ -153,7 +157,9 @@ Todas las respuestas son JSON. Los errores tienen la forma `{ "error": "mensaje"
 | GET | `/api/tienda/categorias` | Categorías activas |
 | GET | `/api/tienda/productos?categoria=1&q=serum` | Productos activos (filtros opcionales) |
 | GET | `/api/tienda/productos/:id` | Un producto activo |
-| POST | `/api/tienda/pedidos` | Crea un pedido (checkout) |
+| POST | `/api/tienda/pedidos` | Crea un pedido (checkout). Con Mercado Pago conectado devuelve `pagoToken` |
+| GET | `/api/tienda/pedidos/pago/:token?payment_id=` | Cómo quedó el pago al volver de Mercado Pago (con `payment_id`, lo aplica) |
+| POST | `/api/tienda/pedidos/pago/:token/pagar` | Link de Mercado Pago para pagar el pedido o reintentar |
 
 **POST `/api/tienda/pedidos`**
 
@@ -234,6 +240,8 @@ el header `Authorization: Bearer <token>` (dura 8 horas). `GET /api/auth/yo` dev
 | GET | `/api/admin/pedidos?estado=pendiente&desde=2026-10-01&hasta=2026-10-31` | Lista de pedidos (filtros opcionales) |
 | GET | `/api/admin/pedidos/:id` | Pedido con cliente e items |
 | PATCH | `/api/admin/pedidos/:id/estado` | Cambia el estado `{ "estado": "confirmado" }` |
+| GET | `/api/admin/stats/dias?dias=180` | Serie diaria: plata de turnos completados y de la tienda (pedidos confirmados o entregados) |
+| GET | `/api/admin/stats/productos?dias=30` | Productos más vendidos del período: `{ id, name, count, revenue, inactive }` |
 | GET | `/api/admin/turnos?desde=2026-10-15&hasta=2026-10-21&estado=reservado` | Turnos con cliente y servicio, por horario. Sin parámetros: los de hoy. Rango máximo 62 días |
 | GET | `/api/admin/turnos/:id` | Un turno |
 | PATCH | `/api/admin/turnos/:id/estado` | Cambia el estado `{ "estado": "completado" }` |
@@ -280,11 +288,17 @@ la firma si hay clave secreta cargada, y queda en `mercadopago_pagos` con su
 **En local el webhook no llega** (Mercado Pago no ve `localhost`). Para probarlo
 hace falta exponer la API, por ejemplo con `ngrok http 3000`, y usar esa URL.
 
-Falta (tienda): crear el link al confirmar un pedido y pasar el pedido a
-`confirmado` cuando el pago llega `approved`. El aviso ya reparte por la
-referencia (`destinoDelPago`): `turno-<id>` va a la seña del turno; para
-`pedido-<id>` hay que conectar los pedidos igual que se conectan los turnos
-(`pagos.conectarTurnos`, en `appointments.module.ts`).
+**La tienda** cobra igual: con Mercado Pago conectado, el pedido nace con
+`pago_estado = 'pendiente'` y un `pago_token`; la web pide el link
+(`POST /api/tienda/pedidos/pago/:token/pagar`) y manda a la clienta a pagar.
+La vuelta es `/pedido/pago?t=<token>`. El aviso reparte por la referencia
+(`destinoDelPago`): `turno-<id>` va a la seña y `pedido-<id>` a orders, que se
+conecta con `pagos.conectarPedidos` (en `orders.module.ts`). Un pago aprobado
+por el total pasa el pedido de `pendiente` a `confirmado`, lo marca pagado y lo
+anota en la caja con concepto `pedido` (una sola vez aunque el aviso llegue
+dos veces). Sin Mercado Pago, `pago_estado` queda NULL y el pago se coordina
+por WhatsApp. Un pedido que nunca se paga sigue apartando el stock hasta que
+la dueña lo cancela.
 
 ## Pendiente de decidir
 
@@ -292,7 +306,7 @@ referencia (`destinoDelPago`): `turno-<id>` va a la seña del turno; para
 |---|---|
 | CORS | Configurado para los dos orígenes con `CORS_ORIGINS` (en desarrollo `:5173` web y `:5174` panel). En producción: `https://dpbelleza.com.ar,https://admin.dpbelleza.com.ar` |
 | Sesión | Hoy es un token JWT en el header `Authorization`, no una cookie, así que no depende del dominio |
-| Envío | El checkout del frontend calcula envío (gratis desde $30.000, si no $2.500), pero `pedidos` no tiene columnas de envío ni de dirección. Hoy `total` es solo la suma de los productos |
+| Envío | `pedidos` no tiene columnas de entrega: el checkout manda la forma de entrega y la dirección en `notas`, y el costo del envío se coordina por WhatsApp. `total` es solo la suma de los productos |
 | Datos extra del frontend | `oldPrice`, `badge`, `rating`, `reviews` y `sizes` no existen en la tabla `productos` |
-| Pagos de la tienda | Mercado Pago ya está para las señas de turnos; en la tienda el pedido todavía queda `pendiente` (ver arriba) |
+| Pedidos sin pagar | Un pedido que espera el pago de Mercado Pago aparta el stock hasta que la dueña lo cancela. Se podría vencer solo, como la seña de los turnos |
 | Fotos | Se cargan como link (`imagenUrl`), no hay subida de archivos |

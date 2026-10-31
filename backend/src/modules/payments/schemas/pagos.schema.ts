@@ -1,7 +1,7 @@
 /** Lo que ENTRA por HTTP a pagos, validado con zod. */
 import { z } from "zod"
 import { fechaISO } from "../../../core/validacion.schema.js"
-import { CONCEPTOS_COBRO, MEDIOS_PAGO } from "../models/cobro.model.js"
+import { CONCEPTOS_MANUALES, MEDIOS_PAGO } from "../models/cobro.model.js"
 
 export const idParam = z.coerce.number().int().positive()
 
@@ -10,7 +10,7 @@ export const diaDeCaja = z.object({ fecha: fechaISO.optional() })
 export const nuevoCobro = z.object({
   monto: z.number().positive().max(100_000_000),
   medio: z.enum(MEDIOS_PAGO),
-  concepto: z.enum(CONCEPTOS_COBRO),
+  concepto: z.enum(CONCEPTOS_MANUALES),
   turnoId: z.number().int().positive().optional(),
   descripcion: z.string().trim().max(255).optional(),
 })
