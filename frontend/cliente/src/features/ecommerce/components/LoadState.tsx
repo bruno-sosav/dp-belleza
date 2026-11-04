@@ -11,7 +11,7 @@ export function LoadError({ message, onRetry }: { message: string; onRetry: () =
       <button
         type="button"
         onClick={onRetry}
-        className="mt-4 text-sm font-medium text-rose-dark underline transition hover:text-ink"
+        className="mt-4 text-sm font-medium text-leaf underline transition hover:text-ink"
       >
         Reintentar
       </button>

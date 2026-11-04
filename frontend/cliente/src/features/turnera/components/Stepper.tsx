@@ -14,7 +14,7 @@ export default function Stepper({ current }: { current: number }) {
               <span
                 className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold transition ${
                   isActive
-                    ? "bg-ink text-cream ring-4 ring-rose/30"
+                    ? "bg-forest text-cream ring-4 ring-rose/30"
                     : isDone
                       ? "bg-rose text-white"
                       : "border border-cream-dark bg-surface text-ink-soft/60"

@@ -12,7 +12,7 @@ const periods = ["Mañana", "Tarde", "Noche"] as const
 export default function TimeSlotPicker({ slots, selected, onSelect }: Props) {
   if (slots.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-cream-dark bg-cream-dark/30 px-5 py-10 text-center">
+      <div className="rounded border border-dashed border-cream-dark bg-cream-dark/30 px-5 py-10 text-center">
         <p className="text-sm text-ink-soft">No hay horarios disponibles para este día.</p>
         <p className="mt-1 text-xs text-ink-soft/70">Probá con otra fecha del calendario.</p>
       </div>
@@ -40,7 +40,7 @@ export default function TimeSlotPicker({ slots, selected, onSelect }: Props) {
                     onClick={() => onSelect(slot.time)}
                     className={`rounded-lg border py-2.5 text-sm font-medium transition ${
                       isSelected
-                        ? "border-ink bg-ink text-cream"
+                        ? "border-forest bg-forest text-cream"
                         : slot.available
                           ? "border-cream-dark bg-surface text-ink hover:border-rose hover:bg-rose/10"
                           : "cursor-not-allowed border-transparent bg-cream-dark/40 text-ink-soft/35 line-through"
@@ -61,7 +61,7 @@ export default function TimeSlotPicker({ slots, selected, onSelect }: Props) {
           Disponible
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-3 w-3 rounded bg-ink" />
+          <span className="h-3 w-3 rounded bg-forest" />
           Seleccionado
         </span>
         <span className="flex items-center gap-1.5">

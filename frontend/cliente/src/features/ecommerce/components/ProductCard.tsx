@@ -9,17 +9,17 @@ export default function ProductCard({ product }: { product: Producto }) {
 
   return (
     <div className="group flex flex-col">
-      <div className="relative overflow-hidden rounded-lg bg-cream-dark">
+      <div className="relative overflow-hidden rounded bg-cream-dark">
         <Link to={`/producto/${product.id}`}>
           <ProductImage
             src={product.imagenUrl}
             alt={product.nombre}
-            className={`aspect-[4/5] w-full transition duration-500 group-hover:scale-105 ${product.disponible ? "" : "opacity-60"}`}
+            className={`aspect-[4/5] w-full transition duration-700 ease-soft group-hover:scale-[1.06] ${product.disponible ? "" : "opacity-60"}`}
           />
         </Link>
 
         {!product.disponible && (
-          <span className="absolute left-3 top-3 rounded-full bg-ink px-2.5 py-1 text-[11px] font-medium tracking-wide text-cream">
+          <span className="absolute left-3 top-3 rounded-sm bg-forest px-2.5 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.16em] text-cream">
             Agotado
           </span>
         )}
@@ -28,7 +28,7 @@ export default function ProductCard({ product }: { product: Producto }) {
           <button
             type="button"
             onClick={() => addItem(product)}
-            className="absolute inset-x-3 bottom-3 translate-y-3 rounded-md bg-ink py-2.5 text-xs font-medium uppercase tracking-wide text-cream opacity-0 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100"
+            className="absolute inset-x-3 bottom-3 translate-y-3 rounded-sm bg-forest py-3 text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-cream opacity-0 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100"
           >
             Agregar al carrito
           </button>
@@ -37,12 +37,12 @@ export default function ProductCard({ product }: { product: Producto }) {
 
       <Link to={`/producto/${product.id}`} className="mt-3">
         {product.categoria && (
-          <p className="text-[11px] uppercase tracking-wide text-ink-soft">{product.categoria.nombre}</p>
+          <p className="text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-bark">{product.categoria.nombre}</p>
         )}
-        <h3 className="mt-0.5 font-display text-base text-ink">{product.nombre}</h3>
+        <h3 className="mt-1 font-display text-xl font-medium leading-tight text-ink">{product.nombre}</h3>
       </Link>
 
-      <span className="mt-1.5 font-medium text-ink">{formatPrice(product.precio)}</span>
+      <span className="mt-1.5 font-semibold text-ink">{formatPrice(product.precio)}</span>
     </div>
   )
 }

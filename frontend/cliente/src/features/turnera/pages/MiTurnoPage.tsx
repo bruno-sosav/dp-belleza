@@ -101,7 +101,7 @@ export default function MiTurnoPage() {
         </form>
 
         {error && (
-          <div className="mt-6 rounded-2xl border border-rose/50 bg-rose/10 px-5 py-4 text-sm text-ink" role="alert">
+          <div className="mt-6 rounded border border-rose/50 bg-rose/10 px-5 py-4 text-sm text-ink" role="alert">
             {error}
           </div>
         )}

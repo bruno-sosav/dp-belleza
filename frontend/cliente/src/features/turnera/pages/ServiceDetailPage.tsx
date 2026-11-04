@@ -41,23 +41,23 @@ export default function ServiceDetailPage() {
   return (
     <div className={`${containerClass} py-10`}>
       <p className="mb-8 text-xs uppercase tracking-wide text-ink-soft">
-        <Link to="/" className="transition hover:text-rose-dark">
+        <Link to="/" className="transition hover:text-leaf">
           Inicio
         </Link>{" "}
         /{" "}
-        <Link to="/servicios" className="transition hover:text-rose-dark">
+        <Link to="/servicios" className="transition hover:text-leaf">
           Turnos
         </Link>{" "}
         / {service.name}
       </p>
 
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-14">
-        <div className="overflow-hidden rounded-2xl bg-cream-dark">
+        <div className="overflow-hidden rounded bg-cream-dark">
           <ServiceImage service={service} className="aspect-[4/5] w-full text-7xl" />
         </div>
 
         <div className="flex flex-col">
-          <p className="text-xs uppercase tracking-[0.2em] text-rose-dark">{service.category}</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-bark">{service.category}</p>
           <h1 className="mt-3 font-display text-3xl font-semibold leading-tight text-ink sm:text-4xl">
             {service.name}
           </h1>
@@ -90,7 +90,7 @@ export default function ServiceDetailPage() {
                 <li key={item} className="flex gap-3 text-sm text-ink-soft">
                   <svg
                     viewBox="0 0 24 24"
-                    className="mt-0.5 h-4 w-4 shrink-0 text-rose-dark"
+                    className="mt-0.5 h-4 w-4 shrink-0 text-leaf"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth={2}

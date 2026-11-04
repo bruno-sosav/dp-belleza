@@ -100,7 +100,7 @@ export default function BookingPage() {
     <div className={`${containerClass} py-10`}>
       <Link
         to={`/servicios/${current.id}`}
-        className="inline-flex items-center gap-1.5 text-sm text-ink-soft transition hover:text-rose-dark"
+        className="inline-flex items-center gap-1.5 text-sm text-ink-soft transition hover:text-leaf"
       >
         <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.8}>
           <path d="M19 12H5M11 6l-6 6 6 6" strokeLinecap="round" strokeLinejoin="round" />
@@ -124,7 +124,7 @@ export default function BookingPage() {
           {step === 2 ? (
             <div className="space-y-8">
               {slotTaken && (
-                <div className="rounded-2xl border border-rose/50 bg-rose/10 px-5 py-4 text-sm text-ink" role="alert">
+                <div className="rounded border border-rose/50 bg-rose/10 px-5 py-4 text-sm text-ink" role="alert">
                   {slotTaken}
                 </div>
               )}
@@ -139,7 +139,7 @@ export default function BookingPage() {
               <section>
                 <h2 className="font-display text-lg font-semibold text-ink">2. Elegí el horario</h2>
                 {date === null ? (
-                  <div className="mt-4 rounded-2xl border border-dashed border-cream-dark bg-cream-dark/30 px-5 py-10 text-center">
+                  <div className="mt-4 rounded border border-dashed border-cream-dark bg-cream-dark/30 px-5 py-10 text-center">
                     <p className="text-sm text-ink-soft">Primero seleccioná un día en el calendario.</p>
                   </div>
                 ) : (
@@ -185,7 +185,7 @@ export default function BookingPage() {
                   type="button"
                   onClick={() => setStep(2)}
                   disabled={sending}
-                  className="text-sm font-medium text-rose-dark underline transition hover:text-ink"
+                  className="text-sm font-medium text-leaf underline transition hover:text-ink"
                 >
                   Cambiar
                 </button>
@@ -208,7 +208,7 @@ export default function BookingPage() {
               </section>
 
               {senaPorcentaje > 0 && (
-                <div className="rounded-2xl border border-cream-dark bg-cream-dark/40 px-5 py-4 text-sm text-ink">
+                <div className="rounded border border-cream-dark bg-cream-dark/40 px-5 py-4 text-sm text-ink">
                   <p className="font-medium">
                     Para confirmar el turno pagás una seña de {formatPrice(Math.max(1, Math.round((current.price * senaPorcentaje) / 100)))} ({senaPorcentaje} %) con Mercado Pago.
                   </p>
@@ -219,7 +219,7 @@ export default function BookingPage() {
               )}
 
               {sendError && (
-                <div className="rounded-2xl border border-rose/50 bg-rose/10 px-5 py-4 text-sm text-ink" role="alert">
+                <div className="rounded border border-rose/50 bg-rose/10 px-5 py-4 text-sm text-ink" role="alert">
                   {sendError}
                 </div>
               )}

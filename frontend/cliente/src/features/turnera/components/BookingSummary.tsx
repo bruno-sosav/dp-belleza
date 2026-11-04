@@ -20,11 +20,11 @@ function Row({ label, value, muted }: { label: string; value: string; muted?: bo
 
 export default function BookingSummary({ service, date, time }: Props) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-cream-dark bg-surface">
+    <div className="overflow-hidden rounded border border-cream-dark bg-surface">
       <div className="flex items-center gap-3.5 border-b border-cream-dark p-5">
         <ServiceImage service={service} className="h-16 w-14 shrink-0 rounded-lg text-xl" />
         <div className="min-w-0">
-          <p className="text-[11px] uppercase tracking-wide text-rose-dark">{service.category}</p>
+          <p className="text-[11px] uppercase tracking-wide text-leaf">{service.category}</p>
           <h3 className="font-display text-base leading-tight text-ink">{service.name}</h3>
           {service.professional && (
             <p className="mt-0.5 text-xs text-ink-soft">con {service.professional}</p>

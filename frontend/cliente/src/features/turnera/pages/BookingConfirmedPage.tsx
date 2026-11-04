@@ -61,7 +61,7 @@ export default function BookingConfirmedPage() {
 
         <div className="mt-10 text-center">
           <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-rose/25">
-            <svg viewBox="0 0 24 24" className="h-8 w-8 text-rose-dark" fill="none" stroke="currentColor" strokeWidth={2}>
+            <svg viewBox="0 0 24 24" className="h-8 w-8 text-leaf" fill="none" stroke="currentColor" strokeWidth={2}>
               <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </span>
@@ -108,7 +108,7 @@ export default function BookingConfirmedPage() {
               <Link
                 to="/mi-turno"
                 state={{ codigo: bookingCode(booking.id), telefono: contact.phone }}
-                className="font-medium text-rose-dark underline"
+                className="font-medium text-leaf underline"
               >
                 Mi turno
               </Link>{" "}

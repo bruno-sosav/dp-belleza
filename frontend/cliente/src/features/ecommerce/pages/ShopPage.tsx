@@ -61,10 +61,10 @@ export default function ShopPage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-6xl px-5 py-14 sm:px-6">
       <div className="mb-8">
-        <p className="text-xs uppercase tracking-wide text-ink-soft">Inicio / Tienda</p>
-        <h1 className="mt-1 font-display text-3xl font-semibold text-ink">
+        <p className="text-[0.62rem] font-semibold uppercase tracking-[0.24em] text-bark">Inicio / Tienda</p>
+        <h1 className="mt-2 font-display text-[clamp(2.2rem,5vw,3.2rem)] font-medium leading-tight text-ink">
           {activeCategory ?? "Todos los productos"}
         </h1>
         {productos.data && <p className="mt-1 text-sm text-ink-soft">{filtered.length} productos</p>}
@@ -88,7 +88,7 @@ export default function ShopPage() {
                 <li>
                   <button
                     onClick={() => setCategory(null)}
-                    className={`transition hover:text-rose ${!activeCategory ? "font-medium text-rose" : "text-ink-soft"}`}
+                    className={`transition hover:text-leaf ${!activeCategory ? "font-semibold text-leaf" : "text-ink-soft"}`}
                   >
                     Todas
                   </button>
@@ -97,7 +97,7 @@ export default function ShopPage() {
                   <li key={c.id}>
                     <button
                       onClick={() => setCategory(c.nombre)}
-                      className={`transition hover:text-rose ${activeCategory === c.nombre ? "font-medium text-rose" : "text-ink-soft"}`}
+                      className={`transition hover:text-leaf ${activeCategory === c.nombre ? "font-semibold text-leaf" : "text-ink-soft"}`}
                     >
                       {c.nombre}
                     </button>

@@ -5,3 +5,109 @@
    porque en el monorepo las clases viven en dos carpetas distintas. */
 @source "./";
 @source "../../shared";
+
+/* Estilo de la web pública (no toca al panel). Paleta de la marca según la
+   dueña: verde oliva (el del logo, #707950), arena, natural, blanco y algo
+   de marrón. Serif fina para títulos, sans redondeada para el texto y la
+   letra del logo para la marca. */
+@theme {
+  --font-display: "Cormorant Garamond", ui-serif, Georgia, serif;
+  --font-sans: "Quicksand", ui-sans-serif, system-ui, sans-serif;
+  --font-brand: "Tenor Sans", "Quicksand", ui-sans-serif, sans-serif;
+
+  /* Fondo natural con un toque de oliva; arena para las secciones alternadas. */
+  --color-cream: #f2f1e7;
+  --color-cream-dark: #e8e1d1;
+  --color-surface: #fbfaf5;
+
+  --color-ink: #2f3226;
+  --color-ink-soft: #5a5c50;
+
+  /* Oliva: profundo para botones y fondos oscuros, medio para textos de acento. */
+  --color-forest: #3e4529;
+  --color-forest-soft: #555d38;
+  --color-olive: #707950;
+  --color-leaf: #5d6740;
+  /* Crema del tulipán del logo: acentos sobre fondos oscuros. */
+  --color-rose: #dfe0c6;
+  --color-rose-dark: #707950;
+
+  /* Marrón y arena (el "estética & bienestar" del logo), como el dorado de Blue Moon. */
+  --color-bark: #8a6b4e;
+  --color-sand: #cdb595;
+
+  --ease-soft: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Entradas del hero: cada elemento aparece con su propio animation-delay. */
+@keyframes dp-fade {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dp-zoom {
+  from {
+    transform: scale(1.05);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes dp-scroll {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scaleY(0.6);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+.dp-fade {
+  opacity: 0;
+  animation: dp-fade 0.8s ease forwards;
+}
+
+.dp-zoom {
+  animation: dp-zoom 9s var(--ease-soft) forwards;
+  will-change: transform;
+}
+
+.dp-scroll-line {
+  animation: dp-scroll 2.2s ease-in-out infinite;
+}
+
+/* Tira de fotos del consultorio: la lista va tres veces, así que correr un tercio vuelve al inicio. */
+@keyframes dp-photo-strip {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-100% / 3));
+  }
+}
+
+.dp-photo-strip {
+  animation: dp-photo-strip 36s linear infinite;
+  /* Capa propia en la GPU: moverla no obliga a redibujar el resto de la página. */
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dp-fade,
+  .dp-zoom,
+  .dp-scroll-line,
+  .dp-photo-strip {
+    opacity: 1;
+    animation: none;
+  }
+}

@@ -15,8 +15,8 @@ export default function CategoryTabs({ categories, active, onChange }: Props) {
         onClick={() => onChange(null)}
         className={`${baseClass} ${
           active === null
-            ? "border-ink bg-ink text-cream"
-            : "border-cream-dark bg-surface text-ink-soft hover:border-rose hover:text-rose-dark"
+            ? "border-forest bg-forest text-cream"
+            : "border-cream-dark bg-surface text-ink-soft hover:border-rose hover:text-leaf"
         }`}
       >
         Todos
@@ -29,8 +29,8 @@ export default function CategoryTabs({ categories, active, onChange }: Props) {
           onClick={() => onChange(category)}
           className={`${baseClass} ${
             active === category
-              ? "border-ink bg-ink text-cream"
-              : "border-cream-dark bg-surface text-ink-soft hover:border-rose hover:text-rose-dark"
+              ? "border-forest bg-forest text-cream"
+              : "border-cream-dark bg-surface text-ink-soft hover:border-rose hover:text-leaf"
           }`}
         >
           {category}

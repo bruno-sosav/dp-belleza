@@ -29,7 +29,7 @@ export default function ProductDetailPage() {
     return (
       <div className="mx-auto max-w-7xl px-4 py-24 text-center sm:px-6 lg:px-8">
         <h1 className="font-display text-2xl text-ink">Este producto no está disponible</h1>
-        <Link to="/tienda" className="mt-4 inline-block text-rose-dark hover:underline">
+        <Link to="/tienda" className="mt-4 inline-block text-leaf hover:underline">
           Volver a la tienda
         </Link>
       </div>
@@ -43,11 +43,11 @@ export default function ProductDetailPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <p className="mb-6 text-xs uppercase tracking-wide text-ink-soft">
-        <Link to="/" className="hover:text-rose">Inicio</Link> / <Link to="/tienda" className="hover:text-rose">Tienda</Link> / {product.nombre}
+        <Link to="/" className="hover:text-leaf">Inicio</Link> / <Link to="/tienda" className="hover:text-leaf">Tienda</Link> / {product.nombre}
       </p>
 
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
-        <div className="overflow-hidden rounded-xl bg-cream-dark">
+        <div className="overflow-hidden rounded bg-cream-dark">
           <ProductImage src={product.imagenUrl} alt={product.nombre} className="aspect-[4/5] w-full" />
         </div>
 
@@ -55,7 +55,7 @@ export default function ProductDetailPage() {
           {product.categoria && (
             <Link
               to={`/tienda?categoria=${encodeURIComponent(product.categoria.nombre)}`}
-              className="text-xs uppercase tracking-wide text-rose-dark hover:underline"
+              className="text-xs uppercase tracking-wide text-leaf hover:underline"
             >
               {product.categoria.nombre}
             </Link>
@@ -85,7 +85,7 @@ export default function ProductDetailPage() {
 
               <button
                 onClick={() => addItem(product, quantity)}
-                className="flex-1 rounded-md bg-ink py-3 text-sm font-medium text-cream transition hover:bg-rose-dark"
+                className="flex-1 rounded-sm bg-forest py-3 text-sm font-medium text-cream transition hover:bg-forest-soft"
               >
                 Agregar al carrito
               </button>

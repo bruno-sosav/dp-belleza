@@ -14,7 +14,7 @@ function MarqueeGroup() {
 
 export default function AnnouncementBar() {
   return (
-    <div className="overflow-hidden bg-ink py-2 text-cream">
+    <div className="overflow-hidden bg-forest py-1.5 font-medium tracking-[0.08em] text-cream/90">
       <div className="marquee flex w-max">
         <MarqueeGroup />
         <MarqueeGroup />
