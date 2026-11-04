@@ -35,7 +35,7 @@ export default function CartDrawer() {
             <Link
               to="/tienda"
               onClick={closeCart}
-              className="rounded-md bg-ink px-5 py-2.5 text-sm font-medium text-cream transition hover:bg-rose-dark"
+              className="rounded-sm bg-forest px-5 py-2.5 text-sm font-medium text-cream transition hover:bg-forest-soft"
             >
               Ir a la tienda
             </Link>
@@ -58,7 +58,7 @@ export default function CartDrawer() {
                           type="button"
                           onClick={() => removeItem(item.product.id)}
                           aria-label="Quitar producto"
-                          className="text-ink-soft hover:text-rose"
+                          className="text-ink-soft hover:text-leaf"
                         >
                           <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.6}>
                             <path d="M6 6l12 12M18 6L6 18" />
@@ -102,14 +102,14 @@ export default function CartDrawer() {
               <Link
                 to="/carrito"
                 onClick={closeCart}
-                className="block w-full rounded-md border border-ink py-2.5 text-center text-sm font-medium text-ink transition hover:bg-ink hover:text-cream"
+                className="block w-full rounded-sm border border-forest/40 py-2.5 text-center text-sm font-medium text-ink transition hover:bg-forest hover:text-cream"
               >
                 Ver carrito
               </Link>
               <Link
                 to="/checkout"
                 onClick={closeCart}
-                className="mt-2 block w-full rounded-md bg-ink py-2.5 text-center text-sm font-medium text-cream transition hover:bg-rose-dark"
+                className="mt-2 block w-full rounded-sm bg-forest py-2.5 text-center text-sm font-medium text-cream transition hover:bg-forest-soft"
               >
                 Finalizar compra
               </Link>

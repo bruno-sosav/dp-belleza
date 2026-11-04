@@ -31,13 +31,13 @@ export function PageError({ message, onRetry }: { message: string; onRetry: () =
 /** Error dentro de una sección (no ocupa la página entera). */
 export function InlineError({ message, onRetry }: { message: string; onRetry?: () => void }) {
   return (
-    <div className="rounded-2xl border border-dashed border-cream-dark bg-cream-dark/30 px-5 py-8 text-center">
+    <div className="rounded border border-dashed border-cream-dark bg-cream-dark/30 px-5 py-8 text-center">
       <p className="text-sm text-ink-soft">{message}</p>
       {onRetry && (
         <button
           type="button"
           onClick={onRetry}
-          className="mt-3 text-sm font-medium text-rose-dark underline transition hover:text-ink"
+          className="mt-3 text-sm font-medium text-leaf underline transition hover:text-ink"
         >
           Reintentar
         </button>

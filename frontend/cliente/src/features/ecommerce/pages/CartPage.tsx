@@ -13,7 +13,7 @@ export default function CartPage() {
         <p className="mt-2 text-ink-soft">Explorá nuestro catálogo y encontrá tu próximo producto favorito.</p>
         <Link
           to="/tienda"
-          className="mt-6 inline-block rounded-md bg-ink px-7 py-3 text-sm font-medium text-cream transition hover:bg-rose-dark"
+          className="mt-6 inline-block rounded-sm bg-forest px-7 py-3 text-sm font-medium text-cream transition hover:bg-forest-soft"
         >
           Ir a la tienda
         </Link>
@@ -43,12 +43,12 @@ export default function CartPage() {
                 <div className="flex items-center gap-4">
                   <ProductImage src={item.product.imagenUrl} alt={item.product.nombre} className="h-20 w-16 shrink-0 rounded-md text-[10px]" />
                   <div>
-                    <Link to={`/producto/${item.product.id}`} className="font-display text-sm font-medium text-ink hover:text-rose">
+                    <Link to={`/producto/${item.product.id}`} className="font-display text-sm font-medium text-ink hover:text-leaf">
                       {item.product.nombre}
                     </Link>
                     <button
                       onClick={() => removeItem(item.product.id)}
-                      className="mt-1 text-xs text-ink-soft underline hover:text-rose"
+                      className="mt-1 text-xs text-ink-soft underline hover:text-leaf"
                     >
                       Quitar
                     </button>
@@ -80,7 +80,7 @@ export default function CartPage() {
             ))}
           </ul>
 
-          <Link to="/tienda" className="mt-6 inline-block text-sm text-rose-dark hover:underline">
+          <Link to="/tienda" className="mt-6 inline-block text-sm text-leaf hover:underline">
             ← Seguir comprando
           </Link>
         </div>
@@ -106,7 +106,7 @@ export default function CartPage() {
 
           <Link
             to="/checkout"
-            className="mt-6 block w-full rounded-md bg-ink py-3 text-center text-sm font-medium text-cream transition hover:bg-rose-dark"
+            className="mt-6 block w-full rounded-sm bg-forest py-3 text-center text-sm font-medium text-cream transition hover:bg-forest-soft"
           >
             Finalizar compra
           </Link>

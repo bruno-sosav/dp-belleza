@@ -15,7 +15,7 @@ export default function ServiceImage({ service, className, loading }: Props) {
     <div
       role="img"
       aria-label={service.name}
-      className={`${className} flex items-center justify-center bg-cream-dark font-display text-4xl text-rose-dark/60`}
+      className={`${className} flex items-center justify-center bg-cream-dark font-display text-4xl text-leaf/60`}
     >
       {service.name.charAt(0)}
     </div>

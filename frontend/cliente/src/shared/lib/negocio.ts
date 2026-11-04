@@ -34,7 +34,7 @@ async function cargar(): Promise<Negocio> {
     fetch(`${BASE}/api/turnos/horarios`).then((r) => (r.ok ? (r.json() as Promise<OpeningHours[]>) : null)),
   ])
   return {
-    nombre: config?.nombre || "Dp.belleza",
+    nombre: config?.nombre || "dppuntobelleza",
     telefono: config?.telefono ?? "",
     direccion: config?.direccion ?? "",
     email: config?.email ?? "",

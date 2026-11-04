@@ -9,8 +9,8 @@ import { consultarPago, linkDePago, type PedidoPagable } from "../api/checkout.a
 import { LoadError, Loading } from "../components/LoadState"
 import ResumenDePedido from "../components/ResumenDePedido"
 
-const primario = "rounded-md bg-ink px-6 py-3 text-sm font-medium text-cream transition hover:bg-rose-dark disabled:cursor-wait disabled:opacity-60"
-const secundario = "rounded-md border border-ink px-6 py-3 text-sm font-medium text-ink transition hover:bg-ink hover:text-cream"
+const primario = "rounded-sm bg-forest px-6 py-3 text-sm font-medium text-cream transition hover:bg-forest-soft disabled:cursor-wait disabled:opacity-60"
+const secundario = "rounded-sm border border-forest/40 px-6 py-3 text-sm font-medium text-ink transition hover:bg-forest hover:text-cream"
 
 /** Ícono, título y explicación de cada final. `enProceso`: lo que dice Mercado Pago en la URL, solo para el texto. */
 function textos(p: PedidoPagable, enProceso: boolean) {

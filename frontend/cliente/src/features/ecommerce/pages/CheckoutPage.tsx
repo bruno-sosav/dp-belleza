@@ -102,7 +102,7 @@ export default function CheckoutPage() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="rounded-lg border border-cream-dark bg-surface p-8 text-center">
-          <p className="text-xs uppercase tracking-[0.2em] text-rose-dark">Pedido confirmado</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-leaf">Pedido confirmado</p>
           <h1 className="mt-2 font-display text-3xl font-semibold text-ink">¡Gracias por tu compra!</h1>
           <p className="mt-3 text-ink-soft">
             Tu pedido es el <strong className="text-ink">#{pedido.id}</strong>. Te vamos a escribir al {cliente.telefono} para coordinar el pago y
@@ -117,14 +117,14 @@ export default function CheckoutPage() {
                 href={whatsappUrl(negocio.telefono, mensaje)}
                 target="_blank"
                 rel="noreferrer"
-                className="rounded-md bg-ink px-6 py-3 text-sm font-medium text-cream transition hover:bg-rose-dark"
+                className="rounded-sm bg-forest px-6 py-3 text-sm font-medium text-cream transition hover:bg-forest-soft"
               >
                 Escribinos por WhatsApp
               </a>
             )}
             <Link
               to="/tienda"
-              className="rounded-md border border-ink px-6 py-3 text-sm font-medium text-ink transition hover:bg-ink hover:text-cream"
+              className="rounded-sm border border-forest/40 px-6 py-3 text-sm font-medium text-ink transition hover:bg-forest hover:text-cream"
             >
               Seguir comprando
             </Link>
@@ -140,7 +140,7 @@ export default function CheckoutPage() {
         <h1 className="font-display text-2xl font-semibold text-ink">Tu carrito está vacío</h1>
         <Link
           to="/tienda"
-          className="mt-6 inline-block rounded-md bg-ink px-7 py-3 text-sm font-medium text-cream transition hover:bg-rose-dark"
+          className="mt-6 inline-block rounded-sm bg-forest px-7 py-3 text-sm font-medium text-cream transition hover:bg-forest-soft"
         >
           Ir a la tienda
         </Link>
@@ -339,12 +339,12 @@ export default function CheckoutPage() {
           <button
             type="submit"
             disabled={enviando}
-            className="mt-6 w-full rounded-md bg-ink py-3 text-center text-sm font-medium text-cream transition hover:bg-rose-dark disabled:cursor-wait disabled:opacity-60"
+            className="mt-6 w-full rounded-sm bg-forest py-3 text-center text-sm font-medium text-cream transition hover:bg-forest-soft disabled:cursor-wait disabled:opacity-60"
           >
             {enviando ? "Confirmando…" : conMercadoPago ? "Confirmar y pagar" : "Confirmar pedido"}
           </button>
 
-          <Link to="/carrito" className="mt-4 block text-center text-sm text-rose-dark hover:underline">
+          <Link to="/carrito" className="mt-4 block text-center text-sm text-leaf hover:underline">
             ← Volver al carrito
           </Link>
         </div>

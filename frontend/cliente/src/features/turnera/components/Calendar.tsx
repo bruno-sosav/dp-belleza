@@ -36,7 +36,7 @@ export default function Calendar({ selected, onSelect, hours, maxDays }: Props) 
   const changeMonth = (delta: number) => setView(new Date(year, month + delta, 1))
 
   return (
-    <div className="rounded-2xl border border-cream-dark bg-surface p-5">
+    <div className="rounded border border-cream-dark bg-surface p-5">
       <div className="flex items-center justify-between">
         <button
           type="button"
@@ -93,7 +93,7 @@ export default function Calendar({ selected, onSelect, hours, maxDays }: Props) 
               aria-current={isSelected ? "date" : undefined}
               className={`relative flex aspect-square items-center justify-center rounded-lg text-sm transition ${
                 isSelected
-                  ? "bg-ink font-semibold text-cream"
+                  ? "bg-forest font-semibold text-cream"
                   : selectable
                     ? "text-ink hover:bg-rose/20"
                     : "cursor-not-allowed text-ink-soft/25 line-through"
