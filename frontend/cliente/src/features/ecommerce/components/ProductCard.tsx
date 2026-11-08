@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom"
 import type { Producto } from "@dp/shared/types/producto.types"
 import { formatPrice } from "@dp/shared/lib/format"
-import { useCart } from "../context/CartContext"
+import { useCart } from "../lib/carrito"
 import ProductImage from "./ProductImage"
 
 export default function ProductCard({ product }: { product: Producto }) {

@@ -13,7 +13,7 @@ import { useAhora } from "../../../shared/lib/useAhora"
 import { primaryButtonClass } from "../../../shared/lib/styles"
 import { estaAbierto, nombreCliente, useAgenda } from "../../appointments/api/turnos.api"
 import type { Turno } from "../../appointments/api/turnos.api"
-import { usePedidosPendientes } from "../../../data/pedidosPendientes"
+import { usePedidosPendientes } from "../../ecommerce/api/pedidos.api"
 import { useRecordatorios } from "../../reminders/api/recordatorios.api"
 
 /** Cuántos días para atrás se buscan turnos que quedaron sin marcar. */

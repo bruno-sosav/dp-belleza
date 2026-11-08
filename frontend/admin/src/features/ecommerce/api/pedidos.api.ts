@@ -51,3 +51,15 @@ export function usePedido(id: number) {
 export function cambiarEstadoPedido(id: number, estado: EstadoPedido) {
   return api<PedidoDetalle>(`/api/admin/pedidos/${id}/estado`, { metodo: "PATCH", cuerpo: { estado } })
 }
+
+/** Para Hoy: pendientes y confirmados (los que faltan entregar), del más viejo al más nuevo. */
+export function usePedidosPendientes() {
+  const pedir = useCallback(async () => {
+    const [pendientes, confirmados] = await Promise.all([
+      api<PedidoResumen[]>("/api/admin/pedidos", { query: { estado: "pendiente" } }),
+      api<PedidoResumen[]>("/api/admin/pedidos", { query: { estado: "confirmado" } }),
+    ])
+    return [...pendientes, ...confirmados].sort((a, b) => a.creadoEn.localeCompare(b.creadoEn))
+  }, [])
+  return useApi(pedir)
+}

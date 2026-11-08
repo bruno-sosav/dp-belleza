@@ -1,27 +1,6 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
+import { useEffect, useMemo, useState, type ReactNode } from "react"
 import type { Producto } from "@dp/shared/types/producto.types"
-
-export type CartItem = {
-  product: Producto
-  quantity: number
-}
-
-type CartContextValue = {
-  items: CartItem[]
-  isOpen: boolean
-  openCart: () => void
-  closeCart: () => void
-  addItem: (product: Producto, quantity?: number) => void
-  removeItem: (productId: number) => void
-  updateQuantity: (productId: number, quantity: number) => void
-  /** Vacía el carrito (después de comprar). */
-  clear: () => void
-  /** Con los precios de cuando se agregó cada producto: el total real lo calcula el backend al comprar. */
-  subtotal: number
-  count: number
-}
-
-const CartContext = createContext<CartContextValue | undefined>(undefined)
+import { CartContext, type CartItem } from "../lib/carrito"
 
 // El carrito sobrevive a recargar la página. Si el navegador no deja guardar, arranca vacío.
 const STORAGE_KEY = "dp-carrito"
@@ -88,10 +67,4 @@ export function CartProvider({ children }: { children: ReactNode }) {
       {children}
     </CartContext.Provider>
   )
-}
-
-export function useCart() {
-  const ctx = useContext(CartContext)
-  if (!ctx) throw new Error("useCart debe usarse dentro de CartProvider")
-  return ctx
 }

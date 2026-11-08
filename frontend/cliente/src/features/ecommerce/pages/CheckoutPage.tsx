@@ -7,7 +7,7 @@ import { whatsappUrl } from "../../home/lib/whatsapp"
 import { crearPedido, linkDePago, problemasDeCompra, type PedidoCreado } from "../api/checkout.api"
 import ProductImage from "../components/ProductImage"
 import ResumenDePedido from "../components/ResumenDePedido"
-import { useCart } from "../context/CartContext"
+import { useCart } from "../lib/carrito"
 
 type Entrega = "retiro" | "envio"
 

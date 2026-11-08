@@ -5,7 +5,7 @@ import { useProducto, useProductos } from "../api/catalogo.api"
 import ProductCard from "../components/ProductCard"
 import ProductImage from "../components/ProductImage"
 import { LoadError, Loading } from "../components/LoadState"
-import { useCart } from "../context/CartContext"
+import { useCart } from "../lib/carrito"
 
 export default function ProductDetailPage() {
   const { id } = useParams()

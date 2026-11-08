@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { Link, NavLink, useLocation } from "react-router-dom"
-import { useCart } from "../../features/ecommerce/context/CartContext"
+import { useCart } from "../../features/ecommerce/lib/carrito"
 import { useCategorias } from "../../features/ecommerce/api/catalogo.api"
 import AnnouncementBar from "./AnnouncementBar"
 import Brand from "./Brand"
