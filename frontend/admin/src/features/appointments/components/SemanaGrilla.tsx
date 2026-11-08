@@ -1,4 +1,5 @@
-import { asignarCarriles, aMinutos, bloqueEsperandoSena, coloresBloque, esperandoSena } from "../lib/agenda"
+import { asignarCarriles, aMinutos } from "../lib/agenda"
+import { esperandoSena, estiloDeBloque } from "../lib/estados"
 import { diaSemanaISO, fromDateKey } from "../../../shared/lib/fechas"
 import { weekdayShort } from "../../../shared/lib/format"
 import type { Ahora } from "../../../shared/lib/useAhora"
@@ -153,7 +154,7 @@ export default function SemanaGrilla({
                       onElegir(t)
                     }}
                     title={`${t.horaInicio} a ${t.horaFin} · ${nombreCliente(t)} · ${t.servicio.nombre}${esperandoSena(t) ? " · esperando el pago de la seña" : ""}`}
-                    className={`absolute overflow-hidden rounded-lg border-l-4 px-2 py-1 text-left shadow-sm transition hover:z-10 hover:shadow-md focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-ink ${esperandoSena(t) ? bloqueEsperandoSena : coloresBloque[t.estado]}`}
+                    className={`absolute overflow-hidden rounded-lg border-l-4 px-2 py-1 text-left shadow-sm transition hover:z-10 hover:shadow-md focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-ink ${estiloDeBloque(t).bloque}`}
                     style={{
                       top: y(inicio) + 1,
                       height: Math.max(y(fin) - y(inicio) - 2, 28),
@@ -161,10 +162,10 @@ export default function SemanaGrilla({
                       width: `calc(${100 / total}% - 6px)`,
                     }}
                   >
-                    <p className="flex items-center gap-1 text-sm font-semibold leading-tight">
-                      {esperandoSena(t) && <Icono nombre="reloj" className="h-3.5 w-3.5" />}
+                    <p className="flex min-w-0 items-center gap-1 whitespace-nowrap text-sm font-semibold leading-tight">
+                      {!corto && (esperandoSena(t) || t.estado !== "reservado") && <Icono nombre={estiloDeBloque(t).icono} className="h-3.5 w-3.5" />}
                       {t.horaInicio}
-                      {corto && <span className="font-normal"> · {t.cliente.nombre}</span>}
+                      {corto && <span className="truncate font-normal">· {t.cliente.nombre}</span>}
                     </p>
                     {!corto && <p className="truncate text-sm font-semibold leading-tight">{nombreCliente(t)}</p>}
                     {!corto && <p className="truncate text-xs leading-tight opacity-80">{t.servicio.nombre}</p>}

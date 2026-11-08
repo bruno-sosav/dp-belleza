@@ -1,5 +1,5 @@
 /** Posición de cada turno en la grilla. En minutos desde medianoche, como el backend: sin Date ni zonas horarias. */
-import type { EstadoTurno, Turno } from "../api/turnos.api"
+import type { Turno } from "../api/turnos.api"
 
 /** "14:30" -> 870 */
 export function aMinutos(hora: string): number {
@@ -39,18 +39,4 @@ export function asignarCarriles(turnos: Turno[]): Map<number, Carril> {
   }
   cerrarGrupo()
   return resultado
-}
-
-/** Reservado en la web esperando seña: puede liberarse solo. Se dibuja punteado y con un reloj. */
-export const esperandoSena = (t: Turno) => t.estado === "reservado" && t.sena?.estado === "pendiente"
-
-export const bloqueEsperandoSena = "border-dashed border-[#e0b44a] bg-[#fdf3dc] text-ink"
-
-/** Color de cada turno en el calendario. Es la misma lógica que la etiqueta de estado. */
-export const coloresBloque: Record<EstadoTurno, string> = {
-  reservado: "border-ink/25 bg-surface text-ink",
-  confirmado: "border-rose-dark bg-rose/35 text-ink",
-  completado: "border-[#1f8a4c] bg-[#dcf2e3] text-[#14532d]",
-  ausente: "border-[#c0392b] bg-[#fbe4e2] text-[#7f1d1d]",
-  cancelado: "border-dashed border-ink/20 bg-cream text-ink-soft line-through",
 }

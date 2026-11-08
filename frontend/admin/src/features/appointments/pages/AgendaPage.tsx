@@ -9,21 +9,17 @@ import TurnoFila from "../components/TurnoFila"
 import { Cargando, ErrorCarga } from "../../../shared/components/EstadoCarga"
 import { fromDateKey, lunesDeSemana, sumarDias } from "../../../shared/lib/fechas"
 import { formatRangoSemana, weekdayShort } from "../../../shared/lib/format"
-import { bloqueEsperandoSena, coloresBloque } from "../lib/agenda"
+import { ESTADOS, SENA_PENDIENTE } from "../lib/estados"
 import { primaryButtonClass, secondaryButtonClass } from "../../../shared/lib/styles"
 import { useAhora } from "../../../shared/lib/useAhora"
 import { useAgenda } from "../api/turnos.api"
-import type { EstadoTurno, Turno } from "../api/turnos.api"
+import type { Turno } from "../api/turnos.api"
 import { useBloqueos, useHorarios } from "../api/agenda.api"
 import { bloqueoEnElDia } from "../lib/bloqueos"
 import Icono from "../../../shared/components/Icono"
 
-const leyenda: { estado: EstadoTurno; label: string }[] = [
-  { estado: "reservado", label: "Reservado" },
-  { estado: "confirmado", label: "Confirmado" },
-  { estado: "completado", label: "Completado" },
-  { estado: "ausente", label: "No vino" },
-]
+/** Qué quiere decir cada color del calendario (los cancelados se ocultan por defecto). */
+const leyenda = [ESTADOS.reservado, ESTADOS.confirmado, SENA_PENDIENTE, ESTADOS.completado, ESTADOS.ausente]
 
 const botonNav = `${secondaryButtonClass} min-h-12 px-4 text-base`
 
@@ -161,17 +157,16 @@ export default function AgendaPage() {
             </div>
 
             <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-cream-dark pt-4">
+              <span className="text-base font-medium text-ink">Colores:</span>
               {leyenda.map((l) => (
-                <span key={l.estado} className="inline-flex items-center gap-2 text-sm text-ink">
-                  <span className={`h-4 w-4 rounded border-l-4 ${coloresBloque[l.estado]}`} />
+                <span key={l.label} className={`inline-flex items-center gap-1.5 rounded-md border-l-4 px-2.5 py-1 text-sm font-medium ${l.bloque}`}>
+                  <Icono nombre={l.icono} className="h-4 w-4" />
                   {l.label}
                 </span>
               ))}
-              <span className="inline-flex items-center gap-2 text-sm text-ink">
-                <span className={`h-4 w-4 rounded border-l-4 ${bloqueEsperandoSena}`} /> Esperando la seña
-              </span>
-              <span className="inline-flex items-center gap-2 text-sm text-ink">
-                <span className="h-4 w-4 rounded bg-cream-dark" /> Cerrado
+              <span className="inline-flex items-center gap-1.5 rounded-md bg-cream-dark px-2.5 py-1 text-sm font-medium text-ink">
+                <Icono nombre="bloqueo" className="h-4 w-4" />
+                Cerrado
               </span>
               {cancelados > 0 && (
                 <button type="button" onClick={() => setVerCancelados((v) => !v)} className="ml-auto text-sm text-ink-soft underline underline-offset-4 hover:text-ink">
