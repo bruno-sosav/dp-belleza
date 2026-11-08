@@ -1,7 +1,4 @@
-/**
- * Tipos de recordatorio: antes (X horas antes del turno), despues (X días tras una visita, opcional por servicio)
- * y cumpleanos (X días antes). A quién le toca se calcula; solo se guarda lo mandado u omitido.
- */
+
 
 export type Momento = "antes" | "despues" | "cumpleanos"
 
@@ -9,16 +6,12 @@ export type Tipo = {
   id: number
   nombre: string
   momento: Momento
-  /** Solo "antes". */
   horasAntes: number | null
-  /** "despues": días después de la visita. "cumpleanos": días antes del cumpleaños. */
   dias: number | null
-  /** Solo "despues", opcional: el recordatorio es solo para ese servicio. */
   servicio: { id: number; nombre: string } | null
   mensaje: string
 }
 
-/** Lo que se guarda de un tipo: cada momento con su dato de "cuándo". */
 export type DatosTipo =
   | { momento: "antes"; nombre: string; mensaje: string; horasAntes: number }
   | { momento: "despues"; nombre: string; mensaje: string; dias: number; servicioId: number | null }
@@ -36,10 +29,6 @@ export function problemaDeRegistro(r: Registro): string | null {
   return porTurno === porCumple ? "Tiene que venir turnoId, o clienteId y anio." : null
 }
 
-/**
- * Entre los que aplican (faltan ≤ horasAntes) va el más cercano al turno.
- * Uno ya hecho tapa a los de más horas.
- */
 export function avisoQueToca<T extends { id: number; horasAntes: number }>(horasHastaTurno: number, tipos: T[], hechos: number[]): T | null {
   if (horasHastaTurno <= 0) return null
   const horasHechas = tipos.filter((t) => hechos.includes(t.id)).map((t) => t.horasAntes)

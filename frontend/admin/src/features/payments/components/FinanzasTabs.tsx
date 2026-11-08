@@ -6,8 +6,8 @@ export default function FinanzasTabs() {
     <Pestanas
       etiqueta="Secciones de Finanzas"
       pestanas={[
-        { to: "/finanzas", end: true, label: "🧾 Caja" },
-        { to: "/finanzas/analisis", label: "📈 Análisis" },
+        { to: "/finanzas", end: true, label: "Caja" },
+        { to: "/finanzas/analisis", label: "Análisis" },
       ]}
     />
   )

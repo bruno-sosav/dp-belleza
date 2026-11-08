@@ -236,7 +236,7 @@ export default function FormularioTurno({
                           onClick={() => setHora(h)}
                           aria-pressed={h === horaElegida}
                           className={`min-h-12 rounded-xl border text-base font-semibold tabular-nums transition ${
-                            h === horaElegida ? "border-ink bg-ink text-cream" : "border-cream-dark bg-surface text-ink hover:border-rose-dark"
+                            h === horaElegida ? "border-forest bg-forest text-white" : "border-cream-dark bg-surface text-ink hover:border-rose-dark"
                           }`}
                         >
                           {h}

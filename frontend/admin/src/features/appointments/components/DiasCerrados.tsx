@@ -74,7 +74,7 @@ export default function DiasCerrados() {
               aria-checked={todoElDia === o.valor}
               onClick={() => setTodoElDia(o.valor)}
               className={`min-h-12 rounded-xl border px-4 text-base transition ${
-                todoElDia === o.valor ? "border-ink bg-ink text-cream" : "border-cream-dark bg-surface text-ink hover:border-rose-dark"
+                todoElDia === o.valor ? "border-forest bg-forest text-white" : "border-cream-dark bg-surface text-ink hover:border-rose-dark"
               }`}
             >
               {o.label}

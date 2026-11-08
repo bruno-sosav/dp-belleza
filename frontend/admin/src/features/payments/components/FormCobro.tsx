@@ -81,7 +81,7 @@ export default function FormCobro({
               onClick={() => setMedio(m.valor)}
               aria-pressed={medio === m.valor}
               className={`flex min-h-14 flex-col items-center justify-center rounded-xl border px-2 text-base transition ${
-                medio === m.valor ? "border-ink bg-ink text-cream" : "border-cream-dark bg-surface text-ink hover:border-rose-dark"
+                medio === m.valor ? "border-forest bg-forest text-white" : "border-cream-dark bg-surface text-ink hover:border-rose-dark"
               }`}
             >
               <span aria-hidden="true">{m.icono}</span>

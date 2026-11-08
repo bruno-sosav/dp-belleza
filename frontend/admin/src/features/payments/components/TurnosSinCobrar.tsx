@@ -32,7 +32,7 @@ export default function TurnosSinCobrar({ turnos, onCambio }: { turnos: SinCobra
                 <p className="text-sm text-ink-soft">{t.servicio}</p>
               </div>
               <span className="text-base font-semibold text-ink">Falta {formatPrice(t.falta)}</span>
-              <button type="button" onClick={() => setCobrando(t.turnoId)} className="min-h-12 rounded-xl bg-ink px-5 text-base font-semibold text-cream hover:bg-rose-dark">
+              <button type="button" onClick={() => setCobrando(t.turnoId)} className="min-h-12 rounded-xl bg-forest px-5 text-base font-semibold text-white hover:bg-forest-soft">
                 Cobrar
               </button>
             </div>

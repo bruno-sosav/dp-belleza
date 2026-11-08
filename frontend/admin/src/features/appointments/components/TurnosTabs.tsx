@@ -6,10 +6,10 @@ export default function TurnosTabs() {
     <Pestanas
       etiqueta="Secciones de Turnos"
       pestanas={[
-        { to: "/turnos", end: true, label: "📅 Agenda" },
-        { to: "/turnos/horario", label: "🕘 Horario" },
-        { to: "/turnos/dias-cerrados", label: "🚫 Días cerrados" },
-        { to: "/turnos/reglas", label: "⚙️ Reglas" },
+        { to: "/turnos", end: true, label: "Agenda" },
+        { to: "/turnos/horario", label: "Horario" },
+        { to: "/turnos/dias-cerrados", label: "Días cerrados" },
+        { to: "/turnos/reglas", label: "Reglas" },
       ]}
     />
   )

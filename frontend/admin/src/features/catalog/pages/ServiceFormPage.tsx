@@ -145,7 +145,7 @@ function Formulario({ servicio, categorias }: { servicio: ServicioAdmin | null; 
                     onClick={() => setCategoria(c)}
                     aria-pressed={c === categoria.trim()}
                     className={`min-h-11 rounded-full border px-4 text-base transition ${
-                      c === categoria.trim() ? "border-ink bg-ink text-cream" : "border-cream-dark bg-surface text-ink hover:border-rose-dark"
+                      c === categoria.trim() ? "border-forest bg-forest text-white" : "border-cream-dark bg-surface text-ink hover:border-rose-dark"
                     }`}
                   >
                     {c}

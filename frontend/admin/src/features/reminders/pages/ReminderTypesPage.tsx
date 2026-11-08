@@ -243,7 +243,7 @@ function FormularioTipo({ tipo, onGuardado, onCancelar }: { tipo?: TipoRecordato
               onClick={() => elegirMomento(m.valor)}
               aria-pressed={momento === m.valor}
               className={`rounded-xl border p-3 text-left transition ${
-                momento === m.valor ? "border-ink bg-ink text-cream" : "border-cream-dark bg-surface text-ink hover:border-rose-dark"
+                momento === m.valor ? "border-forest bg-forest text-white" : "border-cream-dark bg-surface text-ink hover:border-rose-dark"
               }`}
             >
               <span className="block text-base font-semibold">{m.titulo}</span>

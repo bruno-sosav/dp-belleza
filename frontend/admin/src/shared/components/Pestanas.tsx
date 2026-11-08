@@ -13,7 +13,7 @@ export default function Pestanas({ pestanas, etiqueta }: { pestanas: Pestana[]; 
           end={p.end}
           className={({ isActive }) =>
             `shrink-0 whitespace-nowrap rounded-lg px-4 py-2.5 text-base transition ${
-              isActive ? "bg-surface font-semibold text-ink shadow-sm" : "text-ink-soft hover:text-ink"
+              isActive ? "bg-surface font-semibold text-forest shadow-sm ring-1 ring-ink/5" : "text-ink-soft hover:bg-surface/60 hover:text-ink"
             }`
           }
         >

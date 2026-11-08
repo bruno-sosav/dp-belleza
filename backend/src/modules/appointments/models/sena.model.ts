@@ -16,10 +16,7 @@ export type PagoDeSena = { id: number; aprobado: boolean; monto: number; referen
 /** La referencia que viaja en el pago para saber de qué turno es. */
 export const referenciaDeSena = (turnoId: number) => `turno-${turnoId}`
 
-/**
- * El pago puede llegar repetido o tarde. Esperando → confirmado; vencido con lugar libre → se recupera;
- * vencido y ocupado → sigue cancelado con seña pagada (hay que devolverla). Resto: nada.
- */
+
 export function resultadoDelPago(
   turno: Pick<Turno, "estado" | "canceladoPor" | "sena">,
   pago: PagoDeSena,

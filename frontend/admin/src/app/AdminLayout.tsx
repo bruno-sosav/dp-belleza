@@ -29,6 +29,18 @@ const navItems = [
   { to: "/productos", label: "Productos", icon: icon(<><path d="M4 7l8-4 8 4-8 4-8-4z" /><path d="M4 7v10l8 4 8-4V7M12 11v10" /></>) },
 ]
 
+const iconoAjustes = icon(
+  <>
+    <circle cx="12" cy="12" r="3" />
+    <path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z" />
+  </>,
+)
+
+const itemMenu = "flex items-center rounded-lg transition"
+/** La sección abierta: fondo oliva claro, texto verde y una rayita a la izquierda. */
+const claseActivo = (activo: boolean) =>
+  activo ? "bg-rose/35 font-semibold text-forest lg:shadow-[inset_3px_0_0_var(--color-leaf)]" : "text-ink-soft hover:bg-cream-dark/60 hover:text-ink"
+
 /** Marco del panel: menú, login si no hay sesión y el período compartido entre secciones. */
 export default function AdminLayout() {
   const [usuario, setUsuario] = useState<Usuario | null>(usuarioActual)
@@ -55,26 +67,28 @@ export default function AdminLayout() {
   if (!haySesion() || !usuario) return <LoginPage onSuccess={setUsuario} />
 
   const context: AdminOutletContext = { period, setPeriod }
+  const salir = () => {
+    cerrarSesion()
+    setUsuario(null)
+  }
 
   return (
     <div className="min-h-screen bg-cream lg:flex">
-      <aside className="border-b border-cream-dark bg-surface lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-60 lg:shrink-0 lg:flex-col lg:border-b-0 lg:border-r">
-        <div className="flex items-center justify-between px-4 py-4 lg:px-6 lg:py-6">
-          <Link to="/" className="font-display text-xl font-semibold text-ink">
-            Dp.belleza <span className="ml-1 font-sans text-[11px] font-medium uppercase tracking-wide text-rose-dark">Admin</span>
+      <aside className="border-b border-cream-dark bg-surface lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-64 lg:shrink-0 lg:flex-col lg:border-b-0 lg:border-r">
+        <div className="flex items-center justify-between px-4 py-4 lg:px-5 lg:py-6">
+          <Link to="/" className="flex items-center gap-2.5" aria-label="dppuntobelleza, ir a Hoy">
+            <img src="/logo/logo-circulo.png" alt="" className="h-9 w-9 shrink-0 rounded-full" />
+            <span className="flex flex-col leading-none">
+              <span className="font-brand text-lg text-ink">dppuntobelleza</span>
+              <span className="mt-1 text-[11px] font-medium uppercase tracking-[0.14em] text-leaf">Panel</span>
+            </span>
           </Link>
           <div className="flex items-center gap-4 lg:hidden">
-            <NavLink to="/ajustes" className={({ isActive }) => `text-sm ${isActive ? "font-medium text-ink" : "text-ink-soft hover:text-ink"}`}>
-              ⚙️ Ajustes
+            <NavLink to="/ajustes" className={({ isActive }) => `inline-flex items-center gap-1.5 text-sm ${isActive ? "font-semibold text-forest" : "text-ink-soft hover:text-ink"}`}>
+              {iconoAjustes}
+              Ajustes
             </NavLink>
-            <button
-              type="button"
-              onClick={() => {
-                cerrarSesion()
-                setUsuario(null)
-              }}
-              className="text-sm text-ink-soft hover:text-ink"
-            >
+            <button type="button" onClick={salir} className="text-sm text-ink-soft hover:text-ink">
               Salir
             </button>
           </div>
@@ -82,16 +96,7 @@ export default function AdminLayout() {
 
         <nav className="grid grid-cols-4 gap-1 px-3 pb-3 lg:flex lg:flex-1 lg:flex-col lg:px-3 lg:pb-0">
           {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              className={({ isActive }) =>
-                `flex flex-col items-center gap-1 rounded-lg px-1 py-2 text-xs transition lg:flex-row lg:gap-3 lg:px-3 lg:text-sm ${
-                  isActive ? "bg-cream-dark font-medium text-ink" : "text-ink-soft hover:bg-cream-dark/50 hover:text-ink"
-                }`
-              }
-            >
+            <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => `${itemMenu} flex-col gap-1 px-1 py-2 text-xs lg:flex-row lg:gap-3 lg:px-3 lg:py-2.5 lg:text-[0.95rem] ${claseActivo(isActive)}`}>
               {item.icon}
               <span className="lg:hidden">{item.short ?? item.label}</span>
               <span className="hidden lg:inline">{item.label}</span>
@@ -99,34 +104,20 @@ export default function AdminLayout() {
           ))}
         </nav>
 
-        <div className="hidden space-y-1 border-t border-cream-dark px-3 py-4 lg:block">
-          <p className="px-3 pb-2 text-xs text-ink-soft">
-            Sesión de <span className="font-medium text-ink">{usuario.nombre}</span>
+        <div className="hidden space-y-0.5 border-t border-cream-dark px-3 py-4 lg:block">
+          <p className="px-3 pb-2 text-sm text-ink-soft">
+            Sesión de <span className="font-semibold text-ink">{usuario.nombre}</span>
           </p>
-          <NavLink
-            to="/ajustes"
-            className={({ isActive }) =>
-              `block rounded-lg px-3 py-2 text-sm ${isActive ? "bg-cream-dark font-medium text-ink" : "text-ink-soft hover:bg-cream-dark/50 hover:text-ink"}`
-            }
-          >
-            ⚙️ Ajustes
+          <NavLink to="/ajustes" className={({ isActive }) => `${itemMenu} gap-3 px-3 py-2 text-sm ${claseActivo(isActive)}`}>
+            {iconoAjustes}
+            Ajustes
           </NavLink>
-          <a
-            href={siteUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block rounded-lg px-3 py-2 text-sm text-ink-soft hover:bg-cream-dark/50 hover:text-ink"
-          >
-            Ver sitio ↗
+          <a href={siteUrl} target="_blank" rel="noopener noreferrer" className={`${itemMenu} gap-3 px-3 py-2 text-sm ${claseActivo(false)}`}>
+            {icon(<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5" />)}
+            Ver la web
           </a>
-          <button
-            type="button"
-            onClick={() => {
-              cerrarSesion()
-              setUsuario(null)
-            }}
-            className="block w-full rounded-lg px-3 py-2 text-left text-sm text-ink-soft hover:bg-cream-dark/50 hover:text-ink"
-          >
+          <button type="button" onClick={salir} className={`${itemMenu} w-full gap-3 px-3 py-2 text-left text-sm ${claseActivo(false)}`}>
+            {icon(<path d="M15 4h3a2 2 0 012 2v12a2 2 0 01-2 2h-3M10 16l-4-4 4-4M6 12h10" />)}
             Cerrar sesión
           </button>
         </div>

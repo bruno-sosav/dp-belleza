@@ -122,7 +122,7 @@ export default function AgendaPage() {
                       type="button"
                       onClick={() => setDiaMovil(fecha)}
                       aria-pressed={activo}
-                      className={`flex flex-col items-center rounded-xl py-2 transition ${activo ? "bg-ink text-cream" : "text-ink hover:bg-cream-dark"}`}
+                      className={`flex flex-col items-center rounded-xl py-2 transition ${activo ? "bg-forest text-white" : "text-ink hover:bg-cream-dark"}`}
                     >
                       <span className="text-xs uppercase">{weekdayShort[d.getDay()]}</span>
                       <span className={`text-lg font-semibold ${fecha === ahora.fecha && !activo ? "text-rose-dark" : ""}`}>{d.getDate()}</span>

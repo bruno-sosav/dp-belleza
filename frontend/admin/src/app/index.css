@@ -5,3 +5,26 @@
    porque en el monorepo las clases viven en dos carpetas distintas. */
 @source "./";
 @source "../../shared";
+
+/* El panel con los colores de la marca (los de la web), pero con Inter: se lee mejor en tablas y números. */
+@theme {
+  --font-brand: "Tenor Sans", ui-sans-serif, sans-serif;
+
+  --color-cream: #f6f5ef;
+  --color-cream-dark: #e7e4d6;
+  --color-surface: #fdfdf9;
+  --color-ink: #23261c;
+  --color-ink-soft: #4a4d40;
+
+  --color-forest: #3e4529;
+  --color-forest-soft: #555d38;
+  --color-leaf: #5d6740;
+  /* rose / rose-dark son el acento del panel desde antes: ahora, el oliva de la marca. */
+  --color-rose: #c9cfa8;
+  --color-rose-dark: #5d6740;
+}
+
+/* Letra un poco más grande en todo el panel: lo usa la dueña, no hace falta apretar. */
+html {
+  font-size: 17px;
+}

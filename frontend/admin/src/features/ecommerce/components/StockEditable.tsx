@@ -63,7 +63,7 @@ export default function StockEditable({ producto, onCambio }: { producto: Produc
           type="button"
           disabled={guardando || valor === "" || !Number.isInteger(Number(valor)) || Number(valor) < 0}
           onClick={guardar}
-          className="rounded-lg bg-ink px-2.5 py-1 text-xs font-medium text-cream disabled:opacity-50"
+          className="rounded-lg bg-forest px-2.5 py-1 text-xs font-medium text-white disabled:opacity-50"
         >
           Guardar
         </button>

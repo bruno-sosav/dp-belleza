@@ -84,7 +84,7 @@ export default function OrderDetailPage() {
             href={whatsappCliente(pedido.cliente.telefono, mensaje)}
             target="_blank"
             rel="noreferrer"
-            className="mt-4 inline-flex rounded-lg bg-ink px-4 py-2 text-sm font-medium text-cream transition hover:bg-rose-dark"
+            className="mt-4 inline-flex rounded-lg bg-forest px-4 py-2 text-sm font-medium text-white transition hover:bg-rose-dark"
           >
             Escribirle por WhatsApp
           </a>

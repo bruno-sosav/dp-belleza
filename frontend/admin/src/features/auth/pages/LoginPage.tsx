@@ -29,8 +29,11 @@ export default function LoginPage({ onSuccess }: { onSuccess: (usuario: Usuario)
   return (
     <div className="flex min-h-screen items-center justify-center bg-cream-dark px-4">
       <div className={`${cardClass} w-full max-w-sm p-8`}>
-        <p className="font-display text-2xl font-semibold text-ink">Dp.belleza</p>
-        <p className="mt-1 text-sm text-ink-soft">Panel de administración</p>
+        <div className="flex flex-col items-center text-center">
+          <img src="/logo/logo-circulo.png" alt="" className="h-16 w-16 rounded-full" />
+          <p className="mt-4 font-brand text-2xl text-ink">dppuntobelleza</p>
+          <p className="mt-1 text-sm text-ink-soft">Panel de administración</p>
+        </div>
 
         <form onSubmit={manejarEnvio} className="mt-8 space-y-4">
           <div>

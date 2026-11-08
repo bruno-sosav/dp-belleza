@@ -6,8 +6,8 @@ export default function RecordatoriosTabs() {
     <Pestanas
       etiqueta="Secciones de Recordatorios"
       pestanas={[
-        { to: "/recordatorios", end: true, label: "📨 Para mandar" },
-        { to: "/recordatorios/mensajes", label: "✏️ Mensajes" },
+        { to: "/recordatorios", end: true, label: "Para mandar" },
+        { to: "/recordatorios/mensajes", label: "Mensajes" },
       ]}
     />
   )

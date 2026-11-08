@@ -6,9 +6,9 @@ export default function AjustesTabs() {
     <Pestanas
       etiqueta="Secciones de Ajustes"
       pestanas={[
-        { to: "/ajustes", end: true, label: "🏠 Tu negocio" },
-        { to: "/ajustes/mercadopago", label: "💳 Mercado Pago" },
-        { to: "/ajustes/cuenta", label: "👤 Tu cuenta" },
+        { to: "/ajustes", end: true, label: "Tu negocio" },
+        { to: "/ajustes/mercadopago", label: "Mercado Pago" },
+        { to: "/ajustes/cuenta", label: "Tu cuenta" },
       ]}
     />
   )
