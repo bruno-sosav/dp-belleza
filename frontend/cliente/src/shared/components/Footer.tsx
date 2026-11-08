@@ -5,6 +5,9 @@ import Brand from "./Brand"
 const titleClass = "text-[0.6rem] font-semibold uppercase tracking-[0.22em] text-ink-soft/70"
 const linkClass = "text-sm font-light text-ink-soft transition hover:text-ink"
 
+// Fuera del componente: render puro (el año no cambia mientras la página está abierta).
+const ANIO = new Date().getFullYear()
+
 export default function Footer() {
   const negocio = useNegocio()
   return (
@@ -56,7 +59,7 @@ export default function Footer() {
 
         <div className="mt-10 flex flex-col justify-between gap-3 border-t border-ink/10 pt-6 text-xs font-light text-ink-soft/80 sm:flex-row sm:items-center">
           <p>
-            © {new Date().getFullYear()} dppuntobelleza
+            © {ANIO} dppuntobelleza
             <span className="mx-2 inline-block h-[3px] w-[3px] rounded-full bg-olive/40 align-middle" />
             Todos los derechos reservados
           </p>
