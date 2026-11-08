@@ -71,13 +71,17 @@ describe("arreglos de la revisión", () => {
     expect(s.body).toMatchObject({ estado: "cancelado", canceladoPor: "clienta" })
   })
 
-  it("el login corta después de 10 intentos", async () => {
+  it("entrar bien muchas veces no gasta intentos del login", async () => {
+    for (let i = 0; i < 12; i++) expect((await token()).length).toBeGreaterThan(0)
+  })
+
+  it("el login corta después de 10 intentos fallidos, aunque después pongan la clave bien", async () => {
     const codigos: number[] = []
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 11; i++) {
       codigos.push((await api().post("/api/auth/login").send({ email: "nadie@ejemplo.com", password: "mal" })).status)
     }
-    // El primero de este archivo fue el login de beforeAll (token()).
-    expect(codigos.slice(0, 9).every((c) => c === 401)).toBe(true)
+    expect(codigos.slice(0, 10).every((c) => c === 401)).toBe(true)
     expect(codigos.at(-1)).toBe(429)
+    await expect(token()).rejects.toThrow()
   })
 })

@@ -14,7 +14,6 @@ export default defineConfig({
   reporter: [["list"], ["html", { outputFolder: "../reportes/e2e", open: "never" }]],
   outputDir: "../reportes/e2e-resultados",
   use: {
-    ...devices["Desktop Chrome"],
     locale: "es-AR",
     timezoneId: "America/Argentina/Buenos_Aires",
     // Captura de cada test en el reporte; traza y video solo si falla.
@@ -22,6 +21,11 @@ export default defineConfig({
     trace: "retain-on-failure",
     video: "retain-on-failure",
   },
+  projects: [
+    { name: "escritorio", use: { ...devices["Desktop Chrome"] }, testIgnore: /responsive/ },
+    // Pantalla y táctil de un Android (Chromium), para el responsive.
+    { name: "celular", use: { ...devices["Pixel 7"] }, testMatch: /responsive/ },
+  ],
   webServer: [
     { command: "npm run dev:api", cwd: "..", url: "http://localhost:3000/api/salud", reuseExistingServer: !enCI, timeout: 120_000 },
     { command: "npm run dev", cwd: "..", url: "http://localhost:5173", reuseExistingServer: !enCI, timeout: 120_000 },

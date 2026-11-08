@@ -28,6 +28,7 @@ npm install          # instala todo (npm workspaces)
 npm run dev:api      # API          -> http://localhost:3000
 npm run dev          # web pública  -> http://localhost:5173
 npm run dev:admin    # panel        -> http://localhost:5174
+npm run dev:celular  # las tres, abiertas al Wi-Fi para probar desde el celular
 
 npm test             # tests del backend
 npm run build        # typecheck + build de las dos apps
@@ -48,6 +49,20 @@ complejidad usa [lizard](https://github.com/terryyin/lizard), que es de Python:
 `npx playwright install chromium`) y reusa la API y las dos apps si ya están
 corriendo. Los reportes no se suben al repo.
 
+Qué prueba el E2E:
+
+| Archivo | Qué prueba |
+|---|---|
+| `turno.spec.ts` | reservar en la web (201) → verla en el panel → cancelarla desde Mi turno |
+| `login.spec.ts` | clave bien (200), clave mal (401), cerrar sesión, ruta sin sesión, token vencido (401 → vuelve al login) |
+| `responsive.spec.ts` | con pantalla de celular: ninguna página de la web ni del panel tiene scroll horizontal; captura de cada una |
+
+Además, **todos** los tests vigilan la red: si un pedido a la API responde 4xx/5xx
+sin que el test lo espere, o la consola tira un error, el test falla.
+
+Las reservas simultáneas (dos clientas al mismo horario en el mismo instante: entra
+una sola, la otra recibe 409) están en `backend/test/integracion/simultaneas.test.ts`.
+
 ### CI
 
 Cada push y cada PR a `main` corre [GitHub Actions](.github/workflows/ci.yml)
@@ -57,7 +72,7 @@ con cuatro trabajos:
 |---|---|
 | Calidad | lint, tipos del backend, build de las dos apps y tests unitarios |
 | Cobertura | levanta MySQL, corre migraciones y seeds, tests unitarios + integración con cobertura |
-| E2E | levanta MySQL, la API, la web y el panel, y Playwright recorre una reserva de punta a punta |
+| E2E | levanta MySQL, la API, la web y el panel; Playwright prueba la reserva, el login y el responsive en celular |
 | Complejidad | reporte de complejidad ciclomática |
 
 Si algo falla, el push queda marcado en rojo. Los reportes quedan para

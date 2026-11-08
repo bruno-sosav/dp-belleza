@@ -1,3 +1,4 @@
+import { test as base, expect } from "@playwright/test"
 import { config } from "dotenv"
 import mysql from "mysql2/promise"
 
@@ -35,3 +36,30 @@ export async function limpiar() {
     await db.end()
   }
 }
+
+type Red = { permitir: (...estados: number[]) => void }
+
+/**
+ * Cada test vigila la red: si un pedido a la API responde 4xx/5xx sin que el test lo
+ * espere (red.permitir(401)), o si la consola tira un error, el test falla.
+ */
+export const test = base.extend<{ red: Red }>({
+  red: [
+    async ({ page }, usar) => {
+      const permitidos = new Set<number>()
+      const fallas: string[] = []
+      page.on("response", (r) => {
+        const pedido = r.request()
+        if (!new URL(r.url()).pathname.startsWith("/api/") || pedido.resourceType() !== "fetch") return
+        if (r.status() >= 400 && !permitidos.has(r.status())) fallas.push(`${r.status()} ${pedido.method()} ${new URL(r.url()).pathname}`)
+      })
+      page.on("console", (m) => {
+        if (m.type() === "error" && !/status of (\d+)/.test(m.text())) fallas.push(`consola: ${m.text()}`)
+      })
+      await usar({ permitir: (...estados) => estados.forEach((e) => permitidos.add(e)) })
+      expect(fallas, "pedidos a la API que fallaron o errores en la consola").toEqual([])
+    },
+    { auto: true },
+  ],
+})
+export { expect }

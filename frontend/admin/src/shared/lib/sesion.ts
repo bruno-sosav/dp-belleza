@@ -69,4 +69,6 @@ export function cerrarSesion() {
   } catch {
     // Nada que limpiar.
   }
+  // Así el AdminLayout vuelve al login también cuando la corta la API (401).
+  window.dispatchEvent(new Event(EVENTO_SESION))
 }

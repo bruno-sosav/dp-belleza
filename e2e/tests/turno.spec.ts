@@ -1,5 +1,4 @@
-import { expect, test } from "@playwright/test"
-import { ADMIN_EMAIL, ADMIN_PASSWORD, CLIENTA, PANEL, WEB, limpiar } from "./base"
+import { ADMIN_EMAIL, ADMIN_PASSWORD, CLIENTA, PANEL, WEB, expect, limpiar, test } from "./base"
 
 // La vida de un turno de punta a punta: la clienta reserva en la web, la dueña la ve
 // en el panel y la clienta lo cancela desde "Mi turno".
@@ -11,7 +10,8 @@ test.describe.serial("Turno de punta a punta", () => {
 
   test("una clienta reserva un turno desde la web", async ({ page }) => {
     await page.goto(`${WEB}/servicios`)
-    await page.getByRole("link", { name: "Reservar", exact: true }).first().click()
+    // El "Reservar" de una tarjeta de servicio, no el del navbar (que va a /servicios).
+    await page.locator('main a[href^="/reservar/"]').first().click()
     await expect(page.getByRole("heading", { name: "Reservar turno" })).toBeVisible()
 
     // Primer día con horarios libres desde dentro de 3 días: así el turno se puede
@@ -43,7 +43,10 @@ test.describe.serial("Turno de punta a punta", () => {
     await page.getByRole("button", { name: "Continuar con mis datos" }).click()
     await page.getByLabel("Nombre y apellido").fill(CLIENTA.nombre)
     await page.getByLabel("Teléfono").fill(CLIENTA.telefono)
+    const reserva = page.waitForResponse((r) => r.url().endsWith("/api/turnos") && r.request().method() === "POST")
     await page.getByRole("button", { name: "Confirmar turno" }).click()
+    // 201 Created: el turno quedó guardado en la base.
+    expect((await reserva).status()).toBe(201)
 
     await expect(page.getByRole("heading", { name: "¡Turno reservado!" })).toBeVisible()
     codigo = (await page.getByText(/Código de turno: DP-\d+/).textContent())!.replace("Código de turno:", "").trim()
@@ -72,16 +75,9 @@ test.describe.serial("Turno de punta a punta", () => {
     await page.getByRole("button", { name: "Buscar mi turno" }).click()
 
     await page.getByRole("button", { name: "Cancelar mi turno" }).click()
+    const cancelacion = page.waitForResponse((r) => r.url().endsWith("/api/turnos/mi-turno/cancelar"))
     await page.getByRole("button", { name: "Sí, cancelar" }).click()
+    expect((await cancelacion).ok()).toBe(true)
     await expect(page.getByText("Listo, tu turno quedó cancelado.")).toBeVisible()
   })
-})
-
-test("el panel no deja entrar con una contraseña incorrecta", async ({ page }) => {
-  await page.goto(PANEL)
-  await page.getByLabel("Email").fill(ADMIN_EMAIL)
-  await page.getByLabel("Contraseña").fill("esta-no-es-la-clave")
-  await page.getByRole("button", { name: "Entrar" }).click()
-  await expect(page.getByText("Email o contraseña incorrectos")).toBeVisible()
-  await expect(page.getByText("Sesión de")).toHaveCount(0)
 })

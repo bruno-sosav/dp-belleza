@@ -10,6 +10,7 @@ export function rutasSesion(c: SesionController): Router {
   const limiteLogin = limitarPorIp({
     maximo: 10,
     ventanaMs: 15 * 60_000,
+    soloFallidos: true,
     mensaje: "Demasiados intentos. Esperá unos minutos y probá de nuevo.",
   })
   const r = Router()

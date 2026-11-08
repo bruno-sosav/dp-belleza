@@ -7,9 +7,11 @@ type Opciones = {
   mensaje: string
   /** Contar solo respuestas < 400: equivocarse de horario no gasta intentos, tomar turnos sí. */
   soloExitosos?: boolean
+  /** Contar solo respuestas >= 400: en el login, entrar bien no gasta intentos. */
+  soloFallidos?: boolean
 }
 
-export function limitarPorIp({ maximo, ventanaMs, mensaje, soloExitosos = false }: Opciones): RequestHandler {
+export function limitarPorIp({ maximo, ventanaMs, mensaje, soloExitosos = false, soloFallidos = false }: Opciones): RequestHandler {
   const intentos = new Map<string, { cuenta: number; desde: number }>()
 
   const vigente = (ip: string, ahora: number) => {
@@ -30,9 +32,9 @@ export function limitarPorIp({ maximo, ventanaMs, mensaje, soloExitosos = false 
       res.status(429).json({ error: mensaje })
       return
     }
-    if (soloExitosos) {
+    if (soloExitosos || soloFallidos) {
       res.on("finish", () => {
-        if (res.statusCode < 400) vigente(ip, Date.now()).cuenta++
+        if (soloExitosos ? res.statusCode < 400 : res.statusCode >= 400) vigente(ip, Date.now()).cuenta++
       })
     } else {
       actual.cuenta++
