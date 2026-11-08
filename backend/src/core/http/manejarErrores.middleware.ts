@@ -30,6 +30,11 @@ export const manejarErrores: ErrorRequestHandler = (err, _req, res, _next) => {
     res.status(400).json({ error: "El cuerpo de la petición no es JSON válido" })
     return
   }
+  // Body de más de 100 kB (límite de express.json en app.ts)
+  if (err?.type === "entity.too.large") {
+    res.status(413).json({ error: "El pedido es demasiado grande" })
+    return
+  }
   // Errores de MySQL que son culpa de los datos enviados, no del servidor
   if (err?.code === "ER_DUP_ENTRY") {
     res.status(409).json({ error: "Ya existe un registro con ese valor" })

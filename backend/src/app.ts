@@ -2,6 +2,7 @@ import express, { Router } from "express"
 import cors from "cors"
 import { z } from "zod"
 import { config } from "./core/app.config.js"
+import { pool } from "./core/database/conexion.database.js"
 import { manejarErrores } from "./core/http/manejarErrores.middleware.js"
 import { requiereLogin } from "./core/http/sesion.middleware.js"
 import { ajustes, estadisticas } from "./modules/admin/admin.module.js"
@@ -26,8 +27,14 @@ if (config.proxies > 0) app.set("trust proxy", config.proxies)
 app.use(cors({ origin: config.corsOrigins }))
 app.use(express.json({ limit: "100kb" }))
 
-app.get("/api/salud", (_req, res) => {
-  res.json({ ok: true })
+// Para el monitoreo del hosting: 503 si la API anda pero MySQL no contesta.
+app.get("/api/salud", async (_req, res) => {
+  try {
+    await pool.query("SELECT 1")
+    res.json({ ok: true, base: "ok" })
+  } catch {
+    res.status(503).json({ ok: false, base: "sin conexión" })
+  }
 })
 
 // ── Web pública y login ──

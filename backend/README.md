@@ -153,7 +153,7 @@ Todas las respuestas son JSON. Los errores tienen la forma `{ "error": "mensaje"
 
 | Método | Ruta | Descripción |
 |---|---|---|
-| GET | `/api/salud` | Chequeo de que la API está viva |
+| GET | `/api/salud` | Chequeo de que la API y la base están vivas (503 si MySQL no contesta) |
 | GET | `/api/tienda/categorias` | Categorías activas |
 | GET | `/api/tienda/productos?categoria=1&q=serum` | Productos activos (filtros opcionales) |
 | GET | `/api/tienda/productos/:id` | Un producto activo |
