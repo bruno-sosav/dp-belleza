@@ -5,6 +5,7 @@ import { formatLongDate } from "../../../shared/lib/format"
 import type { Ahora } from "../../../shared/lib/useAhora"
 import type { EstadoTurno, Turno } from "../api/turnos.api"
 import type { MedioPago } from "../../payments/lib/medios"
+import Icono from "../../../shared/components/Icono"
 
 /** Detalle de un turno del calendario. Usa TurnoFila para tener los mismos botones que Hoy. */
 export default function ModalTurno({
@@ -47,9 +48,9 @@ export default function ModalTurno({
             type="button"
             onClick={onCerrar}
             aria-label="Cerrar"
-            className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-2xl text-ink-soft hover:bg-cream-dark hover:text-ink"
+            className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-ink-soft hover:bg-cream-dark hover:text-ink"
           >
-            ✕
+            <Icono nombre="cruz" className="h-6 w-6" />
           </button>
         </div>
 

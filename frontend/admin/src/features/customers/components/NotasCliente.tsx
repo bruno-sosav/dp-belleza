@@ -2,6 +2,7 @@ import { useState } from "react"
 import { ApiError } from "../../../shared/lib/api"
 import { inputClass, primaryButtonClass } from "../../../shared/lib/styles"
 import { actualizarCliente } from "../api/clientes.api"
+import AvisoOk from "../../../shared/components/AvisoOk"
 
 /** Notas internas que solo ve la dueña. Guardar aparece recién cuando hay cambios. */
 export default function NotasCliente({ id, notas, onGuardado }: { id: number; notas: string | null; onGuardado: () => void }) {
@@ -16,7 +17,7 @@ export default function NotasCliente({ id, notas, onGuardado }: { id: number; no
     setMensaje(null)
     try {
       await actualizarCliente(id, { notas: texto.trim() || null })
-      setMensaje({ ok: true, texto: "✅ Notas guardadas" })
+      setMensaje({ ok: true, texto: "Notas guardadas" })
       onGuardado()
     } catch (err) {
       setMensaje({ ok: false, texto: err instanceof ApiError ? err.message : "No se pudieron guardar las notas." })
@@ -48,7 +49,7 @@ export default function NotasCliente({ id, notas, onGuardado }: { id: number; no
             {guardando ? "Guardando…" : "Guardar notas"}
           </button>
         )}
-        {mensaje && <p className={`text-base ${mensaje.ok ? "text-[#18703d]" : "text-[#a12b28]"}`}>{mensaje.texto}</p>}
+        {mensaje && (mensaje.ok ? <AvisoOk>{mensaje.texto}</AvisoOk> : <p className="text-base text-peligro">{mensaje.texto}</p>)}
       </div>
     </div>
   )

@@ -9,6 +9,7 @@ import { formatTelefono } from "../../../shared/lib/format"
 import { inputClass, labelClass, primaryButtonClass } from "../../../shared/lib/styles"
 import { guardarConfiguracion, useConfiguracion } from "../api/ajustes.api"
 import type { CambiosConfiguracion, Configuracion } from "../api/ajustes.api"
+import AvisoOk from "../../../shared/components/AvisoOk"
 
 const campo = `${inputClass} py-3 text-base`
 
@@ -100,9 +101,7 @@ function Formulario({ config }: { config: Configuracion }) {
         </p>
       )}
       {guardado && (
-        <p className="rounded-xl bg-cream-dark px-4 py-3 text-base text-ink" role="status">
-          ✅ Se guardaron tus datos.
-        </p>
+        <AvisoOk className="rounded-xl bg-exito-claro px-4 py-3">Se guardaron tus datos.</AvisoOk>
       )}
 
       <button type="submit" disabled={guardando} className={`${primaryButtonClass} min-h-12 px-8 text-base`}>

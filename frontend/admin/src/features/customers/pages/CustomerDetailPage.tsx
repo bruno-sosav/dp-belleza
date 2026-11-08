@@ -15,6 +15,7 @@ import { secondaryButtonClass } from "../../../shared/lib/styles"
 import { whatsappCliente } from "../../../shared/lib/whatsapp"
 import { nombreCompleto, useFichaCliente } from "../api/clientes.api"
 import type { FichaCliente } from "../api/clientes.api"
+import Icono from "../../../shared/components/Icono"
 
 /** Cuántos turnos se muestran antes del botón "Ver todos". */
 const TURNOS_VISIBLES = 10
@@ -94,7 +95,12 @@ function Ficha({ cliente, recargar }: { cliente: FichaCliente; recargar: () => v
               <h1 className="font-display text-3xl font-semibold text-ink">{nombre}</h1>
               <p className="mt-2 text-xl text-ink">{formatTelefono(cliente.telefono)}</p>
               {cliente.email && <p className="mt-1 text-base text-ink-soft">{cliente.email}</p>}
-              {cliente.cumple && <p className="mt-1 text-base text-ink">🎂 Cumple el {formatCumple(cliente.cumple)}</p>}
+              {cliente.cumple && (
+                <p className="mt-1 flex items-center gap-2 text-base text-ink">
+                  <Icono nombre="torta" className="h-5 w-5 text-leaf" />
+                  Cumple el {formatCumple(cliente.cumple)}
+                </p>
+              )}
               <p className="mt-2 text-sm text-ink-soft">Clienta desde el {formatDayMonth(cliente.clienteDesde)} de {cliente.clienteDesde.slice(0, 4)}</p>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -107,7 +113,8 @@ function Ficha({ cliente, recargar }: { cliente: FichaCliente; recargar: () => v
                 <IconoWhatsApp className="h-6 w-6" /> Escribirle
               </a>
               <button type="button" onClick={() => setEditando(true)} className={`${secondaryButtonClass} min-h-12 px-5 text-base`}>
-                ✏️ Editar datos
+                <Icono nombre="lapiz" />
+                Editar datos
               </button>
             </div>
           </div>
@@ -133,7 +140,7 @@ function Ficha({ cliente, recargar }: { cliente: FichaCliente; recargar: () => v
         <StatTile
           label="Veces que no vino"
           value={String(cliente.ausencias)}
-          nota={cliente.ausencias ? "Sin avisar" : "Siempre vino ✅"}
+          nota={cliente.ausencias ? "Sin avisar" : "Siempre vino"}
         />
       </div>
 

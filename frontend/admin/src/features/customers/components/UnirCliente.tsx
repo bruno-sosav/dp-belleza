@@ -4,6 +4,7 @@ import { formatTelefono } from "../../../shared/lib/format"
 import { inputClass, primaryButtonClass, secondaryButtonClass } from "../../../shared/lib/styles"
 import { nombreCompleto, unirClientes, useClientes, usePosiblesDuplicados } from "../api/clientes.api"
 import type { FichaCorta } from "../api/clientes.api"
+import AvisoOk from "../../../shared/components/AvisoOk"
 
 const opcionClass =
   "flex min-h-14 w-full items-center justify-between gap-3 rounded-xl border border-cream-dark bg-surface px-4 py-3 text-left text-base text-ink transition hover:border-rose-dark hover:bg-rose/10"
@@ -25,7 +26,7 @@ export default function UnirCliente({ cliente, onUnida }: { cliente: FichaCorta;
     try {
       const r = await unirClientes(cliente.id, otra.id, telefonoDe)
       const partes = [r.turnos && `${r.turnos} ${r.turnos === 1 ? "turno" : "turnos"}`, r.compras && `${r.compras} ${r.compras === 1 ? "compra" : "compras"}`].filter(Boolean)
-      setResultado(`✅ Listo. Se pasaron ${partes.length ? partes.join(" y ") : "sus datos"} a esta ficha.`)
+      setResultado(`Listo. Se pasaron ${partes.length ? partes.join(" y ") : "sus datos"} a esta ficha.`)
       setOtra(null)
       setAbierto(false)
       onUnida()
@@ -39,7 +40,7 @@ export default function UnirCliente({ cliente, onUnida }: { cliente: FichaCorta;
   if (!abierto) {
     return (
       <div>
-        {resultado && <p className="mb-3 rounded-xl bg-cream-dark px-4 py-3 text-base text-ink" role="status">{resultado}</p>}
+        {resultado && <AvisoOk className="mb-3 rounded-xl bg-exito-claro px-4 py-3">{resultado}</AvisoOk>}
         <p className="text-base text-ink-soft">¿{nombre} tiene otra ficha con otro teléfono? Unilas para ver todo su historial junto.</p>
         <button type="button" onClick={() => setAbierto(true)} className={`${secondaryButtonClass} mt-3 min-h-12 px-5 text-base`}>
           Unir con otra ficha

@@ -9,6 +9,8 @@ import { ApiError } from "../../../shared/lib/api"
 import { primaryButtonClass, secondaryButtonClass } from "../../../shared/lib/styles"
 import { actualizarServicio, formatDuracion, useServiciosAdmin } from "../api/catalogo.api"
 import type { ServicioAdmin } from "../api/catalogo.api"
+import AvisoOk from "../../../shared/components/AvisoOk"
+import Icono from "../../../shared/components/Icono"
 
 /** Catálogo de servicios por categoría. No se borra: se pausa, así los turnos viejos siguen sumando. */
 export default function ServicesPage() {
@@ -32,9 +34,7 @@ export default function ServicesPage() {
       />
 
       {guardado && (
-        <p className="mb-6 rounded-xl bg-cream-dark px-4 py-3 text-base text-ink" role="status">
-          ✅ Se guardó “{guardado}”.
-        </p>
+        <AvisoOk className="mb-6 rounded-xl bg-exito-claro px-4 py-3">Se guardó “{guardado}”.</AvisoOk>
       )}
 
       <Panel>
@@ -107,8 +107,9 @@ function FilaServicio({ servicio, onCambio }: { servicio: ServicioAdmin; onCambi
             {servicio.professional && ` · con ${servicio.professional}`}
           </p>
           {!servicio.activo && (
-            <p className="mt-1.5 inline-block rounded-full bg-cream-dark px-3 py-0.5 text-sm font-medium text-ink">
-              ⏸ Pausado: no se ve en la web
+            <p className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-alerta-claro px-3 py-0.5 text-sm font-medium text-alerta">
+              <Icono nombre="pausa" className="h-4 w-4" />
+              Pausado: no se ve en la web
             </p>
           )}
         </div>

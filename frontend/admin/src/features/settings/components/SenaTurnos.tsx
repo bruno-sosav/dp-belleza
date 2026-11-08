@@ -5,6 +5,8 @@ import { Cargando, ErrorCarga } from "../../../shared/components/EstadoCarga"
 import { ApiError } from "../../../shared/lib/api"
 import { inputClass, labelClass, primaryButtonClass } from "../../../shared/lib/styles"
 import { guardarConfiguracion, useConfiguracion } from "../api/ajustes.api"
+import AvisoOk from "../../../shared/components/AvisoOk"
+import Icono from "../../../shared/components/Icono"
 
 const opciones = [0, 10, 20, 30, 40, 50, 100]
 
@@ -72,7 +74,7 @@ function Selector({ inicial, conectado }: { inicial: number; conectado: boolean 
         <button type="button" onClick={() => void guardar()} disabled={guardando || porcentaje === guardado} className={`${primaryButtonClass} min-h-12 px-6 text-base`}>
           {guardando ? "Guardando…" : "Guardar"}
         </button>
-        {listo && <p className="text-base text-ink" role="status">✅ Guardado</p>}
+        {listo && <AvisoOk>Guardado</AvisoOk>}
       </div>
       {porcentaje > 0 && (
         <p className="text-base text-ink-soft">
@@ -80,8 +82,9 @@ function Selector({ inicial, conectado }: { inicial: number; conectado: boolean 
         </p>
       )}
       {porcentaje > 0 && !conectado && (
-        <p className="rounded-xl border border-[#e0b44a] bg-[#fdf3dc] px-4 py-3 text-base text-ink">
-          ⚠️ Mercado Pago no está conectado: hasta que lo conectes arriba, la web no cobra seña.
+        <p className="flex items-start gap-2 rounded-xl border border-[#e0b44a] bg-alerta-claro px-4 py-3 text-base text-ink">
+          <Icono nombre="alerta" className="mt-0.5 h-5 w-5 text-alerta" />
+          Mercado Pago no está conectado: hasta que lo conectes arriba, la web no cobra seña.
         </p>
       )}
       {error && (

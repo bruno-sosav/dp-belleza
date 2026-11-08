@@ -4,6 +4,7 @@ import Panel from "../../../shared/components/Panel"
 import { ApiError } from "../../../shared/lib/api"
 import { inputClass, labelClass, primaryButtonClass } from "../../../shared/lib/styles"
 import { cambiarContrasena } from "../api/cuenta.api"
+import AvisoOk from "../../../shared/components/AvisoOk"
 
 const campo = `${inputClass} py-3 text-base`
 
@@ -64,7 +65,7 @@ export default function CambiarContrasena() {
             {error}
           </p>
         )}
-        {listo && <p className="rounded-xl bg-cream-dark px-4 py-3 text-base text-ink" role="status">✅ Listo, la próxima vez entrá con la contraseña nueva.</p>}
+        {listo && <AvisoOk className="rounded-xl bg-exito-claro px-4 py-3">Listo, la próxima vez entrá con la contraseña nueva.</AvisoOk>}
         <button type="submit" disabled={guardando} className={`${primaryButtonClass} min-h-12 px-6 text-base`}>
           {guardando ? "Guardando…" : "Cambiar contraseña"}
         </button>

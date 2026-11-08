@@ -5,9 +5,10 @@ import { ApiError } from "../../../shared/lib/api"
 import { MEDIOS } from "../lib/medios"
 import type { MedioPago } from "../lib/medios"
 import { inputClass, labelClass, primaryButtonClass, secondaryButtonClass } from "../../../shared/lib/styles"
+import Icono from "../../../shared/components/Icono"
 
 /**
- * Monto (viene lo que falta, editable) y medio de pago. Lo usan ✅ Completado y Caja.
+ * Monto (viene lo que falta, editable) y medio de pago. Lo usan Completado y Caja.
  * `onSinCobrar` muestra "Todavía no cobré": el turno queda en Caja → sin cobrar.
  */
 export default function FormCobro({
@@ -84,7 +85,7 @@ export default function FormCobro({
                 medio === m.valor ? "border-forest bg-forest text-white" : "border-cream-dark bg-surface text-ink hover:border-rose-dark"
               }`}
             >
-              <span aria-hidden="true">{m.icono}</span>
+              <Icono nombre={m.icono} />
               {m.label}
             </button>
           ))}

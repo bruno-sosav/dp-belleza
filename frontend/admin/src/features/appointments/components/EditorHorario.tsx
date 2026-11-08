@@ -5,6 +5,7 @@ import { inputClass, primaryButtonClass, secondaryButtonClass } from "../../../s
 import { guardarHorarios } from "../api/agenda.api"
 import type { Horario } from "../api/agenda.api"
 import type { TurnoParaAvisar } from "../api/agenda.api"
+import AvisoOk from "../../../shared/components/AvisoOk"
 
 const campo = `${inputClass} py-3 text-base`
 const dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
@@ -145,9 +146,7 @@ export default function EditorHorario({ horarios }: { horarios: Horario[] }) {
 
       {resultado && (
         <div className="mt-4 space-y-3">
-          <p className="rounded-xl bg-cream-dark px-4 py-3 text-base text-ink" role="status">
-            ✅ Se guardó el horario.
-          </p>
+          <AvisoOk className="rounded-xl bg-exito-claro px-4 py-3">Se guardó el horario.</AvisoOk>
           <TurnosParaAvisar turnos={resultado} motivo="que quedaron fuera del horario nuevo" />
         </div>
       )}

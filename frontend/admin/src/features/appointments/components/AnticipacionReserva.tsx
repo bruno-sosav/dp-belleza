@@ -4,6 +4,7 @@ import { Cargando, ErrorCarga } from "../../../shared/components/EstadoCarga"
 import { ApiError } from "../../../shared/lib/api"
 import { inputClass, labelClass, primaryButtonClass } from "../../../shared/lib/styles"
 import { guardarConfiguracion, useConfiguracion } from "../../settings/api/ajustes.api"
+import AvisoOk from "../../../shared/components/AvisoOk"
 
 const minimos = [
   { horas: 0, label: "Sin mínimo (hasta que empiece)" },
@@ -86,7 +87,7 @@ function Formulario({ minInicial, maxInicial }: { minInicial: number; maxInicial
         <button type="button" onClick={() => void guardar()} disabled={guardando || (min === guardado.min && max === guardado.max)} className={`${primaryButtonClass} min-h-12 px-6 text-base`}>
           {guardando ? "Guardando…" : "Guardar"}
         </button>
-        {listo && <p className="text-base text-ink" role="status">✅ Guardado</p>}
+        {listo && <AvisoOk>Guardado</AvisoOk>}
       </div>
       {error && (
         <p className="rounded-lg bg-[#fbe4e2] px-3 py-2 text-base text-[#a12b28]" role="alert">

@@ -6,6 +6,8 @@ import { ApiError } from "../../../shared/lib/api"
 import { inputClass, labelClass, primaryButtonClass, secondaryButtonClass } from "../../../shared/lib/styles"
 import { desconectar, guardarCredenciales, probarConexion } from "../api/mercadopago.api"
 import type { useMercadoPago } from "../api/mercadopago.api"
+import AvisoOk from "../../../shared/components/AvisoOk"
+import Icono from "../../../shared/components/Icono"
 
 const campo = `${inputClass} py-3 text-base font-mono`
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000"
@@ -47,7 +49,7 @@ export default function PanelMercadoPago({ estado }: { estado: ReturnType<typeof
           publicKey: publicKey.trim(),
           ...(webhookSecret.trim() ? { webhookSecret: webhookSecret.trim() } : {}),
         }),
-      "✅ Mercado Pago quedó conectado.",
+      "Mercado Pago quedó conectado.",
     )
     if (ok) {
       setCargando(false)
@@ -69,21 +71,22 @@ export default function PanelMercadoPago({ estado }: { estado: ReturnType<typeof
         <div className="space-y-4">
           {datos.configurada && !cargando ? (
             <div className="rounded-xl border border-cream-dark bg-surface p-4">
-              <p className="text-lg font-semibold text-ink">
-                ✅ Conectado{datos.cuenta ? ` a ${datos.cuenta}` : ""}
+              <p className="flex items-center gap-2 text-lg font-semibold text-exito">
+                <Icono nombre="check" className="h-6 w-6" />
+                Conectado{datos.cuenta ? ` a ${datos.cuenta}` : ""}
               </p>
               <p className="mt-1 text-base text-ink-soft">
-                {datos.modo === "prueba" ? "🧪 Modo prueba: los pagos no son reales." : "💳 Modo producción: los pagos son reales."}
+                {datos.modo === "prueba" ? "Modo prueba: los pagos no son reales." : "Modo producción: los pagos son reales."}
               </p>
               <p className="mt-1 text-sm text-ink-soft">
                 Access Token terminado en <span className="font-mono">…{datos.tokenFinal}</span>
                 {datos.verificadaAt && ` · probado el ${datos.verificadaAt.slice(8, 10)}/${datos.verificadaAt.slice(5, 7)} a las ${datos.verificadaAt.slice(11)}`}
               </p>
               <p className="mt-1 text-sm text-ink-soft">
-                Avisos de pago (webhook): {datos.webhookSecretCargado ? "con clave secreta ✅" : "sin clave secreta"}
+                Avisos de pago (webhook): {datos.webhookSecretCargado ? "con clave secreta" : "sin clave secreta"}
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
-                <button type="button" disabled={ocupado} onClick={() => void correr(probarConexion, "✅ La conexión con Mercado Pago anda bien.")} className={`${primaryButtonClass} min-h-12 px-5 text-base`}>
+                <button type="button" disabled={ocupado} onClick={() => void correr(probarConexion, "La conexión con Mercado Pago anda bien.")} className={`${primaryButtonClass} min-h-12 px-5 text-base`}>
                   {ocupado ? "Probando…" : "Probar conexión"}
                 </button>
                 <button type="button" disabled={ocupado} onClick={() => setCargando(true)} className={`${secondaryButtonClass} min-h-12 px-5 text-base`}>
@@ -172,9 +175,7 @@ export default function PanelMercadoPago({ estado }: { estado: ReturnType<typeof
             </p>
           )}
           {aviso && (
-            <p className="rounded-xl bg-cream-dark px-4 py-3 text-base text-ink" role="status">
-              {aviso}
-            </p>
+            <AvisoOk className="rounded-xl bg-exito-claro px-4 py-3">{aviso}</AvisoOk>
           )}
         </div>
       )}

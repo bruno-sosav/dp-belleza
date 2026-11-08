@@ -41,7 +41,7 @@ export function asignarCarriles(turnos: Turno[]): Map<number, Carril> {
   return resultado
 }
 
-/** Reservado en la web esperando seña: puede liberarse solo. Se dibuja punteado con ⏳. */
+/** Reservado en la web esperando seña: puede liberarse solo. Se dibuja punteado y con un reloj. */
 export const esperandoSena = (t: Turno) => t.estado === "reservado" && t.sena?.estado === "pendiente"
 
 export const bloqueEsperandoSena = "border-dashed border-[#e0b44a] bg-[#fdf3dc] text-ink"

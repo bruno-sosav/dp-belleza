@@ -6,6 +6,7 @@ import { ApiError } from "../../../shared/lib/api"
 import { actualizarSesion } from "../../../shared/lib/sesion"
 import { inputClass, labelClass, primaryButtonClass } from "../../../shared/lib/styles"
 import { guardarCuenta, useCuenta } from "../api/cuenta.api"
+import AvisoOk from "../../../shared/components/AvisoOk"
 
 const campo = `${inputClass} py-3 text-base`
 
@@ -78,7 +79,7 @@ function Formulario({ inicial }: { inicial: { nombre: string; email: string } })
           {error}
         </p>
       )}
-      {listo && <p className="rounded-xl bg-cream-dark px-4 py-3 text-base text-ink" role="status">✅ Se guardaron tus datos.</p>}
+      {listo && <AvisoOk className="rounded-xl bg-exito-claro px-4 py-3">Se guardaron tus datos.</AvisoOk>}
       <button type="submit" disabled={guardando} className={`${primaryButtonClass} min-h-12 px-6 text-base`}>
         {guardando ? "Guardando…" : "Guardar"}
       </button>

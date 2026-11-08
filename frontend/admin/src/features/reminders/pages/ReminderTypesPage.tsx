@@ -9,13 +9,14 @@ import { inputClass, labelClass, primaryButtonClass, secondaryButtonClass } from
 import { useServiciosAdmin } from "../../catalog/api/catalogo.api"
 import { actualizarTipo, borrarTipo, crearTipo, describirCuando, formatAnticipacion, useTiposRecordatorio } from "../api/recordatorios.api"
 import type { DatosTipo, Momento, TipoRecordatorio } from "../api/recordatorios.api"
+import Icono, { type NombreIcono } from "../../../shared/components/Icono"
 
 const campo = `${inputClass} py-3 text-base`
 
-const momentos: { valor: Momento; titulo: string; ayuda: string }[] = [
-  { valor: "antes", titulo: "⏰ Antes del turno", ayuda: "Para confirmar o recordar un turno que viene." },
-  { valor: "despues", titulo: "🔁 Después de la visita", ayuda: "Para invitarla a volver, por ejemplo a renovar un tratamiento." },
-  { valor: "cumpleanos", titulo: "🎂 Cumpleaños", ayuda: "Para saludarla o mandarle una promo." },
+const momentos: { valor: Momento; titulo: string; icono: NombreIcono; ayuda: string }[] = [
+  { valor: "antes", titulo: "Antes del turno", icono: "reloj", ayuda: "Para confirmar o recordar un turno que viene." },
+  { valor: "despues", titulo: "Después de la visita", icono: "repetir", ayuda: "Para invitarla a volver, por ejemplo a renovar un tratamiento." },
+  { valor: "cumpleanos", titulo: "Cumpleaños", icono: "torta", ayuda: "Para saludarla o mandarle una promo." },
 ]
 
 /** Antes del turno: de 1 hora a 1 semana. */
@@ -246,7 +247,10 @@ function FormularioTipo({ tipo, onGuardado, onCancelar }: { tipo?: TipoRecordato
                 momento === m.valor ? "border-forest bg-forest text-white" : "border-cream-dark bg-surface text-ink hover:border-rose-dark"
               }`}
             >
-              <span className="block text-base font-semibold">{m.titulo}</span>
+              <span className="flex items-center gap-2 text-base font-semibold">
+                <Icono nombre={m.icono} />
+                {m.titulo}
+              </span>
               <span className={`mt-0.5 block text-sm ${momento === m.valor ? "text-cream/80" : "text-ink-soft"}`}>{m.ayuda}</span>
             </button>
           ))}

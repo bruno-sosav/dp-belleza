@@ -6,6 +6,7 @@ import { Cargando, ErrorCarga } from "../../../shared/components/EstadoCarga"
 import { cambiarActivo, useProductosAdmin } from "../api/catalogo.api"
 import StockEditable from "../components/StockEditable"
 import { mensajeDe } from "../lib/errores"
+import AvisoOk from "../../../shared/components/AvisoOk"
 
 type Filter = "active" | "inactive" | "all"
 
@@ -69,9 +70,9 @@ export default function ProductsPage() {
       </div>
 
       {justAdded && (
-        <p className="mt-6 rounded-lg border border-rose/40 bg-rose/15 px-4 py-3 text-sm text-ink">
-          ✓ Se agregó <strong>{justAdded}</strong>. Ya aparece en la tienda.
-        </p>
+        <AvisoOk className="mt-6 rounded-xl bg-exito-claro px-4 py-3">
+          Se agregó <strong>{justAdded}</strong>. Ya aparece en la tienda.
+        </AvisoOk>
       )}
       {errorAccion && (
         <p role="alert" className="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">

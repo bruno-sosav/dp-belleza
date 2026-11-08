@@ -15,6 +15,7 @@ import { estaAbierto, nombreCliente, useAgenda } from "../../appointments/api/tu
 import type { Turno } from "../../appointments/api/turnos.api"
 import { usePedidosPendientes } from "../../ecommerce/api/pedidos.api"
 import { useRecordatorios } from "../../reminders/api/recordatorios.api"
+import Icono from "../../../shared/components/Icono"
 
 /** Cuántos días para atrás se buscan turnos que quedaron sin marcar. */
 const DIAS_ATRAS = 14
@@ -136,7 +137,7 @@ export default function TodayPage() {
         <StatTile
           label="Falta marcar"
           value={String(paraMarcar)}
-          nota={paraMarcar ? "Turnos que ya pasaron: marcá si se hicieron" : "Todo al día ✅"}
+          nota={paraMarcar ? "Turnos que ya pasaron: marcá si se hicieron" : "Todo al día"}
         />
       </div>
 
@@ -161,9 +162,12 @@ export default function TodayPage() {
           to="/recordatorios"
           className="mt-6 flex min-h-14 items-center justify-between gap-3 rounded-2xl border-2 border-[#25d366]/50 bg-[#e8f8ee] px-5 py-3 text-lg text-ink transition hover:border-[#25d366]"
         >
-          <span>
-            📨 Tenés <strong>{recordatorios.datos!.paraMandar.length}</strong>{" "}
-            {recordatorios.datos!.paraMandar.length === 1 ? "recordatorio para mandar" : "recordatorios para mandar"}
+          <span className="flex items-center gap-3">
+            <Icono nombre="mensaje" className="h-6 w-6 text-[#14532d]" />
+            <span>
+              Tenés <strong>{recordatorios.datos!.paraMandar.length}</strong>{" "}
+              {recordatorios.datos!.paraMandar.length === 1 ? "recordatorio para mandar" : "recordatorios para mandar"}
+            </span>
           </span>
           <span className="shrink-0 font-semibold text-[#14532d]">Ir →</span>
         </Link>
@@ -189,7 +193,7 @@ export default function TodayPage() {
       )}
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_340px]">
-        <Panel title="Turnos de hoy" description="Cuando termina cada turno, tocá ✅ si se hizo o ❌ si no vino.">
+        <Panel title="Turnos de hoy" description="Cuando termina cada turno, marcá Completado si se hizo o No vino si faltó.">
           {deHoy.length ? (
             <ul className="space-y-4">{deHoy.map((t) => fila(t))}</ul>
           ) : (

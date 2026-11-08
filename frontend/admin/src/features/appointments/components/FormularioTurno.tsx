@@ -14,6 +14,7 @@ import type { Cliente } from "../../customers/api/clientes.api"
 import { formatDuracion, useHorariosLibres, useServicios } from "../../catalog/api/catalogo.api"
 import { crearTurno, editarTurno, estaAbierto } from "../api/turnos.api"
 import type { Turno } from "../api/turnos.api"
+import Icono from "../../../shared/components/Icono"
 
 const opcionClass =
   "flex min-h-14 w-full items-center justify-between gap-3 rounded-xl border border-cream-dark bg-surface px-4 py-3 text-left text-base text-ink transition hover:border-rose-dark hover:bg-rose/10"
@@ -156,9 +157,9 @@ export default function FormularioTurno({
             onClick={onCerrar}
             disabled={guardando}
             aria-label="Cerrar"
-            className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-2xl text-ink-soft hover:bg-cream-dark hover:text-ink"
+            className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-ink-soft hover:bg-cream-dark hover:text-ink"
           >
-            ✕
+            <Icono nombre="cruz" className="h-6 w-6" />
           </button>
         </div>
 
@@ -301,7 +302,7 @@ export default function FormularioTurno({
                     <p className="mt-2 text-sm font-medium text-[#a12b28]">Esa hora todavía no llegó.</p>
                   ) : (
                     <p className="mt-2 text-sm text-[#14532d]">
-                      {editando ? "Sigue figurando como lo marcaste." : "Se guarda como ✅ completado y suma en Finanzas."}
+                      {editando ? "Sigue figurando como lo marcaste." : "Se guarda como completado y suma en Finanzas."}
                     </p>
                   )}
                   {!esHistoria && fecha === ahora.fecha && (

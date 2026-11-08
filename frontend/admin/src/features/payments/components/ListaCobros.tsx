@@ -4,6 +4,7 @@ import { ApiError } from "../../../shared/lib/api"
 import { etiquetaMedio } from "../lib/medios"
 import { borrarCobro } from "../api/caja.api"
 import type { Cobro } from "../api/caja.api"
+import Icono from "../../../shared/components/Icono"
 
 const conceptos = { sena: "Seña", turno: "Turno", pedido: "Tienda", otro: "Otro" }
 
@@ -46,8 +47,9 @@ export default function ListaCobros({ cobros, onCambio }: { cobros: Cobro[]; onC
                 </p>
                 {que && <p className="text-sm text-ink-soft">{que}</p>}
               </div>
-              <span className="text-sm text-ink-soft">
-                {medio.icono} {medio.label}
+              <span className="inline-flex items-center gap-1.5 text-sm text-ink-soft">
+                <Icono nombre={medio.icono} className="h-4 w-4" />
+                {medio.label}
               </span>
               <span className="w-28 text-right text-lg font-semibold tabular-nums text-ink">{formatPrice(c.monto)}</span>
               {c.medio !== "mercadopago" &&

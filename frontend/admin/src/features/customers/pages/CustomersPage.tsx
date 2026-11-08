@@ -8,6 +8,7 @@ import { Cargando, ErrorCarga } from "../../../shared/components/EstadoCarga"
 import { formatDayMonth, formatTelefono } from "../../../shared/lib/format"
 import { inputClass, primaryButtonClass } from "../../../shared/lib/styles"
 import { nombreCompleto, useClientes } from "../api/clientes.api"
+import Icono from "../../../shared/components/Icono"
 
 /** Espera a que termine de escribir antes de buscar: un pedido por búsqueda, no por letra. */
 function useDemorado(valor: string, ms = 300) {
@@ -45,7 +46,7 @@ export default function CustomersPage() {
 
       {eliminada && !agregando && (
         <p className="mb-6 rounded-xl bg-cream-dark px-4 py-3 text-base text-ink" role="status">
-          🗑️ {eliminada} se eliminó.
+          {eliminada} se eliminó.
         </p>
       )}
 
@@ -61,15 +62,18 @@ export default function CustomersPage() {
       <label htmlFor="buscar-clienta" className="sr-only">
         Buscar clienta
       </label>
-      <input
-        id="buscar-clienta"
-        type="search"
-        value={busqueda}
-        onChange={(e) => setBusqueda(e.target.value)}
-        placeholder="🔍  Buscar por nombre o teléfono"
-        autoComplete="off"
-        className={`${inputClass} py-4 text-lg`}
-      />
+      <div className="relative">
+        <Icono nombre="buscar" className="pointer-events-none absolute left-4 top-1/2 h-6 w-6 -translate-y-1/2 text-ink-soft" />
+        <input
+          id="buscar-clienta"
+          type="search"
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          placeholder="Buscar por nombre o teléfono"
+          autoComplete="off"
+          className={`${inputClass} py-4 pl-13 text-lg`}
+        />
+      </div>
 
       <Panel className="mt-6">
         {!datos && cargando ? (

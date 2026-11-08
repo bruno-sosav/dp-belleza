@@ -10,6 +10,7 @@ import { inputClass, labelClass, primaryButtonClass, secondaryButtonClass } from
 import { useAhora } from "../../../shared/lib/useAhora"
 import { crearBloqueo, quitarBloqueo, useBloqueos } from "../api/agenda.api"
 import type { TurnoParaAvisar } from "../api/agenda.api"
+import AvisoOk from "../../../shared/components/AvisoOk"
 
 const campo = `${inputClass} py-3 text-base`
 
@@ -135,9 +136,7 @@ export default function DiasCerrados() {
       )}
       {afectados && (
         <div className="mt-4 space-y-3">
-          <p className="rounded-xl bg-cream-dark px-4 py-3 text-base text-ink" role="status">
-            ✅ Listo, esos horarios ya no se ofrecen en la web.
-          </p>
+          <AvisoOk className="rounded-xl bg-exito-claro px-4 py-3">Listo, esos horarios ya no se ofrecen en la web.</AvisoOk>
           <TurnosParaAvisar turnos={afectados} motivo="en esas fechas" />
         </div>
       )}

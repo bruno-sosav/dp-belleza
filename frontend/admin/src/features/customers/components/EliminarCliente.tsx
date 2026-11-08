@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"
 import { ApiError } from "../../../shared/lib/api"
 import { secondaryButtonClass } from "../../../shared/lib/styles"
 import { eliminarCliente } from "../api/clientes.api"
+import Icono from "../../../shared/components/Icono"
 
 /** Solo sin turnos ni compras (el backend también lo impide): con historial, borraría plata de Finanzas. */
 export default function EliminarCliente({ id, nombre, tieneHistorial }: { id: number; nombre: string; tieneHistorial: boolean }) {
@@ -52,9 +53,10 @@ export default function EliminarCliente({ id, nombre, tieneHistorial }: { id: nu
         <button
           type="button"
           onClick={() => setConfirmando(true)}
-          className="inline-flex min-h-12 items-center rounded-xl border-2 border-[#e9b9b6] px-6 text-base font-semibold text-[#a12b28] transition hover:border-[#c0392b] hover:bg-[#fbe4e2]"
+          className="inline-flex min-h-12 items-center gap-2 rounded-xl border-2 border-[#e9b9b6] px-6 text-base font-semibold text-[#a12b28] transition hover:border-[#c0392b] hover:bg-[#fbe4e2]"
         >
-          🗑️ Eliminar clienta
+          <Icono nombre="tacho" />
+          Eliminar clienta
         </button>
       )}
       {error && (

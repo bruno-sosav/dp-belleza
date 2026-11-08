@@ -16,6 +16,7 @@ import { useAgenda } from "../api/turnos.api"
 import type { EstadoTurno, Turno } from "../api/turnos.api"
 import { useBloqueos, useHorarios } from "../api/agenda.api"
 import { bloqueoEnElDia } from "../lib/bloqueos"
+import Icono from "../../../shared/components/Icono"
 
 const leyenda: { estado: EstadoTurno; label: string }[] = [
   { estado: "reservado", label: "Reservado" },
@@ -134,8 +135,9 @@ export default function AgendaPage() {
               {(bloqueos.datos ?? [])
                 .filter((b) => bloqueoEnElDia(b, diaMovil))
                 .map((b) => (
-                  <p key={b.id} className="mb-4 rounded-xl bg-cream-dark px-4 py-3 text-base text-ink">
-                    🚫 Cerrado {bloqueoEnElDia(b, diaMovil)?.desde === 0 && bloqueoEnElDia(b, diaMovil)?.hasta === 24 * 60 ? "todo el día" : "un rato"}
+                  <p key={b.id} className="mb-4 flex items-center gap-2 rounded-xl bg-cream-dark px-4 py-3 text-base text-ink">
+                    <Icono nombre="bloqueo" className="h-5 w-5 text-ink-soft" />
+                    Cerrado {bloqueoEnElDia(b, diaMovil)?.desde === 0 && bloqueoEnElDia(b, diaMovil)?.hasta === 24 * 60 ? "todo el día" : "un rato"}
                     {b.motivo && <span className="text-ink-soft"> · {b.motivo}</span>}
                   </p>
                 ))}
@@ -166,7 +168,7 @@ export default function AgendaPage() {
                 </span>
               ))}
               <span className="inline-flex items-center gap-2 text-sm text-ink">
-                <span className={`h-4 w-4 rounded border-l-4 ${bloqueEsperandoSena}`} /> ⏳ Esperando la seña
+                <span className={`h-4 w-4 rounded border-l-4 ${bloqueEsperandoSena}`} /> Esperando la seña
               </span>
               <span className="inline-flex items-center gap-2 text-sm text-ink">
                 <span className="h-4 w-4 rounded bg-cream-dark" /> Cerrado

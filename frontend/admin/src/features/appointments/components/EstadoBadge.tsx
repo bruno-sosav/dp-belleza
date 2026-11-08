@@ -3,8 +3,8 @@ import type { EstadoTurno } from "../api/turnos.api"
 const estilos: Record<EstadoTurno, { label: string; className: string }> = {
   reservado: { label: "Reservado", className: "bg-cream-dark text-ink" },
   confirmado: { label: "Confirmado", className: "bg-rose/30 text-ink" },
-  completado: { label: "✅ Completado", className: "bg-[#dcf2e3] text-[#18703d]" },
-  ausente: { label: "❌ No vino", className: "bg-[#fbe4e2] text-[#a12b28]" },
+  completado: { label: "Completado", className: "bg-[#dcf2e3] text-[#18703d]" },
+  ausente: { label: "No vino", className: "bg-[#fbe4e2] text-[#a12b28]" },
   cancelado: { label: "Cancelado", className: "bg-transparent text-ink-soft line-through ring-1 ring-cream-dark" },
 }
 

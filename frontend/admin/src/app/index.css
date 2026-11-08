@@ -22,6 +22,16 @@
   /* rose / rose-dark son el acento del panel desde antes: ahora, el oliva de la marca. */
   --color-rose: #c9cfa8;
   --color-rose-dark: #5d6740;
+
+  /* Colores con significado: verde = hecho, ámbar = pendiente, rojo = problema, azul = confirmado. */
+  --color-exito: #1d6b3f;
+  --color-exito-claro: #e0f0e4;
+  --color-alerta: #7a5200;
+  --color-alerta-claro: #fbefd2;
+  --color-peligro: #a12b28;
+  --color-peligro-claro: #fbe4e2;
+  --color-info: #2b5781;
+  --color-info-claro: #e2ecf6;
 }
 
 /* Letra un poco más grande en todo el panel: lo usa la dueña, no hace falta apretar. */

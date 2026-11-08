@@ -12,6 +12,8 @@ import { whatsappCliente } from "../../../shared/lib/whatsapp"
 import { nombreCompleto } from "../../customers/api/clientes.api"
 import { deshacerAviso, registrarAviso, useRecordatorios } from "../api/recordatorios.api"
 import type { AvisoParaMandar } from "../api/recordatorios.api"
+import AvisoOk from "../../../shared/components/AvisoOk"
+import Icono from "../../../shared/components/Icono"
 
 /** Recordatorios → Para mandar. Abrir WhatsApp lo da por mandado (no hay forma de saberlo); queda "Deshacer". */
 export default function RemindersPage() {
@@ -33,7 +35,7 @@ export default function RemindersPage() {
   const detalle = (a: AvisoParaMandar) => {
     if (a.momento === "cumpleanos" && a.cumple) {
       const cuando = a.cumple.faltan === 0 ? "¡Hoy!" : a.cumple.faltan === 1 ? "mañana" : `en ${a.cumple.faltan} días`
-      return `🎂 Cumple el ${formatCumple(a.cumple)} · ${cuando}`
+      return `Cumple el ${formatCumple(a.cumple)} · ${cuando}`
     }
     if (!a.turno) return ""
     if (a.momento === "despues") {
@@ -91,9 +93,11 @@ export default function RemindersPage() {
         <div className="space-y-6">
           {grupos.length === 0 ? (
             <Panel>
-              <p className="py-8 text-center text-lg text-ink-soft">
-                {hechos.length ? "✅ Ya mandaste todos. No queda ninguno por ahora." : "No hay recordatorios para mandar por ahora."}
-              </p>
+              {hechos.length ? (
+                <AvisoOk className="justify-center py-8 text-lg">Ya mandaste todos. No queda ninguno por ahora.</AvisoOk>
+              ) : (
+                <p className="py-8 text-center text-lg text-ink-soft">No hay recordatorios para mandar por ahora.</p>
+              )}
             </Panel>
           ) : (
             grupos.map((g) => (
@@ -138,8 +142,9 @@ export default function RemindersPage() {
               <ul className="divide-y divide-cream-dark">
                 {hechos.map((h) => (
                   <li key={h.id} className="flex items-center gap-3 py-3">
-                    <p className="min-w-0 flex-1 text-base text-ink">
-                      {h.estado === "enviado" ? "✓" : "—"} {nombreCompleto(h.cliente)}
+                    <p className="flex min-w-0 flex-1 items-center gap-2 text-base text-ink">
+                      {h.estado === "enviado" ? <Icono nombre="check" className="h-5 w-5 text-exito" /> : <Icono nombre="cruz" className="h-5 w-5 text-ink-soft" />}
+                      {nombreCompleto(h.cliente)}
                       <span className="text-ink-soft">
                         {" "}
                         · {h.tipo} · {h.estado === "enviado" ? "mandado" : "no hacía falta"}

@@ -1,9 +1,10 @@
 import type { EstadoTurno, Turno } from "../api/turnos.api"
+import Icono from "../../../shared/components/Icono"
 
 const botonGrande =
   "inline-flex min-h-12 items-center justify-center gap-2 rounded-xl px-5 text-base font-semibold transition disabled:cursor-not-allowed"
 
-/** Botones de un turno reservado o confirmado: ✅ desde la hora de inicio; ❌ es "Cancelar" antes y "No vino" después. */
+/** Botones de un turno reservado o confirmado: Completado desde la hora de inicio; "Cancelar" antes y "No vino" después. */
 export default function AccionesTurnoAbierto({
   turno,
   empezo,
@@ -41,17 +42,19 @@ export default function AccionesTurnoAbierto({
         type="button"
         disabled={ocupado || !empezo}
         onClick={onCompletar}
-        className={`${botonGrande} bg-[#1f8a4c] text-white hover:bg-[#18703d] disabled:bg-cream-dark disabled:text-ink-soft`}
+        className={`${botonGrande} bg-exito text-white hover:bg-[#165532] disabled:bg-cream-dark disabled:text-ink-soft`}
       >
-        ✅ Completado
+        <Icono nombre="check" className="h-6 w-6" />
+        Completado
       </button>
       <button
         type="button"
         disabled={ocupado}
         onClick={() => (empezo ? onCambiar("ausente") : setConfirmandoCancelar(true))}
-        className={`${botonGrande} border-2 border-[#e9b9b6] bg-surface text-[#a12b28] hover:border-[#c0392b] hover:bg-[#fbe4e2]`}
+        className={`${botonGrande} border-2 border-[#e9b9b6] bg-surface text-peligro hover:border-peligro hover:bg-peligro-claro`}
       >
-        ❌ {empezo ? "No vino" : "Cancelar"}
+        <Icono nombre="cruz" className="h-6 w-6" />
+        {empezo ? "No vino" : "Cancelar"}
       </button>
       {!empezo && <p className="col-span-2 text-sm text-ink-soft">Se puede marcar como completado desde las {turno.horaInicio}.</p>}
       {turno.estado === "reservado" && (
@@ -59,9 +62,10 @@ export default function AccionesTurnoAbierto({
           type="button"
           disabled={ocupado}
           onClick={() => onCambiar("confirmado")}
-          className="col-span-2 min-h-12 rounded-xl border-2 border-cream-dark text-base font-medium text-ink transition hover:border-ink disabled:opacity-40"
+          className="col-span-2 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border-2 border-cream-dark text-base font-medium text-ink transition hover:border-info hover:text-info disabled:opacity-40"
         >
-          ✓ Confirmó que viene
+          <Icono nombre="mensaje" />
+          Confirmó que viene
         </button>
       )}
     </div>

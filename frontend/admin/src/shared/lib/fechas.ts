@@ -1,5 +1,5 @@
 /**
- * Claves de fecha de la API ("2026-10-19") ↔ Date, siempre en hora local:
+ * Claves de fecha de la API ("2026-10-19") a Date y de vuelta, siempre en hora local:
  * `new Date("2026-10-19")` es UTC y en Argentina cae el día anterior.
  */
 

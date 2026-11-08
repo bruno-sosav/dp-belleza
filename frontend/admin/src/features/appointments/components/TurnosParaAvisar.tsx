@@ -2,14 +2,16 @@ import BotonWhatsApp from "./BotonWhatsApp"
 import { formatLongDate } from "../../../shared/lib/format"
 import { nombreCliente } from "../api/turnos.api"
 import type { TurnoParaAvisar } from "../api/agenda.api"
+import Icono from "../../../shared/components/Icono"
 
 /** Turnos que quedaron afuera de un cierre o cambio de horario. No se cancelan solos: WhatsApp con mensaje armado. */
 export default function TurnosParaAvisar({ turnos, motivo }: { turnos: TurnoParaAvisar[]; motivo: string }) {
   if (!turnos.length) return null
   return (
     <div className="rounded-xl border border-[#e0b44a] bg-[#fdf3dc] p-4" role="status">
-      <p className="text-base font-semibold text-ink">
-        ⚠️ {turnos.length === 1 ? "Hay 1 turno pedido" : `Hay ${turnos.length} turnos pedidos`} {motivo}.
+      <p className="flex items-start gap-2 text-base font-semibold text-ink">
+        <Icono nombre="alerta" className="mt-0.5 h-5 w-5 text-alerta" />
+        {turnos.length === 1 ? "Hay 1 turno pedido" : `Hay ${turnos.length} turnos pedidos`} {motivo}.
       </p>
       <p className="mt-1 text-sm text-ink-soft">
         No se cancelaron. Escribile a cada clienta para pasarlo a otro día; después lo cancelás desde Turnos.

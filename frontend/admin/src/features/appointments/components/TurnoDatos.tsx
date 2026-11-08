@@ -3,11 +3,27 @@ import BotonWhatsApp from "./BotonWhatsApp"
 import { formatLongDate, formatShortDate } from "../../../shared/lib/format"
 import { nombreCliente } from "../api/turnos.api"
 import type { Turno } from "../api/turnos.api"
+import Icono from "../../../shared/components/Icono"
 
-function textoSena(sena: NonNullable<Turno["sena"]>, precio: number) {
-  if (sena.estado === "pagada") return `💳 Seña pagada: ${formatPrice(sena.monto)} · resta ${formatPrice(precio - sena.monto)}`
-  if (sena.estado === "pendiente") return `⏳ Esperando el pago de la seña (${formatPrice(sena.monto)})`
-  return "Seña no pagada"
+/** La seña del turno: pagada (verde), esperando el pago (ámbar) o vencida. */
+function Sena({ sena, precio }: { sena: NonNullable<Turno["sena"]>; precio: number }) {
+  if (sena.estado === "pagada") {
+    return (
+      <p className="mt-1 flex items-center gap-2 text-base font-medium text-exito">
+        <Icono nombre="tarjeta" />
+        Seña pagada: {formatPrice(sena.monto)} · resta {formatPrice(precio - sena.monto)}
+      </p>
+    )
+  }
+  if (sena.estado === "pendiente") {
+    return (
+      <p className="mt-1 flex items-center gap-2 text-base font-medium text-alerta">
+        <Icono nombre="reloj" />
+        Esperando el pago de la seña ({formatPrice(sena.monto)})
+      </p>
+    )
+  }
+  return <p className="mt-1 text-base text-ink-soft">Seña no pagada</p>
 }
 
 /** Parte de arriba de la fila: hora, clienta, servicio, seña, nota y WhatsApp. */
@@ -29,9 +45,12 @@ export default function TurnoDatos({ turno, enCurso, mostrarFecha }: { turno: Tu
         <p className="text-xl font-semibold text-ink">{nombre}</p>
         <p className="mt-0.5 text-base text-ink">{turno.servicio.nombre}</p>
         <p className="text-base text-ink-soft">{formatPrice(turno.precio)}</p>
-        {turno.sena && <p className="mt-1 text-base text-ink">{textoSena(turno.sena, turno.precio)}</p>}
+        {turno.sena && <Sena sena={turno.sena} precio={turno.precio} />}
         {cancelado && turno.sena?.estado === "pagada" && (
-          <p className="mt-2 rounded-lg bg-[#fdf3dc] px-3 py-2 text-sm text-ink">⚠️ Pagó la seña y el turno está cancelado: devolvésela o ofrecele otro horario.</p>
+          <p className="mt-2 flex items-start gap-2 rounded-lg bg-alerta-claro px-3 py-2 text-sm text-ink">
+            <Icono nombre="alerta" className="mt-0.5 h-4 w-4 text-alerta" />
+            Pagó la seña y el turno está cancelado: devolvésela o ofrecele otro horario.
+          </p>
         )}
         {turno.notas && <p className="mt-2 rounded-lg bg-cream-dark/60 px-3 py-2 text-sm text-ink">Nota: {turno.notas}</p>}
       </div>

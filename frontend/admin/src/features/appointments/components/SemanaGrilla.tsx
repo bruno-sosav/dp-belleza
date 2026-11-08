@@ -6,6 +6,7 @@ import { nombreCliente } from "../api/turnos.api"
 import type { Turno } from "../api/turnos.api"
 import type { Bloqueo, Horario } from "../api/agenda.api"
 import { bloqueoEnElDia } from "../lib/bloqueos"
+import Icono from "../../../shared/components/Icono"
 
 /** Alto de una hora en la grilla. Generoso a propósito: un turno de 30 minutos tiene que poder leerse. */
 const PX_POR_HORA = 80
@@ -160,8 +161,8 @@ export default function SemanaGrilla({
                       width: `calc(${100 / total}% - 6px)`,
                     }}
                   >
-                    <p className="text-sm font-semibold leading-tight">
-                      {esperandoSena(t) && "⏳ "}
+                    <p className="flex items-center gap-1 text-sm font-semibold leading-tight">
+                      {esperandoSena(t) && <Icono nombre="reloj" className="h-3.5 w-3.5" />}
                       {t.horaInicio}
                       {corto && <span className="font-normal"> · {t.cliente.nombre}</span>}
                     </p>

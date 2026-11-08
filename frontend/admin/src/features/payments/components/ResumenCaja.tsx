@@ -1,6 +1,7 @@
 import { formatPrice } from "@dp/shared/lib/format"
 import { MEDIOS } from "../lib/medios"
 import type { DiaDeCaja } from "../api/caja.api"
+import Icono from "../../../shared/components/Icono"
 
 /** El total del día, grande, y abajo cuánto entró por cada medio de pago (solo los que tuvieron movimiento). */
 export default function ResumenCaja({ totales }: { totales: DiaDeCaja["totales"] }) {
@@ -13,8 +14,9 @@ export default function ResumenCaja({ totales }: { totales: DiaDeCaja["totales"]
         <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
           {conMovimiento.map((m) => (
             <li key={m.valor} className="rounded-xl border border-cream-dark bg-surface px-4 py-3">
-              <p className="text-sm text-ink-soft">
-                {m.icono} {m.label}
+              <p className="flex items-center gap-1.5 text-sm text-ink-soft">
+                <Icono nombre={m.icono} className="h-4 w-4" />
+                {m.label}
               </p>
               <p className="text-xl font-semibold text-ink">{formatPrice(totales.porMedio[m.valor])}</p>
             </li>

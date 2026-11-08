@@ -9,13 +9,14 @@ import { ApiError } from "../../../shared/lib/api"
 import type { Ahora } from "../../../shared/lib/useAhora"
 import { estaAbierto, faltaCobrar } from "../api/turnos.api"
 import type { EstadoTurno, Turno } from "../api/turnos.api"
+import Icono from "../../../shared/components/Icono"
 
 function textoEditar(turno: Turno) {
   if (estaAbierto(turno)) return "Cambiar día, hora o servicio"
   return turno.estado === "cancelado" ? "Editar la nota" : "Corregir o agregar una nota"
 }
 
-/** Si el turno ya empezó (habilita ✅) y si está en curso ahora mismo (se resalta). */
+/** Si el turno ya empezó (habilita Completado) y si está en curso ahora mismo (se resalta). */
 function momento(turno: Turno, ahora: Ahora) {
   const esHoy = turno.fecha === ahora.fecha
   const empezo = turno.fecha < ahora.fecha || (esHoy && turno.horaInicio <= ahora.hora)
@@ -44,7 +45,7 @@ export default function TurnoFila({
   turno: Turno
   ahora: Ahora
   onCambiarEstado: (estado: EstadoTurno) => Promise<void>
-  /** ✅ Completado: marca el turno y anota lo cobrado (null = "todavía no cobré"). */
+  /** Completado: marca el turno y anota lo cobrado (null = "todavía no cobré"). */
   onCompletar: (cobro: { monto: number; medio: MedioPago } | null) => Promise<void>
   /** Cobrar lo que falta de un turno ya completado. */
   onCobrar: (cobro: { monto: number; medio: MedioPago }) => Promise<void>
@@ -56,7 +57,7 @@ export default function TurnoFila({
   const [ocupado, setOcupado] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [confirmandoCancelar, setConfirmandoCancelar] = useState(false)
-  /** "completar": ✅ Completado pidiendo el cobro. "cobrar": cobrar lo que falta de uno ya completado. */
+  /** "completar": Completado pidiendo el cobro. "cobrar": cobrar lo que falta de uno ya completado. */
   const [cobrando, setCobrando] = useState<"completar" | "cobrar" | null>(null)
   const falta = faltaCobrar(turno)
 
@@ -91,7 +92,7 @@ export default function TurnoFila({
           <FormCobro
             montoSugerido={falta}
             detalle={detalleCobro(turno)}
-            textoGuardar={cobrando === "completar" ? "✅ Completado y cobrado" : "Guardar cobro"}
+            textoGuardar={cobrando === "completar" ? "Completado y cobrado" : "Guardar cobro"}
             onGuardar={guardarCobro}
             onSinCobrar={cobrando === "completar" ? () => guardarCobro(null) : undefined}
             onCancelar={() => setCobrando(null)}
@@ -122,7 +123,8 @@ export default function TurnoFila({
             onClick={onEditar}
             className="mt-3 inline-flex min-h-12 items-center gap-2 text-base text-ink-soft underline underline-offset-4 hover:text-ink"
           >
-            ✏️ {textoEditar(turno)}
+            <Icono nombre="lapiz" />
+            {textoEditar(turno)}
           </button>
         )}
       </div>
