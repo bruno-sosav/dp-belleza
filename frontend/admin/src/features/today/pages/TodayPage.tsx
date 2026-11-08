@@ -123,6 +123,22 @@ export default function TodayPage() {
     <div>
       {header}
 
+      {(recordatorios.datos?.paraMandar.length ?? 0) > 0 && (
+        <Link
+          to="/recordatorios"
+          className="mb-6 flex min-h-14 items-center justify-between gap-3 rounded-2xl border-2 border-[#25d366]/50 bg-[#e8f8ee] px-5 py-3 text-lg text-ink transition hover:border-[#25d366]"
+        >
+          <span className="flex items-center gap-3">
+            <Icono nombre="mensaje" className="h-6 w-6 text-exito" />
+            <span>
+              Tenés <strong>{recordatorios.datos!.paraMandar.length}</strong>{" "}
+              {recordatorios.datos!.paraMandar.length === 1 ? "recordatorio para mandar" : "recordatorios para mandar"}
+            </span>
+          </span>
+          <span className="shrink-0 font-semibold text-exito">Ver y mandar →</span>
+        </Link>
+      )}
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatTile
           label="Turnos de hoy"
@@ -155,22 +171,6 @@ export default function TodayPage() {
         >
           <ul className="space-y-4">{sinMarcar.map((t) => fila(t, true))}</ul>
         </Panel>
-      )}
-
-      {(recordatorios.datos?.paraMandar.length ?? 0) > 0 && (
-        <Link
-          to="/recordatorios"
-          className="mt-6 flex min-h-14 items-center justify-between gap-3 rounded-2xl border-2 border-[#25d366]/50 bg-[#e8f8ee] px-5 py-3 text-lg text-ink transition hover:border-[#25d366]"
-        >
-          <span className="flex items-center gap-3">
-            <Icono nombre="mensaje" className="h-6 w-6 text-exito" />
-            <span>
-              Tenés <strong>{recordatorios.datos!.paraMandar.length}</strong>{" "}
-              {recordatorios.datos!.paraMandar.length === 1 ? "recordatorio para mandar" : "recordatorios para mandar"}
-            </span>
-          </span>
-          <span className="shrink-0 font-semibold text-exito">Ir →</span>
-        </Link>
       )}
 
       {canceladosWeb.length > 0 && (
