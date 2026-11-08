@@ -145,15 +145,15 @@ function TarjetaTipo({ tipo, onEditar, onBorrado }: { tipo: TipoRecordatorio; on
         </div>
       </div>
 
-      <div className="mt-4 rounded-xl bg-[#dcf2e3] p-4">
-        <p className="text-sm font-medium text-[#14532d]">Así le llega a la clienta:</p>
+      <div className="mt-4 rounded-xl bg-exito-claro p-4">
+        <p className="text-sm font-medium text-exito">Así le llega a la clienta:</p>
         <p className="mt-1 whitespace-pre-line text-base text-ink">{ejemplo(tipo.mensaje)}</p>
       </div>
 
       {confirmando && (
-        <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-[#e9b9b6] bg-[#fbe4e2] p-4">
+        <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-peligro/30 bg-peligro-claro p-4">
           <p className="w-full text-base text-ink sm:w-auto">¿Borrar “{tipo.nombre}”? Deja de aparecer en Para mandar.</p>
-          <button type="button" onClick={() => void borrar()} className="min-h-12 rounded-xl bg-[#c0392b] px-5 text-base font-semibold text-white hover:bg-[#a12b28]">
+          <button type="button" onClick={() => void borrar()} className="min-h-12 rounded-xl bg-peligro px-5 text-base font-semibold text-white hover:bg-peligro/90">
             Sí, borrar
           </button>
           <button type="button" onClick={() => setConfirmando(false)} className={`${secondaryButtonClass} min-h-12 px-5 text-base`}>
@@ -162,7 +162,7 @@ function TarjetaTipo({ tipo, onEditar, onBorrado }: { tipo: TipoRecordatorio; on
         </div>
       )}
       {error && (
-        <p className="mt-3 rounded-lg bg-[#fbe4e2] px-3 py-2 text-base text-[#a12b28]" role="alert">
+        <p className="mt-3 rounded-lg bg-peligro-claro px-3 py-2 text-base text-peligro" role="alert">
           {error}
         </p>
       )}
@@ -328,14 +328,14 @@ function FormularioTipo({ tipo, onGuardado, onCancelar }: { tipo?: TipoRecordato
           ))}
         </div>
         {momento === "cumpleanos" && <p className="mt-1.5 text-sm text-ink-soft">En un cumpleaños, el día es el del cumpleaños.</p>}
-        <div className="mt-4 rounded-xl bg-[#dcf2e3] p-4">
-          <p className="text-sm font-medium text-[#14532d]">Así le llega a la clienta:</p>
+        <div className="mt-4 rounded-xl bg-exito-claro p-4">
+          <p className="text-sm font-medium text-exito">Así le llega a la clienta:</p>
           <p className="mt-1 whitespace-pre-line text-base text-ink">{ejemplo(mensaje) || "—"}</p>
         </div>
       </div>
 
       {error && (
-        <p className="rounded-lg bg-[#fbe4e2] px-3 py-2 text-base text-[#a12b28]" role="alert">
+        <p className="rounded-lg bg-peligro-claro px-3 py-2 text-base text-peligro" role="alert">
           {error}
         </p>
       )}

@@ -82,13 +82,13 @@ function Selector({ inicial, conectado }: { inicial: number; conectado: boolean 
         </p>
       )}
       {porcentaje > 0 && !conectado && (
-        <p className="flex items-start gap-2 rounded-xl border border-[#e0b44a] bg-alerta-claro px-4 py-3 text-base text-ink">
+        <p className="flex items-start gap-2 rounded-xl border border-alerta/40 bg-alerta-claro px-4 py-3 text-base text-ink">
           <Icono nombre="alerta" className="mt-0.5 h-5 w-5 text-alerta" />
           Mercado Pago no está conectado: hasta que lo conectes arriba, la web no cobra seña.
         </p>
       )}
       {error && (
-        <p className="rounded-lg bg-[#fbe4e2] px-3 py-2 text-base text-[#a12b28]" role="alert">
+        <p className="rounded-lg bg-peligro-claro px-3 py-2 text-base text-peligro" role="alert">
           {error}
         </p>
       )}

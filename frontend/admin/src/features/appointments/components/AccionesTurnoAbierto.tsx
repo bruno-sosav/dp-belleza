@@ -26,7 +26,7 @@ export default function AccionesTurnoAbierto({
     return (
       <div className="flex flex-wrap items-center gap-3">
         <p className="w-full text-base font-medium text-ink sm:w-auto">¿Seguro que querés cancelar este turno?</p>
-        <button type="button" disabled={ocupado} onClick={() => onCambiar("cancelado")} className={`${botonGrande} bg-[#c0392b] text-white hover:bg-[#a12b28]`}>
+        <button type="button" disabled={ocupado} onClick={() => onCambiar("cancelado")} className={`${botonGrande} bg-peligro text-white hover:bg-peligro/90`}>
           Sí, cancelar
         </button>
         <button type="button" disabled={ocupado} onClick={() => setConfirmandoCancelar(false)} className={`${botonGrande} border-2 border-cream-dark text-ink hover:border-ink`}>
@@ -42,7 +42,7 @@ export default function AccionesTurnoAbierto({
         type="button"
         disabled={ocupado || !empezo}
         onClick={onCompletar}
-        className={`${botonGrande} bg-exito text-white hover:bg-[#165532] disabled:bg-cream-dark disabled:text-ink-soft`}
+        className={`${botonGrande} bg-exito text-white hover:bg-exito/90 disabled:bg-cream-dark disabled:text-ink-soft`}
       >
         <Icono nombre="check" className="h-6 w-6" />
         Completado
@@ -51,7 +51,7 @@ export default function AccionesTurnoAbierto({
         type="button"
         disabled={ocupado}
         onClick={() => (empezo ? onCambiar("ausente") : setConfirmandoCancelar(true))}
-        className={`${botonGrande} border-2 border-[#e9b9b6] bg-surface text-peligro hover:border-peligro hover:bg-peligro-claro`}
+        className={`${botonGrande} border-2 border-peligro/30 bg-surface text-peligro hover:border-peligro hover:bg-peligro-claro`}
       >
         <Icono nombre="cruz" className="h-6 w-6" />
         {empezo ? "No vino" : "Cancelar"}

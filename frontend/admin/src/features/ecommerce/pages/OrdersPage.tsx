@@ -53,7 +53,7 @@ export default function OrdersPage() {
                 filtro === t.value ? "bg-surface font-medium text-ink shadow-sm" : "text-ink-soft hover:text-ink"
               }`}
             >
-              {t.label} <span className="text-ink-soft/70">({pedidos.filter((p) => pasaFiltro(p, t.value)).length})</span>
+              {t.label} <span className="text-ink-soft">({pedidos.filter((p) => pasaFiltro(p, t.value)).length})</span>
             </button>
           ))}
         </div>
@@ -81,7 +81,7 @@ export default function OrdersPage() {
                   <p className="truncate font-medium text-ink">
                     #{p.id} · {nombreCliente(p.cliente)}
                   </p>
-                  <p className="mt-0.5 text-xs text-ink-soft">
+                  <p className="mt-0.5 text-sm text-ink-soft">
                     {formatShortDate(p.creadoEn.slice(0, 10))} {p.creadoEn.slice(11, 16)} · {p.unidades} {p.unidades === 1 ? "producto" : "productos"}
                   </p>
                 </div>

@@ -33,11 +33,11 @@ export default function DayDetail({
 
   return (
     <div className="rounded-xl bg-cream-dark/50 p-5">
-      <p className="text-xs uppercase tracking-wide text-ink-soft">Día seleccionado</p>
+      <p className="text-sm uppercase tracking-wide text-ink-soft">Día seleccionado</p>
       <p className="mt-1 font-display text-xl font-semibold text-ink first-letter:uppercase">{formatLongDate(day.date)}</p>
 
       {isTop && (
-        <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-surface px-3 py-1 text-xs font-medium text-ink">
+        <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-surface px-3 py-1 text-sm font-medium text-ink">
           <span className="h-2 w-2 rounded-full" style={{ background: chartColors.heat[3] }} />
           {rank === 1 ? "El día más movido" : `Uno de los 5 días más movidos (#${rank})`} del período
         </p>
@@ -45,27 +45,27 @@ export default function DayDetail({
 
       <dl className="mt-5 grid grid-cols-2 gap-4">
         <div>
-          <dt className="text-xs text-ink-soft">Turnos realizados</dt>
+          <dt className="text-sm text-ink-soft">Turnos realizados</dt>
           <dd className="mt-0.5 text-2xl font-semibold text-ink">{closed ? "Cerrado" : day.bookingCount}</dd>
-          {day.cancelledCount > 0 && <dd className="text-xs text-ink-soft">{day.cancelledCount} cancelado{day.cancelledCount > 1 ? "s" : ""}</dd>}
-          {day.noShowCount > 0 && <dd className="text-xs text-ink-soft">{day.noShowCount} no vino{day.noShowCount > 1 ? "eron" : ""}</dd>}
+          {day.cancelledCount > 0 && <dd className="text-sm text-ink-soft">{day.cancelledCount} cancelado{day.cancelledCount > 1 ? "s" : ""}</dd>}
+          {day.noShowCount > 0 && <dd className="text-sm text-ink-soft">{day.noShowCount} no vino{day.noShowCount > 1 ? "eron" : ""}</dd>}
         </div>
         <div>
-          <dt className="text-xs text-ink-soft">Ganancia del día</dt>
+          <dt className="text-sm text-ink-soft">Ganancia del día</dt>
           <dd className="mt-0.5 text-2xl font-semibold text-ink">{formatPrice(day.total)}</dd>
         </div>
         <div>
-          <dt className="flex items-center gap-1.5 text-xs text-ink-soft">
+          <dt className="flex items-center gap-1.5 text-sm text-ink-soft">
             <span className="h-2 w-2 rounded-sm" style={{ background: chartColors.services }} /> Turnos
           </dt>
           <dd className="mt-0.5 text-sm font-medium text-ink">{formatPrice(day.services)}</dd>
         </div>
         <div>
-          <dt className="flex items-center gap-1.5 text-xs text-ink-soft">
+          <dt className="flex items-center gap-1.5 text-sm text-ink-soft">
             <span className="h-2 w-2 rounded-sm" style={{ background: chartColors.shop }} /> Tienda
           </dt>
           <dd className="mt-0.5 text-sm font-medium text-ink">
-            {formatPrice(day.shop)} <span className="text-xs text-ink-soft">({day.orderCount} pedidos)</span>
+            {formatPrice(day.shop)} <span className="text-sm text-ink-soft">({day.orderCount} pedidos)</span>
           </dd>
         </div>
       </dl>
@@ -93,7 +93,7 @@ export default function DayDetail({
 
       {topServicesOfDay.length > 0 && (
         <div className="mt-4">
-          <p className="text-xs text-ink-soft">Lo más pedido ese día</p>
+          <p className="text-sm text-ink-soft">Lo más pedido ese día</p>
           <ul className="mt-1.5 space-y-1 text-sm">
             {topServicesOfDay.map((s) => (
               <li key={s.id} className="flex justify-between gap-3">

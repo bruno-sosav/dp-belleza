@@ -97,7 +97,7 @@ export default function PanelMercadoPago({ estado }: { estado: ReturnType<typeof
                 </button>
               </div>
               {confirmandoDesconectar && (
-                <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-[#e9b9b6] bg-[#fbe4e2] p-4">
+                <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-peligro/30 bg-peligro-claro p-4">
                   <p className="w-full text-base text-ink sm:w-auto">¿Desconectar Mercado Pago? La web deja de poder cobrar online.</p>
                   <button
                     type="button"
@@ -105,7 +105,7 @@ export default function PanelMercadoPago({ estado }: { estado: ReturnType<typeof
                       setConfirmandoDesconectar(false)
                       void correr(desconectar, "Mercado Pago quedó desconectado.")
                     }}
-                    className="min-h-12 rounded-xl bg-[#c0392b] px-5 text-base font-semibold text-white hover:bg-[#a12b28]"
+                    className="min-h-12 rounded-xl bg-peligro px-5 text-base font-semibold text-white hover:bg-peligro/90"
                   >
                     Sí, desconectar
                   </button>
@@ -170,7 +170,7 @@ export default function PanelMercadoPago({ estado }: { estado: ReturnType<typeof
           )}
 
           {error && (
-            <p className="rounded-lg bg-[#fbe4e2] px-4 py-3 text-base text-[#a12b28]" role="alert">
+            <p className="rounded-lg bg-peligro-claro px-4 py-3 text-base text-peligro" role="alert">
               {error}
             </p>
           )}

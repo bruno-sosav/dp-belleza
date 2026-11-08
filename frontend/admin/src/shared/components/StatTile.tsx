@@ -39,7 +39,7 @@ export default function StatTile({
       {nota ? (
         <p className="mt-2 text-sm text-ink-soft">{nota}</p>
       ) : rounded !== null ? (
-        <p className="mt-2 text-xs text-ink-soft">
+        <p className="mt-2 text-sm text-ink-soft">
           <span className="font-semibold" style={{ color: good ? chartColors.up : chartColors.down }}>
             {rounded > 0 ? "▲" : rounded < 0 ? "▼" : "="} {rounded > 0 ? "+" : ""}
             {rounded}%
@@ -47,7 +47,7 @@ export default function StatTile({
           {compareLabel}
         </p>
       ) : (
-        <p className="mt-2 text-xs text-ink-soft">Sin datos para comparar</p>
+        <p className="mt-2 text-sm text-ink-soft">Sin datos para comparar</p>
       )}
     </div>
   )

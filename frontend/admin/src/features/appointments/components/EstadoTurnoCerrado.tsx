@@ -31,7 +31,7 @@ export default function EstadoTurnoCerrado({
         <button
           type="button"
           onClick={onCobrar}
-          className="min-h-12 rounded-xl bg-[#fdf3dc] px-4 text-base font-semibold text-ink ring-1 ring-[#e0b44a] hover:bg-[#fbe9bf]"
+          className="min-h-12 rounded-xl bg-alerta-claro px-4 text-base font-semibold text-ink ring-1 ring-alerta/40 hover:bg-alerta-claro/70"
         >
           Falta cobrar {formatPrice(falta)} · Cobrar
         </button>

@@ -6,8 +6,8 @@ import CalendarHeatmap from "../../../shared/components/charts/CalendarHeatmap"
 import type { DayMetric, DayStats } from "../../../shared/lib/stats"
 
 const opciones: { metrica: DayMetric; label: string; descripcion: string }[] = [
-  { metrica: "total", label: "Por plata", descripcion: "Cuanto más rojo, más se ganó ese día." },
-  { metrica: "bookingCount", label: "Por turnos", descripcion: "Cuanto más rojo, más turnos hubo ese día." },
+  { metrica: "total", label: "Por plata", descripcion: "Cuanto más oscuro, más se ganó ese día." },
+  { metrica: "bookingCount", label: "Por turnos", descripcion: "Cuanto más oscuro, más turnos hubo ese día." },
 ]
 
 /** Calendario de días movidos, top 5 y detalle del día, con selector plata/turnos. */

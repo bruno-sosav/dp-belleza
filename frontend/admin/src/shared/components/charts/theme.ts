@@ -5,7 +5,8 @@
 export const chartColors = {
   shop: "#2a78d6",
   services: "#1baf7a",
-  heat: ["#f29a96", "#ea736e", "#dd4b47", "#bf302d", "#8c1e1c"],
+  // Verdes de la marca: el rojo en el panel quiere decir "problema", no "día bueno".
+  heat: ["#d9e1bf", "#b6c78e", "#8fa765", "#647f42", "#3e5629"],
   empty: "#eceee8",
   grid: "#e4e7de",
   axis: "#c9cdc2",

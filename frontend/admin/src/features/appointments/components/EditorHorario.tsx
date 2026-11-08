@@ -7,7 +7,8 @@ import type { Horario } from "../api/agenda.api"
 import type { TurnoParaAvisar } from "../api/agenda.api"
 import AvisoOk from "../../../shared/components/AvisoOk"
 
-const campo = `${inputClass} py-3 text-base`
+/** Las horas, angostas: así "de 09:00 a 13:00 Quitar" entra en un renglón. */
+const campoHora = `${inputClass.replace("w-full", "w-36")} py-3 text-base`
 const dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
 
 type Franja = { desde: string; hasta: string }
@@ -79,7 +80,7 @@ export default function EditorHorario({ horarios }: { horarios: Horario[] }) {
                   onClick={() => cambiarDia(i, abierto ? [] : [{ desde: "09:00", hasta: "19:00" }])}
                   aria-pressed={abierto}
                   className={`min-h-12 rounded-xl px-4 text-base font-semibold transition ${
-                    abierto ? "bg-[#dcf2e3] text-[#14532d] hover:bg-[#c6ead2]" : "bg-cream-dark text-ink-soft hover:text-ink"
+                    abierto ? "bg-exito-claro text-exito hover:bg-exito-claro/70" : "bg-cream-dark text-ink-soft hover:text-ink"
                   }`}
                 >
                   {abierto ? "Abierto" : "Cerrado"}
@@ -97,7 +98,7 @@ export default function EditorHorario({ horarios }: { horarios: Horario[] }) {
                         aria-label={`${dias[i]}: abre a las`}
                         value={f.desde}
                         onChange={(e) => cambiarDia(i, franjas.map((x, j) => (j === k ? { ...x, desde: e.target.value } : x)))}
-                        className={`${campo} w-auto`}
+                        className={campoHora}
                       />
                       <span>a</span>
                       <input
@@ -106,7 +107,7 @@ export default function EditorHorario({ horarios }: { horarios: Horario[] }) {
                         aria-label={`${dias[i]}: cierra a las`}
                         value={f.hasta}
                         onChange={(e) => cambiarDia(i, franjas.map((x, j) => (j === k ? { ...x, hasta: e.target.value } : x)))}
-                        className={`${campo} w-auto`}
+                        className={campoHora}
                       />
                       {franjas.length > 1 && (
                         <button
@@ -139,7 +140,7 @@ export default function EditorHorario({ horarios }: { horarios: Horario[] }) {
       </ul>
 
       {error && (
-        <p className="mt-4 rounded-lg bg-[#fbe4e2] px-4 py-3 text-base text-[#a12b28]" role="alert">
+        <p className="mt-4 rounded-lg bg-peligro-claro px-4 py-3 text-base text-peligro" role="alert">
           {error}
         </p>
       )}

@@ -29,9 +29,9 @@ function Field({ label, htmlFor, hint, error, children }: { label: string; htmlF
       </label>
       {children}
       {error ? (
-        <p className="mt-1.5 text-xs text-red-700">{error}</p>
+        <p className="mt-1.5 text-sm text-peligro">{error}</p>
       ) : (
-        hint && <p className="mt-1.5 text-xs text-ink-soft">{hint}</p>
+        hint && <p className="mt-1.5 text-sm text-ink-soft">{hint}</p>
       )}
     </div>
   )
@@ -146,7 +146,7 @@ export default function ProductFormPage() {
           </Field>
 
           {errorApi && (
-            <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+            <p role="alert" className="rounded-lg border border-peligro/30 bg-peligro-claro px-4 py-3 text-sm text-peligro">
               {errorApi}
             </p>
           )}
@@ -167,12 +167,12 @@ export default function ProductFormPage() {
             {esLink(form.image) ? (
               <img src={form.image.trim()} alt="Vista previa" className="aspect-[4/5] w-full object-cover" />
             ) : (
-              <div className="flex aspect-[4/5] items-center justify-center p-6 text-center text-xs text-ink-soft">
+              <div className="flex aspect-[4/5] items-center justify-center p-6 text-center text-sm text-ink-soft">
                 La foto aparece acá cuando pegues el link.
               </div>
             )}
           </div>
-          {nombreCategoria && <p className="mt-3 text-xs uppercase tracking-wide text-ink-soft">{nombreCategoria}</p>}
+          {nombreCategoria && <p className="mt-3 text-sm uppercase tracking-wide text-ink-soft">{nombreCategoria}</p>}
           <p className="mt-1 font-display text-lg text-ink">{form.name || "Nombre del producto"}</p>
         </aside>
       </form>

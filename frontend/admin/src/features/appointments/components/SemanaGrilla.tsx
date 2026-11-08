@@ -175,8 +175,8 @@ export default function SemanaGrilla({
 
               {/* Línea roja de "ahora", solo en la columna de hoy y dentro del rango */}
               {esHoy && ahoraMin >= desde && ahoraMin <= hasta && (
-                <div className="pointer-events-none absolute inset-x-0 z-20 border-t-2 border-[#c0392b]" style={{ top: y(ahoraMin) }}>
-                  <span className="absolute -left-1.5 -top-1.5 h-3 w-3 rounded-full bg-[#c0392b]" />
+                <div className="pointer-events-none absolute inset-x-0 z-20 border-t-2 border-peligro" style={{ top: y(ahoraMin) }}>
+                  <span className="absolute -left-1.5 -top-1.5 h-3 w-3 rounded-full bg-peligro" />
                 </div>
               )}
             </div>

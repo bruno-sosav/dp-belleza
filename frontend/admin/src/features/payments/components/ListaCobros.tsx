@@ -29,7 +29,7 @@ export default function ListaCobros({ cobros, onCambio }: { cobros: Cobro[]; onC
   return (
     <div>
       {error && (
-        <p className="mb-3 rounded-lg bg-[#fbe4e2] px-3 py-2 text-base text-[#a12b28]" role="alert">
+        <p className="mb-3 rounded-lg bg-peligro-claro px-3 py-2 text-base text-peligro" role="alert">
           {error}
         </p>
       )}
@@ -55,7 +55,7 @@ export default function ListaCobros({ cobros, onCambio }: { cobros: Cobro[]; onC
               {c.medio !== "mercadopago" &&
                 (confirmando === c.id ? (
                   <span className="flex gap-2">
-                    <button type="button" onClick={() => void borrar(c.id)} className="min-h-11 rounded-lg bg-[#c0392b] px-3 text-sm font-semibold text-white">
+                    <button type="button" onClick={() => void borrar(c.id)} className="min-h-11 rounded-lg bg-peligro px-3 text-sm font-semibold text-white">
                       Sí, borrar
                     </button>
                     <button type="button" onClick={() => setConfirmando(null)} className="min-h-11 px-2 text-sm text-ink-soft underline">

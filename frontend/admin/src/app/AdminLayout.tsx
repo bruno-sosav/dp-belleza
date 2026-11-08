@@ -80,7 +80,7 @@ export default function AdminLayout() {
             <img src="/logo/logo-circulo.png" alt="" className="h-9 w-9 shrink-0 rounded-full" />
             <span className="flex flex-col leading-none">
               <span className="font-brand text-lg text-ink">dppuntobelleza</span>
-              <span className="mt-1 text-[11px] font-medium uppercase tracking-[0.14em] text-leaf">Panel</span>
+              <span className="mt-1 text-xs font-medium uppercase tracking-[0.14em] text-leaf">Panel</span>
             </span>
           </Link>
           <div className="flex items-center gap-4 lg:hidden">
@@ -96,7 +96,7 @@ export default function AdminLayout() {
 
         <nav className="grid grid-cols-4 gap-1 px-3 pb-3 lg:flex lg:flex-1 lg:flex-col lg:px-3 lg:pb-0">
           {navItems.map((item) => (
-            <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => `${itemMenu} flex-col gap-1 px-1 py-2 text-xs lg:flex-row lg:gap-3 lg:px-3 lg:py-2.5 lg:text-[0.95rem] ${claseActivo(isActive)}`}>
+            <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => `${itemMenu} flex-col gap-1 px-1 py-2 text-sm lg:flex-row lg:gap-3 lg:px-3 lg:py-2.5 lg:text-[0.95rem] ${claseActivo(isActive)}`}>
               {item.icon}
               <span className="lg:hidden">{item.short ?? item.label}</span>
               <span className="hidden lg:inline">{item.label}</span>

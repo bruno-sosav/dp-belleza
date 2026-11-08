@@ -213,7 +213,7 @@ function Formulario({ servicio, categorias }: { servicio: ServicioAdmin | null; 
       </Panel>
 
       {error && (
-        <p className="rounded-lg bg-[#fbe4e2] px-4 py-3 text-base text-[#a12b28]" role="alert">
+        <p className="rounded-lg bg-peligro-claro px-4 py-3 text-base text-peligro" role="alert">
           {error}
         </p>
       )}

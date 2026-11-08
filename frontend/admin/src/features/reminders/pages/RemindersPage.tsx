@@ -76,7 +76,7 @@ export default function RemindersPage() {
       />
 
       {error && (
-        <p className="mb-4 rounded-lg bg-[#fbe4e2] px-4 py-3 text-base text-[#a12b28]" role="alert">
+        <p className="mb-4 rounded-lg bg-peligro-claro px-4 py-3 text-base text-peligro" role="alert">
           {error}
         </p>
       )}

@@ -41,7 +41,7 @@ export default function EliminarCliente({ id, nombre, tieneHistorial }: { id: nu
             type="button"
             onClick={eliminar}
             disabled={eliminando}
-            className="inline-flex min-h-12 items-center rounded-xl bg-[#c0392b] px-6 text-base font-semibold text-white transition hover:bg-[#a12b28] disabled:opacity-50"
+            className="inline-flex min-h-12 items-center rounded-xl bg-peligro px-6 text-base font-semibold text-white transition hover:bg-peligro/90 disabled:opacity-50"
           >
             {eliminando ? "Eliminando…" : "Sí, eliminar"}
           </button>
@@ -53,14 +53,14 @@ export default function EliminarCliente({ id, nombre, tieneHistorial }: { id: nu
         <button
           type="button"
           onClick={() => setConfirmando(true)}
-          className="inline-flex min-h-12 items-center gap-2 rounded-xl border-2 border-[#e9b9b6] px-6 text-base font-semibold text-[#a12b28] transition hover:border-[#c0392b] hover:bg-[#fbe4e2]"
+          className="inline-flex min-h-12 items-center gap-2 rounded-xl border-2 border-peligro/30 px-6 text-base font-semibold text-peligro transition hover:border-peligro hover:bg-peligro-claro"
         >
           <Icono nombre="tacho" />
           Eliminar clienta
         </button>
       )}
       {error && (
-        <p className="mt-3 rounded-lg bg-[#fbe4e2] px-3 py-2 text-base text-[#a12b28]" role="alert">
+        <p className="mt-3 rounded-lg bg-peligro-claro px-3 py-2 text-base text-peligro" role="alert">
           {error}
         </p>
       )}

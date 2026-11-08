@@ -142,7 +142,7 @@ export default function TodayPage() {
       </div>
 
       {agenda.error && (
-        <p className="mt-4 text-base text-[#a12b28]" role="alert">
+        <p className="mt-4 text-base text-peligro" role="alert">
           No se pudo actualizar la agenda: {agenda.error}
         </p>
       )}
@@ -151,7 +151,7 @@ export default function TodayPage() {
         <Panel
           title="Quedaron sin marcar"
           description="Son de días anteriores y nadie los marcó. Si no se marcan, esa plata no aparece en Finanzas."
-          className="mt-6 border-[#e9b9b6]"
+          className="mt-6 border-peligro/30"
         >
           <ul className="space-y-4">{sinMarcar.map((t) => fila(t, true))}</ul>
         </Panel>
@@ -163,13 +163,13 @@ export default function TodayPage() {
           className="mt-6 flex min-h-14 items-center justify-between gap-3 rounded-2xl border-2 border-[#25d366]/50 bg-[#e8f8ee] px-5 py-3 text-lg text-ink transition hover:border-[#25d366]"
         >
           <span className="flex items-center gap-3">
-            <Icono nombre="mensaje" className="h-6 w-6 text-[#14532d]" />
+            <Icono nombre="mensaje" className="h-6 w-6 text-exito" />
             <span>
               Tenés <strong>{recordatorios.datos!.paraMandar.length}</strong>{" "}
               {recordatorios.datos!.paraMandar.length === 1 ? "recordatorio para mandar" : "recordatorios para mandar"}
             </span>
           </span>
-          <span className="shrink-0 font-semibold text-[#14532d]">Ir →</span>
+          <span className="shrink-0 font-semibold text-exito">Ir →</span>
         </Link>
       )}
 
@@ -177,7 +177,7 @@ export default function TodayPage() {
         <Panel
           title="Cancelaron desde la web"
           description="Esos horarios ya quedaron libres para otras clientas."
-          className="mt-6 border-[#e9b9b6]"
+          className="mt-6 border-peligro/30"
         >
           <ul className="divide-y divide-cream-dark">
             {canceladosWeb.map((t) => (

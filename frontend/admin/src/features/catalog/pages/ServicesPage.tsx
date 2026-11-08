@@ -115,7 +115,7 @@ function FilaServicio({ servicio, onCambio }: { servicio: ServicioAdmin; onCambi
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <Link to={`/servicios/${servicio.id}`} className={`${primaryButtonClass} min-h-12 px-5 text-base`}>
+          <Link to={`/servicios/${servicio.id}`} className={`${secondaryButtonClass} min-h-12 px-5 text-base`}>
             Editar
           </Link>
           {servicio.activo ? (
@@ -141,7 +141,7 @@ function FilaServicio({ servicio, onCambio }: { servicio: ServicioAdmin; onCambi
       </div>
 
       {confirmando && (
-        <div className="mt-3 rounded-xl border border-[#e0b44a] bg-[#fdf3dc] p-4">
+        <div className="mt-3 rounded-xl border border-alerta/40 bg-alerta-claro p-4">
           <p className="text-base text-ink">
             Tiene {servicio.turnosProximos} {servicio.turnosProximos === 1 ? "turno pedido" : "turnos pedidos"}. Esos se
             mantienen; solo deja de aparecer en la web para nuevas reservas.
@@ -158,7 +158,7 @@ function FilaServicio({ servicio, onCambio }: { servicio: ServicioAdmin; onCambi
       )}
 
       {error && (
-        <p className="mt-2 rounded-lg bg-[#fbe4e2] px-3 py-2 text-base text-[#a12b28]" role="alert">
+        <p className="mt-2 rounded-lg bg-peligro-claro px-3 py-2 text-base text-peligro" role="alert">
           {error}
         </p>
       )}

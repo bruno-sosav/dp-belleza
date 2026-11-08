@@ -27,7 +27,7 @@ export default function SinVentas({ vendidos }: { vendidos: RankingApi[] | null 
                 <div className="h-9 w-8 shrink-0 rounded bg-cream-dark" />
               )}
               <span className="truncate text-ink">{p.nombre}</span>
-              <span className="ml-auto shrink-0 text-xs text-ink-soft">{p.stock} u.</span>
+              <span className="ml-auto shrink-0 text-sm text-ink-soft">{p.stock} u.</span>
             </li>
           ))}
         </ul>

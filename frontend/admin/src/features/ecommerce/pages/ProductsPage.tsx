@@ -75,7 +75,7 @@ export default function ProductsPage() {
         </AvisoOk>
       )}
       {errorAccion && (
-        <p role="alert" className="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+        <p role="alert" className="mt-6 rounded-lg border border-peligro/30 bg-peligro-claro px-4 py-3 text-sm text-peligro">
           {errorAccion}
         </p>
       )}
@@ -93,7 +93,7 @@ export default function ProductsPage() {
                 filter === t.value ? "bg-surface font-medium text-ink shadow-sm" : "text-ink-soft hover:text-ink"
               }`}
             >
-              {t.label} <span className="text-ink-soft/70">({counts[t.value]})</span>
+              {t.label} <span className="text-ink-soft">({counts[t.value]})</span>
             </button>
           ))}
         </div>
@@ -131,7 +131,7 @@ export default function ProductsPage() {
 
               <div className="min-w-0 flex-1">
                 <p className={`truncate font-medium ${p.activo ? "text-ink" : "text-ink-soft line-through"}`}>{p.nombre}</p>
-                <p className="mt-0.5 text-xs text-ink-soft">
+                <p className="mt-0.5 text-sm text-ink-soft">
                   {p.categoria?.nombre ?? "Sin categoría"} · {formatPrice(p.precio)}
                 </p>
               </div>
@@ -139,7 +139,7 @@ export default function ProductsPage() {
               <StockEditable producto={p} onCambio={recargar} />
 
               <span
-                className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${
+                className={`shrink-0 rounded-full px-2.5 py-1 text-sm font-medium ${
                   p.activo ? "bg-rose/25 text-rose-dark" : "bg-cream-dark text-ink-soft"
                 }`}
               >
@@ -167,7 +167,7 @@ export default function ProductsPage() {
                     <button
                       type="button"
                       onClick={() => setActivo(p.id, false)}
-                      className="rounded-lg bg-red-700 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-red-800"
+                      className="rounded-lg bg-peligro px-3 py-1.5 text-sm font-medium text-white transition hover:bg-peligro/90"
                     >
                       Confirmar baja
                     </button>
@@ -176,7 +176,7 @@ export default function ProductsPage() {
                   <button
                     type="button"
                     onClick={() => setConfirmingId(p.id)}
-                    className="rounded-lg border border-ink/20 px-3 py-1.5 text-sm text-ink transition hover:border-red-700 hover:text-red-700"
+                    className="rounded-lg border border-ink/20 px-3 py-1.5 text-sm text-ink transition hover:border-peligro hover:text-peligro"
                   >
                     Dar de baja
                   </button>

@@ -52,7 +52,7 @@ export default function UnirCliente({ cliente, onUnida }: { cliente: FichaCorta;
   if (otra) {
     return (
       <div className="space-y-4">
-        <div className="rounded-xl border border-[#e0b44a] bg-[#fdf3dc] p-4 text-base text-ink">
+        <div className="rounded-xl border border-alerta/40 bg-alerta-claro p-4 text-base text-ink">
           <p>
             Los turnos y compras de <strong>{nombreCompleto(otra)}</strong> ({formatTelefono(otra.telefono)}) se pasan a esta ficha, y esa ficha se borra.
           </p>
@@ -74,7 +74,7 @@ export default function UnirCliente({ cliente, onUnida }: { cliente: FichaCorta;
           </div>
         </fieldset>
         {error && (
-          <p className="rounded-lg bg-[#fbe4e2] px-3 py-2 text-base text-[#a12b28]" role="alert">
+          <p className="rounded-lg bg-peligro-claro px-3 py-2 text-base text-peligro" role="alert">
             {error}
           </p>
         )}

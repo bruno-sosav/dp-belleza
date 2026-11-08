@@ -34,8 +34,8 @@ export default function StockEditable({ producto, onCambio }: { producto: Produc
           setEditando(true)
         }}
         title="Corregir el stock"
-        className={`shrink-0 rounded-lg px-2.5 py-1 text-xs font-medium transition hover:ring-1 hover:ring-ink/30 ${
-          producto.stock === 0 ? "bg-red-50 text-red-700" : "bg-cream-dark text-ink"
+        className={`shrink-0 rounded-lg px-2.5 py-1 text-sm font-medium transition hover:ring-1 hover:ring-ink/30 ${
+          producto.stock === 0 ? "bg-peligro-claro text-peligro" : "bg-cream-dark text-ink"
         }`}
       >
         {producto.stock === 0 ? "Sin stock" : `${producto.stock} u.`}
@@ -56,19 +56,19 @@ export default function StockEditable({ producto, onCambio }: { producto: Produc
           className={`${inputClass} w-20 py-1 text-sm`}
           autoFocus
         />
-        <button type="button" onClick={() => setEditando(false)} className="px-2 py-1 text-xs text-ink-soft hover:text-ink">
+        <button type="button" onClick={() => setEditando(false)} className="px-2 py-1 text-sm text-ink-soft hover:text-ink">
           Cancelar
         </button>
         <button
           type="button"
           disabled={guardando || valor === "" || !Number.isInteger(Number(valor)) || Number(valor) < 0}
           onClick={guardar}
-          className="rounded-lg bg-forest px-2.5 py-1 text-xs font-medium text-white disabled:opacity-50"
+          className="rounded-lg bg-forest px-2.5 py-1 text-sm font-medium text-white disabled:opacity-50"
         >
           Guardar
         </button>
       </div>
-      {error && <p className="text-xs text-red-700">{error}</p>}
+      {error && <p className="text-sm text-peligro">{error}</p>}
     </div>
   )
 }

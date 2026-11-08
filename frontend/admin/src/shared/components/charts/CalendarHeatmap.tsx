@@ -20,7 +20,7 @@ const labelW = 34
 const monthRowH = 18
 const gap = 3
 
-/** Un cuadrado por día (más rojo = más movido). Columnas = semanas, filas = días, lunes arriba. */
+/** Un cuadrado por día (más oscuro = más movido). Columnas = semanas, filas = días, lunes arriba. */
 export default function CalendarHeatmap({ days, metric, selected, onSelect }: Props) {
   const [containerRef, width] = useElementWidth<HTMLDivElement>()
   const [hovered, setHovered] = useState<number | null>(null)

@@ -74,7 +74,7 @@ export default function LoginPage({ onSuccess }: { onSuccess: (usuario: Usuario)
           </div>
 
           {error && (
-            <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-700">
+            <p role="alert" className="rounded-lg bg-peligro-claro p-3 text-sm text-peligro">
               {error}
             </p>
           )}

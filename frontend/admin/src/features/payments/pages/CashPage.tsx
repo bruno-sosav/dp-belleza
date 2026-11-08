@@ -54,7 +54,7 @@ export default function CashPage() {
           </Panel>
 
           {caja.datos.sinCobrar.length > 0 && (
-            <Panel title="Falta cobrar" description="Turnos que se hicieron este día y todavía no se cobraron enteros." className="border-[#e0b44a]">
+            <Panel title="Falta cobrar" description="Turnos que se hicieron este día y todavía no se cobraron enteros." className="border-alerta/40">
               <TurnosSinCobrar turnos={caja.datos.sinCobrar} onCambio={caja.recargar} />
             </Panel>
           )}

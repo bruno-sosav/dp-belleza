@@ -135,7 +135,7 @@ export default function AnalysisPage() {
           ) : ranking.error ? (
             <ErrorCarga mensaje={ranking.error} onReintentar={ranking.recargar} />
           ) : (
-            <RankingList color={chartColors.services} countLabel={(n) => `${n} turnos`} items={ranking.datos ?? []} />
+            <RankingList color={chartColors.services} countLabel={(n) => `${n} ${n === 1 ? "turno" : "turnos"}`} items={ranking.datos ?? []} />
           )}
         </Panel>
       </div>

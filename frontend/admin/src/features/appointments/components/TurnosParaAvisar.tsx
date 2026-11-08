@@ -8,7 +8,7 @@ import Icono from "../../../shared/components/Icono"
 export default function TurnosParaAvisar({ turnos, motivo }: { turnos: TurnoParaAvisar[]; motivo: string }) {
   if (!turnos.length) return null
   return (
-    <div className="rounded-xl border border-[#e0b44a] bg-[#fdf3dc] p-4" role="status">
+    <div className="rounded-xl border border-alerta/40 bg-alerta-claro p-4" role="status">
       <p className="flex items-start gap-2 text-base font-semibold text-ink">
         <Icono nombre="alerta" className="mt-0.5 h-5 w-5 text-alerta" />
         {turnos.length === 1 ? "Hay 1 turno pedido" : `Hay ${turnos.length} turnos pedidos`} {motivo}.
@@ -16,7 +16,7 @@ export default function TurnosParaAvisar({ turnos, motivo }: { turnos: TurnoPara
       <p className="mt-1 text-sm text-ink-soft">
         No se cancelaron. Escribile a cada clienta para pasarlo a otro día; después lo cancelás desde Turnos.
       </p>
-      <ul className="mt-3 divide-y divide-[#e0b44a]/40">
+      <ul className="mt-3 divide-y divide-alerta/20">
         {turnos.map((t) => {
           const nombre = nombreCliente(t)
           const mensaje = `Hola ${t.cliente.nombre}! Te escribo por tu turno de ${t.servicio.nombre} del ${formatLongDate(t.fecha)} a las ${t.horaInicio}: ese día no vamos a poder atenderte. ¿Te parece si lo pasamos a otro día?`

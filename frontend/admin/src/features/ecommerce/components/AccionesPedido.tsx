@@ -46,8 +46,8 @@ export default function AccionesPedido({ pedido, onCambio }: { pedido: PedidoDet
         </p>
       )}
       {confirmandoBaja ? (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-          <p className="text-sm text-red-900">{avisoAlCancelar(pedido)}</p>
+        <div className="rounded-lg border border-peligro/30 bg-peligro-claro p-4">
+          <p className="text-sm text-peligro">{avisoAlCancelar(pedido)}</p>
           <div className="mt-3 flex flex-wrap gap-2">
             <button type="button" onClick={() => setConfirmandoBaja(false)} className={secondaryButtonClass}>
               Volver
@@ -56,7 +56,7 @@ export default function AccionesPedido({ pedido, onCambio }: { pedido: PedidoDet
               type="button"
               disabled={guardando}
               onClick={() => void mover("cancelado")}
-              className="rounded-lg bg-red-700 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-red-800 disabled:opacity-60"
+              className="rounded-lg bg-peligro px-5 py-2.5 text-sm font-medium text-white transition hover:bg-peligro/90 disabled:opacity-60"
             >
               Sí, cancelar el pedido
             </button>
@@ -78,7 +78,7 @@ export default function AccionesPedido({ pedido, onCambio }: { pedido: PedidoDet
         </div>
       )}
       {error && (
-        <p role="alert" className="mt-3 text-sm text-red-700">
+        <p role="alert" className="mt-3 text-sm text-peligro">
           {error}
         </p>
       )}

@@ -34,7 +34,7 @@ export default function PageHeader({ title, description, withPeriod = true, acti
               </button>
             ))}
           </div>
-          <span className="rounded-full bg-cream-dark px-2.5 py-1 text-xs text-ink-soft" title="Los turnos son de ejemplo, cargados en la base con database/seeds/seed_03_turnos_demo.sql. Se borran cuando entren los reales.">
+          <span className="rounded-full bg-cream-dark px-2.5 py-1 text-sm text-ink-soft" title="Los turnos son de ejemplo, cargados en la base con database/seeds/seed_03_turnos_demo.sql. Se borran cuando entren los reales.">
             Datos de demostración
           </span>
         </div>

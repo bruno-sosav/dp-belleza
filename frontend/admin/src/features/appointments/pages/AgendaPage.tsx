@@ -121,7 +121,7 @@ export default function AgendaPage() {
                       aria-pressed={activo}
                       className={`flex flex-col items-center rounded-xl py-2 transition ${activo ? "bg-forest text-white" : "text-ink hover:bg-cream-dark"}`}
                     >
-                      <span className="text-xs uppercase">{weekdayShort[d.getDay()]}</span>
+                      <span className="text-sm uppercase">{weekdayShort[d.getDay()]}</span>
                       <span className={`text-lg font-semibold ${fecha === ahora.fecha && !activo ? "text-rose-dark" : ""}`}>{d.getDate()}</span>
                       <span className={`mt-0.5 h-1.5 w-1.5 rounded-full ${cantidad ? (activo ? "bg-cream" : "bg-rose-dark") : "bg-transparent"}`} />
                     </button>

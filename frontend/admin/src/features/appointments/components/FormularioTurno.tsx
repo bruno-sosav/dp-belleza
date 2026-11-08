@@ -270,7 +270,7 @@ export default function FormularioTurno({
               )}
 
               {modo === "fuera" && (
-                <div className="mt-5 rounded-xl border border-[#e0b44a] bg-[#fdf3dc] p-4">
+                <div className="mt-5 rounded-xl border border-alerta/40 bg-alerta-claro p-4">
                   <label htmlFor="ft-hora" className={`${labelClass} text-base`}>Hora (fuera del horario de atención)</label>
                   <input
                     id="ft-hora"
@@ -288,7 +288,7 @@ export default function FormularioTurno({
               )}
 
               {modo === "pasado" && (
-                <div className="mt-5 rounded-xl border border-[#1f8a4c]/40 bg-[#dcf2e3] p-4">
+                <div className="mt-5 rounded-xl border border-exito/40 bg-exito-claro p-4">
                   <label htmlFor="ft-hora-pasada" className={`${labelClass} text-base`}>¿A qué hora vino?</label>
                   <input
                     id="ft-hora-pasada"
@@ -299,9 +299,9 @@ export default function FormularioTurno({
                     className={`${campo} max-w-[10rem]`}
                   />
                   {pasadoHoraFutura ? (
-                    <p className="mt-2 text-sm font-medium text-[#a12b28]">Esa hora todavía no llegó.</p>
+                    <p className="mt-2 text-sm font-medium text-peligro">Esa hora todavía no llegó.</p>
                   ) : (
-                    <p className="mt-2 text-sm text-[#14532d]">
+                    <p className="mt-2 text-sm text-exito">
                       {editando ? "Sigue figurando como lo marcaste." : "Se guarda como completado y suma en Finanzas."}
                     </p>
                   )}
@@ -333,7 +333,7 @@ export default function FormularioTurno({
           )}
 
           {error && (
-            <p className="rounded-lg bg-[#fbe4e2] px-3 py-2 text-base text-[#a12b28]" role="alert">
+            <p className="rounded-lg bg-peligro-claro px-3 py-2 text-base text-peligro" role="alert">
               {error}
             </p>
           )}

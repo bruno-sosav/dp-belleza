@@ -61,7 +61,7 @@ export default function CambiarContrasena() {
           Mostrar las contraseñas
         </label>
         {error && (
-          <p className="rounded-lg bg-[#fbe4e2] px-3 py-2 text-base text-[#a12b28]" role="alert">
+          <p className="rounded-lg bg-peligro-claro px-3 py-2 text-base text-peligro" role="alert">
             {error}
           </p>
         )}
