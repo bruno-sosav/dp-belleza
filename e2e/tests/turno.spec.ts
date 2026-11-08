@@ -49,7 +49,7 @@ test.describe.serial("Turno de punta a punta", () => {
     expect((await reserva).status()).toBe(201)
 
     await expect(page.getByRole("heading", { name: "¡Turno reservado!" })).toBeVisible()
-    codigo = (await page.getByText(/Código de turno: DP-\d+/).textContent())!.replace("Código de turno:", "").trim()
+    codigo = (await page.getByText(/^DP-\d+$/).textContent())!.trim()
     expect(codigo).toMatch(/^DP-\d+$/)
   })
 

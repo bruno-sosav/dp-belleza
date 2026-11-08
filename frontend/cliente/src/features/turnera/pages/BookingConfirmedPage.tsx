@@ -1,4 +1,4 @@
-import { useCallback } from "react"
+import { useCallback, useState } from "react"
 import { Link, useLocation, useSearchParams } from "react-router-dom"
 import type { ConfirmedBooking } from "../api/reserva.api"
 import { bookingCode, fetchConfirmedBooking } from "../api/reserva.api"
@@ -17,6 +17,33 @@ function Row({ label, value }: { label: string; value: string }) {
     <div className="flex items-start justify-between gap-4 border-b border-cream-dark py-3 text-sm last:border-0">
       <span className="text-ink-soft">{label}</span>
       <span className="text-right font-medium text-ink">{value}</span>
+    </div>
+  )
+}
+
+/** El código, grande y con "Copiar": es lo que la clienta necesita para ver o cancelar su turno. */
+function CodigoDeTurno({ codigo }: { codigo: string }) {
+  const [copiado, setCopiado] = useState(false)
+  const copiar = async () => {
+    try {
+      await navigator.clipboard.writeText(codigo)
+      setCopiado(true)
+      setTimeout(() => setCopiado(false), 2500)
+    } catch {
+      // Sin permiso para copiar: el código igual queda a la vista.
+    }
+  }
+  return (
+    <div className="mx-auto mt-8 max-w-md rounded border-2 border-dashed border-leaf/50 bg-surface px-6 py-6 text-center">
+      <p className="text-sm font-semibold uppercase tracking-[0.16em] text-leaf">Tu código de turno</p>
+      <p className="mt-2 font-mono text-4xl font-bold tracking-wider text-ink sm:text-5xl">{codigo}</p>
+      <button type="button" onClick={copiar} className={`${secondaryButtonClass} mt-4`}>
+        {copiado ? "¡Copiado!" : "Copiar código"}
+      </button>
+      <p className="mt-4 text-sm leading-relaxed text-ink-soft">
+        <strong className="text-ink">Anotalo o sacale una captura.</strong> Con este código y tu teléfono podés ver o cancelar tu turno
+        en <span className="font-medium text-ink">Mi turno</span>.
+      </p>
     </div>
   )
 }
@@ -72,10 +99,9 @@ export default function BookingConfirmedPage() {
             <span className="text-ink">{formatTime(booking.horaInicio)}</span>. Te confirmamos por WhatsApp
             al {contact.phone}.
           </p>
-          <p className="mt-4 inline-flex items-center gap-2 rounded-full bg-cream-dark px-4 py-1.5 text-xs font-medium tracking-wide text-ink-soft">
-            Código de turno: {bookingCode(booking.id)}
-          </p>
         </div>
+
+        <CodigoDeTurno codigo={bookingCode(booking.id)} />
 
         <div className={`${cardClass} mt-10`}>
           <h2 className="font-display text-base font-semibold text-ink">Detalle de tu turno</h2>
