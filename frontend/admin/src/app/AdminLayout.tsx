@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react"
 import type { ReactNode } from "react"
-import { Link, NavLink, Outlet } from "react-router-dom"
+import { Link, NavLink, Outlet, useLocation } from "react-router-dom"
 import LoginPage from "../features/auth/pages/LoginPage"
+import ErrorBoundary from "../shared/components/ErrorBoundary"
 import { cerrarSesion, EVENTO_SESION, haySesion, usuarioActual } from "../shared/lib/sesion"
 import type { Usuario } from "../shared/lib/sesion"
 import type { Period } from "../shared/lib/stats"
@@ -32,6 +33,7 @@ const navItems = [
 export default function AdminLayout() {
   const [usuario, setUsuario] = useState<Usuario | null>(usuarioActual)
   const [period, setPeriod] = useState<Period>(30)
+  const { pathname } = useLocation()
 
   // Si cambia el nombre en Ajustes → Tu cuenta, se actualiza "Sesión de …".
   useEffect(() => {
@@ -132,7 +134,9 @@ export default function AdminLayout() {
 
       <main className="min-w-0 flex-1 px-4 py-8 sm:px-6 lg:px-10 lg:py-10">
         <div className="mx-auto max-w-6xl">
-          <Outlet context={context} />
+          <ErrorBoundary key={pathname}>
+            <Outlet context={context} />
+          </ErrorBoundary>
         </div>
       </main>
     </div>
