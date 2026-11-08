@@ -28,8 +28,8 @@ jobs:
     name: Lint, tipos, build y tests unitarios
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
@@ -56,8 +56,8 @@ jobs:
           --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
           --health-interval=5s --health-timeout=5s --health-retries=20
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
@@ -79,7 +79,7 @@ jobs:
           for k, nombre in [("lines", "Líneas"), ("statements", "Sentencias"), ("branches", "Ramas"), ("functions", "Funciones")]:
               print(f"| {nombre} | {t[k]['pct']}% | {t[k]['covered']} / {t[k]['total']} |")
           EOF
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: reporte-cobertura
@@ -98,8 +98,8 @@ jobs:
           --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
           --health-interval=5s --health-timeout=5s --health-retries=20
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
@@ -110,7 +110,7 @@ jobs:
         run: bash .github/scripts/preparar-base.sh
       - name: Tests E2E (levanta la API, la web y el panel)
         run: npm run e2e
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: reporte-e2e
@@ -122,8 +122,8 @@ jobs:
     name: Complejidad ciclomática
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.13"
       - run: pip install lizard jinja2
@@ -143,7 +143,7 @@ jobs:
             echo '```'
             echo "El detalle de todas las funciones está en el artifact reporte-complejidad (HTML y CSV)."
           } >> "$GITHUB_STEP_SUMMARY"
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         with:
           name: reporte-complejidad
           path: reportes/
