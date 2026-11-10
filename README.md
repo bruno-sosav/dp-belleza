@@ -95,7 +95,8 @@ backend/src/
 │   ├── reminders/        recordatorios por WhatsApp
 │   ├── admin/            ajustes del negocio y estadísticas
 │   ├── auth/             login del panel y "Tu cuenta"
-│   └── orders/           pedidos de la tienda
+│   ├── orders/           pedidos de la tienda
+│   └── shipping/         envíos con Andreani (o el simulador del modo prueba)
 └── app.ts                monta las rutas de todos los módulos
 ```
 
@@ -169,7 +170,7 @@ admin/src/
 │   ├── ecommerce/        Pedidos, Ventas tienda y Productos
 │   ├── payments/         Finanzas → Caja
 │   ├── analytics/        Finanzas → Análisis
-│   ├── settings/         Ajustes: tu negocio, Mercado Pago
+│   ├── settings/         Ajustes: tu negocio, Mercado Pago, envíos
 │   └── auth/             login y "Tu cuenta"
 └── shared/               lo que usan varias secciones del panel
 

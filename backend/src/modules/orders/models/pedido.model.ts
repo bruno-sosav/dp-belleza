@@ -58,6 +58,23 @@ export type LineaConPrecio = Linea & { nombre: string; precioUnitario: number }
 /** Por qué no se puede comprar un producto. */
 export type ProblemaDeCompra = { productoId: number; motivo: string }
 
+/** Cómo recibe el pedido: retira en el local o se lo mandan (los datos del envío son de shipping). */
+export type Entrega = "retiro" | "envio"
+
+/** El envío de un pedido, como lo muestra el panel. */
+export type EnvioDelPedido = {
+  calle: string
+  ciudad: string
+  provincia: string
+  codigoPostal: string
+  costo: number
+  plazoDias: number | null
+  proveedor: "andreani" | "prueba"
+  estado: "a_despachar" | "despachado" | "entregado"
+  numeroSeguimiento: string | null
+  despachadoAt: string | null
+}
+
 export type ClientePedido = { id: number; nombre: string; apellido: string | null; telefono: string; email: string | null }
 
 /** Un pedido como lo lista el panel. */
@@ -68,13 +85,16 @@ export type PedidoResumen = {
   total: number
   notas: string | null
   unidades: number
+  entrega: Entrega
+  /** Solo si se envía. */
+  envioEstado: EnvioDelPedido["estado"] | null
   cliente: ClientePedido
   creadoEn: string
   actualizadoEn: string
 }
 
 /** Un pedido con sus líneas. */
-export type Pedido = Omit<PedidoResumen, "unidades"> & { items: LineaConPrecio[] }
+export type Pedido = Omit<PedidoResumen, "unidades" | "envioEstado"> & { items: LineaConPrecio[]; envio: EnvioDelPedido | null }
 
 /** Lo que se guarda al confirmar la compra. */
 export type NuevoPedido = {

@@ -1,6 +1,7 @@
 /** Lo que ENTRA por HTTP a orders, validado con zod. */
 import { z } from "zod"
 import { ESTADOS_PEDIDO } from "../models/pedido.model.js"
+import { direccionDeEnvio } from "../../shipping/shipping.module.js"
 
 export const idParam = z.coerce.number().int().positive()
 
@@ -22,6 +23,9 @@ export const nuevoPedido = z.object({
     .min(1, "El pedido no tiene productos")
     .max(50),
   notas: z.string().trim().max(1000).optional(),
+  entrega: z
+    .discriminatedUnion("tipo", [z.object({ tipo: z.literal("retiro") }), direccionDeEnvio.extend({ tipo: z.literal("envio") })])
+    .optional(),
 })
 
 /** Filtros de la lista del panel. */

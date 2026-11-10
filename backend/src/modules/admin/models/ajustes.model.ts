@@ -12,6 +12,10 @@ export const CLAVES_AJUSTES = [
   "sena_porcentaje",
   "reserva_anticipacion_min_horas",
   "reserva_anticipacion_max_dias",
+  "envio_modo",
+  "envio_gratis_desde",
+  "envio_cp_origen",
+  "envio_peso_unidad_g",
 ] as const
 export type ClaveAjuste = (typeof CLAVES_AJUSTES)[number]
 export type Ajustes = Partial<Record<ClaveAjuste, string>>
@@ -23,6 +27,8 @@ export const POR_DEFECTO = {
   sena_porcentaje: 0,
   reserva_anticipacion_min_horas: 2,
   reserva_anticipacion_max_dias: 60,
+  envio_gratis_desde: 0,
+  envio_peso_unidad_g: 300,
 } as const satisfies Partial<Record<ClaveAjuste, number>>
 export type AjusteNumerico = keyof typeof POR_DEFECTO
 
@@ -31,6 +37,12 @@ export function comoNumero(ajustes: Ajustes, clave: AjusteNumerico): number {
   const n = Number(valor)
   return valor !== undefined && valor !== "" && Number.isFinite(n) ? n : POR_DEFECTO[clave]
 }
+
+/** Envíos de la tienda: desactivado (solo retiro), prueba (simula Andreani) o andreani (la cuenta del local). */
+export const MODOS_ENVIO = ["desactivado", "prueba", "andreani"] as const
+export type ModoEnvio = (typeof MODOS_ENVIO)[number]
+
+export const modoEnvio = (ajustes: Ajustes): ModoEnvio => (MODOS_ENVIO as readonly string[]).includes(ajustes.envio_modo ?? "") ? (ajustes.envio_modo as ModoEnvio) : "desactivado"
 
 /** El código de área del local (2 a 4 números, sin el 0), o undefined si no está bien cargado. */
 export function codigoAreaValido(valor: string | undefined): string | undefined {

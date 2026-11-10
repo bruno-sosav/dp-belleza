@@ -4,8 +4,9 @@ import { catalogo } from "../../catalog/catalog.module.js"
 import { clientes } from "../../customers/customers.module.js"
 import { inventario } from "../../inventory/inventory.module.js"
 import { pagos } from "../../payments/payments.module.js"
+import { envios } from "../../shipping/shipping.module.js"
 import { referenciaDePedido } from "../models/pedido.model.js"
-import type { CajaDePedidos, CatalogoDePedidos, ClientesDePedidos, InventarioDePedidos, PasarelaDePedidos } from "../models/pedidos.ports.js"
+import type { CajaDePedidos, CatalogoDePedidos, ClientesDePedidos, EnviosDePedidos, InventarioDePedidos, PasarelaDePedidos } from "../models/pedidos.ports.js"
 
 /** Clientas: el módulo customers (la misma ficha que usa la turnera). */
 export const clientesDePedidos: ClientesDePedidos = {
@@ -41,4 +42,13 @@ export const pasarelaDePedidos: PasarelaDePedidos = {
 /** La caja: el módulo payments. */
 export const cajaDePedidos: CajaDePedidos = {
   cobrar: (c, tx) => pagos.cobrarPedido(c, tx),
+}
+
+/** Envíos: el módulo shipping. */
+export const enviosDePedidos: EnviosDePedidos = {
+  cotizar: (d) => envios.cotizar(d),
+  registrar: (pedidoId, destino, c, tx) => envios.registrar(pedidoId, destino, c, tx),
+  despachar: (d) => envios.despachar(d),
+  seguimiento: (pedidoId) => envios.seguimiento(pedidoId),
+  marcarEntregado: (pedidoId, tx) => envios.marcarEntregado(pedidoId, tx),
 }

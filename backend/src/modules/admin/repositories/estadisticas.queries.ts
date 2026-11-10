@@ -24,9 +24,11 @@ export class MySqlConsultasDeEstadisticas implements ConsultasDeEstadisticas {
 
   async ventasPorDia(desde: string, hasta: string) {
     const [rows] = await ejecutor().query<RowDataPacket[]>(
-      `SELECT DATE(created_at) AS fecha, SUM(total) AS ventas, COUNT(*) AS pedidos
-         FROM pedidos
-        WHERE estado IN (?) AND created_at >= ? AND created_at < ?
+      // Ventas = productos: el envío se le paga a Andreani, no es ganancia de la tienda.
+      `SELECT DATE(p.created_at) AS fecha, SUM(p.total - COALESCE(e.costo, 0)) AS ventas, COUNT(*) AS pedidos
+         FROM pedidos p
+         LEFT JOIN envios e ON e.pedido_id = p.id
+        WHERE p.estado IN (?) AND p.created_at >= ? AND p.created_at < ?
         GROUP BY fecha`,
       [ESTADOS_DE_VENTA, desde, hasta],
     )

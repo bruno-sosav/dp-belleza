@@ -5,20 +5,33 @@ import type { UnidadDeTrabajo } from "../../../core/transaccion.port.js"
 import type {
   CatalogoDePedidos,
   ClientesDePedidos,
+  CotizacionDeEnvio,
+  DireccionDeEnvio,
+  EnviosDePedidos,
   InventarioDePedidos,
   PasarelaDePedidos,
   PedidoRepository,
 } from "../models/pedidos.ports.js"
-import { agruparItems, totalDe, type Linea, type LineaConPrecio, type ProblemaDeCompra } from "../models/pedido.model.js"
+import { agruparItems, redondear, totalDe, type Linea, type LineaConPrecio, type ProblemaDeCompra } from "../models/pedido.model.js"
 
 export type EntradaCompra = {
   cliente: { nombre: string; apellido?: string; telefono: string; email?: string }
   items: Linea[]
   notas?: string
+  /** Sin entrega, o "retiro": retira en el local. */
+  entrega?: { tipo: "retiro" } | ({ tipo: "envio" } & DireccionDeEnvio)
 }
 
 /** `pagoToken`: con Mercado Pago conectado, para ir a pagar (y volver). null = se coordina por WhatsApp. */
-export type PedidoCreado = { id: number; estado: "pendiente"; total: number; items: LineaConPrecio[]; pagoToken: string | null }
+export type PedidoCreado = {
+  id: number
+  estado: "pendiente"
+  /** Productos + envío: lo que se cobra. */
+  total: number
+  items: LineaConPrecio[]
+  envio: { costo: number; plazoDias: number | null; gratis: boolean } | null
+  pagoToken: string | null
+}
 
 const nuevoToken = () => randomBytes(16).toString("hex")
 
@@ -35,6 +48,7 @@ export class CrearPedido {
     private catalogo: CatalogoDePedidos,
     private inventario: InventarioDePedidos,
     private pasarela: PasarelaDePedidos,
+    private envios: EnviosDePedidos,
     private uow: UnidadDeTrabajo,
   ) {}
 
@@ -66,10 +80,28 @@ export class CrearPedido {
         const p = vendibles.get(i.productoId)!
         return { ...i, nombre: p.nombre, precioUnitario: p.precio }
       })
-      const total = totalDe(lineas)
+      const subtotal = totalDe(lineas)
+      // El envío se cotiza con el subtotal real (de la base): el de la web era solo para mostrar.
+      const entrega = entrada.entrega
+      let envio: CotizacionDeEnvio | null = null
+      if (entrega?.tipo === "envio") {
+        envio = await this.envios.cotizar({ codigoPostal: entrega.codigoPostal, unidades: lineas.reduce((n, l) => n + l.cantidad, 0), subtotal })
+      }
+      const total = redondear(subtotal + (envio?.costo ?? 0))
       const id = await this.pedidos.crear({ clienteId, total, notas: entrada.notas ?? null, lineas, pago }, tx)
+      if (entrega?.tipo === "envio" && envio) {
+        const { tipo: _, ...destino } = entrega
+        await this.envios.registrar(id, destino, envio, tx)
+      }
 
-      return { id, estado: "pendiente", total, items: lineas, pagoToken: pago?.token ?? null }
+      return {
+        id,
+        estado: "pendiente",
+        total,
+        items: lineas,
+        envio: envio && { costo: envio.costo, plazoDias: envio.plazoDias, gratis: envio.gratis },
+        pagoToken: pago?.token ?? null,
+      }
     })
   }
 }

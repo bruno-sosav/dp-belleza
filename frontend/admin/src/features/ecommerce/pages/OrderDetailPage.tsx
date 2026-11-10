@@ -8,6 +8,7 @@ import { whatsappCliente } from "../../../shared/lib/whatsapp"
 import { nombreCliente, usePedido, type PedidoDetalle } from "../api/pedidos.api"
 import AccionesPedido from "../components/AccionesPedido"
 import EstadoPedido from "../components/EstadoPedido"
+import PanelEnvio from "../components/PanelEnvio"
 
 const textoDelPago = (p: PedidoDetalle) =>
   p.pagoEstado === "pagado"
@@ -56,6 +57,12 @@ export default function OrderDetailPage() {
                   <span className="tabular-nums text-ink-soft">{formatPrice(i.subtotal)}</span>
                 </li>
               ))}
+              {pedido.envio && (
+                <li className="flex items-baseline justify-between gap-4 py-2.5">
+                  <span className="text-ink">Envío</span>
+                  <span className="tabular-nums text-ink-soft">{pedido.envio.costo ? formatPrice(pedido.envio.costo) : "Gratis"}</span>
+                </li>
+              )}
             </ul>
             <div className="mt-2 flex justify-between border-t border-cream-dark pt-3">
               <span className="font-medium text-ink">Total</span>
@@ -63,9 +70,13 @@ export default function OrderDetailPage() {
             </div>
           </Panel>
 
-          <Panel title="Entrega y comentarios">
-            <p className="whitespace-pre-line text-sm text-ink">{pedido.notas || "Sin comentarios."}</p>
-          </Panel>
+          <PanelEnvio pedido={pedido} onCambio={setActualizado} />
+
+          {pedido.notas && (
+            <Panel title="Comentarios de la clienta">
+              <p className="whitespace-pre-line text-sm text-ink">{pedido.notas}</p>
+            </Panel>
+          )}
 
           <Panel title="Pago">
             <p className="text-sm text-ink">{textoDelPago(pedido)}</p>

@@ -8,6 +8,7 @@ import { PagarPedido } from "../../src/modules/orders/services/pagos.usecases.js
 import type {
   CajaDePedidos,
   CatalogoDePedidos,
+  EnviosDePedidos,
   ClientesDePedidos,
   InventarioDePedidos,
   PasarelaDePedidos,
@@ -65,6 +66,20 @@ const pasarela: PasarelaDePedidos = {
   },
   consultarPago: async (id) => pagosDeMp.get(id)!,
 }
+/** Envíos de mentira: cobra 5000 salvo al CP 1000, que es gratis; anota lo registrado y lo entregado. */
+const registrados = new Map<number, { codigoPostal: string; costo: number }>()
+const entregados: number[] = []
+const envios: EnviosDePedidos = {
+  cotizar: async ({ codigoPostal }) => ({ costo: codigoPostal === "1000" ? 0 : 5000, plazoDias: 3, gratis: codigoPostal === "1000", proveedor: "prueba" }),
+  registrar: async (pedidoId, destino, c) => {
+    registrados.set(pedidoId, { codigoPostal: destino.codigoPostal, costo: c.costo })
+  },
+  despachar: async () => undefined,
+  seguimiento: async () => [],
+  marcarEntregado: async (pedidoId) => {
+    entregados.push(pedidoId)
+  },
+}
 const cobrados: { pedidoId: number; monto: number; pagoId: number }[] = []
 const caja: CajaDePedidos = {
   cobrar: async (c) => {
@@ -105,7 +120,22 @@ class PedidosEnMemoria implements PedidoRepository, PedidosQueries {
     const p = this.guardados.get(id)
     if (!p) return null
     const cliente = { id: p.clienteId, nombre: "Ana", apellido: null, telefono: "5492231234567", email: null }
-    return { id, estado: p.estado, pagoEstado: p.pagoEstado, total: p.total, notas: p.notas, cliente, creadoEn: "", actualizadoEn: "", items: p.lineas }
+    const envio = registrados.get(id)
+    return {
+      id,
+      estado: p.estado,
+      pagoEstado: p.pagoEstado,
+      total: p.total,
+      notas: p.notas,
+      cliente,
+      creadoEn: "",
+      actualizadoEn: "",
+      items: p.lineas,
+      entrega: envio ? ("envio" as const) : ("retiro" as const),
+      envio: envio
+        ? { calle: "Colón 1", ciudad: "MdP", provincia: "Buenos Aires", codigoPostal: envio.codigoPostal, costo: envio.costo, plazoDias: 3, proveedor: "prueba" as const, estado: "a_despachar" as const, numeroSeguimiento: null, despachadoAt: null }
+        : null,
+    }
   }
 }
 
@@ -130,7 +160,9 @@ beforeEach(() => {
   pagosDeMp.clear()
   links.length = 0
   cobrados.length = 0
-  crear = new CrearPedido(repo, clientes, catalogo, inventario, pasarela, uow)
+  registrados.clear()
+  entregados.length = 0
+  crear = new CrearPedido(repo, clientes, catalogo, inventario, pasarela, envios, uow)
 })
 
 describe("CrearPedido (checkout)", () => {
@@ -168,7 +200,7 @@ describe("CrearPedido (checkout)", () => {
 
 describe("CambiarEstadoPedido (panel)", () => {
   const cambiar = (id: number, estado: EstadoPedido) =>
-    new CambiarEstadoPedido(repo, inventario, new VerPedido(repo), uow).ejecutar(id, estado)
+    new CambiarEstadoPedido(repo, inventario, envios, new VerPedido(repo), uow).ejecutar(id, estado)
 
   it("sigue el flujo pendiente → confirmado → entregado", async () => {
     const { id } = await compra([{ productoId: 1, cantidad: 1 }])
@@ -254,8 +286,47 @@ describe("pago con Mercado Pago", () => {
   it("un pedido cancelado ya no se puede pagar; un token desconocido no existe", async () => {
     conectado = true
     const p = await compra([{ productoId: 1, cantidad: 1 }])
-    await new CambiarEstadoPedido(repo, inventario, new VerPedido(repo), uow).ejecutar(p.id, "cancelado")
+    await new CambiarEstadoPedido(repo, inventario, envios, new VerPedido(repo), uow).ejecutar(p.id, "cancelado")
     expect(await tipoDeError(pagar().link(p.pagoToken!))).toBe("conflicto")
     expect(await tipoDeError(pagar().link("f".repeat(32)))).toBe("no_encontrado")
+  })
+})
+
+describe("envío a domicilio", () => {
+  const conEnvio = (codigoPostal: string, items: Linea[]) =>
+    crear.ejecutar({
+      cliente: { nombre: "Ana", telefono: "2231234567" },
+      items,
+      entrega: { tipo: "envio", calle: "Colón 1234", ciudad: "Mar del Plata", provincia: "Buenos Aires", codigoPostal },
+    })
+
+  it("suma el envío al total y lo registra con la dirección", async () => {
+    const p = await conEnvio("7600", [{ productoId: 1, cantidad: 1 }])
+    expect(p.total).toBe(18900 + 5000)
+    expect(p.envio).toEqual({ costo: 5000, plazoDias: 3, gratis: false })
+    expect(registrados.get(p.id)).toEqual({ codigoPostal: "7600", costo: 5000 })
+  })
+
+  it("retirando en el local no hay envío", async () => {
+    const p = await compra([{ productoId: 1, cantidad: 1 }])
+    expect(p.envio).toBeNull()
+    expect(p.total).toBe(18900)
+    expect(registrados.size).toBe(0)
+  })
+
+  it("el link de Mercado Pago cobra también el envío", async () => {
+    conectado = true
+    const p = await conEnvio("7600", [{ productoId: 1, cantidad: 1 }])
+    await new PagarPedido(repo, repo, pasarela, caja, uow).link(p.pagoToken!)
+    expect(links.at(-1)).toEqual({ pedidoId: p.id, token: p.pagoToken })
+  })
+
+  it("al marcar el pedido entregado, el envío también", async () => {
+    const p = await conEnvio("1000", [{ productoId: 1, cantidad: 1 }])
+    expect(p.envio?.gratis).toBe(true)
+    const cambiar = new CambiarEstadoPedido(repo, inventario, envios, new VerPedido(repo), uow)
+    await cambiar.ejecutar(p.id, "confirmado")
+    await cambiar.ejecutar(p.id, "entregado")
+    expect(entregados).toEqual([p.id])
   })
 })

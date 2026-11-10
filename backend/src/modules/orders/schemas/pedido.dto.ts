@@ -11,10 +11,17 @@ const aLinea = (l: LineaConPrecio) => ({
 })
 
 /** La respuesta del checkout: lo justo para mostrarle a la clienta su compra. `pagoToken` null = sin Mercado Pago. */
-export const aPedidoCreado = (p: PedidoCreado) => ({ id: p.id, estado: p.estado, total: p.total, items: p.items.map(aLinea), pagoToken: p.pagoToken })
+export const aPedidoCreado = (p: PedidoCreado) => ({ id: p.id, estado: p.estado, total: p.total, items: p.items.map(aLinea), envio: p.envio, pagoToken: p.pagoToken })
 
 /** El pedido como lo ve la clienta al volver de Mercado Pago: sin datos de la clienta. */
-export const aPedidoPublico = (p: Pedido) => ({ id: p.id, estado: p.estado, pagoEstado: p.pagoEstado, total: p.total, items: p.items.map(aLinea) })
+export const aPedidoPublico = (p: Pedido) => ({
+  id: p.id,
+  estado: p.estado,
+  pagoEstado: p.pagoEstado,
+  total: p.total,
+  items: p.items.map(aLinea),
+  envio: p.envio ? { costo: p.envio.costo } : null,
+})
 
 export const aLinkDePago = (link: string) => ({ link })
 
@@ -26,6 +33,8 @@ export const aPedidoResumen = (p: PedidoResumen) => ({
   total: p.total,
   notas: p.notas,
   unidades: p.unidades,
+  entrega: p.entrega,
+  envioEstado: p.envioEstado,
   cliente: p.cliente,
   creadoEn: p.creadoEn,
   actualizadoEn: p.actualizadoEn,
@@ -42,4 +51,8 @@ export const aPedidoDetalle = (p: Pedido) => ({
   creadoEn: p.creadoEn,
   actualizadoEn: p.actualizadoEn,
   items: p.items.map(aLinea),
+  entrega: p.entrega,
+  envio: p.envio,
 })
+
+export const aSeguimiento = (eventos: { fecha: string; estado: string; detalle: string | null }[]) => eventos.map((e) => ({ fecha: e.fecha, estado: e.estado, detalle: e.detalle }))

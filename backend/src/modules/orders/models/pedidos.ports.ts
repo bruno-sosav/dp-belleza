@@ -60,6 +60,17 @@ export interface CajaDePedidos {
   cobrar(c: { pedidoId: number; clienteId: number; monto: number; pagoId: number }, tx: Transaccion): Promise<void>
 }
 
+/** Envíos: el módulo shipping. */
+export type DireccionDeEnvio = { calle: string; ciudad: string; provincia: string; codigoPostal: string }
+export type CotizacionDeEnvio = { costo: number; plazoDias: number | null; gratis: boolean; proveedor: "andreani" | "prueba" }
+export interface EnviosDePedidos {
+  cotizar(d: { codigoPostal: string; unidades: number; subtotal: number }): Promise<CotizacionDeEnvio>
+  registrar(pedidoId: number, destino: DireccionDeEnvio, c: CotizacionDeEnvio, tx: Transaccion): Promise<void>
+  despachar(d: { pedidoId: number; estadoPedido: string; destinatario: { nombre: string; telefono: string; email: string | null }; unidades: number; valor: number }): Promise<unknown>
+  seguimiento(pedidoId: number): Promise<{ fecha: string; estado: string; detalle: string | null }[]>
+  marcarEntregado(pedidoId: number, tx: Transaccion): Promise<void>
+}
+
 /** Stock: el módulo inventory. */
 export interface InventarioDePedidos {
   reservar(lineas: Linea[], tx: Transaccion): Promise<{ ok: true } | { ok: false; problemas: ProblemaDeCompra[] }>

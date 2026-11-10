@@ -20,6 +20,11 @@ export const cambiosAjustes = z
     reserva_anticipacion_max_dias: z.number().int().min(1).max(365),
     // 0 = puede cancelar hasta que empiece el turno.
     cancelacion_horas_minimas: z.number().int().min(0).max(168),
+    // Envíos de la tienda (Ajustes → Envíos).
+    envio_modo: z.enum(["desactivado", "prueba", "andreani"]),
+    envio_gratis_desde: z.number().int().min(0).max(100_000_000),
+    envio_cp_origen: z.union([z.literal(""), z.string().trim().regex(/^\d{4}$/, "El código postal tiene 4 números")]),
+    envio_peso_unidad_g: z.number().int().min(1).max(50_000),
     intervalo_turnos_min: z.union([z.literal(5), z.literal(10), z.literal(15), z.literal(20), z.literal(30), z.literal(60)]),
   })
   .partial()

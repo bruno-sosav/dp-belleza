@@ -8,6 +8,26 @@ export type EstadoPedido = "pendiente" | "confirmado" | "entregado" | "cancelado
 /** null = el pago se coordina por WhatsApp; "pendiente" = esperando el pago de Mercado Pago. */
 export type PagoEstado = "pendiente" | "pagado" | null
 
+/** Retira en el local o se lo mandan por Andreani (o el simulador del modo prueba). */
+export type Entrega = "retiro" | "envio"
+export type EstadoEnvio = "a_despachar" | "despachado" | "entregado"
+
+export type Envio = {
+  calle: string
+  ciudad: string
+  provincia: string
+  codigoPostal: string
+  /** Lo que pagó la clienta (0 = gratis). */
+  costo: number
+  plazoDias: number | null
+  proveedor: "andreani" | "prueba"
+  estado: EstadoEnvio
+  numeroSeguimiento: string | null
+  despachadoAt: string | null
+}
+
+export type EventoDeSeguimiento = { fecha: string; estado: string; detalle: string | null }
+
 type ClientePedido = { id: number; nombre: string; apellido: string | null; telefono: string; email: string | null }
 
 export type PedidoResumen = {
@@ -17,14 +37,17 @@ export type PedidoResumen = {
   total: number
   notas: string | null
   unidades: number
+  entrega: Entrega
+  envioEstado: EstadoEnvio | null
   cliente: ClientePedido
   /** "2026-10-15 10:32:00" */
   creadoEn: string
   actualizadoEn: string
 }
 
-export type PedidoDetalle = Omit<PedidoResumen, "unidades"> & {
+export type PedidoDetalle = Omit<PedidoResumen, "unidades" | "envioEstado"> & {
   items: { productoId: number; nombre: string; cantidad: number; precioUnitario: number; subtotal: number }[]
+  envio: Envio | null
 }
 
 /** A qué estados se puede pasar desde cada uno (el backend lo vuelve a validar). */
@@ -62,4 +85,15 @@ export function usePedidosPendientes() {
     return [...pendientes, ...confirmados].sort((a, b) => a.creadoEn.localeCompare(b.creadoEn))
   }, [])
   return useApi(pedir)
+}
+
+/** Genera el envío con Andreani (o el simulador). Solo con el pedido confirmado. */
+export function despacharEnvio(id: number) {
+  return api<PedidoDetalle>(`/api/admin/pedidos/${id}/envio/despachar`, { metodo: "POST" })
+}
+
+/** El seguimiento del paquete. `pedir` false: todavía no se pidió (se carga al abrirlo). */
+export function useSeguimiento(id: number, pedir: boolean) {
+  const consultar = useCallback(() => (pedir ? api<EventoDeSeguimiento[]>(`/api/admin/pedidos/${id}/envio/seguimiento`) : Promise.resolve(null)), [id, pedir])
+  return useApi(consultar)
 }

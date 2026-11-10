@@ -5,7 +5,7 @@
 import { relojDelSistema } from "../../core/reloj.port.js"
 import { GuardarAjustes, LeerAjustes, VerAjustesPublicos, type ConexionConTelefonos } from "./services/ajustes.usecases.js"
 import { VerEstadisticas } from "./services/estadisticas.usecases.js"
-import type { NormalizadorDeTelefono } from "./models/ajustes.model.js"
+import { comoNumero, modoEnvio, type NormalizadorDeTelefono } from "./models/ajustes.model.js"
 import { MySqlAjustesRepository } from "./repositories/ajustes.repository.js"
 import { MySqlConsultasDeEstadisticas } from "./repositories/estadisticas.queries.js"
 import { mercadoPagoDelLocal } from "./integrations/mercadoPago.adapter.js"
@@ -43,6 +43,21 @@ export const ajustes = {
   /** El % configurado (si se cobra o no depende además de Mercado Pago: eso lo decide turnos). */
   porcentajeSena: () => leer.numero("sena_porcentaje"),
   horasParaCancelar: () => leer.numero("cancelacion_horas_minimas"),
+  /** Dirección, email y WhatsApp del local (el remitente de los envíos). */
+  contacto: async () => {
+    const a = await leer.todos()
+    return { direccion: a.direccion_negocio ?? "", email: a.email_negocio ?? "", telefono: a.telefono_negocio ?? "" }
+  },
+  /** Cómo envía la tienda (lo usa shipping). */
+  envios: async () => {
+    const a = await leer.todos()
+    return {
+      modo: modoEnvio(a),
+      gratisDesde: comoNumero(a, "envio_gratis_desde"),
+      cpOrigen: a.envio_cp_origen ?? "",
+      pesoUnidadG: comoNumero(a, "envio_peso_unidad_g"),
+    }
+  },
 }
 
 /** Lo que las estadísticas ofrecen al resto del sistema. */

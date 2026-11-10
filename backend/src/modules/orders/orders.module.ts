@@ -5,13 +5,13 @@
  */
 import { unidadDeTrabajoMySql } from "../../core/database/unidadDeTrabajo.database.js"
 import { CrearPedido } from "./services/checkout.usecases.js"
-import { CambiarEstadoPedido, ListarPedidos, VerPedido } from "./services/pedidos.usecases.js"
+import { CambiarEstadoPedido, EnvioDelPedido, ListarPedidos, VerPedido } from "./services/pedidos.usecases.js"
 import { PagarPedido } from "./services/pagos.usecases.js"
 import type { PagoDePedido } from "./models/pedido.model.js"
 import { MySqlPedidoRepository } from "./repositories/pedido.repository.js"
 import { MySqlPedidosQueries } from "./repositories/pedidos.queries.js"
 import { pagos } from "../payments/payments.module.js"
-import { cajaDePedidos, catalogoDePedidos, clientesDePedidos, inventarioDePedidos, pasarelaDePedidos } from "./integrations/pedidos.adapter.js"
+import { cajaDePedidos, catalogoDePedidos, clientesDePedidos, enviosDePedidos, inventarioDePedidos, pasarelaDePedidos } from "./integrations/pedidos.adapter.js"
 import { CheckoutController } from "./controllers/checkout.controller.js"
 import { PedidosController } from "./controllers/pedidos.controller.js"
 import { rutasWebCheckout } from "./controllers/checkout.routes.js"
@@ -24,7 +24,7 @@ const verPedido = new VerPedido(queries)
 const pagar = new PagarPedido(repo, queries, pasarelaDePedidos, cajaDePedidos, unidadDeTrabajoMySql)
 
 const checkout = new CheckoutController(
-  new CrearPedido(repo, clientesDePedidos, catalogoDePedidos, inventarioDePedidos, pasarelaDePedidos, unidadDeTrabajoMySql),
+  new CrearPedido(repo, clientesDePedidos, catalogoDePedidos, inventarioDePedidos, pasarelaDePedidos, enviosDePedidos, unidadDeTrabajoMySql),
   pagar,
 )
 
@@ -33,7 +33,8 @@ pagos.conectarPedidos({ aplicarPago: (pedidoId, pago) => pagar.aplicar(pedidoId,
 const panel = new PedidosController({
   listar: new ListarPedidos(queries),
   ver: verPedido,
-  cambiarEstado: new CambiarEstadoPedido(repo, inventarioDePedidos, verPedido, unidadDeTrabajoMySql),
+  cambiarEstado: new CambiarEstadoPedido(repo, inventarioDePedidos, enviosDePedidos, verPedido, unidadDeTrabajoMySql),
+  envio: new EnvioDelPedido(enviosDePedidos, verPedido),
 })
 
 /** Lo que orders ofrece al resto del sistema. */

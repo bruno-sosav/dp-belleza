@@ -5,6 +5,7 @@ export type NuevoPedido = {
   cliente: { nombre: string; apellido?: string; telefono: string; email?: string }
   items: { productoId: number; cantidad: number }[]
   notas?: string
+  entrega: { tipo: "retiro" } | { tipo: "envio"; calle: string; ciudad: string; provincia: string; codigoPostal: string }
 }
 
 type LineaDePedido = { productoId: number; nombre: string; cantidad: number; precioUnitario: number; subtotal: number }
@@ -15,6 +16,8 @@ export type PedidoCreado = {
   /** Con los precios de la base: es lo que se cobra. */
   total: number
   items: LineaDePedido[]
+  /** null si retira en el local. */
+  envio: { costo: number; plazoDias: number | null; gratis: boolean } | null
   /** Con Mercado Pago conectado, para ir a pagar y volver. null = el pago se coordina por WhatsApp. */
   pagoToken: string | null
 }
@@ -26,6 +29,7 @@ export type PedidoPagable = {
   pagoEstado: "pendiente" | "pagado" | null
   total: number
   items: LineaDePedido[]
+  envio: { costo: number } | null
 }
 
 /** Un producto que no se pudo comprar (409): dado de baja o sin stock suficiente. */

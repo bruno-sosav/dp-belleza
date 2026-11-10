@@ -1,6 +1,6 @@
 /** Casos de uso de los ajustes del negocio. */
 import { invalido } from "../../../core/negocio.error.js"
-import { codigoAreaValido, comoNumero, type Ajustes, type AjusteNumerico, type ClaveAjuste, type NormalizadorDeTelefono } from "../models/ajustes.model.js"
+import { codigoAreaValido, comoNumero, modoEnvio, type Ajustes, type AjusteNumerico, type ClaveAjuste, type NormalizadorDeTelefono } from "../models/ajustes.model.js"
 import type { AjustesRepository, MercadoPagoDelLocal } from "../models/admin.ports.js"
 
 /** Las clientas se conectan después (desde su módulo): hasta entonces, no hay. */
@@ -79,6 +79,8 @@ export class VerAjustesPublicos {
       // Misma regla que al reservar (ReservarTurno): sin Mercado Pago conectado no se cobra seña.
       senaPorcentaje: conectado ? comoNumero(a, "sena_porcentaje") : 0,
       mercadopagoPublicKey: publicKey,
+      envios: modoEnvio(a) !== "desactivado",
+      envioGratisDesde: comoNumero(a, "envio_gratis_desde"),
     }
   }
 }

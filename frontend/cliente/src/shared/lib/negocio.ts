@@ -20,6 +20,10 @@ export type Negocio = {
   senaPorcentaje: number
   /** Si el local tiene Mercado Pago conectado (la tienda cobra por ahí). */
   mercadoPago: boolean
+  /** Si la tienda hace envíos a domicilio (si no, solo retiro). */
+  envios: boolean
+  /** Monto de productos desde el que el envío es gratis. 0 = nunca. */
+  envioGratisDesde: number
   /** Reglas de la reserva: con cuántas horas como mínimo y hasta cuántos días para adelante. */
   reservaMinHoras: number
   reservaMaxDias: number
@@ -42,6 +46,8 @@ async function cargar(): Promise<Negocio> {
     cancelacionHoras: Number(config?.cancelacionHoras ?? 24),
     senaPorcentaje: Number(config?.senaPorcentaje ?? 0),
     mercadoPago: Boolean(config?.mercadopagoPublicKey),
+    envios: Boolean(config?.envios),
+    envioGratisDesde: Number(config?.envioGratisDesde ?? 0),
     reservaMinHoras: Number(config?.reservaMinHoras ?? 2),
     reservaMaxDias: Number(config?.reservaMaxDias ?? 60),
   }

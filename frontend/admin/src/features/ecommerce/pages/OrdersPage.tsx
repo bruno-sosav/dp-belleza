@@ -82,7 +82,7 @@ export default function OrdersPage() {
                     #{p.id} · {nombreCliente(p.cliente)}
                   </p>
                   <p className="mt-0.5 text-sm text-ink-soft">
-                    {formatShortDate(p.creadoEn.slice(0, 10))} {p.creadoEn.slice(11, 16)} · {p.unidades} {p.unidades === 1 ? "producto" : "productos"}
+                    {formatShortDate(p.creadoEn.slice(0, 10))} {p.creadoEn.slice(11, 16)} · {p.unidades} {p.unidades === 1 ? "producto" : "productos"} · {p.entrega === "envio" ? "envío" : "retira"}
                   </p>
                 </div>
                 <EstadoPedido estado={p.estado} pagoEstado={p.pagoEstado} />

@@ -30,7 +30,9 @@ export class PagarPedido {
     }
     // El mensaje de "no está configurado" de pagos es para la dueña; la clienta necesita otro.
     if (!(await this.pasarela.conectada())) throw conflicto("Por ahora no se puede pagar online. Escribinos por WhatsApp y coordinamos el pago.")
-    return this.pasarela.crearLink({ pedidoId: pedido.id, token, lineas: pedido.items })
+    // El envío va como un ítem más, así lo que cobra Mercado Pago es el total del pedido.
+    const envio = pedido.envio && pedido.envio.costo > 0 ? [{ productoId: 0, nombre: "Envío a domicilio", cantidad: 1, precioUnitario: pedido.envio.costo }] : []
+    return this.pasarela.crearLink({ pedidoId: pedido.id, token, lineas: [...pedido.items, ...envio] })
   }
 
   /** Lo llaman el aviso de Mercado Pago y la vuelta de la clienta: puede llegar dos veces o tarde. */

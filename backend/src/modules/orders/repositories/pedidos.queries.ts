@@ -2,10 +2,29 @@
 import type { RowDataPacket } from "mysql2"
 import { pool } from "../../../core/database/conexion.database.js"
 import type { PedidosQueries } from "../models/pedidos.ports.js"
-import type { EstadoPedido, FiltrosPedidos, PagoEstado, PedidoResumen } from "../models/pedido.model.js"
+import type { EnvioDelPedido, EstadoPedido, FiltrosPedidos, PagoEstado, PedidoResumen } from "../models/pedido.model.js"
 
 const COLUMNAS = `p.id, p.estado, p.pago_estado, p.total, p.notas, p.created_at, p.updated_at,
-  c.id AS cliente_id, c.nombre, c.apellido, c.telefono, c.email`
+  c.id AS cliente_id, c.nombre, c.apellido, c.telefono, c.email,
+  e.pedido_id AS envio_pedido, e.estado AS envio_estado`
+
+/** Vista de lectura: el envío es de shipping, acá solo se lee. */
+const DESDE = `FROM pedidos p JOIN clientes c ON c.id = p.cliente_id LEFT JOIN envios e ON e.pedido_id = p.id`
+
+function aEnvio(r: RowDataPacket): EnvioDelPedido {
+  return {
+    calle: r.calle,
+    ciudad: r.ciudad,
+    provincia: r.provincia,
+    codigoPostal: r.codigo_postal,
+    costo: Number(r.costo),
+    plazoDias: r.plazo_dias ?? null,
+    proveedor: r.proveedor,
+    estado: r.estado,
+    numeroSeguimiento: r.numero_seguimiento ?? null,
+    despachadoAt: r.despachado_at ? String(r.despachado_at).slice(0, 16) : null,
+  }
+}
 
 function aResumen(r: RowDataPacket): PedidoResumen {
   return {
@@ -15,6 +34,8 @@ function aResumen(r: RowDataPacket): PedidoResumen {
     total: Number(r.total),
     notas: r.notas as string | null,
     unidades: Number(r.unidades ?? 0),
+    entrega: r.envio_pedido ? "envio" : "retiro",
+    envioEstado: r.envio_estado ?? null,
     cliente: { id: r.cliente_id, nombre: r.nombre, apellido: r.apellido, telefono: r.telefono, email: r.email },
     creadoEn: r.created_at as string,
     actualizadoEn: r.updated_at as string,
@@ -41,7 +62,7 @@ export class MySqlPedidosQueries implements PedidosQueries {
     const [rows] = await pool.query<RowDataPacket[]>(
       `SELECT ${COLUMNAS},
               (SELECT COALESCE(SUM(cantidad), 0) FROM pedido_items WHERE pedido_id = p.id) AS unidades
-       FROM pedidos p JOIN clientes c ON c.id = p.cliente_id
+       ${DESDE}
        ${where}
        ORDER BY p.created_at DESC
        LIMIT 500`,
@@ -52,7 +73,7 @@ export class MySqlPedidosQueries implements PedidosQueries {
 
   async detalle(id: number) {
     const [rows] = await pool.query<RowDataPacket[]>(
-      `SELECT ${COLUMNAS} FROM pedidos p JOIN clientes c ON c.id = p.cliente_id WHERE p.id = ?`,
+      `SELECT ${COLUMNAS} ${DESDE} WHERE p.id = ?`,
       [id],
     )
     if (!rows[0]) return null
@@ -62,9 +83,11 @@ export class MySqlPedidosQueries implements PedidosQueries {
        WHERE i.pedido_id = ? ORDER BY i.id`,
       [id],
     )
-    const { unidades: _, ...pedido } = aResumen(rows[0])
+    const [envios] = await pool.query<RowDataPacket[]>("SELECT * FROM envios WHERE pedido_id = ?", [id])
+    const { unidades: _, envioEstado: __, ...pedido } = aResumen(rows[0])
     return {
       ...pedido,
+      envio: envios[0] ? aEnvio(envios[0]) : null,
       items: items.map((i) => ({
         productoId: i.producto_id as number,
         nombre: i.nombre as string,
