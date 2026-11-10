@@ -1,9 +1,10 @@
 /**
  * Módulo de pedidos de la tienda (orders). Raíz de composición: arma los casos
  * de uso con MySQL y con las fachadas de customers, catalog, inventory,
- * payments, shipping y giftcards, y exporta solo lo que el resto del sistema puede usar.
+ * payments, shipping, giftcards y admin, y exporta solo lo que el resto del sistema puede usar.
  */
 import { unidadDeTrabajoMySql } from "../../core/database/unidadDeTrabajo.database.js"
+import { relojDelSistema } from "../../core/reloj.port.js"
 import { CrearPedido } from "./services/checkout.usecases.js"
 import { CambiarEstadoPedido, EnvioDelPedido, ListarPedidos, VerPedido } from "./services/pedidos.usecases.js"
 import { PagarPedido } from "./services/pagos.usecases.js"
@@ -12,6 +13,7 @@ import { MySqlPedidoRepository } from "./repositories/pedido.repository.js"
 import { MySqlPedidosQueries } from "./repositories/pedidos.queries.js"
 import { pagos } from "../payments/payments.module.js"
 import {
+  ajustesDePedidos,
   cajaDePedidos,
   catalogoDePedidos,
   clientesDePedidos,
@@ -32,7 +34,18 @@ const verPedido = new VerPedido(queries)
 const pagar = new PagarPedido(repo, queries, pasarelaDePedidos, cajaDePedidos, unidadDeTrabajoMySql)
 
 const checkout = new CheckoutController(
-  new CrearPedido(repo, clientesDePedidos, catalogoDePedidos, inventarioDePedidos, pasarelaDePedidos, enviosDePedidos, giftCardsDePedidos, unidadDeTrabajoMySql),
+  new CrearPedido({
+    pedidos: repo,
+    clientes: clientesDePedidos,
+    catalogo: catalogoDePedidos,
+    inventario: inventarioDePedidos,
+    pasarela: pasarelaDePedidos,
+    envios: enviosDePedidos,
+    giftCards: giftCardsDePedidos,
+    ajustes: ajustesDePedidos,
+    reloj: relojDelSistema,
+    uow: unidadDeTrabajoMySql,
+  }),
   pagar,
 )
 

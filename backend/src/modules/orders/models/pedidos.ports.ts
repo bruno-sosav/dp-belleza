@@ -11,6 +11,7 @@ import type {
   PedidoParaPagar,
   PedidoResumen,
   ProblemaDeCompra,
+  Cumple,
 } from "./pedido.model.js"
 
 /** Las tablas `pedidos` y `pedido_items`: el único lugar que las escribe. */
@@ -27,6 +28,8 @@ export interface PedidoRepository {
   /** El id del pedido de ese link de pago, o null si no existe. */
   idPorToken(token: string): Promise<number | null>
   marcarPagado(id: number, pagoId: number, estado: EstadoPedido, tx: Transaccion): Promise<void>
+  /** Si la clienta ya tuvo el descuento de cumpleaños ese año (en un pedido no cancelado). */
+  usoDescuentoCumple(clienteId: number, anio: number, tx: Transaccion): Promise<boolean>
   /** La gift card con que se pagó una parte (para devolverle el saldo si se cancela). */
   giftCardDelPedido(id: number, tx: Transaccion): Promise<{ id: number; monto: number } | null>
 }
@@ -43,6 +46,14 @@ export interface ClientesDePedidos {
     datos: { nombre: string; apellido?: string | null; telefono: string; email?: string | null },
     tx: Transaccion,
   ): Promise<number>
+  /** El cumpleaños de la ficha, o null si no lo tiene cargado. */
+  cumple(clienteId: number, tx: Transaccion): Promise<Cumple | null>
+}
+
+/** Ajustes del local: el módulo admin. */
+export interface AjustesDePedidos {
+  /** % de descuento en el mes del cumpleaños. 0 = sin descuento. */
+  descuentoCumple(): Promise<number>
 }
 
 /** Precios: el módulo catalog. Solo los productos activos se pueden vender. */

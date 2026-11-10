@@ -201,6 +201,12 @@ export default function CheckoutPage() {
               <GiftCardDelCheckout aplicada={giftCard} onAplicar={setGiftCard} />
             </div>
             <p className="mt-4 text-sm text-ink-soft">{textoDelPago(conMercadoPago, giftCard, falta)}</p>
+            {(negocio?.descuentoCumple ?? 0) > 0 && (
+              <p className="mt-3 rounded-md bg-rose/15 px-3 py-2.5 text-sm text-ink">
+                ¿Cumplís años este mes? Si tenés tu cumpleaños cargado con nosotras, al confirmar te descontamos el {negocio?.descuentoCumple}% de los
+                productos (una compra por año).
+              </p>
+            )}
           </section>
         </div>
 

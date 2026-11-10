@@ -34,8 +34,9 @@ describe("checkout", () => {
       id: expect.any(Number),
       estado: "pendiente",
       total: 4501.5,
-      // Sin gift card.
+      // Sin gift card ni descuento de cumpleaños.
       giftCard: 0,
+      descuentoCumple: 0,
       items: [{ productoId, nombre: "TEST Crema", cantidad: 3, precioUnitario: 1500.5, subtotal: 4501.5 }],
       // Retira en el local: sin envío.
       envio: null,

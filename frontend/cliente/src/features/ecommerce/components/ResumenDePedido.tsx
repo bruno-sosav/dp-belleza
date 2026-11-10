@@ -3,7 +3,8 @@ import { formatPrice } from "@dp/shared/lib/format"
 type Linea = { productoId: number; nombre: string; cantidad: number; subtotal: number }
 
 /** Qué llevó y cuánto fue, con los precios que guardó el backend. Con gift card, lo que cubrió y lo que quedó por pagar. */
-export default function ResumenDePedido({ items, total, envio, giftCard = 0 }: { items: Linea[]; total: number; envio?: { costo: number } | null; giftCard?: number }) {
+export default function ResumenDePedido(props: { items: Linea[]; total: number; envio?: { costo: number } | null; giftCard?: number; descuentoCumple?: number }) {
+  const { items, total, envio, giftCard = 0, descuentoCumple = 0 } = props
   return (
     <>
       <ul className="mt-8 divide-y divide-cream-dark text-left text-sm">
@@ -19,6 +20,12 @@ export default function ResumenDePedido({ items, total, envio, giftCard = 0 }: {
           <li className="flex justify-between gap-4 py-2.5">
             <span className="text-ink">Envío a domicilio</span>
             <span className="text-ink-soft">{envio.costo ? formatPrice(envio.costo) : "Gratis"}</span>
+          </li>
+        )}
+        {descuentoCumple > 0 && (
+          <li className="flex justify-between gap-4 py-2.5">
+            <span className="text-leaf">Descuento de cumpleaños</span>
+            <span className="text-leaf">− {formatPrice(descuentoCumple)}</span>
           </li>
         )}
       </ul>

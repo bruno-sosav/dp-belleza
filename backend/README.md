@@ -124,6 +124,7 @@ mysql -u dp_dev -p dp_belleza < database/migrations/V11_caja.sql
 mysql -u dp_dev -p dp_belleza < database/migrations/V12_pago_de_pedidos.sql
 mysql -u dp_dev -p dp_belleza < database/migrations/V13_envios.sql
 mysql -u dp_dev -p dp_belleza < database/migrations/V14_gift_cards.sql
+mysql -u dp_dev -p dp_belleza < database/migrations/V15_descuento_cumple.sql
 mysql -u dp_dev -p dp_belleza < database/seeds/seed_01_servicios.sql
 mysql -u dp_dev -p dp_belleza < database/seeds/seed_02_horarios.sql
 mysql -u dp_dev -p dp_belleza < database/seeds/ecommerce-datos-ejemplo.sql
@@ -184,6 +185,9 @@ Todas las respuestas son JSON. Los errores tienen la forma `{ "error": "mensaje"
 - El cliente no tiene cuenta: se busca o se crea por **teléfono** (módulo `customers`).
 - Los **precios salen de la base**, no del navegador. Se congelan en `pedido_items.precio_unitario`.
 - Se **descuenta el stock** en la misma transacción. Si dos personas compran a la vez, no se vende más de lo que hay.
+- **Descuento de cumpleaños**: si la clienta de ese teléfono tiene el cumpleaños cargado en su ficha y es su mes, se
+  descuenta el % de `descuento_cumple_porcentaje` (Ajustes → Tu negocio) de los productos, no del envío. Una compra por
+  año (un pedido cancelado no cuenta). `descuentoCumple` en la respuesta es lo descontado; `total` ya lo tiene restado.
 - Con `giftCard`, se descuenta su saldo (hasta el total) en la misma transacción: `giftCard` en la respuesta es lo que cubrió.
   Si cubre todo, el pedido nace `confirmado` y pagado; si no, Mercado Pago cobra solo lo que falta.
 - Respuestas: `201` con el pedido creado, `400` si faltan datos, `404` si la gift card no existe, `409` si algún producto no
@@ -367,6 +371,18 @@ En la caja, la **venta** entra como cobro con concepto `gift_card` (y su medio:
 efectivo, Mercado Pago…). El **uso** se anota con medio `gift_card` y no suma al
 total del día: esa plata ya había entrado cuando se vendió. Se puede anular una
 gift card solo si no se usó; si hay que devolver la plata, se hace a mano.
+
+## Descuento de cumpleaños
+
+En **Ajustes → Tu negocio** la dueña elige el % (0 = sin descuento, máximo 50).
+Al comprar en la tienda, `CrearPedido` busca la ficha por teléfono (como siempre)
+y, si su `cumple_mes` es el mes de hoy (hora de Argentina) y ese año no tiene
+otro pedido no cancelado con descuento, descuenta ese % de los productos. La
+regla está en `descuentoDeCumple` (`orders/models/pedido.model.ts`). Se guarda
+en `pedidos.descuento_cumple` (V15) y el total ya viene con el descuento, así
+que Mercado Pago, la caja y las estadísticas ven lo que de verdad se cobró. La
+web no consulta si una clienta cumple años (no revela datos de nadie por su
+teléfono): avisa que el descuento existe y lo muestra al confirmar.
 
 ## Pendiente de decidir
 

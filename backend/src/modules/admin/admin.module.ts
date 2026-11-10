@@ -48,6 +48,8 @@ export const ajustes = {
     const a = await leer.todos()
     return { direccion: a.direccion_negocio ?? "", email: a.email_negocio ?? "", telefono: a.telefono_negocio ?? "" }
   },
+  /** % de descuento en la tienda en el mes del cumpleaños (lo usa orders). 0 = sin descuento. */
+  descuentoCumple: () => leer.numero("descuento_cumple_porcentaje"),
   /** Cómo envía la tienda (lo usa shipping). */
   envios: async () => {
     const a = await leer.todos()

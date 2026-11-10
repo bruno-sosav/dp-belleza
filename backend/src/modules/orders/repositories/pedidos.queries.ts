@@ -4,7 +4,7 @@ import { pool } from "../../../core/database/conexion.database.js"
 import type { PedidosQueries } from "../models/pedidos.ports.js"
 import type { EnvioDelPedido, EstadoPedido, FiltrosPedidos, PagoEstado, PedidoResumen } from "../models/pedido.model.js"
 
-const COLUMNAS = `p.id, p.estado, p.pago_estado, p.total, p.notas, p.created_at, p.updated_at, p.gift_card_monto, g.codigo AS gift_card_codigo,
+const COLUMNAS = `p.id, p.estado, p.pago_estado, p.total, p.descuento_cumple, p.notas, p.created_at, p.updated_at, p.gift_card_monto, g.codigo AS gift_card_codigo,
   c.id AS cliente_id, c.nombre, c.apellido, c.telefono, c.email,
   e.pedido_id AS envio_pedido, e.estado AS envio_estado`
 
@@ -91,6 +91,7 @@ export class MySqlPedidosQueries implements PedidosQueries {
     return {
       ...pedido,
       envio: envios[0] ? aEnvio(envios[0]) : null,
+      descuentoCumple: Number(rows[0].descuento_cumple ?? 0),
       giftCard: rows[0].gift_card_codigo ? { codigo: aCodigo(rows[0].gift_card_codigo), monto: Number(rows[0].gift_card_monto) } : null,
       items: items.map((i) => ({
         productoId: i.producto_id as number,

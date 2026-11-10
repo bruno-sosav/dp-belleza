@@ -50,6 +50,8 @@ export type PedidoDetalle = Omit<PedidoResumen, "unidades" | "envioEstado"> & {
   envio: Envio | null
   /** La gift card con que pagó todo o una parte. */
   giftCard: { codigo: string; monto: number } | null
+  /** Lo que se descontó por su cumpleaños (0 si no). `total` ya lo tiene restado. */
+  descuentoCumple: number
 }
 
 /** A qué estados se puede pasar desde cada uno (el backend lo vuelve a validar). */

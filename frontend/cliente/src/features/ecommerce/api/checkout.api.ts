@@ -20,6 +20,8 @@ export type PedidoCreado = {
   total: number
   /** Lo que cubrió la gift card (0 sin gift card). */
   giftCard: number
+  /** Lo que se descontó por su cumpleaños (0 si no). `total` ya lo tiene restado. */
+  descuentoCumple: number
   items: LineaDePedido[]
   /** null si retira en el local. */
   envio: { costo: number; plazoDias: number | null; gratis: boolean } | null
@@ -37,6 +39,7 @@ export type PedidoPagable = {
   envio: { costo: number } | null
   /** Lo que cubrió una gift card (0 sin gift card). */
   giftCard: number
+  descuentoCumple: number
 }
 
 /** Un producto que no se pudo comprar (409): dado de baja o sin stock suficiente. */

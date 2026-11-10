@@ -24,6 +24,8 @@ export type Negocio = {
   envios: boolean
   /** Monto de productos desde el que el envío es gratis. 0 = nunca. */
   envioGratisDesde: number
+  /** % de descuento en la tienda en el mes del cumpleaños (si la clienta lo tiene cargado). 0 = no hay. */
+  descuentoCumple: number
   /** Reglas de la reserva: con cuántas horas como mínimo y hasta cuántos días para adelante. */
   reservaMinHoras: number
   reservaMaxDias: number
@@ -48,6 +50,7 @@ async function cargar(): Promise<Negocio> {
     mercadoPago: Boolean(config?.mercadopagoPublicKey),
     envios: Boolean(config?.envios),
     envioGratisDesde: Number(config?.envioGratisDesde ?? 0),
+    descuentoCumple: Number(config?.descuentoCumple ?? 0),
     reservaMinHoras: Number(config?.reservaMinHoras ?? 2),
     reservaMaxDias: Number(config?.reservaMaxDias ?? 60),
   }

@@ -25,4 +25,6 @@ export const aAjustesPublicos = (p: Awaited<ReturnType<VerAjustesPublicos["ejecu
   envios: p.envios,
   /** Monto de productos desde el que el envío es gratis. 0 = nunca. */
   envioGratisDesde: p.envioGratisDesde,
+  /** % de descuento en la tienda en el mes del cumpleaños (si la clienta lo tiene cargado). 0 = no hay. */
+  descuentoCumple: p.descuentoCumple,
 })

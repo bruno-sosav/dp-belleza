@@ -64,6 +64,12 @@ export default function OrderDetailPage() {
                   <span className="tabular-nums text-ink-soft">{pedido.envio.costo ? formatPrice(pedido.envio.costo) : "Gratis"}</span>
                 </li>
               )}
+              {pedido.descuentoCumple > 0 && (
+                <li className="flex items-baseline justify-between gap-4 py-2.5">
+                  <span className="text-ink">Descuento de cumpleaños</span>
+                  <span className="tabular-nums text-ink-soft">− {formatPrice(pedido.descuentoCumple)}</span>
+                </li>
+              )}
             </ul>
             <div className="mt-2 flex justify-between border-t border-cream-dark pt-3">
               <span className="font-medium text-ink">Total</span>

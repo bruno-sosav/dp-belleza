@@ -20,7 +20,7 @@ describe("ajustes", () => {
     const r = await api().get("/api/admin/configuracion").set(auth)
     expect(r.status).toBe(200)
     expect(Object.keys(r.body).sort()).toEqual(
-      ["codigo_area_negocio", "cancelacion_horas_minimas", "direccion_negocio", "email_negocio", "intervalo_turnos_min", "nombre_negocio", "reserva_anticipacion_max_dias", "reserva_anticipacion_min_horas", "sena_porcentaje", "telefono_negocio", "envio_modo", "envio_gratis_desde", "envio_cp_origen", "envio_peso_unidad_g"].sort(),
+      ["codigo_area_negocio", "cancelacion_horas_minimas", "direccion_negocio", "email_negocio", "intervalo_turnos_min", "nombre_negocio", "reserva_anticipacion_max_dias", "reserva_anticipacion_min_horas", "sena_porcentaje", "telefono_negocio", "envio_modo", "envio_gratis_desde", "envio_cp_origen", "envio_peso_unidad_g", "descuento_cumple_porcentaje"].sort(),
     )
   })
 
@@ -38,7 +38,7 @@ describe("ajustes", () => {
   it("la web ve contacto, reglas y seña, y nada más", async () => {
     const r = await api().get("/api/configuracion")
     expect(Object.keys(r.body).sort()).toEqual(
-      ["cancelacionHoras", "direccion", "email", "mercadopagoPublicKey", "nombre", "reservaMaxDias", "reservaMinHoras", "senaPorcentaje", "telefono", "envios", "envioGratisDesde"].sort(),
+      ["cancelacionHoras", "direccion", "email", "mercadopagoPublicKey", "nombre", "reservaMaxDias", "reservaMinHoras", "senaPorcentaje", "telefono", "envios", "envioGratisDesde", "descuentoCumple"].sort(),
     )
   })
 })

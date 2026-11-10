@@ -28,6 +28,8 @@ export type Configuracion = {
   envio_cp_origen: string
   /** Gramos por unidad, para cotizar. */
   envio_peso_unidad_g: string
+  /** % de descuento en la tienda en el mes del cumpleaños de la clienta. "0" = sin descuento. */
+  descuento_cumple_porcentaje: string
 }
 
 export type CambiosConfiguracion = Partial<{
@@ -45,6 +47,7 @@ export type CambiosConfiguracion = Partial<{
   envio_gratis_desde: number
   envio_cp_origen: string
   envio_peso_unidad_g: number
+  descuento_cumple_porcentaje: number
 }>
 
 export function useConfiguracion() {

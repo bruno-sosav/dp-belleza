@@ -81,6 +81,7 @@ export class VerAjustesPublicos {
       mercadopagoPublicKey: publicKey,
       envios: modoEnvio(a) !== "desactivado",
       envioGratisDesde: comoNumero(a, "envio_gratis_desde"),
+      descuentoCumple: comoNumero(a, "descuento_cumple_porcentaje"),
     }
   }
 }

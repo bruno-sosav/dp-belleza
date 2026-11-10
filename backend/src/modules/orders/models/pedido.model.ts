@@ -52,6 +52,20 @@ export function resultadoDelPago(pedido: PedidoParaPagar, pago: Pick<PagoDePedid
 /** Se puede (volver a) pagar mientras el pedido espere el pago y no esté cancelado. */
 export const sePuedePagar = (p: Pick<PedidoParaPagar, "estado" | "pagoEstado">) => p.pagoEstado === "pendiente" && p.estado === "pendiente"
 
+/** Día y mes del cumpleaños de la clienta. */
+export type Cumple = { dia: number; mes: number }
+
+/**
+ * El descuento de cumpleaños: durante el mes del cumple de la clienta (si lo tiene
+ * cargado), un % de los productos. Una compra por año (`yaLoUso`). 0 si no aplica.
+ * `hoy` es la fecha de Argentina ("2026-11-10").
+ */
+export function descuentoDeCumple(d: { cumple: Cumple | null; hoy: string; porcentaje: number; yaLoUso: boolean; subtotal: number }): number {
+  if (d.porcentaje <= 0 || !d.cumple || d.yaLoUso) return 0
+  if (d.cumple.mes !== Number(d.hoy.slice(5, 7))) return 0
+  return redondear((d.subtotal * Math.min(d.porcentaje, 100)) / 100)
+}
+
 /** Cuántas unidades de un producto pide la clienta. */
 export type Linea = { productoId: number; cantidad: number }
 
@@ -100,12 +114,20 @@ export type PedidoResumen = {
 export type GiftCardDelPedido = { codigo: string; monto: number }
 
 /** Un pedido con sus líneas. */
-export type Pedido = Omit<PedidoResumen, "unidades" | "envioEstado"> & { items: LineaConPrecio[]; envio: EnvioDelPedido | null; giftCard: GiftCardDelPedido | null }
+export type Pedido = Omit<PedidoResumen, "unidades" | "envioEstado"> & {
+  items: LineaConPrecio[]
+  envio: EnvioDelPedido | null
+  giftCard: GiftCardDelPedido | null
+  /** Lo que se descontó por el cumpleaños (0 si no hubo). `total` ya lo tiene restado. */
+  descuentoCumple: number
+}
 
 /** Lo que se guarda al confirmar la compra. */
 export type NuevoPedido = {
   clienteId: number
+  /** Ya con el descuento de cumpleaños restado. */
   total: number
+  descuentoCumple: number
   notas: string | null
   lineas: LineaConPrecio[]
   /** Solo si se va a pagar por Mercado Pago. */

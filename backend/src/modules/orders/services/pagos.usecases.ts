@@ -8,12 +8,13 @@ const NO_EXISTE = "No encontramos ese pedido."
 
 /**
  * Lo que se manda a Mercado Pago. El envío va como un ítem más, así cobra el total.
- * Con gift card no se pueden mandar montos negativos: va una sola línea con lo que falta.
+ * Con gift card o descuento no se pueden mandar montos negativos: va una sola línea con lo que falta.
  */
 function lineasAPagar(pedido: Pedido): LineaConPrecio[] {
   const giftCardMonto = pedido.giftCard?.monto ?? 0
-  if (giftCardMonto > 0) {
-    return [{ productoId: 0, nombre: `Pedido #${pedido.id} (descontada la gift card)`, cantidad: 1, precioUnitario: aPagar({ total: pedido.total, giftCardMonto }) }]
+  if (giftCardMonto > 0 || pedido.descuentoCumple > 0) {
+    const que = [giftCardMonto > 0 && "gift card", pedido.descuentoCumple > 0 && "descuento de cumple"].filter(Boolean).join(" y ")
+    return [{ productoId: 0, nombre: `Pedido #${pedido.id} (con ${que})`, cantidad: 1, precioUnitario: aPagar({ total: pedido.total, giftCardMonto }) }]
   }
   const envio = pedido.envio && pedido.envio.costo > 0 ? [{ productoId: 0, nombre: "Envío a domicilio", cantidad: 1, precioUnitario: pedido.envio.costo }] : []
   return [...pedido.items, ...envio]

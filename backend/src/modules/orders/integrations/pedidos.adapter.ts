@@ -6,8 +6,10 @@ import { inventario } from "../../inventory/inventory.module.js"
 import { pagos } from "../../payments/payments.module.js"
 import { envios } from "../../shipping/shipping.module.js"
 import { giftCards } from "../../giftcards/giftcards.module.js"
+import { ajustes } from "../../admin/admin.module.js"
 import { referenciaDePedido } from "../models/pedido.model.js"
 import type {
+  AjustesDePedidos,
   CajaDePedidos,
   CatalogoDePedidos,
   ClientesDePedidos,
@@ -20,6 +22,12 @@ import type {
 /** Clientas: el módulo customers (la misma ficha que usa la turnera). */
 export const clientesDePedidos: ClientesDePedidos = {
   buscarOCrear: (datos, tx) => clientes.buscarOCrear(datos, tx),
+  cumple: (clienteId, tx) => clientes.cumpleDe(clienteId, tx),
+}
+
+/** Ajustes del local: el módulo admin. */
+export const ajustesDePedidos: AjustesDePedidos = {
+  descuentoCumple: () => ajustes.descuentoCumple(),
 }
 
 /** Precios: el módulo catalog. */

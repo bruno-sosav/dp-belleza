@@ -25,6 +25,8 @@ export const cambiosAjustes = z
     envio_gratis_desde: z.number().int().min(0).max(100_000_000),
     envio_cp_origen: z.union([z.literal(""), z.string().trim().regex(/^\d{4}$/, "El código postal tiene 4 números")]),
     envio_peso_unidad_g: z.number().int().min(1).max(50_000),
+    // % de descuento en la tienda en el mes del cumpleaños de la clienta. 0 = sin descuento.
+    descuento_cumple_porcentaje: z.number().int().min(0).max(50),
     intervalo_turnos_min: z.union([z.literal(5), z.literal(10), z.literal(15), z.literal(20), z.literal(30), z.literal(60)]),
   })
   .partial()

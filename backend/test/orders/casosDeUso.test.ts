@@ -6,6 +6,7 @@ import { CrearPedido } from "../../src/modules/orders/services/checkout.usecases
 import { CambiarEstadoPedido, VerPedido } from "../../src/modules/orders/services/pedidos.usecases.js"
 import { PagarPedido } from "../../src/modules/orders/services/pagos.usecases.js"
 import type {
+  AjustesDePedidos,
   CajaDePedidos,
   CatalogoDePedidos,
   EnviosDePedidos,
@@ -53,7 +54,13 @@ const inventario: InventarioDePedidos = {
     for (const l of lineas) stock.set(l.productoId, (stock.get(l.productoId) ?? 0) + l.cantidad)
   },
 }
-const clientes: ClientesDePedidos = { buscarOCrear: async () => 7 }
+/** La clienta 7; su cumple se cambia en cada test (null = no lo tiene cargado). */
+let cumple: { dia: number; mes: number } | null = null
+const clientes: ClientesDePedidos = { buscarOCrear: async () => 7, cumple: async () => cumple }
+/** El % de descuento de cumple del local y "hoy" (10 de noviembre). */
+let porcentajeCumple = 0
+const ajustes: AjustesDePedidos = { descuentoCumple: async () => porcentajeCumple }
+const reloj = { ahora: () => ({ fecha: "2026-11-10", minutos: 600 }) }
 
 /** Mercado Pago de mentira: `conectado` decide si el pedido espera el pago; `pagos` son los que "existen". */
 let conectado = false
@@ -131,6 +138,9 @@ class PedidosEnMemoria implements PedidoRepository, PedidosQueries {
   async cambiarEstado(id: number, estado: EstadoPedido) {
     this.guardados.get(id)!.estado = estado
   }
+  async usoDescuentoCumple(clienteId: number, anio: number) {
+    return [...this.guardados.values()].some((p) => p.clienteId === clienteId && p.descuentoCumple > 0 && p.estado !== "cancelado" && anio === 2026)
+  }
   async giftCardDelPedido(id: number) {
     return this.guardados.get(id)?.giftCard ?? null
   }
@@ -160,6 +170,7 @@ class PedidosEnMemoria implements PedidoRepository, PedidosQueries {
         ? { calle: "Colón 1", ciudad: "MdP", provincia: "Buenos Aires", codigoPostal: envio.codigoPostal, costo: envio.costo, plazoDias: 3, proveedor: "prueba" as const, estado: "a_despachar" as const, numeroSeguimiento: null, despachadoAt: null }
         : null,
       giftCard: p.giftCard ? { codigo: "REGA-LO10", monto: p.giftCard.monto } : null,
+      descuentoCumple: p.descuentoCumple,
     }
   }
 }
@@ -191,7 +202,9 @@ beforeEach(() => {
   saldos.clear()
   saldos.set("REGALO10", { id: 3, saldo: 10000 })
   movimientosGc.length = 0
-  crear = new CrearPedido(repo, clientes, catalogo, inventario, pasarela, envios, giftCards, uow)
+  cumple = null
+  porcentajeCumple = 0
+  crear = new CrearPedido({ pedidos: repo, clientes, catalogo, inventario, pasarela, envios, giftCards, ajustes, reloj, uow })
 })
 
 describe("CrearPedido (checkout)", () => {
@@ -370,7 +383,7 @@ describe("pagar con gift card", () => {
     expect(p).toMatchObject({ total: 18900, giftCard: 10000, estado: "pendiente" })
     expect(movimientosGc).toEqual([{ tipo: "uso", id: 3, monto: 10000, pedidoId: p.id }])
     await new PagarPedido(repo, repo, pasarela, caja, uow).link(p.pagoToken!)
-    expect(lineasDelLink).toEqual([{ nombre: `Pedido #${p.id} (descontada la gift card)`, precioUnitario: 8900, cantidad: 1 }])
+    expect(lineasDelLink).toEqual([{ nombre: `Pedido #${p.id} (con gift card)`, precioUnitario: 8900, cantidad: 1 }])
   })
 
   it("el pago de Mercado Pago por lo que faltaba confirma el pedido", async () => {
@@ -398,5 +411,48 @@ describe("pagar con gift card", () => {
     expect(await tipoDeError(conGiftCard([{ productoId: 1, cantidad: 1 }], "NOEXISTE"))).toBe("no_encontrado")
     expect(repo.guardados.size).toBe(0)
     expect(stock.get(1)).toBe(5)
+  })
+})
+
+describe("descuento de cumpleaños", () => {
+  it("en el mes de su cumple descuenta el % de los productos, una vez por año", async () => {
+    porcentajeCumple = 10
+    cumple = { dia: 25, mes: 11 }
+    const p = await compra([{ productoId: 1, cantidad: 1 }])
+    expect(p).toMatchObject({ total: 17010, descuentoCumple: 1890 })
+    const otra = await compra([{ productoId: 1, cantidad: 1 }])
+    expect(otra).toMatchObject({ total: 18900, descuentoCumple: 0 })
+  })
+
+  it("si cancela el pedido, el descuento se puede volver a usar", async () => {
+    porcentajeCumple = 10
+    cumple = { dia: 3, mes: 11 }
+    const p = await compra([{ productoId: 1, cantidad: 1 }])
+    await new CambiarEstadoPedido(repo, inventario, envios, giftCards, new VerPedido(repo), uow).ejecutar(p.id, "cancelado")
+    expect((await compra([{ productoId: 1, cantidad: 1 }])).descuentoCumple).toBe(1890)
+  })
+
+  it("sin cumple cargado, en otro mes o con el descuento apagado, no hay descuento", async () => {
+    porcentajeCumple = 10
+    expect((await compra([{ productoId: 1, cantidad: 1 }])).descuentoCumple).toBe(0)
+    cumple = { dia: 10, mes: 12 }
+    expect((await compra([{ productoId: 1, cantidad: 1 }])).descuentoCumple).toBe(0)
+    cumple = { dia: 10, mes: 11 }
+    porcentajeCumple = 0
+    expect((await compra([{ productoId: 1, cantidad: 1 }])).descuentoCumple).toBe(0)
+  })
+
+  it("no descuenta el envío, y Mercado Pago cobra el total con descuento en una línea", async () => {
+    conectado = true
+    porcentajeCumple = 20
+    cumple = { dia: 1, mes: 11 }
+    const p = await crear.ejecutar({
+      cliente: { nombre: "Ana", telefono: "2231234567" },
+      items: [{ productoId: 1, cantidad: 1 }],
+      entrega: { tipo: "envio", calle: "Colón 1234", ciudad: "Mar del Plata", provincia: "Buenos Aires", codigoPostal: "7600" },
+    })
+    expect(p).toMatchObject({ descuentoCumple: 3780, total: 18900 - 3780 + 5000 })
+    await new PagarPedido(repo, repo, pasarela, caja, uow).link(p.pagoToken!)
+    expect(lineasDelLink).toEqual([{ nombre: `Pedido #${p.id} (con descuento de cumple)`, precioUnitario: 20120, cantidad: 1 }])
   })
 })

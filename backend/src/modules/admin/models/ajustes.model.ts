@@ -16,6 +16,7 @@ export const CLAVES_AJUSTES = [
   "envio_gratis_desde",
   "envio_cp_origen",
   "envio_peso_unidad_g",
+  "descuento_cumple_porcentaje",
 ] as const
 export type ClaveAjuste = (typeof CLAVES_AJUSTES)[number]
 export type Ajustes = Partial<Record<ClaveAjuste, string>>
@@ -29,6 +30,7 @@ export const POR_DEFECTO = {
   reserva_anticipacion_max_dias: 60,
   envio_gratis_desde: 0,
   envio_peso_unidad_g: 300,
+  descuento_cumple_porcentaje: 0,
 } as const satisfies Partial<Record<ClaveAjuste, number>>
 export type AjusteNumerico = keyof typeof POR_DEFECTO
 

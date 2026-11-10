@@ -58,6 +58,9 @@ export const clientes = {
   /** "Ana María Pérez" → nombre y apellido, como lo guarda la ficha. */
   separarNombreCompleto,
 
+  /** El cumpleaños de la ficha, o null si no está cargado (la tienda lo usa para el descuento). */
+  cumpleDe: async (clienteId: number, tx?: Transaccion) => (await repo.porId(clienteId, tx))?.cumple ?? null,
+
   /** Teléfono normalizado con el código de área del local, o null si no sirve. */
   normalizarTelefono: (texto: string) => telefonos.intentar(texto),
 

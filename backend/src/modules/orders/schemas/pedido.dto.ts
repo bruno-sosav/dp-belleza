@@ -16,6 +16,7 @@ export const aPedidoCreado = (p: PedidoCreado) => ({
   estado: p.estado,
   total: p.total,
   giftCard: p.giftCard,
+  descuentoCumple: p.descuentoCumple,
   items: p.items.map(aLinea),
   envio: p.envio,
   pagoToken: p.pagoToken,
@@ -30,6 +31,7 @@ export const aPedidoPublico = (p: Pedido) => ({
   items: p.items.map(aLinea),
   envio: p.envio ? { costo: p.envio.costo } : null,
   giftCard: p.giftCard?.monto ?? 0,
+  descuentoCumple: p.descuentoCumple,
 })
 
 export const aLinkDePago = (link: string) => ({ link })
@@ -63,6 +65,7 @@ export const aPedidoDetalle = (p: Pedido) => ({
   entrega: p.entrega,
   envio: p.envio,
   giftCard: p.giftCard,
+  descuentoCumple: p.descuentoCumple,
 })
 
 export const aSeguimiento = (eventos: { fecha: string; estado: string; detalle: string | null }[]) => eventos.map((e) => ({ fecha: e.fecha, estado: e.estado, detalle: e.detalle }))

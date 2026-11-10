@@ -10,6 +10,7 @@ import { inputClass, labelClass, primaryButtonClass } from "../../../shared/lib/
 import { guardarConfiguracion, useConfiguracion } from "../api/ajustes.api"
 import type { CambiosConfiguracion, Configuracion } from "../api/ajustes.api"
 import AvisoOk from "../../../shared/components/AvisoOk"
+import DescuentoCumple from "../components/DescuentoCumple"
 
 const campo = `${inputClass} py-3 text-base`
 
@@ -19,7 +20,7 @@ export default function BusinessPage() {
 
   return (
     <div>
-      <PageHeader title="Ajustes" description="Tus datos de contacto: así aparecen en la web." withPeriod={false} action={<AjustesTabs />} />
+      <PageHeader title="Ajustes" description="Tus datos de contacto (así aparecen en la web) y el descuento de cumpleaños de la tienda." withPeriod={false} action={<AjustesTabs />} />
       {config.error ? (
         <Panel>
           <ErrorCarga mensaje={config.error} onReintentar={config.recargar} />
@@ -29,7 +30,10 @@ export default function BusinessPage() {
           <Cargando />
         </Panel>
       ) : (
-        <Formulario config={config.datos} />
+        <div className="space-y-6">
+          <Formulario config={config.datos} />
+          <DescuentoCumple inicial={Number(config.datos.descuento_cumple_porcentaje || 0)} />
+        </div>
       )}
 
     </div>
