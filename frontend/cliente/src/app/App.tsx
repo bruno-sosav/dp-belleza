@@ -15,6 +15,8 @@ import BookingPage from "../features/turnera/pages/BookingPage"
 import BookingConfirmedPage from "../features/turnera/pages/BookingConfirmedPage"
 import MiTurnoPage from "../features/turnera/pages/MiTurnoPage"
 import PagoSenaPage from "../features/turnera/pages/PagoSenaPage"
+import GiftCardsPage from "../features/giftcards/pages/GiftCardsPage"
+import PagoGiftCardPage from "../features/giftcards/pages/PagoGiftCardPage"
 
 /** Al cambiar de página vuelve arriba; si la URL trae #ancla, baja hasta esa sección. */
 function ScrollToTop() {
@@ -45,6 +47,10 @@ export default function App() {
           <Route path="/carrito" element={<CartPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/pedido/pago" element={<PagoPedidoPage />} />
+
+          {/* Gift cards — features/giftcards/ */}
+          <Route path="/gift-cards" element={<GiftCardsPage />} />
+          <Route path="/gift-cards/pago" element={<PagoGiftCardPage />} />
 
           {/* Turnera — turnera/ */}
           <Route path="/servicios" element={<ServicesPage />} />

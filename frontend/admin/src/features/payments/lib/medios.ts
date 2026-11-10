@@ -7,8 +7,12 @@ export const MEDIOS = [
   { valor: "credito", label: "Crédito", icono: "tarjeta" },
   { valor: "transferencia", label: "Transferencia", icono: "banco" },
   { valor: "mercadopago", label: "Mercado Pago", icono: "celular" },
+  { valor: "gift_card", label: "Gift card", icono: "regalo" },
 ] as const satisfies readonly { valor: string; label: string; icono: NombreIcono }[]
 
 export type MedioPago = (typeof MEDIOS)[number]["valor"]
+
+/** Lo que se carga en el formulario de cobro. Con gift card, el código: el saldo se descuenta en el backend. */
+export type CobroElegido = { monto: number; medio: MedioPago; giftCard?: string }
 
 export const etiquetaMedio = (m: MedioPago) => MEDIOS.find((x) => x.valor === m)!

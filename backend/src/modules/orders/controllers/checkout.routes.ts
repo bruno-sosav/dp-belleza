@@ -21,7 +21,10 @@ export function rutasWebCheckout(c: CheckoutController): Router {
     mensaje: "Hiciste muchos pedidos seguidos. Si necesitás algo más, escribinos por WhatsApp.",
   })
 
-  r.post("/pedidos", limitePedidos, c.crear)
+  // Y cuántos pueden FALLAR: así nadie prueba códigos de gift card a ciegas desde el checkout.
+  const limiteFallidos = limitarPorIp({ maximo: 30, ventanaMs: 60 * 60_000, soloFallidos: true, mensaje: "Hubo muchos intentos fallidos. Esperá un rato o escribinos por WhatsApp." })
+
+  r.post("/pedidos", limitePedidos, limiteFallidos, c.crear)
   r.get("/pedidos/pago/:token", c.pago)
   r.post("/pedidos/pago/:token/pagar", c.linkDePago)
   return r

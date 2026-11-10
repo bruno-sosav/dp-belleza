@@ -31,8 +31,11 @@ export const referenciaDePedido = (pedidoId: number) => `pedido-${pedidoId}`
 /** Un pago como lo informa la pasarela, ya traducido. */
 export type PagoDePedido = { id: number; aprobado: boolean; monto: number; referencia: string | null }
 
-/** Lo que hace falta saber del pedido para aplicarle un pago. */
-export type PedidoParaPagar = { id: number; clienteId: number; estado: EstadoPedido; pagoEstado: PagoEstado; total: number }
+/** Lo que hace falta saber del pedido para aplicarle un pago. `giftCardMonto`: lo que ya cubrió una gift card. */
+export type PedidoParaPagar = { id: number; clienteId: number; estado: EstadoPedido; pagoEstado: PagoEstado; total: number; giftCardMonto: number }
+
+/** Lo que queda por pagar: el total menos lo que cubrió la gift card. */
+export const aPagar = (p: { total: number; giftCardMonto: number }) => redondear(p.total - p.giftCardMonto)
 
 /**
  * El pago puede llegar repetido (aviso y vuelta de la clienta) o tarde. Solo se
@@ -42,7 +45,7 @@ export type PedidoParaPagar = { id: number; clienteId: number; estado: EstadoPed
  */
 export function resultadoDelPago(pedido: PedidoParaPagar, pago: Pick<PagoDePedido, "aprobado" | "monto">): { aplicar: false } | { aplicar: true; estado: EstadoPedido } {
   if (!pago.aprobado || pedido.pagoEstado !== "pendiente") return { aplicar: false }
-  if (pago.monto + 0.01 < pedido.total) return { aplicar: false } // pagó de menos: no es este pedido
+  if (pago.monto + 0.01 < aPagar(pedido)) return { aplicar: false } // pagó de menos: no es este pedido
   return { aplicar: true, estado: pedido.estado === "pendiente" ? "confirmado" : pedido.estado }
 }
 
@@ -93,8 +96,11 @@ export type PedidoResumen = {
   actualizadoEn: string
 }
 
+/** La gift card con que se pagó (todo o una parte). */
+export type GiftCardDelPedido = { codigo: string; monto: number }
+
 /** Un pedido con sus líneas. */
-export type Pedido = Omit<PedidoResumen, "unidades" | "envioEstado"> & { items: LineaConPrecio[]; envio: EnvioDelPedido | null }
+export type Pedido = Omit<PedidoResumen, "unidades" | "envioEstado"> & { items: LineaConPrecio[]; envio: EnvioDelPedido | null; giftCard: GiftCardDelPedido | null }
 
 /** Lo que se guarda al confirmar la compra. */
 export type NuevoPedido = {
@@ -104,6 +110,8 @@ export type NuevoPedido = {
   lineas: LineaConPrecio[]
   /** Solo si se va a pagar por Mercado Pago. */
   pago: { token: string } | null
+  /** Lo que cubre una gift card. Si cubre todo, el pedido nace pagado y confirmado. */
+  giftCard: { id: number; monto: number } | null
 }
 
 export type FiltrosPedidos = { estado?: EstadoPedido; desde?: string; hasta?: string }

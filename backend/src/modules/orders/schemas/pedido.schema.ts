@@ -26,6 +26,7 @@ export const nuevoPedido = z.object({
   entrega: z
     .discriminatedUnion("tipo", [z.object({ tipo: z.literal("retiro") }), direccionDeEnvio.extend({ tipo: z.literal("envio") })])
     .optional(),
+  giftCard: z.string().trim().min(1).max(20).optional(),
 })
 
 /** Filtros de la lista del panel. */

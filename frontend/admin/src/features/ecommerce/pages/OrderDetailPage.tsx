@@ -10,12 +10,13 @@ import AccionesPedido from "../components/AccionesPedido"
 import EstadoPedido from "../components/EstadoPedido"
 import PanelEnvio from "../components/PanelEnvio"
 
-const textoDelPago = (p: PedidoDetalle) =>
-  p.pagoEstado === "pagado"
-    ? "Pagado por Mercado Pago. La plata ya figura en Finanzas → Caja."
-    : p.pagoEstado === "pendiente"
-      ? "Esperando el pago de Mercado Pago. Cuando se apruebe, el pedido se confirma solo."
-      : "A coordinar con la clienta (la tienda no tenía Mercado Pago conectado cuando se hizo el pedido)."
+function textoDelPago(p: PedidoDetalle) {
+  const conGiftCard = p.giftCard ? `Usó la gift card ${p.giftCard.codigo} por ${formatPrice(p.giftCard.monto)}. ` : ""
+  if (p.giftCard && p.giftCard.monto >= p.total) return `Pagado entero con la gift card ${p.giftCard.codigo}: esa plata entró a la caja cuando se vendió.`
+  if (p.pagoEstado === "pagado") return `${conGiftCard}Pagado por Mercado Pago. La plata ya figura en Finanzas → Caja.`
+  if (p.pagoEstado === "pendiente") return `${conGiftCard}Esperando el pago de Mercado Pago. Cuando se apruebe, el pedido se confirma solo.`
+  return `${conGiftCard}${conGiftCard ? "El resto, a" : "A"} coordinar con la clienta (la tienda no tenía Mercado Pago conectado cuando se hizo el pedido).`
+}
 
 /** Un pedido: la clienta, qué llevó, cómo lo quiere recibir, cómo va el pago y los botones para moverlo. */
 export default function OrderDetailPage() {
@@ -68,6 +69,12 @@ export default function OrderDetailPage() {
               <span className="font-medium text-ink">Total</span>
               <span className="font-display text-lg font-semibold tabular-nums text-ink">{formatPrice(pedido.total)}</span>
             </div>
+            {pedido.giftCard && (
+              <div className="mt-1 flex justify-between text-sm text-ink-soft">
+                <span>Gift card {pedido.giftCard.codigo}</span>
+                <span className="tabular-nums">− {formatPrice(pedido.giftCard.monto)}</span>
+              </div>
+            )}
           </Panel>
 
           <PanelEnvio pedido={pedido} onCambio={setActualizado} />

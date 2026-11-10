@@ -2,8 +2,8 @@ import { formatPrice } from "@dp/shared/lib/format"
 
 type Linea = { productoId: number; nombre: string; cantidad: number; subtotal: number }
 
-/** Qué llevó y cuánto fue, con los precios que guardó el backend. */
-export default function ResumenDePedido({ items, total, envio }: { items: Linea[]; total: number; envio?: { costo: number } | null }) {
+/** Qué llevó y cuánto fue, con los precios que guardó el backend. Con gift card, lo que cubrió y lo que quedó por pagar. */
+export default function ResumenDePedido({ items, total, envio, giftCard = 0 }: { items: Linea[]; total: number; envio?: { costo: number } | null; giftCard?: number }) {
   return (
     <>
       <ul className="mt-8 divide-y divide-cream-dark text-left text-sm">
@@ -26,6 +26,18 @@ export default function ResumenDePedido({ items, total, envio }: { items: Linea[
         <span className="font-display font-semibold text-ink">Total</span>
         <span className="font-display text-lg font-semibold text-ink">{formatPrice(total)}</span>
       </div>
+      {giftCard > 0 && (
+        <div className="mt-2 space-y-1 text-left text-sm">
+          <div className="flex justify-between text-ink-soft">
+            <span>Pagado con gift card</span>
+            <span>− {formatPrice(giftCard)}</span>
+          </div>
+          <div className="flex justify-between font-medium text-ink">
+            <span>A pagar</span>
+            <span>{formatPrice(Math.max(0, total - giftCard))}</span>
+          </div>
+        </div>
+      )}
     </>
   )
 }

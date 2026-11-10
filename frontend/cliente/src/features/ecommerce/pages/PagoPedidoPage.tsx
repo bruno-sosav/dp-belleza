@@ -111,7 +111,7 @@ export default function PagoPedidoPage() {
         <h1 className="mt-5 font-display text-3xl font-semibold text-ink">{texto.titulo}</h1>
         <p className="mx-auto mt-3 max-w-md text-ink-soft">{texto.detalle}</p>
 
-        <ResumenDePedido items={p.items} total={p.total} envio={p.envio} />
+        <ResumenDePedido items={p.items} total={p.total} envio={p.envio} giftCard={p.giftCard} />
 
         {error && (
           <p role="alert" className="mt-6 rounded-md border border-rose/40 bg-rose/10 p-3 text-sm text-ink">
@@ -123,7 +123,7 @@ export default function PagoPedidoPage() {
           puedePagar={puedePagar}
           destacarWhatsApp={pagado}
           yendo={yendo}
-          total={p.total}
+          total={p.total - p.giftCard}
           whatsapp={negocio?.telefono ? whatsappUrl(negocio.telefono, mensaje) : null}
           onPagar={() => void pagar()}
           onRevisar={estado.reload}

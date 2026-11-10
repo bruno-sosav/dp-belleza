@@ -5,8 +5,17 @@ import { clientes } from "../../customers/customers.module.js"
 import { inventario } from "../../inventory/inventory.module.js"
 import { pagos } from "../../payments/payments.module.js"
 import { envios } from "../../shipping/shipping.module.js"
+import { giftCards } from "../../giftcards/giftcards.module.js"
 import { referenciaDePedido } from "../models/pedido.model.js"
-import type { CajaDePedidos, CatalogoDePedidos, ClientesDePedidos, EnviosDePedidos, InventarioDePedidos, PasarelaDePedidos } from "../models/pedidos.ports.js"
+import type {
+  CajaDePedidos,
+  CatalogoDePedidos,
+  ClientesDePedidos,
+  EnviosDePedidos,
+  GiftCardsDePedidos,
+  InventarioDePedidos,
+  PasarelaDePedidos,
+} from "../models/pedidos.ports.js"
 
 /** Clientas: el módulo customers (la misma ficha que usa la turnera). */
 export const clientesDePedidos: ClientesDePedidos = {
@@ -51,4 +60,11 @@ export const enviosDePedidos: EnviosDePedidos = {
   despachar: (d) => envios.despachar(d),
   seguimiento: (pedidoId) => envios.seguimiento(pedidoId),
   marcarEntregado: (pedidoId, tx) => envios.marcarEntregado(pedidoId, tx),
+}
+
+/** Gift cards: el módulo giftcards. */
+export const giftCardsDePedidos: GiftCardsDePedidos = {
+  reservar: (codigo, total, tx) => giftCards.reservar(codigo, total, tx),
+  descontar: (id, monto, pedidoId, tx) => giftCards.descontar(id, monto, pedidoId, tx),
+  reintegrar: (id, monto, pedidoId, tx) => giftCards.reintegrar(id, monto, pedidoId, tx),
 }

@@ -7,6 +7,7 @@ import AgendaPage from "../features/appointments/pages/AgendaPage"
 import CashPage from "../features/payments/pages/CashPage"
 import AnalysisPage from "../features/analytics/pages/AnalysisPage"
 import SalesPage from "../features/ecommerce/pages/SalesPage"
+import GiftCardsPage from "../features/giftcards/pages/GiftCardsPage"
 import OrdersPage from "../features/ecommerce/pages/OrdersPage"
 import OrderDetailPage from "../features/ecommerce/pages/OrderDetailPage"
 import ProductsPage from "../features/ecommerce/pages/ProductsPage"
@@ -45,6 +46,7 @@ export default function App() {
         <Route path="/pedidos" element={<OrdersPage />} />
         <Route path="/pedidos/:id" element={<OrderDetailPage />} />
         <Route path="/ventas" element={<SalesPage />} />
+        <Route path="/gift-cards" element={<GiftCardsPage />} />
         <Route path="/productos" element={<ProductsPage />} />
         <Route path="/productos/nuevo" element={<ProductFormPage />} />
         <Route path="/recordatorios" element={<RemindersPage />} />

@@ -2,9 +2,22 @@
 import { conflicto, noExiste } from "../../../core/negocio.error.js"
 import type { UnidadDeTrabajo } from "../../../core/transaccion.port.js"
 import type { CajaDePedidos, PasarelaDePedidos, PedidoRepository, PedidosQueries } from "../models/pedidos.ports.js"
-import { referenciaDePedido, resultadoDelPago, sePuedePagar, type PagoDePedido, type Pedido } from "../models/pedido.model.js"
+import { aPagar, referenciaDePedido, resultadoDelPago, sePuedePagar, type LineaConPrecio, type PagoDePedido, type Pedido } from "../models/pedido.model.js"
 
 const NO_EXISTE = "No encontramos ese pedido."
+
+/**
+ * Lo que se manda a Mercado Pago. El envío va como un ítem más, así cobra el total.
+ * Con gift card no se pueden mandar montos negativos: va una sola línea con lo que falta.
+ */
+function lineasAPagar(pedido: Pedido): LineaConPrecio[] {
+  const giftCardMonto = pedido.giftCard?.monto ?? 0
+  if (giftCardMonto > 0) {
+    return [{ productoId: 0, nombre: `Pedido #${pedido.id} (descontada la gift card)`, cantidad: 1, precioUnitario: aPagar({ total: pedido.total, giftCardMonto }) }]
+  }
+  const envio = pedido.envio && pedido.envio.costo > 0 ? [{ productoId: 0, nombre: "Envío a domicilio", cantidad: 1, precioUnitario: pedido.envio.costo }] : []
+  return [...pedido.items, ...envio]
+}
 
 export class PagarPedido {
   constructor(
@@ -30,9 +43,7 @@ export class PagarPedido {
     }
     // El mensaje de "no está configurado" de pagos es para la dueña; la clienta necesita otro.
     if (!(await this.pasarela.conectada())) throw conflicto("Por ahora no se puede pagar online. Escribinos por WhatsApp y coordinamos el pago.")
-    // El envío va como un ítem más, así lo que cobra Mercado Pago es el total del pedido.
-    const envio = pedido.envio && pedido.envio.costo > 0 ? [{ productoId: 0, nombre: "Envío a domicilio", cantidad: 1, precioUnitario: pedido.envio.costo }] : []
-    return this.pasarela.crearLink({ pedidoId: pedido.id, token, lineas: [...pedido.items, ...envio] })
+    return this.pasarela.crearLink({ pedidoId: pedido.id, token, lineas: lineasAPagar(pedido) })
   }
 
   /** Lo llaman el aviso de Mercado Pago y la vuelta de la clienta: puede llegar dos veces o tarde. */

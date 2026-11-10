@@ -9,8 +9,10 @@ function textoEnvio(retira: boolean, envio: number | null) {
   return envio === 0 ? "Gratis" : formatPrice(envio)
 }
 
-/** El aside del checkout: productos, subtotal, envío y total. `envio` null = todavía sin cotizar. */
-export default function ResumenDelCarrito({ items, subtotal, retira, envio }: { items: CartItem[]; subtotal: number; retira: boolean; envio: number | null }) {
+/** El aside del checkout: productos, subtotal, envío, gift card y total. `envio` null = todavía sin cotizar. */
+export default function ResumenDelCarrito(props: { items: CartItem[]; subtotal: number; retira: boolean; envio: number | null; giftCard: number }) {
+  const { items, subtotal, retira, envio, giftCard } = props
+  const total = subtotal + (envio ?? 0)
   return (
     <>
       <ul className="mt-4 space-y-3">
@@ -35,11 +37,17 @@ export default function ResumenDelCarrito({ items, subtotal, retira, envio }: { 
           <span>Envío</span>
           <span>{textoEnvio(retira, envio)}</span>
         </div>
+        {giftCard > 0 && (
+          <div className="flex justify-between text-leaf">
+            <span>Gift card</span>
+            <span>− {formatPrice(Math.min(giftCard, total))}</span>
+          </div>
+        )}
       </div>
 
       <div className="mt-4 flex justify-between border-t border-cream-dark pt-4">
-        <span className="font-display font-semibold text-ink">Total</span>
-        <span className="font-display text-lg font-semibold text-ink">{formatPrice(subtotal + (envio ?? 0))}</span>
+        <span className="font-display font-semibold text-ink">{giftCard > 0 ? "A pagar" : "Total"}</span>
+        <span className="font-display text-lg font-semibold text-ink">{formatPrice(Math.max(0, total - giftCard))}</span>
       </div>
     </>
   )

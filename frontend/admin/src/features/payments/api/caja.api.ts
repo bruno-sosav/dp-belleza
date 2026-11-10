@@ -10,7 +10,7 @@ export type Cobro = {
   fechaHora: string
   monto: number
   medio: MedioPago
-  concepto: "sena" | "turno" | "pedido" | "otro"
+  concepto: "sena" | "turno" | "pedido" | "gift_card" | "otro"
   descripcion: string | null
   turno: { id: number; servicio: string; fecha: string; hora: string } | null
   cliente: { nombre: string } | null
@@ -38,9 +38,10 @@ export function useCaja(fecha: string) {
   return useApi(pedir)
 }
 
+/** Con medio gift_card va el código en `giftCard`. */
 export type NuevoCobro =
-  | { monto: number; medio: MedioPago; concepto: "turno" | "sena"; turnoId: number }
-  | { monto: number; medio: MedioPago; concepto: "otro"; descripcion: string }
+  | { monto: number; medio: MedioPago; giftCard?: string; concepto: "turno" | "sena"; turnoId: number }
+  | { monto: number; medio: MedioPago; giftCard?: string; concepto: "otro"; descripcion: string }
 
 export function registrarCobro(cobro: NuevoCobro) {
   return api<{ id: number }>("/api/admin/cobros", { metodo: "POST", cuerpo: cobro })

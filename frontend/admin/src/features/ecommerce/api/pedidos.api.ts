@@ -48,6 +48,8 @@ export type PedidoResumen = {
 export type PedidoDetalle = Omit<PedidoResumen, "unidades" | "envioEstado"> & {
   items: { productoId: number; nombre: string; cantidad: number; precioUnitario: number; subtotal: number }[]
   envio: Envio | null
+  /** La gift card con que pagó todo o una parte. */
+  giftCard: { codigo: string; monto: number } | null
 }
 
 /** A qué estados se puede pasar desde cada uno (el backend lo vuelve a validar). */

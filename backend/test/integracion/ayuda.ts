@@ -92,6 +92,10 @@ export async function limpiar() {
   const ids = clientes.map((c) => c.id)
   // Los cobros no se borran con el turno (quedan en la caja): se limpian primero.
   await pool.query("DELETE FROM cobros WHERE descripcion LIKE 'TEST%'")
+  // Las gift cards de prueba (comprador "TEST …"), con lo que entró a la caja por ellas.
+  await pool.query("DELETE FROM cobros WHERE gift_card_id IN (SELECT id FROM gift_cards WHERE comprador_nombre LIKE 'TEST%')")
+  await pool.query("UPDATE pedidos SET gift_card_id = NULL WHERE gift_card_id IN (SELECT id FROM gift_cards WHERE comprador_nombre LIKE 'TEST%')")
+  await pool.query("DELETE FROM gift_cards WHERE comprador_nombre LIKE 'TEST%'")
   if (ids.length) {
     await pool.query("DELETE FROM cobros WHERE cliente_id IN (?) OR turno_id IN (SELECT id FROM turnos WHERE cliente_id IN (?))", [ids, ids])
     await pool.query("DELETE i FROM pedido_items i JOIN pedidos p ON p.id = i.pedido_id WHERE p.cliente_id IN (?)", [ids])

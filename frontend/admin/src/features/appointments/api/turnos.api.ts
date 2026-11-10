@@ -2,7 +2,7 @@
 import { useCallback, useState } from "react"
 import { api } from "../../../shared/lib/api"
 import { useApi } from "../../../shared/lib/useApi"
-import type { MedioPago } from "../../payments/lib/medios"
+import type { CobroElegido } from "../../payments/lib/medios"
 import { registrarCobro } from "../../payments/api/caja.api"
 
 export type EstadoTurno = "reservado" | "confirmado" | "completado" | "ausente" | "cancelado"
@@ -58,7 +58,7 @@ export function crearTurno(datos: NuevoTurno) {
 }
 
 /** Completa y registra el cobro en una sola operación. `cobro: null` = queda sin cobrar en Caja. */
-export function completarTurno(id: number, cobro: { monto: number; medio: MedioPago } | null) {
+export function completarTurno(id: number, cobro: CobroElegido | null) {
   return api<Turno>(`/api/admin/turnos/${id}/completar`, { metodo: "POST", cuerpo: { cobro } })
 }
 
@@ -107,13 +107,13 @@ export function useAgenda(desde: string, hasta: string) {
   )
   const cambiarEstado = useCallback((id: number, estado: EstadoTurno) => aplicar(id, cambiarEstadoTurno(id, estado)), [aplicar])
   const completar = useCallback(
-    (id: number, cobro: { monto: number; medio: MedioPago } | null) => aplicar(id, completarTurno(id, cobro)),
+    (id: number, cobro: CobroElegido | null) => aplicar(id, completarTurno(id, cobro)),
     [aplicar],
   )
 
   /** Cobrar lo que falta de un turno ya completado (por ejemplo, pagó después). */
   const cobrar = useCallback(
-    async (id: number, cobro: { monto: number; medio: MedioPago }) => {
+    async (id: number, cobro: CobroElegido) => {
       await registrarCobro({ ...cobro, concepto: "turno", turnoId: id })
       recargar()
     },

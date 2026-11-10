@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react"
 import { Link, useNavigate } from "react-router-dom"
+import { formatPrice } from "@dp/shared/lib/format"
 import { ApiError } from "../../../shared/lib/api"
 import { useNegocio } from "../../../shared/lib/negocio"
 import { crearPedido, linkDePago, problemasDeCompra, type PedidoCreado } from "../api/checkout.api"
@@ -8,12 +9,26 @@ import PedidoConfirmado from "../components/PedidoConfirmado"
 import ResumenDelCarrito from "../components/ResumenDelCarrito"
 import SeccionEntrega, { Field, inputClass, type Direccion, type TipoEntrega } from "../components/SeccionEntrega"
 import { useCart } from "../lib/carrito"
+import GiftCardDelCheckout from "../../giftcards/components/GiftCardDelCheckout"
+import type { SaldoGiftCard } from "../../giftcards/api/giftCards.api"
 
-
-const textoDelBoton = (enviando: boolean, faltaEnvio: boolean, conMercadoPago: boolean) => {
+const textoDelBoton = (enviando: boolean, faltaEnvio: boolean, hayQuePagar: boolean) => {
   if (enviando) return "Confirmando…"
   if (faltaEnvio) return "Falta calcular el envío"
-  return conMercadoPago ? "Confirmar y pagar" : "Confirmar pedido"
+  return hayQuePagar ? "Confirmar y pagar" : "Confirmar pedido"
+}
+
+/** Cómo se paga, según si hay Mercado Pago y cuánto cubre la gift card. */
+function textoDelPago(conMercadoPago: boolean, giftCard: SaldoGiftCard | null, falta: number) {
+  if (giftCard && falta <= 0) return "Tu gift card cubre todo el pedido: al confirmar queda pagado."
+  if (giftCard) {
+    return conMercadoPago
+      ? `Lo que no cubre la gift card (${formatPrice(falta)}) lo pagás en Mercado Pago al confirmar.`
+      : `Lo que no cubre la gift card (${formatPrice(falta)}) lo coordinamos por WhatsApp: transferencia, efectivo al retirar o link de pago.`
+  }
+  return conMercadoPago
+    ? "Al confirmar te llevamos a Mercado Pago para pagar con tarjeta, dinero en cuenta u otros medios. Cuando se apruebe el pago, tu pedido queda confirmado."
+    : "Después de confirmar te escribimos por WhatsApp para coordinar el pago (transferencia, efectivo al retirar o link de pago)."
 }
 
 export default function CheckoutPage() {
@@ -29,10 +44,12 @@ export default function CheckoutPage() {
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState<{ mensaje: string; lista?: string[] } | null>(null)
   const [pedido, setPedido] = useState<PedidoCreado | null>(null)
+  const [giftCard, setGiftCard] = useState<SaldoGiftCard | null>(null)
 
   // El envío se cotiza apenas hay un código postal válido. El backend lo vuelve a calcular al comprar.
   const conEnvio = entrega === "envio"
   const envio = useEnvioDelCheckout(conEnvio, direccion.codigoPostal, items.reduce((n, i) => n + i.quantity, 0), subtotal)
+  const falta = subtotal + (envio.costo ?? 0) - (giftCard?.saldo ?? 0)
 
   const irAPagar = async (token: string) => {
     try {
@@ -57,6 +74,7 @@ export default function CheckoutPage() {
         items: items.map((i) => ({ productoId: i.product.id, cantidad: i.quantity })),
         ...(comentario.trim() ? { notas: comentario.trim() } : {}),
         entrega: conEnvio ? { tipo: "envio", ...direccion, codigoPostal: envio.cp ?? direccion.codigoPostal } : { tipo: "retiro" },
+        ...(giftCard ? { giftCard: giftCard.codigo } : {}),
       })
       clear()
       if (creado.pagoToken) {
@@ -179,18 +197,17 @@ export default function CheckoutPage() {
 
           <section className="rounded-lg border border-cream-dark bg-surface p-6">
             <h2 className="font-display text-lg font-semibold text-ink">3. Pago</h2>
-            <p className="mt-3 text-sm text-ink-soft">
-              {conMercadoPago
-                ? "Al confirmar te llevamos a Mercado Pago para pagar con tarjeta, dinero en cuenta u otros medios. Cuando se apruebe el pago, tu pedido queda confirmado."
-                : "Después de confirmar te escribimos por WhatsApp para coordinar el pago (transferencia, efectivo al retirar o link de pago)."}
-            </p>
+            <div className="mt-3">
+              <GiftCardDelCheckout aplicada={giftCard} onAplicar={setGiftCard} />
+            </div>
+            <p className="mt-4 text-sm text-ink-soft">{textoDelPago(conMercadoPago, giftCard, falta)}</p>
           </section>
         </div>
 
         <div className="h-fit rounded-lg border border-cream-dark bg-surface p-6">
           <h2 className="font-display text-lg font-semibold text-ink">Resumen del pedido</h2>
 
-          <ResumenDelCarrito items={items} subtotal={subtotal} retira={!conEnvio} envio={envio.costo} />
+          <ResumenDelCarrito items={items} subtotal={subtotal} retira={!conEnvio} envio={envio.costo} giftCard={giftCard?.saldo ?? 0} />
 
           {error && (
             <div role="alert" className="mt-5 rounded-md border border-rose/40 bg-rose/10 p-3 text-sm text-ink">
@@ -210,7 +227,7 @@ export default function CheckoutPage() {
             disabled={enviando || envio.falta}
             className="mt-6 w-full rounded-sm bg-forest py-3 text-center text-sm font-medium text-cream transition hover:bg-forest-soft disabled:cursor-wait disabled:opacity-60"
           >
-            {textoDelBoton(enviando, envio.falta, conMercadoPago)}
+            {textoDelBoton(enviando, envio.falta, conMercadoPago && falta > 0)}
           </button>
 
           <Link to="/carrito" className="mt-4 block text-center text-sm text-leaf hover:underline">

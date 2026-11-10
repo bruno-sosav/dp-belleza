@@ -4,12 +4,12 @@ import { pool } from "../../../core/database/conexion.database.js"
 import type { PedidosQueries } from "../models/pedidos.ports.js"
 import type { EnvioDelPedido, EstadoPedido, FiltrosPedidos, PagoEstado, PedidoResumen } from "../models/pedido.model.js"
 
-const COLUMNAS = `p.id, p.estado, p.pago_estado, p.total, p.notas, p.created_at, p.updated_at,
+const COLUMNAS = `p.id, p.estado, p.pago_estado, p.total, p.notas, p.created_at, p.updated_at, p.gift_card_monto, g.codigo AS gift_card_codigo,
   c.id AS cliente_id, c.nombre, c.apellido, c.telefono, c.email,
   e.pedido_id AS envio_pedido, e.estado AS envio_estado`
 
-/** Vista de lectura: el envío es de shipping, acá solo se lee. */
-const DESDE = `FROM pedidos p JOIN clientes c ON c.id = p.cliente_id LEFT JOIN envios e ON e.pedido_id = p.id`
+/** Vista de lectura: el envío es de shipping y la gift card de giftcards; acá solo se leen. */
+const DESDE = `FROM pedidos p JOIN clientes c ON c.id = p.cliente_id LEFT JOIN envios e ON e.pedido_id = p.id LEFT JOIN gift_cards g ON g.id = p.gift_card_id`
 
 function aEnvio(r: RowDataPacket): EnvioDelPedido {
   return {
@@ -25,6 +25,9 @@ function aEnvio(r: RowDataPacket): EnvioDelPedido {
     despachadoAt: r.despachado_at ? String(r.despachado_at).slice(0, 16) : null,
   }
 }
+
+/** "AB3KXY7Q" → "AB3K-XY7Q", como lo ve la dueña. */
+const aCodigo = (c: string) => `${c.slice(0, 4)}-${c.slice(4)}`
 
 function aResumen(r: RowDataPacket): PedidoResumen {
   return {
@@ -88,6 +91,7 @@ export class MySqlPedidosQueries implements PedidosQueries {
     return {
       ...pedido,
       envio: envios[0] ? aEnvio(envios[0]) : null,
+      giftCard: rows[0].gift_card_codigo ? { codigo: aCodigo(rows[0].gift_card_codigo), monto: Number(rows[0].gift_card_monto) } : null,
       items: items.map((i) => ({
         productoId: i.producto_id as number,
         nombre: i.nombre as string,

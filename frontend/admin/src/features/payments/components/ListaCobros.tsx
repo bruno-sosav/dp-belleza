@@ -6,9 +6,9 @@ import { borrarCobro } from "../api/caja.api"
 import type { Cobro } from "../api/caja.api"
 import Icono from "../../../shared/components/Icono"
 
-const conceptos = { sena: "Seña", turno: "Turno", pedido: "Tienda", otro: "Otro" }
+const conceptos = { sena: "Seña", turno: "Turno", pedido: "Tienda", gift_card: "Venta de gift card", otro: "Otro" }
 
-/** Lo que entró en el día, del más nuevo al más viejo. Se puede borrar uno anotado por error (menos los de Mercado Pago). */
+/** Lo que entró en el día, del más nuevo al más viejo. Se puede borrar uno anotado por error (menos los de Mercado Pago y la venta de una gift card). */
 export default function ListaCobros({ cobros, onCambio }: { cobros: Cobro[]; onCambio: () => void }) {
   const [confirmando, setConfirmando] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -52,7 +52,7 @@ export default function ListaCobros({ cobros, onCambio }: { cobros: Cobro[]; onC
                 {medio.label}
               </span>
               <span className="w-28 text-right text-lg font-semibold tabular-nums text-ink">{formatPrice(c.monto)}</span>
-              {c.medio !== "mercadopago" &&
+              {c.medio !== "mercadopago" && c.concepto !== "gift_card" &&
                 (confirmando === c.id ? (
                   <span className="flex gap-2">
                     <button type="button" onClick={() => void borrar(c.id)} className="min-h-11 rounded-lg bg-peligro px-3 text-sm font-semibold text-white">

@@ -27,6 +27,8 @@ export interface PedidoRepository {
   /** El id del pedido de ese link de pago, o null si no existe. */
   idPorToken(token: string): Promise<number | null>
   marcarPagado(id: number, pagoId: number, estado: EstadoPedido, tx: Transaccion): Promise<void>
+  /** La gift card con que se pagó una parte (para devolverle el saldo si se cancela). */
+  giftCardDelPedido(id: number, tx: Transaccion): Promise<{ id: number; monto: number } | null>
 }
 
 /** Lecturas para el panel: juntan el pedido con la clienta y los productos. */
@@ -69,6 +71,14 @@ export interface EnviosDePedidos {
   despachar(d: { pedidoId: number; estadoPedido: string; destinatario: { nombre: string; telefono: string; email: string | null }; unidades: number; valor: number }): Promise<unknown>
   seguimiento(pedidoId: number): Promise<{ fecha: string; estado: string; detalle: string | null }[]>
   marcarEntregado(pedidoId: number, tx: Transaccion): Promise<void>
+}
+
+/** Gift cards: el módulo giftcards. */
+export interface GiftCardsDePedidos {
+  /** Bloquea la gift card y dice cuánto se descuenta de una compra de `total`. Falla si no existe o no tiene saldo. */
+  reservar(codigo: string, total: number, tx: Transaccion): Promise<{ id: number; monto: number }>
+  descontar(id: number, monto: number, pedidoId: number, tx: Transaccion): Promise<void>
+  reintegrar(id: number, monto: number, pedidoId: number, tx: Transaccion): Promise<void>
 }
 
 /** Stock: el módulo inventory. */

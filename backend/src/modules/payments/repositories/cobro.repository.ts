@@ -16,15 +16,16 @@ export const aCobro = (r: RowDataPacket): Cobro => ({
   pedidoId: r.pedido_id ?? null,
   clienteId: r.cliente_id,
   mpPagoId: r.mp_pago_id,
+  giftCardId: r.gift_card_id ?? null,
 })
 
 export class MySqlCobroRepository implements CobroRepository {
   async registrar(c: NuevoCobro, tx?: Transaccion) {
     // IGNORE: un mp_pago_id repetido (el aviso de Mercado Pago puede llegar dos veces) no entra de nuevo.
     const [r] = await ejecutor(tx).query<ResultSetHeader>(
-      `INSERT IGNORE INTO cobros (monto, medio, concepto, turno_id, pedido_id, cliente_id, descripcion, mp_pago_id)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [c.monto, c.medio, c.concepto, c.turnoId ?? null, c.pedidoId ?? null, c.clienteId ?? null, c.descripcion ?? null, c.mpPagoId ?? null],
+      `INSERT IGNORE INTO cobros (monto, medio, concepto, turno_id, pedido_id, gift_card_id, cliente_id, descripcion, mp_pago_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [c.monto, c.medio, c.concepto, c.turnoId ?? null, c.pedidoId ?? null, c.giftCardId ?? null, c.clienteId ?? null, c.descripcion ?? null, c.mpPagoId ?? null],
     )
     return r.affectedRows ? r.insertId : null
   }
@@ -34,8 +35,16 @@ export class MySqlCobroRepository implements CobroRepository {
     return rows[0] ? aCobro(rows[0]) : null
   }
 
-  async borrar(id: number) {
-    await ejecutor().query("DELETE FROM cobros WHERE id = ?", [id])
+  async borrar(id: number, tx?: Transaccion) {
+    await ejecutor(tx).query("DELETE FROM cobros WHERE id = ?", [id])
+  }
+
+  async conGiftCardDelTurno(turnoId: number, tx: Transaccion) {
+    const [rows] = await ejecutor(tx).query<RowDataPacket[]>(
+      "SELECT gift_card_id, monto FROM cobros WHERE turno_id = ? AND concepto = 'turno' AND medio = 'gift_card' AND gift_card_id IS NOT NULL",
+      [turnoId],
+    )
+    return rows.map((r) => ({ giftCardId: r.gift_card_id as number, monto: Number(r.monto) }))
   }
 
   async anularDelTurno(turnoId: number, tx: Transaccion) {

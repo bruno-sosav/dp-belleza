@@ -4,7 +4,7 @@ import TurnoFila from "./TurnoFila"
 import { formatLongDate } from "../../../shared/lib/format"
 import type { Ahora } from "../../../shared/lib/useAhora"
 import type { EstadoTurno, Turno } from "../api/turnos.api"
-import type { MedioPago } from "../../payments/lib/medios"
+import type { CobroElegido } from "../../payments/lib/medios"
 import Icono from "../../../shared/components/Icono"
 
 /** Detalle de un turno del calendario. Usa TurnoFila para tener los mismos botones que Hoy. */
@@ -20,8 +20,8 @@ export default function ModalTurno({
   turno: Turno
   ahora: Ahora
   onCambiarEstado: (estado: EstadoTurno) => Promise<void>
-  onCompletar: (cobro: { monto: number; medio: MedioPago } | null) => Promise<void>
-  onCobrar: (cobro: { monto: number; medio: MedioPago }) => Promise<void>
+  onCompletar: (cobro: CobroElegido | null) => Promise<void>
+  onCobrar: (cobro: CobroElegido) => Promise<void>
   onEditar: () => void
   onCerrar: () => void
 }) {

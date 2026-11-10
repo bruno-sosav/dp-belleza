@@ -1,7 +1,7 @@
 /** Casos de uso de los pedidos en el panel. Sin SQL ni Express. */
 import { conflicto, noEncontrado } from "../../../core/negocio.error.js"
 import type { UnidadDeTrabajo } from "../../../core/transaccion.port.js"
-import type { EnviosDePedidos, InventarioDePedidos, PedidoRepository, PedidosQueries } from "../models/pedidos.ports.js"
+import type { EnviosDePedidos, GiftCardsDePedidos, InventarioDePedidos, PedidoRepository, PedidosQueries } from "../models/pedidos.ports.js"
 import { puedeCambiarEstado, type EstadoPedido, type FiltrosPedidos, type Pedido } from "../models/pedido.model.js"
 
 export class ListarPedidos {
@@ -24,13 +24,14 @@ export class VerPedido {
 
 /**
  * La dueña mueve el pedido: pendiente → confirmado → entregado, o lo cancela.
- * Al cancelar, el stock vuelve al inventario en la misma transacción.
+ * Al cancelar, el stock vuelve al inventario y el saldo a la gift card, en la misma transacción.
  */
 export class CambiarEstadoPedido {
   constructor(
     private pedidos: PedidoRepository,
     private inventario: InventarioDePedidos,
     private envios: Pick<EnviosDePedidos, "marcarEntregado">,
+    private giftCards: Pick<GiftCardsDePedidos, "reintegrar">,
     private verPedido: VerPedido,
     private uow: UnidadDeTrabajo,
   ) {}
@@ -41,7 +42,11 @@ export class CambiarEstadoPedido {
       if (!actual) throw noEncontrado("Pedido")
       if (!puedeCambiarEstado(actual, nuevo)) throw conflicto(`No se puede pasar un pedido de "${actual}" a "${nuevo}"`)
       await this.pedidos.cambiarEstado(id, nuevo, tx)
-      if (nuevo === "cancelado") await this.inventario.devolver(await this.pedidos.lineas(id, tx), tx)
+      if (nuevo === "cancelado") {
+        await this.inventario.devolver(await this.pedidos.lineas(id, tx), tx)
+        const giftCard = await this.pedidos.giftCardDelPedido(id, tx)
+        if (giftCard) await this.giftCards.reintegrar(giftCard.id, giftCard.monto, id, tx)
+      }
       // Si se lo mandaron, el envío también queda entregado.
       if (nuevo === "entregado") await this.envios.marcarEntregado(id, tx)
     })

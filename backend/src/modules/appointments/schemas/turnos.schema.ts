@@ -48,7 +48,9 @@ export const completar = z.object({
   cobro: z
     .object({
       monto: z.number().positive().max(100_000_000),
-      medio: z.enum(["efectivo", "debito", "credito", "transferencia", "mercadopago"]),
+      medio: z.enum(["efectivo", "debito", "credito", "transferencia", "mercadopago", "gift_card"]),
+      /** Solo con medio gift_card: el código. */
+      giftCard: z.string().trim().max(20).optional(),
     })
     .nullable(),
 })

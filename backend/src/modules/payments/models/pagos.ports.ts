@@ -7,11 +7,13 @@ export interface CobroRepository {
   /** Con `mpPagoId` repetido no hace nada. Devuelve el id, o null si ya estaba. */
   registrar(c: NuevoCobro, tx?: Transaccion): Promise<number | null>
   porId(id: number): Promise<Cobro | null>
-  borrar(id: number): Promise<void>
+  borrar(id: number, tx?: Transaccion): Promise<void>
   /** Lo cobrado al terminar un turno (no la seña): se usa al deshacer un "completado". */
   anularDelTurno(turnoId: number, tx: Transaccion): Promise<void>
   /** Cuánto entró por cada turno (seña + lo cobrado al terminar). */
   cobradoPorTurnos(turnoIds: number[]): Promise<Map<number, number>>
+  /** Lo pagado con gift card al terminar un turno (para devolverle el saldo si se deshace). */
+  conGiftCardDelTurno(turnoId: number, tx: Transaccion): Promise<{ giftCardId: number; monto: number }[]>
   /** Unir dos fichas de clienta: sus cobros pasan a la que queda. */
   reasignarCliente(deId: number, aId: number, tx: Transaccion): Promise<void>
 }
@@ -66,6 +68,16 @@ export interface PasarelaDePago {
 export interface PedidosDeLaCaja {
   /** Llegó un pago con referencia "pedido-<id>". */
   aplicarPago(pedidoId: number, pago: PagoRecibido): Promise<void>
+}
+
+/** Lo que pagos necesita de las gift cards. Lo conecta giftcards (`pagos.conectarGiftCards`). */
+export interface GiftCardsDeLaCaja {
+  /** Llegó un pago con referencia "giftcard-<id>". */
+  aplicarPago(id: number, pago: PagoRecibido): Promise<void>
+  /** Paga `monto` con la gift card de ese código. Devuelve su id; sin saldo suficiente, falla. */
+  usar(codigo: string, monto: number, descripcion: string, tx: Transaccion): Promise<number>
+  /** Devuelve saldo (se borró el cobro o se deshizo el turno). */
+  reintegrar(id: number, monto: number, descripcion: string, tx: Transaccion): Promise<void>
 }
 
 /** Lo que pagos necesita de los turnos. Lo conecta el módulo de turnos (`pagos.conectarTurnos`). */

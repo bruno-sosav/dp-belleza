@@ -15,6 +15,7 @@ import { pedidos } from "./modules/orders/orders.module.js"
 import { pagos } from "./modules/payments/payments.module.js"
 import { recordatorios } from "./modules/reminders/reminders.module.js"
 import { envios } from "./modules/shipping/shipping.module.js"
+import { giftCards } from "./modules/giftcards/giftcards.module.js"
 
 // Mensajes de validación en español
 z.config(z.locales.es())
@@ -43,6 +44,7 @@ app.use("/api/auth", auth.rutasWeb)
 app.use("/api/tienda", catalogo.rutasTiendaWeb)
 app.use("/api/tienda", pedidos.rutasWeb)
 app.use("/api/tienda", envios.rutasWeb)
+app.use("/api/tienda", giftCards.rutasWeb)
 // Reservar, Mi turno y la seña; después, servicios y agenda para la web.
 app.use("/api/turnos", turnos.rutasWeb)
 app.use("/api/turnos", catalogo.rutasServiciosWeb)
@@ -67,6 +69,7 @@ panel.use(recordatorios.rutasPanel)
 panel.use(auth.rutasPanel)
 panel.use(pagos.rutasPanel)
 panel.use(envios.rutasPanel)
+panel.use(giftCards.rutasPanel)
 app.use("/api/admin", panel)
 
 app.use((_req, res) => {
