@@ -11,6 +11,11 @@ describe("cobros", () => {
     expect(problemaDeCobroManual({ concepto: "otro", descripcion: "gift card" })).toBeNull()
   })
 
+  it("pagado con gift card, hace falta el código", () => {
+    expect(problemaDeCobroManual({ concepto: "turno", turnoId: 4, medio: "gift_card" })).toMatch(/código/)
+    expect(problemaDeCobroManual({ concepto: "turno", turnoId: 4, medio: "gift_card", giftCard: "AB3K-XY7Q" })).toBeNull()
+  })
+
   it("los de Mercado Pago no se borran desde el panel", () => {
     expect(sePuedeBorrar({ mpPagoId: 123 })).toBe(false)
     expect(sePuedeBorrar({ mpPagoId: null })).toBe(true)
@@ -21,8 +26,10 @@ describe("cobros", () => {
       { medio: "efectivo", monto: 1000 },
       { medio: "efectivo", monto: 500 },
       { medio: "mercadopago", monto: 3000 },
+      { medio: "gift_card", monto: 2000 },
     ])
-    expect(t.porMedio).toEqual({ efectivo: 1500, debito: 0, credito: 0, transferencia: 0, mercadopago: 3000 })
+    expect(t.porMedio).toEqual({ efectivo: 1500, debito: 0, credito: 0, transferencia: 0, mercadopago: 3000, gift_card: 2000 })
+    // Lo pagado con gift card no es plata nueva: entró cuando se vendió.
     expect(t.total).toBe(4500)
   })
 })
@@ -43,6 +50,7 @@ describe("Mercado Pago", () => {
   it("a quién le toca un pago, por su referencia", () => {
     expect(destinoDelPago("turno-12")).toEqual({ tipo: "turno", id: 12 })
     expect(destinoDelPago("pedido-15")).toEqual({ tipo: "pedido", id: 15 })
+    expect(destinoDelPago("giftcard-3")).toEqual({ tipo: "giftcard", id: 3 })
     expect(destinoDelPago("otra cosa")).toBeNull()
     expect(destinoDelPago(null)).toBeNull()
   })

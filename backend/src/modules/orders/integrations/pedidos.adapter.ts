@@ -4,12 +4,30 @@ import { catalogo } from "../../catalog/catalog.module.js"
 import { clientes } from "../../customers/customers.module.js"
 import { inventario } from "../../inventory/inventory.module.js"
 import { pagos } from "../../payments/payments.module.js"
+import { envios } from "../../shipping/shipping.module.js"
+import { giftCards } from "../../giftcards/giftcards.module.js"
+import { ajustes } from "../../admin/admin.module.js"
 import { referenciaDePedido } from "../models/pedido.model.js"
-import type { CajaDePedidos, CatalogoDePedidos, ClientesDePedidos, InventarioDePedidos, PasarelaDePedidos } from "../models/pedidos.ports.js"
+import type {
+  AjustesDePedidos,
+  CajaDePedidos,
+  CatalogoDePedidos,
+  ClientesDePedidos,
+  EnviosDePedidos,
+  GiftCardsDePedidos,
+  InventarioDePedidos,
+  PasarelaDePedidos,
+} from "../models/pedidos.ports.js"
 
 /** Clientas: el módulo customers (la misma ficha que usa la turnera). */
 export const clientesDePedidos: ClientesDePedidos = {
   buscarOCrear: (datos, tx) => clientes.buscarOCrear(datos, tx),
+  cumple: (clienteId, tx) => clientes.cumpleDe(clienteId, tx),
+}
+
+/** Ajustes del local: el módulo admin. */
+export const ajustesDePedidos: AjustesDePedidos = {
+  descuentoCumple: () => ajustes.descuentoCumple(),
 }
 
 /** Precios: el módulo catalog. */
@@ -41,4 +59,20 @@ export const pasarelaDePedidos: PasarelaDePedidos = {
 /** La caja: el módulo payments. */
 export const cajaDePedidos: CajaDePedidos = {
   cobrar: (c, tx) => pagos.cobrarPedido(c, tx),
+}
+
+/** Envíos: el módulo shipping. */
+export const enviosDePedidos: EnviosDePedidos = {
+  cotizar: (d) => envios.cotizar(d),
+  registrar: (pedidoId, destino, c, tx) => envios.registrar(pedidoId, destino, c, tx),
+  despachar: (d) => envios.despachar(d),
+  seguimiento: (pedidoId) => envios.seguimiento(pedidoId),
+  marcarEntregado: (pedidoId, tx) => envios.marcarEntregado(pedidoId, tx),
+}
+
+/** Gift cards: el módulo giftcards. */
+export const giftCardsDePedidos: GiftCardsDePedidos = {
+  reservar: (codigo, total, tx) => giftCards.reservar(codigo, total, tx),
+  descontar: (id, monto, pedidoId, tx) => giftCards.descontar(id, monto, pedidoId, tx),
+  reintegrar: (id, monto, pedidoId, tx) => giftCards.reintegrar(id, monto, pedidoId, tx),
 }

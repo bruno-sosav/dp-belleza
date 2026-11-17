@@ -59,6 +59,8 @@ abrirlo (por ejemplo `caja.controller.ts`, `cobro.model.ts`):
 | `orders` (pedidos de la tienda) | `checkout.controller.ts`, `pedidos.controller.ts` |
 | `payments` (caja y Mercado Pago) | `pagos.controller.ts` |
 | `reminders` (recordatorios) | `recordatorios.controller.ts` |
+| `shipping` (envíos con Andreani) | `envios.controller.ts` |
+| `giftcards` (gift cards) | `giftCards.controller.ts` |
 
 `orders` no tiene tablas ajenas: la clienta la busca o crea `customers`, los
 precios los da `catalog` y el stock lo descuenta y devuelve `inventory`, todo a
@@ -120,12 +122,16 @@ mysql -u dp_dev -p dp_belleza < database/migrations/V9_sena_mercadopago.sql
 mysql -u dp_dev -p dp_belleza < database/migrations/V10_reglas_de_reserva.sql
 mysql -u dp_dev -p dp_belleza < database/migrations/V11_caja.sql
 mysql -u dp_dev -p dp_belleza < database/migrations/V12_pago_de_pedidos.sql
+mysql -u dp_dev -p dp_belleza < database/migrations/V13_envios.sql
+mysql -u dp_dev -p dp_belleza < database/migrations/V14_gift_cards.sql
+mysql -u dp_dev -p dp_belleza < database/migrations/V15_descuento_cumple.sql
 mysql -u dp_dev -p dp_belleza < database/seeds/seed_01_servicios.sql
 mysql -u dp_dev -p dp_belleza < database/seeds/seed_02_horarios.sql
 mysql -u dp_dev -p dp_belleza < database/seeds/ecommerce-datos-ejemplo.sql
 mysql -u dp_dev -p dp_belleza < database/seeds/seed_03_turnos_demo.sql       # historial (para las estadísticas)
 mysql -u dp_dev -p dp_belleza < database/seeds/seed_04_turnos_proximos.sql   # agenda de hoy en adelante
 mysql -u dp_dev -p dp_belleza < database/seeds/seed_05_pedidos_demo.sql       # historial de la tienda (para las estadísticas)
+mysql -u dp_dev -p dp_belleza < database/seeds/seed_06_envios_prueba.sql      # envíos en modo prueba
 
 # Usuario para el panel
 npm run crear-admin -w @dp/backend -- "Nombre" email@ejemplo.com "clave-segura"
@@ -160,6 +166,10 @@ Todas las respuestas son JSON. Los errores tienen la forma `{ "error": "mensaje"
 | POST | `/api/tienda/pedidos` | Crea un pedido (checkout). Con Mercado Pago conectado devuelve `pagoToken` |
 | GET | `/api/tienda/pedidos/pago/:token?payment_id=` | Cómo quedó el pago al volver de Mercado Pago (con `payment_id`, lo aplica) |
 | POST | `/api/tienda/pedidos/pago/:token/pagar` | Link de Mercado Pago para pagar el pedido o reintentar |
+| POST | `/api/tienda/gift-cards` | Compra una gift card `{ monto, comprador: { nombre, telefono, email? }, para?, mensaje? }`: queda esperando el pago y devuelve `pagoToken` |
+| POST | `/api/tienda/gift-cards/pago/:token/pagar` | Link de Mercado Pago para pagar la gift card |
+| GET | `/api/tienda/gift-cards/pago/:token?payment_id=` | Cómo quedó (el código aparece recién cuando está pagada) |
+| GET | `/api/tienda/gift-cards/saldo?codigo=AB3K-XY7Q` | Saldo de una gift card, para usarla en el checkout (los intentos fallidos tienen límite por IP) |
 
 **POST `/api/tienda/pedidos`**
 
@@ -167,15 +177,21 @@ Todas las respuestas son JSON. Los errores tienen la forma `{ "error": "mensaje"
 {
   "cliente": { "nombre": "Ana", "apellido": "Pérez", "telefono": "223 15-123-4567", "email": "ana@mail.com" },
   "items": [{ "productoId": 1, "cantidad": 2 }],
-  "notas": "Retiro en el local"
+  "notas": "Retiro en el local",
+  "giftCard": "AB3K-XY7Q"
 }
 ```
 
 - El cliente no tiene cuenta: se busca o se crea por **teléfono** (módulo `customers`).
 - Los **precios salen de la base**, no del navegador. Se congelan en `pedido_items.precio_unitario`.
 - Se **descuenta el stock** en la misma transacción. Si dos personas compran a la vez, no se vende más de lo que hay.
-- Respuestas: `201` con el pedido creado, `400` si faltan datos, `409` si algún producto no está disponible o no tiene stock
-  (en `detalle` viene cuál y por qué).
+- **Descuento de cumpleaños**: si la clienta de ese teléfono tiene el cumpleaños cargado en su ficha y es su mes, se
+  descuenta el % de `descuento_cumple_porcentaje` (Ajustes → Tu negocio) de los productos, no del envío. Una compra por
+  año (un pedido cancelado no cuenta). `descuentoCumple` en la respuesta es lo descontado; `total` ya lo tiene restado.
+- Con `giftCard`, se descuenta su saldo (hasta el total) en la misma transacción: `giftCard` en la respuesta es lo que cubrió.
+  Si cubre todo, el pedido nace `confirmado` y pagado; si no, Mercado Pago cobra solo lo que falta.
+- Respuestas: `201` con el pedido creado, `400` si faltan datos, `404` si la gift card no existe, `409` si algún producto no
+  está disponible o no tiene stock (en `detalle` viene cuál y por qué) o si la gift card no tiene saldo.
 
 ### Turnera (públicos) — `/api/turnos`
 
@@ -240,6 +256,12 @@ el header `Authorization: Bearer <token>` (dura 8 horas). `GET /api/auth/yo` dev
 | GET | `/api/admin/pedidos?estado=pendiente&desde=2026-10-01&hasta=2026-10-31` | Lista de pedidos (filtros opcionales) |
 | GET | `/api/admin/pedidos/:id` | Pedido con cliente e items |
 | PATCH | `/api/admin/pedidos/:id/estado` | Cambia el estado `{ "estado": "confirmado" }` |
+| POST | `/api/admin/pedidos/:id/envio/despachar` | Genera el envío (pedido confirmado, una sola vez) y guarda el número de seguimiento |
+| GET | `/api/admin/pedidos/:id/envio/seguimiento` | Los movimientos del paquete |
+| GET · POST | `/api/admin/gift-cards?estado=activa&q=` | Lista (búsqueda por código o nombre) · vende una en el local `{ monto, medio, comprador: { nombre, telefono? }, para?, mensaje? }` |
+| GET | `/api/admin/gift-cards/:id` | Una gift card con sus movimientos (cargas, usos, devoluciones) |
+| POST | `/api/admin/gift-cards/:id/anular` | La anula (solo si no se usó) |
+| GET · PUT · DELETE | `/api/admin/andreani` | La cuenta de la API de Andreani (se prueba el login antes de guardar; la contraseña nunca vuelve) |
 | GET | `/api/admin/stats/dias?dias=180` | Serie diaria: plata de turnos completados y de la tienda (pedidos confirmados o entregados) |
 | GET | `/api/admin/stats/productos?dias=30` | Productos más vendidos del período: `{ id, name, count, revenue, inactive }` |
 | GET | `/api/admin/turnos?desde=2026-10-15&hasta=2026-10-21&estado=reservado` | Turnos con cliente y servicio, por horario. Sin parámetros: los de hoy. Rango máximo 62 días |
@@ -254,7 +276,7 @@ el header `Authorization: Bearer <token>` (dura 8 horas). `GET /api/auth/yo` dev
   pendiente pasa a `cancelado`. **Las estadísticas solo cuentan los `completado`**: si la
   dueña no los marca, la plata no aparece.
 - Estados de pedido: `pendiente → confirmado → entregado`, y `pendiente`/`confirmado → cancelado`.
-  Al **cancelar**, el stock vuelve a los productos.
+  Al **cancelar**, el stock vuelve a los productos y, si se pagó con gift card, el saldo vuelve a la gift card.
 
 ## Mercado Pago
 
@@ -300,13 +322,74 @@ dos veces). Sin Mercado Pago, `pago_estado` queda NULL y el pago se coordina
 por WhatsApp. Un pedido que nunca se paga sigue apartando el stock hasta que
 la dueña lo cancela.
 
+## Envíos (Andreani)
+
+Módulo `shipping`. En **Ajustes → Envíos** la dueña elige el modo:
+
+| Modo | Qué hace |
+|---|---|
+| `desactivado` | Solo retiro en el local (el valor de la migración) |
+| `prueba` | Simula a Andreani: tarifa según la distancia entre códigos postales y el peso, número de envío `PRUEBA-…` y un seguimiento armado según las horas que pasaron. Es lo que carga `seed_06_envios_prueba.sql` para desarrollo y la demo |
+| `andreani` | La API de Andreani con la cuenta del local (`andreani_cuenta`, contraseña cifrada como el token de Mercado Pago) |
+
+En el checkout, `GET /api/tienda/envios/cotizar?cp=&unidades=&subtotal=` muestra
+el costo; al comprar se vuelve a cotizar con el subtotal de la base (el de la web
+no se usa) y el envío se suma al total del pedido. Desde
+`envio_gratis_desde` el envío no se cobra. El pedido guarda la dirección en
+`envios` (pedido sin fila = retira en el local). El panel genera el envío cuando
+el pedido está confirmado y muestra el seguimiento; al marcar el pedido
+entregado, el envío también. Mercado Pago cobra el envío como un ítem más. En
+las estadísticas, las ventas de la tienda son solo productos (sin el envío).
+
+⚠️ `integrations/andreani.gateway.ts` sigue la API pública de Andreani (login
+con Basic auth → header `x-authorization-token`, `/v1/tarifas`,
+`/v2/ordenes-de-envio`, `/v2/envios/{numero}/trazas`), pero no se pudo probar
+sin una cuenta. Cuando el local tenga la suya: conectarla en el entorno de
+pruebas (QA), cotizar y generar un envío, y ajustar los nombres de campos contra
+la documentación de developers.andreani.com si hace falta.
+
+## Gift cards
+
+Módulo `giftcards` (tablas `gift_cards` y `gift_card_movimientos`, V14). Cada una
+tiene un código de 8 caracteres sin los que se confunden (`AB3K-XY7Q`), el monto
+que se cargó y el saldo que le queda; cada carga, uso, devolución o anulación
+queda en los movimientos con el saldo que dejó.
+
+- **Venta en la web**: la clienta elige el monto y paga con Mercado Pago
+  (referencia `giftcard-<id>`, la vuelta es `/gift-cards/pago?t=<token>`). Cuando
+  el pago se aprueba queda activa y recién ahí la web le muestra el código. Sin
+  Mercado Pago conectado, la web ofrece pedirla por WhatsApp.
+- **Venta en el local**: la dueña la carga en **Gift cards** con el medio con que
+  le pagaron; queda activa al instante.
+- **En la tienda online**: el código va en el checkout; se usa el saldo hasta el
+  total y Mercado Pago cobra lo que falta (en una sola línea, porque no acepta
+  montos negativos). Si el pedido se cancela, el saldo vuelve.
+- **En el local**: al cobrar un turno o anotar un cobro, medio «Gift card» y el
+  código. Si se borra el cobro o se deshace el completado, el saldo vuelve.
+
+En la caja, la **venta** entra como cobro con concepto `gift_card` (y su medio:
+efectivo, Mercado Pago…). El **uso** se anota con medio `gift_card` y no suma al
+total del día: esa plata ya había entrado cuando se vendió. Se puede anular una
+gift card solo si no se usó; si hay que devolver la plata, se hace a mano.
+
+## Descuento de cumpleaños
+
+En **Ajustes → Tu negocio** la dueña elige el % (0 = sin descuento, máximo 50).
+Al comprar en la tienda, `CrearPedido` busca la ficha por teléfono (como siempre)
+y, si su `cumple_mes` es el mes de hoy (hora de Argentina) y ese año no tiene
+otro pedido no cancelado con descuento, descuenta ese % de los productos. La
+regla está en `descuentoDeCumple` (`orders/models/pedido.model.ts`). Se guarda
+en `pedidos.descuento_cumple` (V15) y el total ya viene con el descuento, así
+que Mercado Pago, la caja y las estadísticas ven lo que de verdad se cobró. La
+web no consulta si una clienta cumple años (no revela datos de nadie por su
+teléfono): avisa que el descuento existe y lo muestra al confirmar.
+
 ## Pendiente de decidir
 
 | Tema | Estado |
 |---|---|
 | CORS | Configurado para los dos orígenes con `CORS_ORIGINS` (en desarrollo `:5173` web y `:5174` panel). En producción: `https://dpbelleza.com.ar,https://admin.dpbelleza.com.ar` |
 | Sesión | Hoy es un token JWT en el header `Authorization`, no una cookie, así que no depende del dominio |
-| Envío | `pedidos` no tiene columnas de entrega: el checkout manda la forma de entrega y la dirección en `notas`, y el costo del envío se coordina por WhatsApp. `total` es solo la suma de los productos |
 | Datos extra del frontend | `oldPrice`, `badge`, `rating`, `reviews` y `sizes` no existen en la tabla `productos` |
 | Pedidos sin pagar | Un pedido que espera el pago de Mercado Pago aparta el stock hasta que la dueña lo cancela. Se podría vencer solo, como la seña de los turnos |
 | Fotos | Se cargan como link (`imagenUrl`), no hay subida de archivos |

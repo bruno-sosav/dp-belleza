@@ -7,6 +7,7 @@ import AgendaPage from "../features/appointments/pages/AgendaPage"
 import CashPage from "../features/payments/pages/CashPage"
 import AnalysisPage from "../features/analytics/pages/AnalysisPage"
 import SalesPage from "../features/ecommerce/pages/SalesPage"
+import GiftCardsPage from "../features/giftcards/pages/GiftCardsPage"
 import OrdersPage from "../features/ecommerce/pages/OrdersPage"
 import OrderDetailPage from "../features/ecommerce/pages/OrderDetailPage"
 import ProductsPage from "../features/ecommerce/pages/ProductsPage"
@@ -18,6 +19,7 @@ import ClosedDaysPage from "../features/appointments/pages/ClosedDaysPage"
 import BookingRulesPage from "../features/appointments/pages/BookingRulesPage"
 import BusinessPage from "../features/settings/pages/BusinessPage"
 import MercadoPagoPage from "../features/settings/pages/MercadoPagoPage"
+import EnviosPage from "../features/settings/pages/EnviosPage"
 import AccountPage from "../features/auth/pages/AccountPage"
 import RemindersPage from "../features/reminders/pages/RemindersPage"
 import ReminderTypesPage from "../features/reminders/pages/ReminderTypesPage"
@@ -44,12 +46,14 @@ export default function App() {
         <Route path="/pedidos" element={<OrdersPage />} />
         <Route path="/pedidos/:id" element={<OrderDetailPage />} />
         <Route path="/ventas" element={<SalesPage />} />
+        <Route path="/gift-cards" element={<GiftCardsPage />} />
         <Route path="/productos" element={<ProductsPage />} />
         <Route path="/productos/nuevo" element={<ProductFormPage />} />
         <Route path="/recordatorios" element={<RemindersPage />} />
         <Route path="/recordatorios/mensajes" element={<ReminderTypesPage />} />
         <Route path="/ajustes" element={<BusinessPage />} />
         <Route path="/ajustes/mercadopago" element={<MercadoPagoPage />} />
+        <Route path="/ajustes/envios" element={<EnviosPage />} />
         <Route path="/ajustes/cuenta" element={<AccountPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

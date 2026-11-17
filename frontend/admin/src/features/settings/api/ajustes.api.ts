@@ -20,6 +20,16 @@ export type Configuracion = {
   /** Reglas de la reserva web (Turnos → Reglas). */
   reserva_anticipacion_min_horas: string
   reserva_anticipacion_max_dias: string
+  /** Envíos de la tienda: "desactivado" (solo retiro), "prueba" (simula Andreani) o "andreani". */
+  envio_modo: string
+  /** Monto de productos desde el que el envío es gratis. "0" = nunca. */
+  envio_gratis_desde: string
+  /** Código postal desde donde se despacha. */
+  envio_cp_origen: string
+  /** Gramos por unidad, para cotizar. */
+  envio_peso_unidad_g: string
+  /** % de descuento en la tienda en el mes del cumpleaños de la clienta. "0" = sin descuento. */
+  descuento_cumple_porcentaje: string
 }
 
 export type CambiosConfiguracion = Partial<{
@@ -33,6 +43,11 @@ export type CambiosConfiguracion = Partial<{
   sena_porcentaje: number
   reserva_anticipacion_min_horas: number
   reserva_anticipacion_max_dias: number
+  envio_modo: "desactivado" | "prueba" | "andreani"
+  envio_gratis_desde: number
+  envio_cp_origen: string
+  envio_peso_unidad_g: number
+  descuento_cumple_porcentaje: number
 }>
 
 export function useConfiguracion() {

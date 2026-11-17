@@ -13,6 +13,8 @@ export const nuevoCobro = z.object({
   concepto: z.enum(CONCEPTOS_MANUALES),
   turnoId: z.number().int().positive().optional(),
   descripcion: z.string().trim().max(255).optional(),
+  /** Solo con medio gift_card: el código ("AB3K-XY7Q"). */
+  giftCard: z.string().trim().max(20).optional(),
 })
 
 const credencial = (nombre: string) => z.string().trim().regex(/^(APP_USR|TEST)-[\w-]{20,}$/, `${nombre} empieza con APP_USR- o TEST-`)

@@ -95,7 +95,9 @@ backend/src/
 │   ├── reminders/        recordatorios por WhatsApp
 │   ├── admin/            ajustes del negocio y estadísticas
 │   ├── auth/             login del panel y "Tu cuenta"
-│   └── orders/           pedidos de la tienda
+│   ├── orders/           pedidos de la tienda
+│   ├── shipping/         envíos con Andreani (o el simulador del modo prueba)
+│   └── giftcards/        gift cards: venta en la web y en el local, saldo y canje
 └── app.ts                monta las rutas de todos los módulos
 ```
 
@@ -167,9 +169,10 @@ admin/src/
 │   ├── customers/        Clientas
 │   ├── catalog/          Servicios
 │   ├── ecommerce/        Pedidos, Ventas tienda y Productos
+│   ├── giftcards/        Gift cards: vender en el local, saldo y movimientos
 │   ├── payments/         Finanzas → Caja
 │   ├── analytics/        Finanzas → Análisis
-│   ├── settings/         Ajustes: tu negocio, Mercado Pago
+│   ├── settings/         Ajustes: tu negocio, Mercado Pago, envíos
 │   └── auth/             login y "Tu cuenta"
 └── shared/               lo que usan varias secciones del panel
 
@@ -178,6 +181,7 @@ cliente/src/
 ├── features/
 │   ├── home/             portada y contacto
 │   ├── ecommerce/        tienda, carrito y checkout
+│   ├── giftcards/        comprar una gift card y usarla en el checkout
 │   └── turnera/          servicios, reservar, mi turno, pago de seña
 └── shared/               navbar, footer, layout
 ```

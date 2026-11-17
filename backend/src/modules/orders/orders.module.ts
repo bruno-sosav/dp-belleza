@@ -1,17 +1,27 @@
 /**
  * Módulo de pedidos de la tienda (orders). Raíz de composición: arma los casos
- * de uso con MySQL y con las fachadas de customers, catalog, inventory y
- * payments, y exporta solo lo que el resto del sistema puede usar.
+ * de uso con MySQL y con las fachadas de customers, catalog, inventory,
+ * payments, shipping, giftcards y admin, y exporta solo lo que el resto del sistema puede usar.
  */
 import { unidadDeTrabajoMySql } from "../../core/database/unidadDeTrabajo.database.js"
+import { relojDelSistema } from "../../core/reloj.port.js"
 import { CrearPedido } from "./services/checkout.usecases.js"
-import { CambiarEstadoPedido, ListarPedidos, VerPedido } from "./services/pedidos.usecases.js"
+import { CambiarEstadoPedido, EnvioDelPedido, ListarPedidos, VerPedido } from "./services/pedidos.usecases.js"
 import { PagarPedido } from "./services/pagos.usecases.js"
 import type { PagoDePedido } from "./models/pedido.model.js"
 import { MySqlPedidoRepository } from "./repositories/pedido.repository.js"
 import { MySqlPedidosQueries } from "./repositories/pedidos.queries.js"
 import { pagos } from "../payments/payments.module.js"
-import { cajaDePedidos, catalogoDePedidos, clientesDePedidos, inventarioDePedidos, pasarelaDePedidos } from "./integrations/pedidos.adapter.js"
+import {
+  ajustesDePedidos,
+  cajaDePedidos,
+  catalogoDePedidos,
+  clientesDePedidos,
+  enviosDePedidos,
+  giftCardsDePedidos,
+  inventarioDePedidos,
+  pasarelaDePedidos,
+} from "./integrations/pedidos.adapter.js"
 import { CheckoutController } from "./controllers/checkout.controller.js"
 import { PedidosController } from "./controllers/pedidos.controller.js"
 import { rutasWebCheckout } from "./controllers/checkout.routes.js"
@@ -24,7 +34,18 @@ const verPedido = new VerPedido(queries)
 const pagar = new PagarPedido(repo, queries, pasarelaDePedidos, cajaDePedidos, unidadDeTrabajoMySql)
 
 const checkout = new CheckoutController(
-  new CrearPedido(repo, clientesDePedidos, catalogoDePedidos, inventarioDePedidos, pasarelaDePedidos, unidadDeTrabajoMySql),
+  new CrearPedido({
+    pedidos: repo,
+    clientes: clientesDePedidos,
+    catalogo: catalogoDePedidos,
+    inventario: inventarioDePedidos,
+    pasarela: pasarelaDePedidos,
+    envios: enviosDePedidos,
+    giftCards: giftCardsDePedidos,
+    ajustes: ajustesDePedidos,
+    reloj: relojDelSistema,
+    uow: unidadDeTrabajoMySql,
+  }),
   pagar,
 )
 
@@ -33,7 +54,8 @@ pagos.conectarPedidos({ aplicarPago: (pedidoId, pago) => pagar.aplicar(pedidoId,
 const panel = new PedidosController({
   listar: new ListarPedidos(queries),
   ver: verPedido,
-  cambiarEstado: new CambiarEstadoPedido(repo, inventarioDePedidos, verPedido, unidadDeTrabajoMySql),
+  cambiarEstado: new CambiarEstadoPedido(repo, inventarioDePedidos, enviosDePedidos, giftCardsDePedidos, verPedido, unidadDeTrabajoMySql),
+  envio: new EnvioDelPedido(enviosDePedidos, verPedido),
 })
 
 /** Lo que orders ofrece al resto del sistema. */

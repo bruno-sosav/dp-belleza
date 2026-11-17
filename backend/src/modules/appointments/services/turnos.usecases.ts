@@ -269,7 +269,7 @@ export class CompletarTurno {
     private estados: CambiarEstadoTurno,
   ) {}
 
-  ejecutar(id: number, cobro: { monto: number; medio: string } | null): Promise<void> {
+  ejecutar(id: number, cobro: { monto: number; medio: string; giftCard?: string } | null): Promise<void> {
     return this.d.unidad.ejecutar(async (tx) => {
       const { clienteId } = await this.estados.enTransaccion(id, "completado", tx)
       if (cobro) await this.d.caja.cobrarTurno({ turnoId: id, clienteId, ...cobro }, tx)

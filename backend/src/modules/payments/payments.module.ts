@@ -1,11 +1,21 @@
-/** Raíz de composición de pagos: caja y Mercado Pago. Turnos y pedidos se enchufan con `conectarTurnos` y `conectarPedidos`. */
+/** Raíz de composición de pagos: caja y Mercado Pago. Turnos, pedidos y gift cards se enchufan con `conectarTurnos`, `conectarPedidos` y `conectarGiftCards`. */
 import { unidadDeTrabajoMySql } from "../../core/database/unidadDeTrabajo.database.js"
 import { relojDelSistema } from "../../core/reloj.port.js"
 import type { Transaccion } from "../../core/transaccion.port.js"
-import { AnotarCobro, BorrarCobro, CobrosDePedidos, CobrosDeTurnos, VerCaja, type ConexionConPedidos, type ConexionConTurnos } from "./services/caja.usecases.js"
+import {
+  AnotarCobro,
+  BorrarCobro,
+  CobrosDeGiftCards,
+  CobrosDePedidos,
+  CobrosDeTurnos,
+  VerCaja,
+  type ConexionConGiftCards,
+  type ConexionConPedidos,
+  type ConexionConTurnos,
+} from "./services/caja.usecases.js"
 import { CobrarConMercadoPago, ConfigurarMercadoPago, RecibirAvisoDePago } from "./services/mercadoPago.usecases.js"
 import type { MedioPago } from "./models/cobro.model.js"
-import type { PasarelaDePago, PedidosDeLaCaja, TurnosDeLaCaja } from "./models/pagos.ports.js"
+import type { GiftCardsDeLaCaja, PasarelaDePago, PedidosDeLaCaja, TurnosDeLaCaja } from "./models/pagos.ports.js"
 import { MercadoPagoApi } from "./integrations/mercadoPago.gateway.js"
 import { MySqlCobroRepository } from "./repositories/cobro.repository.js"
 import { MySqlConsultasDeCaja } from "./repositories/caja.queries.js"
@@ -19,17 +29,19 @@ const cuentas = new MySqlCuentaRepository()
 const pasarela = new MercadoPagoApi()
 const turnos: ConexionConTurnos = { actual: null }
 const pedidos: ConexionConPedidos = { actual: null }
+const giftCards: ConexionConGiftCards = { actual: null }
 
-const cobrosDeTurnos = new CobrosDeTurnos(cobros)
+const cobrosDeTurnos = new CobrosDeTurnos(cobros, giftCards)
 const cobrosDePedidos = new CobrosDePedidos(cobros)
+const cobrosDeGiftCards = new CobrosDeGiftCards(cobros)
 const mercadoPago = new CobrarConMercadoPago(cuentas, pasarela)
 const controller = new PagosController(
   {
     verCaja: new VerCaja(new MySqlConsultasDeCaja()),
-    anotarCobro: new AnotarCobro(cobros, turnos, unidadDeTrabajoMySql),
-    borrarCobro: new BorrarCobro(cobros),
+    anotarCobro: new AnotarCobro(cobros, turnos, giftCards, unidadDeTrabajoMySql),
+    borrarCobro: new BorrarCobro(cobros, giftCards, unidadDeTrabajoMySql),
     cuenta: new ConfigurarMercadoPago(cuentas, pasarela),
-    avisos: new RecibirAvisoDePago(cuentas, pasarela, new MySqlPagosRecibidos(), turnos, pedidos),
+    avisos: new RecibirAvisoDePago(cuentas, pasarela, new MySqlPagosRecibidos(), turnos, pedidos, giftCards),
   },
   relojDelSistema,
 )
@@ -51,11 +63,20 @@ export const pagos = {
     pedidos.actual = p
   },
 
+  /** El módulo de gift cards se conecta al arrancar (ver giftcards.module.ts). */
+  conectarGiftCards: (g: GiftCardsDeLaCaja) => {
+    giftCards.actual = g
+  },
+
+  // ----- la caja, para gift cards
+  cobrarGiftCard: (c: { giftCardId: number; monto: number; medio: MedioPago; pagoId?: number; descripcion: string }, tx: Transaccion) => cobrosDeGiftCards.venta(c, tx),
+
   // ----- la caja, para pedidos de la tienda
   cobrarPedido: (c: { pedidoId: number; clienteId: number; monto: number; pagoId: number }, tx: Transaccion) => cobrosDePedidos.mercadoPago(c, tx),
 
   // ----- la caja, para turnos
-  cobrarTurno: (c: { turnoId: number; clienteId: number; monto: number; medio: MedioPago }, tx: Transaccion) => cobrosDeTurnos.alTerminar(c, tx),
+  /** Con medio gift_card, `giftCard` es el código y se descuenta de su saldo. */
+  cobrarTurno: (c: { turnoId: number; clienteId: number; monto: number; medio: MedioPago; giftCard?: string }, tx: Transaccion) => cobrosDeTurnos.alTerminar(c, tx),
   cobrarSena: (c: { turnoId: number; clienteId: number; monto: number; pagoId: number }, tx: Transaccion) => cobrosDeTurnos.sena(c, tx),
   anularCobroDelTurno: (turnoId: number, tx: Transaccion) => cobrosDeTurnos.anular(turnoId, tx),
   /** Cuánto entró por cada turno (seña + lo cobrado al terminar). */

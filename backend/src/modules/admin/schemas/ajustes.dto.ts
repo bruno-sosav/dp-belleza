@@ -21,4 +21,10 @@ export const aAjustesPublicos = (p: Awaited<ReturnType<VerAjustesPublicos["ejecu
   senaPorcentaje: p.senaPorcentaje,
   /** null si el local no conectó Mercado Pago. */
   mercadopagoPublicKey: p.mercadopagoPublicKey,
+  /** Si la tienda hace envíos a domicilio (si no, solo retiro en el local). */
+  envios: p.envios,
+  /** Monto de productos desde el que el envío es gratis. 0 = nunca. */
+  envioGratisDesde: p.envioGratisDesde,
+  /** % de descuento en la tienda en el mes del cumpleaños (si la clienta lo tiene cargado). 0 = no hay. */
+  descuentoCumple: p.descuentoCumple,
 })

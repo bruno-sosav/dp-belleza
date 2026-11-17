@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { formatPrice } from "@dp/shared/lib/format"
 import FormCobro from "../../payments/components/FormCobro"
-import type { MedioPago } from "../../payments/lib/medios"
+import type { CobroElegido } from "../../payments/lib/medios"
 import TurnoDatos from "./TurnoDatos"
 import AccionesTurnoAbierto from "./AccionesTurnoAbierto"
 import EstadoTurnoCerrado from "./EstadoTurnoCerrado"
@@ -46,9 +46,9 @@ export default function TurnoFila({
   ahora: Ahora
   onCambiarEstado: (estado: EstadoTurno) => Promise<void>
   /** Completado: marca el turno y anota lo cobrado (null = "todavía no cobré"). */
-  onCompletar: (cobro: { monto: number; medio: MedioPago } | null) => Promise<void>
+  onCompletar: (cobro: CobroElegido | null) => Promise<void>
   /** Cobrar lo que falta de un turno ya completado. */
-  onCobrar: (cobro: { monto: number; medio: MedioPago }) => Promise<void>
+  onCobrar: (cobro: CobroElegido) => Promise<void>
   /** Abre el formulario para cambiar día, hora, servicio o nota. */
   onEditar?: () => void
   /** Para listas de varios días: muestra "lun 13/10" arriba de la hora. */
@@ -77,7 +77,7 @@ export default function TurnoFila({
     }
   }
 
-  async function guardarCobro(cobro: { monto: number; medio: MedioPago } | null) {
+  async function guardarCobro(cobro: CobroElegido | null) {
     await (cobrando === "completar" ? onCompletar(cobro) : onCobrar(cobro!))
     setCobrando(null)
   }

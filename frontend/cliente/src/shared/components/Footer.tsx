@@ -43,6 +43,7 @@ export default function Footer() {
           <ul className="flex flex-col gap-3">
             <li className={titleClass}>Tienda</li>
             <li><Link to="/tienda" className={linkClass}>Todos los productos</Link></li>
+            <li><Link to="/gift-cards" className={linkClass}>Gift cards</Link></li>
             <li><Link to="/carrito" className={linkClass}>Carrito</Link></li>
             <li><Link to="/contacto" className={linkClass}>Contacto</Link></li>
           </ul>

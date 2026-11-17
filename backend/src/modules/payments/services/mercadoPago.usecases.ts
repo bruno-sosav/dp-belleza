@@ -2,7 +2,7 @@
 import { conflicto, invalido, noEncontrado } from "../../../core/negocio.error.js"
 import { destinoDelPago, firmaValida, modoDeLaCuenta, problemaDeCredenciales, type PagoRecibido } from "../models/mercadoPago.model.js"
 import type { CuentaRepository, PagosRecibidosRepository, PasarelaDePago } from "../models/pagos.ports.js"
-import { turnosConectados, type ConexionConPedidos, type ConexionConTurnos } from "./caja.usecases.js"
+import { turnosConectados, type ConexionConGiftCards, type ConexionConPedidos, type ConexionConTurnos } from "./caja.usecases.js"
 
 const SIN_CUENTA = "Mercado Pago no está configurado. Cargá las credenciales en Ajustes → Mercado Pago."
 
@@ -86,6 +86,7 @@ export class RecibirAvisoDePago {
     private recibidos: PagosRecibidosRepository,
     private turnos: ConexionConTurnos,
     private pedidos: ConexionConPedidos,
+    private giftCards: ConexionConGiftCards,
   ) {}
 
   async ejecutar(a: { tipo: string; dataId: string; firma?: string; requestId?: string }): Promise<ResultadoDelAviso> {
@@ -96,10 +97,11 @@ export class RecibirAvisoDePago {
 
     const { pago, datos } = await this.pasarela.consultarPago(cuenta, a.dataId)
     await this.recibidos.guardar(pago, datos)
-    // A quién le toca: "turno-<id>" es la seña de un turno; "pedido-<id>", un pedido de la tienda.
+    // A quién le toca: "turno-<id>" es la seña de un turno; "pedido-<id>", un pedido de la tienda; "giftcard-<id>", una gift card.
     const destino = destinoDelPago(pago.referencia)
     if (destino?.tipo === "turno") await turnosConectados(this.turnos).aplicarPagoSena(destino.id, pago)
     if (destino?.tipo === "pedido") await this.pedidos.actual?.aplicarPago(destino.id, pago)
+    if (destino?.tipo === "giftcard") await this.giftCards.actual?.aplicarPago(destino.id, pago)
     return "procesado"
   }
 

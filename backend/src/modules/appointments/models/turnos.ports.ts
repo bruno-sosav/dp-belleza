@@ -103,7 +103,7 @@ export interface PasarelaDeSenas {
 
 /** De la caja (payments). */
 export interface CajaDeTurnos {
-  cobrarTurno(c: { turnoId: number; clienteId: number; monto: number; medio: string }, tx: Transaccion): Promise<void>
+  cobrarTurno(c: { turnoId: number; clienteId: number; monto: number; medio: string; giftCard?: string }, tx: Transaccion): Promise<void>
   cobrarSena(c: { turnoId: number; clienteId: number; monto: number; pagoId: number }, tx: Transaccion): Promise<void>
   /** Deshacer un "completado": lo cobrado al terminar sale de la caja (la seña no). */
   anularCobroDelTurno(turnoId: number, tx: Transaccion): Promise<void>

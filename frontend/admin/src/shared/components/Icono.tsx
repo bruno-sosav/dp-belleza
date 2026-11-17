@@ -35,6 +35,7 @@ const trazos = {
   ),
   torta: <path d="M4 20h16M5 20v-6a2 2 0 012-2h10a2 2 0 012 2v6M5 15.5c1.5 1 3 1 4.5 0s3-1 4.5 0 3 1 5 0M12 12V8M12 5.5v.01" />,
   pausa: <path d="M9 5v14M15 5v14" />,
+  regalo: <path d="M4 11h16v9H4zM3 7h18v4H3zM12 7v13M12 7c-1.5-3-5-3.5-5-1.5S10 7 12 7zM12 7c1.5-3 5-3.5 5-1.5S14 7 12 7z" />,
   bloqueo: (
     <>
       <circle cx="12" cy="12" r="9" />

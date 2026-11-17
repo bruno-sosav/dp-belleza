@@ -26,6 +26,7 @@ const navItems = [
   { to: "/finanzas", label: "Finanzas", icon: icon(<path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />) },
   { to: "/pedidos", label: "Pedidos", icon: icon(<><path d="M5 4h14v16H5z" /><path d="M9 9h6M9 13h6M9 17h3" /></>) },
   { to: "/ventas", label: "Ventas tienda", short: "Ventas", icon: icon(<><path d="M6 7h12l-1 12.5a1.5 1.5 0 01-1.5 1.5h-7A1.5 1.5 0 017 19.5L6 7z" /><path d="M9 7a3 3 0 016 0" /></>) },
+  { to: "/gift-cards", label: "Gift cards", icon: icon(<><path d="M4 11h16v9H4zM3 7h18v4H3zM12 7v13" /><path d="M12 7c-1.5-3-5-3.5-5-1.5S10 7 12 7zM12 7c1.5-3 5-3.5 5-1.5S14 7 12 7z" /></>) },
   { to: "/productos", label: "Productos", icon: icon(<><path d="M4 7l8-4 8 4-8 4-8-4z" /><path d="M4 7v10l8 4 8-4V7M12 11v10" /></>) },
 ]
 

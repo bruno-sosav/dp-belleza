@@ -11,6 +11,7 @@ import type {
   PedidoParaPagar,
   PedidoResumen,
   ProblemaDeCompra,
+  Cumple,
 } from "./pedido.model.js"
 
 /** Las tablas `pedidos` y `pedido_items`: el único lugar que las escribe. */
@@ -27,6 +28,10 @@ export interface PedidoRepository {
   /** El id del pedido de ese link de pago, o null si no existe. */
   idPorToken(token: string): Promise<number | null>
   marcarPagado(id: number, pagoId: number, estado: EstadoPedido, tx: Transaccion): Promise<void>
+  /** Si la clienta ya tuvo el descuento de cumpleaños ese año (en un pedido no cancelado). */
+  usoDescuentoCumple(clienteId: number, anio: number, tx: Transaccion): Promise<boolean>
+  /** La gift card con que se pagó una parte (para devolverle el saldo si se cancela). */
+  giftCardDelPedido(id: number, tx: Transaccion): Promise<{ id: number; monto: number } | null>
 }
 
 /** Lecturas para el panel: juntan el pedido con la clienta y los productos. */
@@ -41,6 +46,14 @@ export interface ClientesDePedidos {
     datos: { nombre: string; apellido?: string | null; telefono: string; email?: string | null },
     tx: Transaccion,
   ): Promise<number>
+  /** El cumpleaños de la ficha, o null si no lo tiene cargado. */
+  cumple(clienteId: number, tx: Transaccion): Promise<Cumple | null>
+}
+
+/** Ajustes del local: el módulo admin. */
+export interface AjustesDePedidos {
+  /** % de descuento en el mes del cumpleaños. 0 = sin descuento. */
+  descuentoCumple(): Promise<number>
 }
 
 /** Precios: el módulo catalog. Solo los productos activos se pueden vender. */
@@ -58,6 +71,25 @@ export interface PasarelaDePedidos {
 /** La caja: el módulo payments. Lo pagado por Mercado Pago entra solo. */
 export interface CajaDePedidos {
   cobrar(c: { pedidoId: number; clienteId: number; monto: number; pagoId: number }, tx: Transaccion): Promise<void>
+}
+
+/** Envíos: el módulo shipping. */
+export type DireccionDeEnvio = { calle: string; ciudad: string; provincia: string; codigoPostal: string }
+export type CotizacionDeEnvio = { costo: number; plazoDias: number | null; gratis: boolean; proveedor: "andreani" | "prueba" }
+export interface EnviosDePedidos {
+  cotizar(d: { codigoPostal: string; unidades: number; subtotal: number }): Promise<CotizacionDeEnvio>
+  registrar(pedidoId: number, destino: DireccionDeEnvio, c: CotizacionDeEnvio, tx: Transaccion): Promise<void>
+  despachar(d: { pedidoId: number; estadoPedido: string; destinatario: { nombre: string; telefono: string; email: string | null }; unidades: number; valor: number }): Promise<unknown>
+  seguimiento(pedidoId: number): Promise<{ fecha: string; estado: string; detalle: string | null }[]>
+  marcarEntregado(pedidoId: number, tx: Transaccion): Promise<void>
+}
+
+/** Gift cards: el módulo giftcards. */
+export interface GiftCardsDePedidos {
+  /** Bloquea la gift card y dice cuánto se descuenta de una compra de `total`. Falla si no existe o no tiene saldo. */
+  reservar(codigo: string, total: number, tx: Transaccion): Promise<{ id: number; monto: number }>
+  descontar(id: number, monto: number, pedidoId: number, tx: Transaccion): Promise<void>
+  reintegrar(id: number, monto: number, pedidoId: number, tx: Transaccion): Promise<void>
 }
 
 /** Stock: el módulo inventory. */

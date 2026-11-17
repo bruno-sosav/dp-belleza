@@ -5,16 +5,26 @@ export type NuevoPedido = {
   cliente: { nombre: string; apellido?: string; telefono: string; email?: string }
   items: { productoId: number; cantidad: number }[]
   notas?: string
+  entrega: { tipo: "retiro" } | { tipo: "envio"; calle: string; ciudad: string; provincia: string; codigoPostal: string }
+  /** Código de una gift card para pagar todo o una parte. */
+  giftCard?: string
 }
 
 type LineaDePedido = { productoId: number; nombre: string; cantidad: number; precioUnitario: number; subtotal: number }
 
 export type PedidoCreado = {
   id: number
-  estado: "pendiente"
-  /** Con los precios de la base: es lo que se cobra. */
+  /** "confirmado" si la gift card cubrió todo. */
+  estado: "pendiente" | "confirmado"
+  /** Con los precios de la base. */
   total: number
+  /** Lo que cubrió la gift card (0 sin gift card). */
+  giftCard: number
+  /** Lo que se descontó por su cumpleaños (0 si no). `total` ya lo tiene restado. */
+  descuentoCumple: number
   items: LineaDePedido[]
+  /** null si retira en el local. */
+  envio: { costo: number; plazoDias: number | null; gratis: boolean } | null
   /** Con Mercado Pago conectado, para ir a pagar y volver. null = el pago se coordina por WhatsApp. */
   pagoToken: string | null
 }
@@ -26,6 +36,10 @@ export type PedidoPagable = {
   pagoEstado: "pendiente" | "pagado" | null
   total: number
   items: LineaDePedido[]
+  envio: { costo: number } | null
+  /** Lo que cubrió una gift card (0 sin gift card). */
+  giftCard: number
+  descuentoCumple: number
 }
 
 /** Un producto que no se pudo comprar (409): dado de baja o sin stock suficiente. */
