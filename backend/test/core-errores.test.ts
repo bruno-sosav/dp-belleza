@@ -34,6 +34,16 @@ describe("errores de negocio → HTTP", () => {
     expect(conflicto("x")).toBeInstanceOf(ErrorDeNegocio)
   })
 
+  it.each(["ECONNREFUSED", "PROTOCOL_CONNECTION_LOST", "ER_CON_COUNT_ERROR"])("base caída (%s) → 503", (code) => {
+    const original = console.error
+    console.error = () => {}
+    try {
+      expect(responder(Object.assign(new Error("sin base"), { code })).status).toBe(503)
+    } finally {
+      console.error = original
+    }
+  })
+
   it("un error desconocido es un 500 sin detalles internos", () => {
     const original = console.error
     console.error = () => {}

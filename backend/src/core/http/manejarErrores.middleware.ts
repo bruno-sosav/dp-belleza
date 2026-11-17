@@ -12,6 +12,9 @@ const statusPorTipo: Record<TipoDeError, number> = {
   externo: 502,
 }
 
+/** Códigos de mysql2/Node cuando no se puede llegar a la base. */
+const SIN_BASE = new Set(["ECONNREFUSED", "ECONNRESET", "ETIMEDOUT", "ENOTFOUND", "PROTOCOL_CONNECTION_LOST", "ER_CON_COUNT_ERROR", "ER_ACCESS_DENIED_ERROR"])
+
 /** Último middleware: cualquier error sale como { error, detalle? }. */
 export const manejarErrores: ErrorRequestHandler = (err, _req, res, _next) => {
   if (err instanceof ZodError) {
@@ -42,6 +45,13 @@ export const manejarErrores: ErrorRequestHandler = (err, _req, res, _next) => {
   }
   if (err?.code === "ER_NO_REFERENCED_ROW_2") {
     res.status(400).json({ error: "Se hace referencia a un registro que no existe (por ejemplo, la categoría)" })
+    return
+  }
+  // MySQL no contesta (apagado, sin red, sin conexiones libres): el servicio no está disponible
+  // por ahora, no es que el pedido esté mal. Mismo criterio que /api/salud.
+  if (SIN_BASE.has(err?.code)) {
+    console.error(err)
+    res.status(503).json({ error: "El servicio no está disponible en este momento. Probá de nuevo en unos minutos." })
     return
   }
   console.error(err)
