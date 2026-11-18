@@ -41,7 +41,8 @@ export default function ContactPage() {
       </div>
 
       <div className="mt-12 grid grid-cols-1 gap-10 md:grid-cols-2">
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {/* En pantallas anchas el formulario queda centrado en altura respecto de los datos y la foto. */}
+        <form onSubmit={handleSubmit} className="space-y-4 md:self-center">
           <input
             placeholder="Nombre"
             aria-label="Nombre"
@@ -91,7 +92,12 @@ export default function ContactPage() {
             </div>
           ))}
           <div className="overflow-hidden rounded">
-            <img src="https://picsum.photos/seed/contact-map/700/350" alt="Mapa" className="w-full object-cover" />
+            <img
+              src="/logo/logo-completo-recortado.jpg"
+              alt="Logo de dppuntobelleza, estética & bienestar"
+              loading="lazy"
+              className="w-full object-contain"
+            />
           </div>
         </div>
       </div>

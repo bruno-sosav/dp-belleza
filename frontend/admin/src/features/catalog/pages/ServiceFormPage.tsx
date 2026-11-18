@@ -206,8 +206,8 @@ function Formulario({ servicio, categorias }: { servicio: ServicioAdmin | null; 
             </select>
           </Campo>
 
-          <Campo label="Foto (link)" htmlFor="sv-foto" ayuda="El link de una imagen. Sin foto se muestra la inicial del servicio.">
-            <input id="sv-foto" type="url" maxLength={500} placeholder="https://…" value={foto} onChange={(e) => setFoto(e.target.value)} className={campo} />
+          <Campo label="Foto (link)" htmlFor="sv-foto" ayuda="El link de una imagen, o una foto de la web (/fotos/…). Sin foto se muestra la inicial del servicio.">
+            <input id="sv-foto" type="text" maxLength={500} placeholder="https://… o /fotos/servicios/…" value={foto} onChange={(e) => setFoto(e.target.value)} className={campo} />
           </Campo>
         </div>
       </Panel>

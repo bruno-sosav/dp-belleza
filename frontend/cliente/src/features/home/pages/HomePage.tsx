@@ -126,7 +126,7 @@ export default function HomePage() {
           <div className="dp-fade hidden lg:block" style={{ animationDelay: "0.45s" }}>
             <img
               src={heroImages.arch}
-              alt="Tratamiento facial en el consultorio de dppuntobelleza"
+              alt="Buda y vela sobre el estante de productos del consultorio de dppuntobelleza"
               className="aspect-[4/5] w-full rounded-t-[160px] rounded-b-md border border-white/30 object-cover shadow-[0_30px_60px_rgba(0,0,0,0.35)]"
             />
           </div>

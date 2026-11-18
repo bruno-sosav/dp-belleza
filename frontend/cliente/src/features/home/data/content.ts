@@ -3,7 +3,7 @@
 /** Fotos del consultorio que pasó la dueña (en public/fotos). */
 export const heroImages = {
   background: "/fotos/consultorio/sala-plantas.jpg",
-  arch: "/fotos/tratamiento-facial.jpg",
+  arch: "/fotos/consultorio/buda-vela.jpg",
   cta: "/fotos/consultorio/ambiente.jpg",
 }
 

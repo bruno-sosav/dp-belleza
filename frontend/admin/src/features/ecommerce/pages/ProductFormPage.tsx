@@ -2,6 +2,7 @@ import { useState } from "react"
 import type { FormEvent, ReactNode } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { ApiError } from "../../../shared/lib/api"
+import { esFoto, verFoto } from "../../../shared/lib/fotos"
 import { cardClass, inputClass, labelClass, primaryButtonClass, secondaryButtonClass } from "../../../shared/lib/styles"
 import { crearCategoria, crearProducto, useCategoriasAdmin } from "../api/catalogo.api"
 
@@ -37,7 +38,6 @@ function Field({ label, htmlFor, hint, error, children }: { label: string; htmlF
   )
 }
 
-const esLink = (texto: string) => /^https?:\/\/\S+$/.test(texto.trim())
 
 function validate(form: FormState) {
   const errors: Partial<Record<keyof FormState, string>> = {}
@@ -48,7 +48,7 @@ function validate(form: FormState) {
   if (form.category === NUEVA && !form.newCategory.trim()) errors.newCategory = "Escribí el nombre de la categoría."
   if (!form.price || !(price > 0)) errors.price = "Poné un precio mayor a 0."
   if (form.stock === "" || !Number.isInteger(stock) || stock < 0) errors.stock = "Poné cuántas unidades tenés (0 o más)."
-  if (form.image.trim() && !esLink(form.image)) errors.image = "Tiene que ser un link (empieza con https://)."
+  if (form.image.trim() && !esFoto(form.image)) errors.image = "Tiene que ser un link (empieza con https://) o una foto de la web (/fotos/…)."
   return errors
 }
 
@@ -138,7 +138,7 @@ export default function ProductFormPage() {
           </div>
 
           <Field label="Imagen (link)" htmlFor="image" hint="Opcional. Pegá el link de la foto del producto." error={errors.image}>
-            <input id="image" type="url" value={form.image} onChange={(e) => set("image", e.target.value)} className={inputClass} placeholder="https://…" maxLength={500} />
+            <input id="image" type="text"value={form.image} onChange={(e) => set("image", e.target.value)} className={inputClass} placeholder="https://…" maxLength={500} />
           </Field>
 
           <Field label="Descripción" htmlFor="description" hint="Opcional.">
@@ -164,8 +164,8 @@ export default function ProductFormPage() {
         <aside>
           <p className="text-sm font-medium text-ink">Vista previa</p>
           <div className="mt-2 overflow-hidden rounded-lg bg-cream-dark">
-            {esLink(form.image) ? (
-              <img src={form.image.trim()} alt="Vista previa" className="aspect-[4/5] w-full object-cover" />
+            {esFoto(form.image) ? (
+              <img src={verFoto(form.image.trim())} alt="Vista previa" className="aspect-[4/5] w-full object-cover" />
             ) : (
               <div className="flex aspect-[4/5] items-center justify-center p-6 text-center text-sm text-ink-soft">
                 La foto aparece acá cuando pegues el link.
