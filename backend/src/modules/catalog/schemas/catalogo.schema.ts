@@ -21,7 +21,8 @@ const servicio = z.object({
   durationMin: z.number().int().min(5).max(600),
   shortDescription: textoOpcional(255),
   description: textoOpcional(5000),
-  image: z.url().max(500).nullable().or(z.literal("").transform(() => null)),
+  // Un link completo, o una foto guardada en la web pública (/fotos/servicios/...).
+  image: z.url().max(500).or(z.string().max(500).regex(/^\/fotos\/[\w./-]+$/)).nullable().or(z.literal("").transform(() => null)),
   includes: z.array(z.string().trim().min(1).max(200)).max(20),
   professional: textoOpcional(100),
   badge: z.enum(ETIQUETAS).nullable(),
@@ -50,7 +51,8 @@ const producto = z.object({
   descripcion: z.string().trim().max(5000).nullable().optional(),
   precio: z.number().nonnegative().max(99_999_999),
   stock: z.number().int().nonnegative(),
-  imagenUrl: z.url().max(500).nullable().optional(),
+  // Un link completo, o una foto guardada en la web pública (/fotos/productos/...).
+  imagenUrl: z.url().max(500).or(z.string().max(500).regex(/^\/fotos\/[\w./-]+$/)).nullable().optional(),
   categoriaId: z.number().int().positive().nullable().optional(),
   activo: z.boolean().optional(),
 })

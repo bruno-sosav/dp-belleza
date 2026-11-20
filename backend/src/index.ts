@@ -4,7 +4,7 @@ import { pool } from "./core/database/conexion.database.js"
 import { turnos } from "./modules/appointments/appointments.module.js"
 
 const servidor = app.listen(config.port, () => {
-  console.log(`API de DP Belleza escuchando en http://localhost:${config.port}`)
+  console.log(`API de dppuntobelleza escuchando en http://localhost:${config.port}`)
 })
 
 // Libera los horarios de las señas que vencieron sin pagar (modules/appointments).

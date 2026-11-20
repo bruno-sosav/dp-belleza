@@ -3,9 +3,15 @@
 /** Fotos del consultorio que pasó la dueña (en public/fotos). */
 export const heroImages = {
   background: "/fotos/consultorio/sala-plantas.jpg",
-  arch: "/fotos/tratamiento-facial.jpg",
+  arch: "/fotos/consultorio/buda-vela.jpg",
   cta: "/fotos/consultorio/ambiente.jpg",
 }
+
+/** Shorts de YouTube de Daniela (canal Daniela Picon) explicando productos. */
+export const videos = [
+  { id: "PhpNWGI2Nfg", title: "Daniela te explica un producto de la tienda (video 1)" },
+  { id: "IJfcCOSZJ68", title: "Daniela te explica un producto de la tienda (video 2)" },
+]
 
 /** "Detrás de DPPUNTOBELLEZA": el texto de la dueña, completo y en su orden. */
 export const about = {

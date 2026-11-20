@@ -1,9 +1,13 @@
 import { Link } from "react-router-dom"
-import { datosDeContacto, useNegocio } from "../lib/negocio"
+import { whatsappUrl } from "../../features/home/lib/whatsapp"
+import { datosDeContacto, INSTAGRAM, useNegocio } from "../lib/negocio"
 import Brand from "./Brand"
+import { IconoInstagram, IconoWhatsApp } from "./Iconos"
 
 const titleClass = "text-[0.6rem] font-semibold uppercase tracking-[0.22em] text-ink-soft/70"
 const linkClass = "text-sm font-light text-ink-soft transition hover:text-ink"
+const redClass =
+  "flex h-9 w-9 items-center justify-center rounded-full border border-ink/15 text-ink-soft transition hover:border-olive hover:text-olive"
 
 // Fuera del componente: render puro (el año no cambia mientras la página está abierta).
 const ANIO = new Date().getFullYear()
@@ -20,16 +24,14 @@ export default function Footer() {
               Consultorio de estética y bienestar. Un lugar de confianza, dedicación y cuidado para tu piel.
             </p>
             <div className="mt-5 flex gap-2.5">
-              {["Instagram", "Facebook", "TikTok"].map((s) => (
-                <button
-                  key={s}
-                  type="button"
-                  aria-label={s}
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-ink/15 text-ink-soft transition hover:border-olive hover:text-olive"
-                >
-                  <span className="text-xs">{s[0]}</span>
-                </button>
-              ))}
+              <a href={INSTAGRAM.url} target="_blank" rel="noopener noreferrer" aria-label={`Instagram ${INSTAGRAM.usuario}`} className={redClass}>
+                <IconoInstagram className="h-4 w-4" />
+              </a>
+              {negocio?.telefono && (
+                <a href={whatsappUrl(negocio.telefono, "¡Hola Dani!")} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className={redClass}>
+                  <IconoWhatsApp className="h-4 w-4" />
+                </a>
+              )}
             </div>
           </div>
 

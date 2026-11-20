@@ -2,6 +2,7 @@ import { Outlet, useLocation } from "react-router-dom"
 import Navbar from "./Navbar"
 import Footer from "./Footer"
 import ErrorBoundary from "./ErrorBoundary"
+import WhatsAppFlotante from "./WhatsAppFlotante"
 import CartDrawer from "../../features/ecommerce/components/CartDrawer"
 
 /** Marco de las páginas públicas (tienda, turnera, landing). El panel /admin usa el suyo. */
@@ -17,6 +18,7 @@ export default function Layout() {
         </ErrorBoundary>
       </main>
       <Footer />
+      <WhatsAppFlotante />
       <CartDrawer />
     </div>
   )

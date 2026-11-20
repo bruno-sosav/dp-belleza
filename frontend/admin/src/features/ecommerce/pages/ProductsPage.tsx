@@ -2,6 +2,7 @@ import { useMemo, useState } from "react"
 import { Link, useLocation } from "react-router-dom"
 import { formatPrice } from "@dp/shared/lib/format"
 import { cardClass, inputClass, primaryButtonClass } from "../../../shared/lib/styles"
+import { verFoto } from "../../../shared/lib/fotos"
 import { Cargando, ErrorCarga } from "../../../shared/components/EstadoCarga"
 import { cambiarActivo, useProductosAdmin } from "../api/catalogo.api"
 import StockEditable from "../components/StockEditable"
@@ -121,7 +122,7 @@ export default function ProductsPage() {
             <li key={p.id} className="flex flex-wrap items-center gap-4 px-4 py-4 sm:flex-nowrap sm:px-5">
               {p.imagenUrl ? (
                 <img
-                  src={p.imagenUrl}
+                  src={verFoto(p.imagenUrl)}
                   alt=""
                   className={`h-16 w-14 shrink-0 rounded-md object-cover ${p.activo ? "" : "opacity-40 grayscale"}`}
                 />

@@ -2,6 +2,7 @@ import Panel from "../../../shared/components/Panel"
 import { Cargando, ErrorCarga } from "../../../shared/components/EstadoCarga"
 import type { RankingApi } from "../../analytics/api/estadisticas.api"
 import { useProductosAdmin } from "../api/catalogo.api"
+import { verFoto } from "../../../shared/lib/fotos"
 
 /** Productos activos que no aparecen en el ranking del período. `vendidos` null mientras carga el ranking. */
 export default function SinVentas({ vendidos }: { vendidos: RankingApi[] | null }) {
@@ -22,7 +23,7 @@ export default function SinVentas({ vendidos }: { vendidos: RankingApi[] | null 
           {sinVentas.map((p) => (
             <li key={p.id} className="flex items-center gap-3">
               {p.imagenUrl ? (
-                <img src={p.imagenUrl} alt="" className="h-9 w-8 shrink-0 rounded object-cover" />
+                <img src={verFoto(p.imagenUrl)} alt="" className="h-9 w-8 shrink-0 rounded object-cover" />
               ) : (
                 <div className="h-9 w-8 shrink-0 rounded bg-cream-dark" />
               )}

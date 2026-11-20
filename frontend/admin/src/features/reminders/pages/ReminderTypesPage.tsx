@@ -35,7 +35,7 @@ const variables = [
   { clave: "{servicio}", label: "Servicio", ejemplo: "Limpieza facial", momentos: ["antes", "despues"] },
   { clave: "{fecha}", label: "Día", ejemplo: "martes 20 de octubre", momentos: ["antes", "despues", "cumpleanos"] },
   { clave: "{hora}", label: "Hora", ejemplo: "14:30", momentos: ["antes", "despues"] },
-  { clave: "{negocio}", label: "Nombre del local", ejemplo: "Dp.belleza", momentos: ["antes", "despues", "cumpleanos"] },
+  { clave: "{negocio}", label: "Nombre del local", ejemplo: "dppuntobelleza", momentos: ["antes", "despues", "cumpleanos"] },
 ]
 
 const ejemplo = (plantilla: string) => variables.reduce((texto, v) => texto.replaceAll(v.clave, v.ejemplo), plantilla)

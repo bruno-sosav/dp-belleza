@@ -1,7 +1,8 @@
 import { useState } from "react"
 import type { FormEvent } from "react"
 import { whatsappUrl } from "../lib/whatsapp"
-import { datosDeContacto, useNegocio } from "../../../shared/lib/negocio"
+import { datosDeContacto, INSTAGRAM, useNegocio } from "../../../shared/lib/negocio"
+import { IconoInstagram } from "../../../shared/components/Iconos"
 
 const inputClass =
   "w-full rounded-sm border border-ink/15 bg-surface px-3.5 py-3 text-sm outline-none transition focus:border-leaf focus:ring-2 focus:ring-leaf/20"
@@ -41,7 +42,8 @@ export default function ContactPage() {
       </div>
 
       <div className="mt-12 grid grid-cols-1 gap-10 md:grid-cols-2">
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {/* En pantallas anchas el formulario queda centrado en altura respecto de los datos y la foto. */}
+        <form onSubmit={handleSubmit} className="space-y-4 md:self-center">
           <input
             placeholder="Nombre"
             aria-label="Nombre"
@@ -90,8 +92,25 @@ export default function ContactPage() {
               <p className="mt-2 text-sm text-ink-soft">{d.value}</p>
             </div>
           ))}
+          <div>
+            <h3 className="text-[0.6rem] font-semibold uppercase tracking-[0.22em] text-leaf">Instagram</h3>
+            <a
+              href={INSTAGRAM.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 inline-flex items-center gap-2 text-sm text-ink-soft underline-offset-4 transition hover:text-olive hover:underline"
+            >
+              <IconoInstagram className="h-4 w-4" />
+              {INSTAGRAM.usuario}
+            </a>
+          </div>
           <div className="overflow-hidden rounded">
-            <img src="https://picsum.photos/seed/contact-map/700/350" alt="Mapa" className="w-full object-cover" />
+            <img
+              src="/fotos/daniela-escritorio.jpg"
+              alt="Daniela en su escritorio del consultorio"
+              loading="lazy"
+              className="aspect-[4/5] w-full object-cover object-top"
+            />
           </div>
         </div>
       </div>

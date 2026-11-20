@@ -26,7 +26,7 @@ export default function VenderGiftCard({ onVendida, onCerrar }: { onVendida: () 
   const [vendida, setVendida] = useState<GiftCard | null>(null)
 
   if (vendida) {
-    const texto = `¡Hola${vendida.para ? ` ${vendida.para}` : ""}! Te regalaron una gift card de DP Belleza por ${formatPrice(vendida.monto)}. Tu código es ${vendida.codigo}.`
+    const texto = `¡Hola${vendida.para ? ` ${vendida.para}` : ""}! Te regalaron una gift card de dppuntobelleza por ${formatPrice(vendida.monto)}. Tu código es ${vendida.codigo}.`
     return (
       <div className="rounded-xl border border-cream-dark bg-cream p-5 text-center">
         <p className="text-base text-ink-soft">Gift card de {formatPrice(vendida.monto)} lista. El código es:</p>
