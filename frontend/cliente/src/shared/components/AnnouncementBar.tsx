@@ -21,7 +21,7 @@ function MarqueeGroup({ message }: { message: string }) {
 }
 
 export default function AnnouncementBar() {
-  const message = `${mensajeDeEnvio(useNegocio())} · 3 cuotas sin interés`
+  const message = mensajeDeEnvio(useNegocio())
   return (
     <div className="overflow-hidden bg-forest py-1.5 font-medium tracking-[0.08em] text-cream/90">
       <div className="marquee flex w-max">

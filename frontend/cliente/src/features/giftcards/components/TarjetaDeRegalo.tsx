@@ -9,7 +9,7 @@ export default function TarjetaDeRegalo({ monto, para, mensaje, codigo }: { mont
       <div className="relative flex h-full flex-col justify-between">
         <div>
           <p className="text-xs uppercase tracking-[0.25em] text-cream/80">Gift card</p>
-          <p className="mt-1 font-display text-2xl font-semibold">DP Belleza</p>
+          <p className="mt-1 font-brand text-2xl">dppuntobelleza</p>
         </div>
         <div>
           {para?.trim() && <p className="text-sm text-cream/90">Para {para.trim()}</p>}

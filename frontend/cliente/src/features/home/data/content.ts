@@ -7,6 +7,12 @@ export const heroImages = {
   cta: "/fotos/consultorio/ambiente.jpg",
 }
 
+/** Shorts de YouTube de Daniela (canal Daniela Picon) explicando productos. */
+export const videos = [
+  { id: "PhpNWGI2Nfg", title: "Daniela te explica un producto de la tienda (video 1)" },
+  { id: "IJfcCOSZJ68", title: "Daniela te explica un producto de la tienda (video 2)" },
+]
+
 /** "Detrás de DPPUNTOBELLEZA": el texto de la dueña, completo y en su orden. */
 export const about = {
   image: "/fotos/daniela.jpg",

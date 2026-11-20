@@ -15,7 +15,7 @@ export const pasarelaDeGiftCards: PasarelaDeGiftCards = {
   crearLink: ({ giftCardId, token, monto }) => {
     const vuelta = `${config.siteUrl}/gift-cards/pago?t=${token}`
     return pagos.crearLinkDePago({
-      items: [{ titulo: "Gift card DP Belleza", cantidad: 1, precioUnitario: monto }],
+      items: [{ titulo: "Gift card dppuntobelleza", cantidad: 1, precioUnitario: monto }],
       referencia: referenciaDeGiftCard(giftCardId),
       vuelta: { exito: vuelta, pendiente: vuelta, error: vuelta },
       ...(config.apiPublicUrl ? { notificacion: `${config.apiPublicUrl}/api/mercadopago/webhook` } : {}),

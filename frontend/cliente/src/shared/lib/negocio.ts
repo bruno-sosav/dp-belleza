@@ -6,6 +6,9 @@ import type { OpeningHours } from "../../features/turnera/api/disponibilidad.api
 
 const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3000"
 
+/** Instagram del local (fijo: no se carga desde el panel). */
+export const INSTAGRAM = { url: "https://www.instagram.com/dppuntobelleza", usuario: "@dppuntobelleza" }
+
 export type Negocio = {
   nombre: string
   /** Normalizado (549…), para wa.me. Vacío si no se cargó. */

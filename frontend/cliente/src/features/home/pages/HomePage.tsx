@@ -4,8 +4,9 @@ import { useProductos } from "../../ecommerce/api/catalogo.api"
 import ProductCard from "../../ecommerce/components/ProductCard"
 import { useServices } from "../../turnera/api/servicios.api"
 import ServiceCard from "../../turnera/components/ServiceCard"
-import { about, bookingSteps, brands, gallery, heroImages, reasons } from "../data/content"
+import { about, bookingSteps, brands, gallery, heroImages, reasons, videos } from "../data/content"
 import PhotoCarousel from "../components/PhotoCarousel"
+import YouTubeShort from "../components/YouTubeShort"
 import { datosDeContacto, useNegocio } from "../../../shared/lib/negocio"
 
 const containerClass = "mx-auto max-w-6xl px-5 sm:px-6"
@@ -316,6 +317,27 @@ export default function HomePage() {
               ))}
             </div>
           )}
+        </div>
+      </section>
+
+      {/* Videos de Daniela explicando productos */}
+      <section data-nav="/tienda" className={`${sectionClass} grid items-center gap-12 lg:grid-cols-[1fr_auto] lg:gap-16`}>
+        <div>
+          <Eyebrow>En primera persona</Eyebrow>
+          <Heading>
+            Daniela <em>te cuenta</em>
+          </Heading>
+          <p className="mt-6 max-w-md text-[1.04rem] font-light leading-[1.85] text-ink-soft">
+            Cómo se usan los productos y para qué tipo de piel es cada uno, explicado por ella misma.
+          </p>
+          <Link to="/tienda" className={`${darkButtonClass} mt-10`}>
+            Ir a la tienda <Arrow />
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:w-[540px]">
+          {videos.map((v) => (
+            <YouTubeShort key={v.id} id={v.id} title={v.title} />
+          ))}
         </div>
       </section>
 

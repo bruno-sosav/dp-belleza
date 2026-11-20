@@ -90,7 +90,7 @@ export default function PagoGiftCardPage() {
 
   const g = estado.data
   const pagada = g.estado === "activa" && g.codigo
-  const regalo = pagada ? `¡Te regalo una gift card de DP Belleza! Tu código es ${g.codigo}. Se usa en la tienda online o en el local.` : ""
+  const regalo = pagada ? `¡Te regalo una gift card de dppuntobelleza! Tu código es ${g.codigo}. Se usa en la tienda online o en el local.` : ""
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 lg:px-8">

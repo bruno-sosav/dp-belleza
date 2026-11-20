@@ -30,7 +30,7 @@ function Sena({ sena, precio }: { sena: NonNullable<Turno["sena"]>; precio: numb
 export default function TurnoDatos({ turno, enCurso, mostrarFecha }: { turno: Turno; enCurso: boolean; mostrarFecha: boolean }) {
   const nombre = nombreCliente(turno)
   const cancelado = turno.estado === "cancelado"
-  const mensaje = `¡Hola ${turno.cliente.nombre}! Te escribimos de Dp.belleza por tu turno de ${turno.servicio.nombre} el ${formatLongDate(turno.fecha)} a las ${turno.horaInicio}.`
+  const mensaje = `¡Hola ${turno.cliente.nombre}! Te escribimos de dppuntobelleza por tu turno de ${turno.servicio.nombre} el ${formatLongDate(turno.fecha)} a las ${turno.horaInicio}.`
 
   return (
     <div className="flex gap-4">
