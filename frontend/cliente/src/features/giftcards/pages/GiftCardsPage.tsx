@@ -7,6 +7,9 @@ import { Field, inputClass } from "../../ecommerce/components/SeccionEntrega"
 import { comprarGiftCard, linkDePagoGiftCard, MONTO_MAXIMO, MONTO_MINIMO, MONTOS_SUGERIDOS } from "../api/giftCards.api"
 import TarjetaDeRegalo from "../components/TarjetaDeRegalo"
 
+/** Comprar la gift card online con Mercado Pago. Apagado: la dueña prefiere coordinarlas ella. */
+const VENTA_ONLINE = false
+
 /** "$ 25.000" o "25000" → 25000. */
 const aNumero = (texto: string) => Number(texto.replace(/\D/g, ""))
 
@@ -21,7 +24,9 @@ export default function GiftCardsPage() {
 
   const elegido = otroMonto ? aNumero(otroMonto) : monto
   const montoValido = elegido >= MONTO_MINIMO && elegido <= MONTO_MAXIMO
-  const online = negocio?.mercadoPago ?? false
+  // La dueña coordina las gift cards ella misma (por WhatsApp o en el local): la compra online queda
+  // apagada aunque Mercado Pago esté conectado. Para volver a ofrecerla, pasar VENTA_ONLINE a true.
+  const online = VENTA_ONLINE && (negocio?.mercadoPago ?? false)
 
   async function comprar(e: FormEvent) {
     e.preventDefault()
@@ -44,15 +49,24 @@ export default function GiftCardsPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
-      <p className="text-xs uppercase tracking-[0.2em] text-leaf">Para regalar</p>
-      <h1 className="mt-2 font-display text-4xl font-semibold text-ink">Gift cards</h1>
-      <p className="mt-3 max-w-2xl text-ink-soft">
-        Regalá un momento para ella: la gift card se usa en la tienda online o en el local, para servicios y productos. Si no la gasta toda de una vez, el
-        saldo le queda para la próxima.
-      </p>
+      {/* Texto y diseño de la gift card que pasó Daniela. */}
+      <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-12">
+        <div>
+          <p className="text-xs uppercase tracking-[0.2em] text-leaf">Regalá belleza, regalá bienestar</p>
+          <h1 className="mt-2 font-display text-4xl font-semibold text-ink">Gift cards</h1>
+          <p className="mt-4 max-w-xl text-ink-soft">
+            Hay regalos que se disfrutan y momentos que se recuerdan. Sorprendé a esa persona especial con una Gift Card de dppuntobelleza.
+          </p>
+          <p className="mt-3 max-w-xl text-ink-soft">
+            Podés elegir el importe que quieras regalar y convertirlo en una experiencia de cuidado personal, belleza y bienestar. Se usa en la tienda
+            online o en el local, para servicios y productos, y si no se gasta toda de una vez, el saldo queda para la próxima.
+          </p>
+        </div>
+        <img src="/fotos/gift-card.jpg" alt="Gift card de dppuntobelleza: Regalá bienestar" className="w-full rounded-lg shadow-md" />
+      </div>
 
-      <div className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-2">
-        <TarjetaDeRegalo monto={montoValido ? elegido : null} para={datos.para} mensaje={datos.mensaje} />
+      <div className={online ? "mt-10 grid grid-cols-1 gap-10 lg:grid-cols-2" : "mt-10 max-w-xl"}>
+        {online && <TarjetaDeRegalo para={datos.para} mensaje={datos.mensaje} />}
 
         {online ? (
           <form onSubmit={comprar} className="space-y-6 rounded-lg border border-cream-dark bg-surface p-6">
@@ -129,10 +143,12 @@ export default function GiftCardsPage() {
         ) : (
           <div className="rounded-lg border border-cream-dark bg-surface p-6">
             <h2 className="font-display text-xl font-semibold text-ink">Pedila por WhatsApp o en el local</h2>
-            <p className="mt-2 text-sm text-ink-soft">Por ahora las gift cards se compran en el local o por WhatsApp. Contanos el monto y para quién es, y te la preparamos.</p>
+            <p className="mt-2 text-sm text-ink-soft">
+              Las gift cards se coordinan directamente con Daniela. Contale para quién es y el importe que querés regalar, y te la prepara.
+            </p>
             {negocio?.telefono && (
               <a
-                href={whatsappUrl(negocio.telefono, "¡Hola! Quiero comprar una gift card.")}
+                href={whatsappUrl(negocio.telefono, "¡Hola Dani! Quiero regalar una gift card.")}
                 target="_blank"
                 rel="noreferrer"
                 className="mt-5 inline-block rounded-sm bg-forest px-6 py-3 text-sm font-medium text-cream transition hover:bg-forest-soft"

@@ -15,6 +15,8 @@ const PAGINAS = [
   /^\/carrito$/,
   /^\/checkout$/,
   /^\/pedido\/pago$/,
+  /^\/gift-cards$/,
+  /^\/gift-cards\/pago$/,
   /^\/servicios$/,
   /^\/servicios\/[^/]+$/,
   /^\/reservar\/[^/]+$/,
