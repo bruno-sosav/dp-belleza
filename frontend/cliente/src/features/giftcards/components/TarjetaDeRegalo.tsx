@@ -1,7 +1,8 @@
-import { formatPrice } from "@dp/shared/lib/format"
-
-/** La gift card dibujada: el monto, para quién, el mensaje y (si ya está pagada) el código. */
-export default function TarjetaDeRegalo({ monto, para, mensaje, codigo }: { monto: number | null; para?: string | null; mensaje?: string | null; codigo?: string | null }) {
+/**
+ * La gift card dibujada: para quién, el mensaje y (si ya está pagada) el código.
+ * No muestra el monto a propósito: es un regalo y quien la recibe no tiene por qué saber cuánto se gastó.
+ */
+export default function TarjetaDeRegalo({ para, mensaje, codigo }: { para?: string | null; mensaje?: string | null; codigo?: string | null }) {
   return (
     <div className="relative aspect-[1.6] w-full max-w-md overflow-hidden rounded-2xl bg-forest p-6 text-left text-cream shadow-lg sm:p-8">
       <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-rose/30" aria-hidden="true" />
@@ -16,7 +17,7 @@ export default function TarjetaDeRegalo({ monto, para, mensaje, codigo }: { mont
           {mensaje?.trim() && <p className="mt-1 line-clamp-2 text-sm italic text-cream/80">“{mensaje.trim()}”</p>}
         </div>
         <div className="flex items-end justify-between gap-4">
-          <p className="font-display text-3xl font-semibold">{monto ? formatPrice(monto) : "—"}</p>
+          <p className="font-display text-2xl italic">Regalá bienestar</p>
           {codigo && <p className="rounded bg-cream/15 px-2 py-1 font-mono text-sm tracking-widest">{codigo}</p>}
         </div>
       </div>

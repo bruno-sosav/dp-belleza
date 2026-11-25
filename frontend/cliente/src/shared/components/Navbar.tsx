@@ -12,6 +12,7 @@ const links = [
   { to: "/#nosotros", label: "Nosotros" },
   { to: "/servicios", label: "Servicios" },
   { to: "/tienda", label: "Tienda" },
+  { to: "/gift-cards", label: "Gift cards" },
   { to: "/contacto", label: "Contacto" },
   { to: "/mi-turno", label: "Mi turno" },
 ]

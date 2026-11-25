@@ -69,7 +69,8 @@ export default function ServiceDetailPage() {
             )}
           </div>
 
-          <p className="mt-6 leading-relaxed text-ink-soft">{service.description ?? service.shortDescription}</p>
+          {/* pre-line: respeta los saltos de línea del texto (precios de paquetes, zonas de depilación). */}
+          <p className="mt-6 whitespace-pre-line leading-relaxed text-ink-soft">{service.description ?? service.shortDescription}</p>
 
           <div className="mt-8 flex items-end justify-between gap-6 border-y border-cream-dark py-5">
             <div>
@@ -83,6 +84,7 @@ export default function ServiceDetailPage() {
             )}
           </div>
 
+          {service.includes.length > 0 && (
           <div className="mt-8">
             <h2 className="font-display text-base font-semibold text-ink">Qué incluye la sesión</h2>
             <ul className="mt-4 space-y-2.5">
@@ -102,6 +104,7 @@ export default function ServiceDetailPage() {
               ))}
             </ul>
           </div>
+          )}
 
           <div className="mt-10 flex flex-col gap-3 sm:flex-row">
             <Link to={`/reservar/${service.id}`} className={`${primaryButtonClass} flex-1`}>

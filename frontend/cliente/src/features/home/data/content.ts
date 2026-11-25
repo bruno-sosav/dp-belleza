@@ -61,11 +61,17 @@ export const gallery = [
   { src: "/fotos/consultorio/recepcion.jpg", alt: "Recepción del consultorio con la pared verde oliva" },
   { src: "/fotos/consultorio/sala-facial.jpg", alt: "Sala de tratamientos faciales con la camilla y el estante de productos" },
   { src: "/fotos/consultorio/aparatologia.jpg", alt: "Sala de aparatología" },
+  { src: "/fotos/consultorio/certificados.jpg", alt: "Certificados de formación de Daniela en la pared del consultorio" },
   { src: "/fotos/consultorio/buda.jpg", alt: "Detalle de la sala de espera" },
 ]
 
 /** Marcas que vende en la tienda. */
-export const brands = ["Lidherma", "Carthage", "Mary Kay"]
+/** Las marcas con las que trabaja (logos que pasó Daniela, en public/logo/marcas). */
+export const brands = [
+  { nombre: "Lidherma", logo: "/logo/marcas/lidherma.jpg" },
+  { nombre: "Carthage", logo: "/logo/marcas/carthage.jpg" },
+  { nombre: "Mary Kay", logo: "/logo/marcas/mary-kay.jpg" },
+]
 
 export const bookingSteps = [
   { title: "Elegí el servicio", description: "Mirá precios, duración y qué incluye cada tratamiento." },

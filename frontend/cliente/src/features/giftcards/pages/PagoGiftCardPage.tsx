@@ -103,7 +103,7 @@ export default function PagoGiftCardPage() {
         </p>
 
         <div className="mt-8 flex justify-center">
-          <TarjetaDeRegalo monto={g.monto} para={g.para} mensaje={g.mensaje} codigo={g.codigo} />
+          <TarjetaDeRegalo para={g.para} mensaje={g.mensaje} codigo={g.codigo} />
         </div>
 
         {error && (

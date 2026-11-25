@@ -291,10 +291,10 @@ export default function HomePage() {
                 Una selección de productos para continuar el cuidado después de cada tratamiento. Te asesoramos para
                 que elijas lo que tu piel necesita.
               </p>
-              <ul className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-ink/10 pt-6">
+              <ul className="mt-8 flex flex-wrap items-center gap-3 border-t border-ink/10 pt-6">
                 {brands.map((b) => (
-                  <li key={b} className="font-brand text-sm uppercase tracking-[0.24em] text-ink-soft">
-                    {b}
+                  <li key={b.nombre} className="flex h-14 items-center rounded-md bg-white px-4 shadow-sm">
+                    <img src={b.logo} alt={b.nombre} loading="lazy" className="h-8 w-auto max-w-[9rem] object-contain" />
                   </li>
                 ))}
               </ul>
