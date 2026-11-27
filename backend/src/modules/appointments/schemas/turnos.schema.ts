@@ -11,10 +11,18 @@ const cumple = z
   .refine(({ dia, mes }) => dia <= [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][mes - 1], "Ese día no existe en ese mes")
 
 /** La reserva desde la web. */
+export const dni = z.string().trim().regex(/^\d{7,8}$/, "Ingresá un DNI válido (7 u 8 números)")
+
+export const reconocerClienta = z.object({ dni })
+
 export const reservaWeb = z.object({
   servicioId: z.number().int().positive(),
   fecha: fechaISO,
   hora: horaHM,
+  dni: dni.optional(),
+  /** Sin pago: seña si el local la pide (como antes de elegir). */
+  pago: z.enum(["efectivo", "sena"]).optional(),
+  /** Puede faltar si el DNI ya es de una clienta. */
   contacto: z.object({
     // Mismo mínimo que pide la web antes de mandar.
     nombreCompleto: z.string().trim().min(3).max(200),
@@ -22,7 +30,7 @@ export const reservaWeb = z.object({
     email: z.email().max(150).optional(),
     notas: z.string().trim().max(1000).optional(),
     cumple: cumple.optional(),
-  }),
+  }).optional(),
 })
 
 export const turnoDelPanel = z.object({

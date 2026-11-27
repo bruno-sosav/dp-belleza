@@ -21,6 +21,7 @@ import { normalizarTelefono } from "../models/telefono.model.js"
 export type EntradaCliente = {
   nombre: string
   apellido?: string | null
+  dni?: string | null
   telefono: string
   email?: string | null
   cumple?: Cumple | null
@@ -51,7 +52,7 @@ function validarCumple(cumple: Cumple | null | undefined) {
   if (cumple && !cumpleValido(cumple)) throw invalido("Ese cumpleaños no existe: revisá el día y el mes.")
 }
 
-/** Reserva web y tienda: usa la ficha existente (por teléfono) o crea una. Corre en la transacción de quien llama. */
+/** Reserva web y tienda: usa la ficha existente (por DNI o teléfono) o crea una. Corre en la transacción de quien llama. */
 export class BuscarOCrearCliente {
   constructor(
     private repo: ClienteRepository,
@@ -62,7 +63,10 @@ export class BuscarOCrearCliente {
     validarCumple(entrada.cumple)
     const datos = { ...entrada, telefono: await this.telefonos.ejecutar(entrada.telefono) }
 
-    const existente = await this.repo.porTelefono(datos.telefono, tx, { bloquear: true })
+    // El DNI manda (la reserva web la reconoce por él); si no, el teléfono.
+    const existente =
+      (datos.dni ? await this.repo.porDni(datos.dni, tx, { bloquear: true }) : null) ??
+      (await this.repo.porTelefono(datos.telefono, tx, { bloquear: true }))
     if (existente) {
       const cambios = datosParaCompletar(existente, datos)
       if (Object.keys(cambios).length) await this.repo.actualizar(existente.id, cambios, tx)
@@ -72,7 +76,7 @@ export class BuscarOCrearCliente {
       return await this.repo.crear(datos, tx)
     } catch (err) {
       // Otra reserva con el mismo teléfono la creó en el medio: se usa esa.
-      const ganadora = await this.repo.porTelefono(datos.telefono, tx)
+      const ganadora = (datos.dni ? await this.repo.porDni(datos.dni, tx) : null) ?? (await this.repo.porTelefono(datos.telefono, tx))
       if (ganadora) return ganadora.id
       throw err
     }

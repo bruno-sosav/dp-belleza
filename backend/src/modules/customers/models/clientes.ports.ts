@@ -7,11 +7,12 @@ export interface ClienteRepository {
   porId(id: number, tx?: Transaccion, opciones?: { bloquear?: boolean }): Promise<Cliente | null>
   /** `bloquear`: que nadie más la cree o cambie hasta que termine la transacción. */
   porTelefono(telefono: string, tx?: Transaccion, opciones?: { bloquear?: boolean }): Promise<Cliente | null>
+  porDni(dni: string, tx?: Transaccion, opciones?: { bloquear?: boolean }): Promise<Cliente | null>
   /** Por nombre, apellido o teléfono; cada palabra tiene que aparecer en algún campo. Vacío = todas. */
   buscar(texto?: string): Promise<Cliente[]>
-  /** Devuelve el id. Lanza `conflicto` si el teléfono ya lo tiene otra. */
+  /** Devuelve el id. Lanza `conflicto` si el teléfono o el DNI ya lo tiene otra. */
   crear(datos: DatosCliente, tx?: Transaccion): Promise<number>
-  /** false si no existe. Lanza `conflicto` si el teléfono ya lo tiene otra. */
+  /** false si no existe. Lanza `conflicto` si el teléfono o el DNI ya lo tiene otra. */
   actualizar(id: number, cambios: CambiosCliente, tx?: Transaccion): Promise<boolean>
   eliminar(id: number, tx?: Transaccion): Promise<void>
   /** Otras fichas que podrían ser la misma persona: mismo nombre y apellido, o mismo email. */

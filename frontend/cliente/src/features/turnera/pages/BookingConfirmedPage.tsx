@@ -84,7 +84,7 @@ export default function BookingConfirmedPage() {
   return (
     <div className={`${containerClass} py-10`}>
       <div className="mx-auto max-w-2xl">
-        <Stepper current={4} />
+        <Stepper current={5} />
 
         <div className="mt-10 text-center">
           <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-rose/25">

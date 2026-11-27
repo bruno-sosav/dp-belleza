@@ -19,6 +19,7 @@ import {
   DarTurno,
   GestionarSenas,
   MiTurno,
+  ReconocerClienta,
   ReprogramarTurno,
   ReservarTurno,
   VerTurnos,
@@ -100,6 +101,7 @@ const senas = new GestionarSenas(deps)
 const turnosController = new TurnosController(
   {
     reservar: new ReservarTurno(deps),
+    reconocer: new ReconocerClienta(deps),
     dar: new DarTurno(deps),
     reprogramar: new ReprogramarTurno(deps),
     cambiarEstado,

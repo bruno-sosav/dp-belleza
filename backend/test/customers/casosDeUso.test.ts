@@ -45,6 +45,16 @@ describe("BuscarOCrearCliente (la reserva web y la tienda)", () => {
     expect(await repo.porId(id)).toMatchObject({ nombre: "Sofía", apellido: "Martínez", email: "sofi@ejemplo.com" })
   })
 
+  it("con DNI la reconoce por él aunque cambie el teléfono, y a una ficha sin DNI se lo completa", async () => {
+    const caso = new BuscarOCrearCliente(repo, telefonos)
+    const id = await caso.ejecutar({ nombre: "Ana", dni: "30111222", telefono: "223 555 1234" }, tx)
+    expect(await caso.ejecutar({ nombre: "Ana", dni: "30111222", telefono: "223 555 9999" }, tx)).toBe(id)
+
+    const vieja = await repo.crear({ nombre: "Lola", telefono: "5492235550000" })
+    expect(await caso.ejecutar({ nombre: "Lola", dni: "28999888", telefono: "223 555 0000" }, tx)).toBe(vieja)
+    expect((await repo.porId(vieja))?.dni).toBe("28999888")
+  })
+
   it("rechaza un teléfono que no sirve y un cumpleaños que no existe", async () => {
     const caso = new BuscarOCrearCliente(repo, telefonos)
     expect(await tipoDeError(caso.ejecutar({ nombre: "Ana", telefono: "22355512345" }, tx))).toBe("invalido")

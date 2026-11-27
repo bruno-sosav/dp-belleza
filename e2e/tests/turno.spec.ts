@@ -14,6 +14,20 @@ test.describe.serial("Turno de punta a punta", () => {
     await page.locator('main a[href^="/reservar/"]').first().click()
     await expect(page.getByRole("heading", { name: "Reservar turno" })).toBeVisible()
 
+    // DNI nuevo: pide registrarse.
+    await page.getByLabel("DNI").fill(CLIENTA.dni)
+    await page.getByRole("button", { name: "Continuar" }).click()
+    await page.getByLabel("Nombre y apellido").fill(CLIENTA.nombre)
+    await page.getByLabel("Teléfono").fill(CLIENTA.telefono)
+    await page.getByRole("button", { name: "Continuar" }).click()
+    // El paso de pago solo aparece si el local cobra seña.
+    const efectivo = page.getByRole("radio", { name: /Efectivo/ })
+    await expect(efectivo.or(page.getByRole("heading", { name: "1. Elegí el día" }))).toBeVisible()
+    if (await efectivo.isVisible()) {
+      await efectivo.check()
+      await page.getByRole("button", { name: "Continuar" }).click()
+    }
+
     // Primer día con horarios libres desde dentro de 3 días: así el turno se puede
     // cancelar desde la web después (la regla por defecto es hasta 24 hs antes).
     const desde = new Date()
@@ -40,9 +54,7 @@ test.describe.serial("Turno de punta a punta", () => {
     }
     expect(elegido, "ningún día de los próximos 3 meses tiene horarios libres").toBe(true)
 
-    await page.getByRole("button", { name: "Continuar con mis datos" }).click()
-    await page.getByLabel("Nombre y apellido").fill(CLIENTA.nombre)
-    await page.getByLabel("Teléfono").fill(CLIENTA.telefono)
+    await page.getByRole("button", { name: "Continuar" }).click()
     const reserva = page.waitForResponse((r) => r.url().endsWith("/api/turnos") && r.request().method() === "POST")
     await page.getByRole("button", { name: "Confirmar turno" }).click()
     // 201 Created: el turno quedó guardado en la base.

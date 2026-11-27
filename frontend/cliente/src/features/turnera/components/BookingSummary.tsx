@@ -7,6 +7,8 @@ type Props = {
   service: Service
   date: Date | null
   time: string | null
+  /** Debajo del total: cómo se paga. */
+  paymentNote?: string
 }
 
 function Row({ label, value, muted }: { label: string; value: string; muted?: boolean }) {
@@ -18,7 +20,7 @@ function Row({ label, value, muted }: { label: string; value: string; muted?: bo
   )
 }
 
-export default function BookingSummary({ service, date, time }: Props) {
+export default function BookingSummary({ service, date, time, paymentNote = "Se abona en el local al finalizar la sesión." }: Props) {
   return (
     <div className="overflow-hidden rounded border border-cream-dark bg-surface">
       <div className="flex items-center gap-3.5 border-b border-cream-dark p-5">
@@ -48,7 +50,7 @@ export default function BookingSummary({ service, date, time }: Props) {
           <span className="font-display text-xl font-semibold text-ink">{formatPrice(service.price)}</span>
         </div>
         <p className="mt-2 text-[11px] leading-relaxed text-ink-soft">
-          Se abona en el local al finalizar la sesión. No se cobra seña.
+          {paymentNote}
         </p>
       </div>
     </div>

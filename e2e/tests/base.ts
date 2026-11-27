@@ -10,7 +10,7 @@ export const ADMIN_EMAIL = process.env.TEST_ADMIN_EMAIL ?? "admin@dpbelleza.com"
 export const ADMIN_PASSWORD = process.env.TEST_ADMIN_PASSWORD ?? "dp-belleza-2026"
 
 // Clienta de prueba. Teléfonos 223 555 98xx: ni los seeds ni los tests de integración (99xx) los usan.
-export const CLIENTA = { nombre: "Clienta E2E Prueba", telefono: "223 555-9801" }
+export const CLIENTA = { nombre: "Clienta E2E Prueba", telefono: "223 555-9801", dni: "99559801" }
 const TELEFONO_GUARDADO = "54922355598%"
 
 config({ path: new URL("../../backend/.env.local", import.meta.url).pathname, quiet: true })

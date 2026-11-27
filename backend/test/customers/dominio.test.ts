@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest"
 import { cumpleValido, datosParaCompletar, fusionarFichas, motivoParaNoEliminar, separarNombreCompleto } from "../../src/modules/customers/models/cliente.model.js"
 import type { Cliente } from "../../src/modules/customers/models/cliente.model.js"
 
-const ana: Cliente = { id: 1, nombre: "Ana", apellido: null, telefono: "5492235551111", email: null, cumple: null, notas: null, clienteDesde: "2026-01-01" }
+const ana: Cliente = { id: 1, nombre: "Ana", apellido: null, dni: null, telefono: "5492235551111", email: null, cumple: null, notas: null, clienteDesde: "2026-01-01" }
 
 describe("dominio de clientas", () => {
   it("separa el nombre completo como llega de la web", () => {

@@ -7,6 +7,7 @@ import type {
   DarTurno,
   GestionarSenas,
   MiTurno,
+  ReconocerClienta,
   ReprogramarTurno,
   ReservarTurno,
   VerTurnos,
@@ -20,6 +21,7 @@ import {
   identificacion,
   nuevoEstado,
   pagoId,
+  reconocerClienta,
   reservaWeb,
   tokenPublico,
   tokenSena,
@@ -28,6 +30,7 @@ import {
 
 export type CasosDeUsoTurnos = {
   reservar: ReservarTurno
+  reconocer: ReconocerClienta
   dar: DarTurno
   reprogramar: ReprogramarTurno
   cambiarEstado: CambiarEstadoTurno
@@ -46,6 +49,9 @@ export class TurnosController {
   // ----- web
   reservar = async (req: Request, res: Response) => {
     res.status(201).json(aReservaHecha(await this.casos.reservar.ejecutar(reservaWeb.parse(req.body))))
+  }
+  reconocer = async (req: Request, res: Response) => {
+    res.json(await this.casos.reconocer.ejecutar(reconocerClienta.parse(req.body).dni))
   }
   reserva = async (req: Request, res: Response) => {
     res.json(aReserva(await this.casos.ver.reserva(tokenPublico.parse(req.params.token))))

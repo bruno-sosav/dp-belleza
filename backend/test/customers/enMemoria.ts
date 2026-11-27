@@ -14,6 +14,9 @@ export class ClientesEnMemoria implements ClienteRepository {
   async porTelefono(telefono: string) {
     return [...this.filas.values()].find((c) => c.telefono === telefono) ?? null
   }
+  async porDni(dni: string) {
+    return [...this.filas.values()].find((c) => c.dni === dni) ?? null
+  }
   async buscar(texto?: string) {
     const t = texto?.toLowerCase() ?? ""
     return [...this.filas.values()].filter((c) => !t || `${c.nombre} ${c.apellido ?? ""} ${c.telefono}`.toLowerCase().includes(t))
@@ -21,7 +24,7 @@ export class ClientesEnMemoria implements ClienteRepository {
   async crear(d: DatosCliente) {
     if (await this.porTelefono(d.telefono)) throw conflicto("Ese teléfono ya lo tiene otra clienta.")
     const id = this.siguiente++
-    this.filas.set(id, { id, nombre: d.nombre, apellido: d.apellido ?? null, telefono: d.telefono, email: d.email ?? null, cumple: d.cumple ?? null, notas: d.notas ?? null, clienteDesde: "2026-10-19" })
+    this.filas.set(id, { id, nombre: d.nombre, apellido: d.apellido ?? null, dni: d.dni ?? null, telefono: d.telefono, email: d.email ?? null, cumple: d.cumple ?? null, notas: d.notas ?? null, clienteDesde: "2026-10-19" })
     return id
   }
   async actualizar(id: number, cambios: CambiosCliente) {

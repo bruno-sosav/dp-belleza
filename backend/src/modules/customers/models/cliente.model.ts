@@ -6,6 +6,8 @@ export type Cliente = {
   id: number
   nombre: string
   apellido: string | null
+  /** Solo números, 7 u 8. Null en las fichas que no lo cargaron. */
+  dni: string | null
   /** Normalizado: 549 + código de área + número (ver telefono.model.ts). */
   telefono: string
   email: string | null
@@ -21,6 +23,7 @@ export type Cliente = {
 export type DatosCliente = {
   nombre: string
   apellido?: string | null
+  dni?: string | null
   telefono: string
   email?: string | null
   cumple?: Cumple | null
@@ -76,6 +79,7 @@ export function separarNombreCompleto(texto: string): { nombre: string; apellido
 export function datosParaCompletar(existente: Cliente, nuevos: DatosCliente): CambiosCliente {
   const cambios: CambiosCliente = {}
   if (!existente.apellido && nuevos.apellido) cambios.apellido = nuevos.apellido
+  if (!existente.dni && nuevos.dni) cambios.dni = nuevos.dni
   if (!existente.email && nuevos.email) cambios.email = nuevos.email
   if (!existente.cumple && nuevos.cumple) cambios.cumple = nuevos.cumple
   return cambios

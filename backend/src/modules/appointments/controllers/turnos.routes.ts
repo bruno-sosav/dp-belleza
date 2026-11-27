@@ -1,5 +1,5 @@
 /**
- * Web (/api/turnos): POST /, /reserva/:token, /mi-turno…, /sena/:token…
+ * Web (/api/turnos): POST /, /clienta, /reserva/:token, /mi-turno…, /sena/:token…
  * Panel (/api/admin): /turnos, /turnos/:id, /turnos/:id/estado, /turnos/:id/completar.
  */
 import { Router } from "express"
@@ -26,6 +26,8 @@ export function rutasTurnosWeb(c: TurnosController): Router {
   })
 
   r.post("/", limiteReservas, c.reservar)
+  // Por POST: el DNI no queda en la URL. Mismo límite que Mi turno contra probar DNIs ajenos.
+  r.post("/clienta", limiteMiTurno, c.reconocer)
   r.get("/reserva/:token", c.reserva)
   // Por POST y no GET: así el teléfono no queda en la URL ni en los logs.
   r.post("/mi-turno", limiteMiTurno, c.buscarMiTurno)

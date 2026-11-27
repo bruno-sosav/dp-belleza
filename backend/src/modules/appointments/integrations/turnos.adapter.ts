@@ -22,6 +22,7 @@ export const clientesDeTurnos: ClientesDeTurnos = {
     const [rows] = await ejecutor(tx).query<RowDataPacket[]>("SELECT 1 FROM clientes WHERE id = ?", [id])
     return rows.length > 0
   },
+  porDni: (dni, tx) => clientes.porDni(dni, tx),
   normalizarTelefono: (texto) => clientes.normalizarTelefono(texto),
   separarNombreCompleto: (texto) => clientes.separarNombreCompleto(texto),
 }

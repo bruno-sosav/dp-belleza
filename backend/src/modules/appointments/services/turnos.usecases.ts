@@ -104,14 +104,23 @@ export type ReservaHecha = {
 export class ReservarTurno {
   constructor(private d: TurnosDeps) {}
 
-  async ejecutar(e: { servicioId: number; fecha: string; hora: string; notas?: string; contacto: { nombreCompleto: string } & Omit<EntradaClienta, "nombre" | "apellido"> }): Promise<ReservaHecha> {
+  async ejecutar(e: {
+    servicioId: number
+    fecha: string
+    hora: string
+    notas?: string
+    dni?: string
+    pago?: "efectivo" | "sena"
+    contacto?: { nombreCompleto: string } & Omit<EntradaClienta, "nombre" | "apellido" | "dni">
+  }): Promise<ReservaHecha> {
     const d = this.d
     const problema = problemaDeAnticipacion(e.fecha, aMinutos(e.hora), d.reloj.ahora(), await d.reservas.reglas())
     if (problema) throw invalido(problema)
 
-    // Seña: solo si la dueña puso un porcentaje y la pasarela está conectada.
+    // Seña: solo si la dueña puso un porcentaje y la pasarela está conectada. En efectivo, sin seña.
     const porcentaje = (await d.pasarela.conectada()) ? await d.configuracion.porcentajeSena() : 0
-    const sena = porcentaje > 0 ? { porcentaje, token: nuevoToken() } : null
+    if (e.pago === "sena" && porcentaje === 0) throw invalido("Hoy no se puede pagar la seña online. Elegí pagar en efectivo en el local.")
+    const sena = porcentaje > 0 && e.pago !== "efectivo" ? { porcentaje, token: nuevoToken() } : null
     const tokenPublico = nuevoToken()
 
     const hecho = await agendar(d, {
@@ -124,8 +133,7 @@ export class ReservarTurno {
       sena,
       tokenPublico,
       clienta: async (tx) => {
-        const { nombreCompleto, ...resto } = e.contacto
-        const clienteId = await d.clientes.buscarOCrear({ ...d.clientes.separarNombreCompleto(nombreCompleto), ...resto }, tx)
+        const clienteId = await this.clientaDeLaReserva(e, tx)
         // Tope por clienta: que nadie llene la agenda desde la web.
         if ((await d.turnos.pedidosFuturosDeCliente(clienteId, tx)) >= MAX_TURNOS_PEDIDOS_WEB) {
           throw conflicto(`Ya tenés ${MAX_TURNOS_PEDIDOS_WEB} turnos reservados. Para reservar otro, escribinos por WhatsApp.`)
@@ -159,6 +167,26 @@ export class ReservarTurno {
         err instanceof ErrorDeNegocio ? err.message : undefined,
       )
     }
+  }
+
+  /** Con datos: la busca o la crea (con su DNI). Sin datos: tiene que ser una clienta ya registrada con ese DNI. */
+  private async clientaDeLaReserva(e: Parameters<ReservarTurno["ejecutar"]>[0], tx: Transaccion): Promise<number> {
+    if (e.contacto) {
+      const { nombreCompleto, ...resto } = e.contacto
+      return this.d.clientes.buscarOCrear({ ...this.d.clientes.separarNombreCompleto(nombreCompleto), ...resto, dni: e.dni ?? null }, tx)
+    }
+    const conocida = e.dni ? await this.d.clientes.porDni(e.dni, tx) : null
+    if (!conocida) throw invalido("Completá tus datos para reservar.")
+    return conocida.id
+  }
+}
+
+/** El primer paso de la reserva: con el DNI, si ya es clienta se la saluda. Solo el nombre: cualquiera puede tipear un DNI ajeno. */
+export class ReconocerClienta {
+  constructor(private d: TurnosDeps) {}
+
+  async ejecutar(dni: string): Promise<{ nombre: string | null }> {
+    return { nombre: (await this.d.clientes.porDni(dni))?.nombre ?? null }
   }
 }
 

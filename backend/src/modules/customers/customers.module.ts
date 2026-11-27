@@ -52,11 +52,17 @@ export const clientes = {
   /** Rutas del panel (/clientes…). Se montan bajo /api/admin, que exige sesión. */
   rutasPanel: rutasPanelClientes(controller),
 
-  /** La reserva web y la tienda: usa la ficha de ese teléfono (sin pisarle nada) o crea una. */
+  /** La reserva web y la tienda: usa la ficha de ese DNI o teléfono (sin pisarle nada) o crea una. */
   buscarOCrear: (datos: EntradaCliente, tx: Transaccion) => buscarOCrear.ejecutar(datos, tx),
 
   /** "Ana María Pérez" → nombre y apellido, como lo guarda la ficha. */
   separarNombreCompleto,
+
+  /** La ficha con ese DNI (la reserva web la reconoce por él), o null. */
+  porDni: async (dni: string, tx?: Transaccion) => {
+    const c = await repo.porDni(dni, tx)
+    return c ? { id: c.id, nombre: c.nombre } : null
+  },
 
   /** El cumpleaños de la ficha, o null si no está cargado (la tienda lo usa para el descuento). */
   cumpleDe: async (clienteId: number, tx?: Transaccion) => (await repo.porId(clienteId, tx))?.cumple ?? null,

@@ -23,13 +23,28 @@ export const emptyContact: BookingContact = {
   birthMonth: "",
 }
 
+/** Efectivo en el local (sin seña) o la seña con Mercado Pago. */
+export type PaymentChoice = "efectivo" | "sena"
+
 export type BookingRequest = {
   serviceId: number
   /** YYYY-MM-DD */
   date: string
   /** HH:MM en 24hs */
   time: string
-  contact: BookingContact
+  dni: string
+  payment: PaymentChoice
+  /** null: el DNI ya es de una clienta y el backend usa su ficha. */
+  contact: BookingContact | null
+}
+
+/** "30.111.222" → "30111222". */
+export const cleanDni = (dni: string) => dni.replace(/[\s.-]/g, "")
+export const validDni = (dni: string) => /^\d{7,8}$/.test(cleanDni(dni))
+
+/** Primer paso: si el DNI ya es de una clienta, su nombre para saludarla (si no, null). */
+export async function recognizeClient(dni: string) {
+  return (await api<{ nombre: string | null }>("/api/turnos/clienta", { method: "POST", body: { dni: cleanDni(dni) } })).nombre
 }
 
 /** El turno ya guardado (`aReservaHecha` en backend/src/modules/appointments/schemas/turnos.dto.ts). */
@@ -71,27 +86,33 @@ export function contactProblem(contact: BookingContact): string | null {
   return null
 }
 
-export function createBooking({ serviceId, date, time, contact }: BookingRequest) {
-  const email = contact.email.trim()
-  const notes = contact.notes.trim()
+export function createBooking({ serviceId, date, time, dni, payment, contact }: BookingRequest) {
   return api<CreatedBooking>("/api/turnos", {
     method: "POST",
     body: {
       servicioId: serviceId,
       fecha: date,
       hora: time,
-      contacto: {
-        nombreCompleto: contact.fullName.trim(),
-        telefono: contact.phone.trim(),
-        // Opcionales: vacíos no se mandan (el backend rechaza un email "").
-        ...(email ? { email } : {}),
-        ...(notes ? { notas: notes } : {}),
-        ...(contact.birthDay && contact.birthMonth
-          ? { cumple: { dia: Number(contact.birthDay), mes: Number(contact.birthMonth) } }
-          : {}),
-      },
+      dni: cleanDni(dni),
+      pago: payment,
+      ...(contact ? { contacto: toContacto(contact) } : {}),
     },
   })
+}
+
+function toContacto(contact: BookingContact) {
+  const email = contact.email.trim()
+  const notes = contact.notes.trim()
+  return {
+    nombreCompleto: contact.fullName.trim(),
+    telefono: contact.phone.trim(),
+    // Opcionales: vacíos no se mandan (el backend rechaza un email "").
+    ...(email ? { email } : {}),
+    ...(notes ? { notas: notes } : {}),
+    ...(contact.birthDay && contact.birthMonth
+      ? { cumple: { dia: Number(contact.birthDay), mes: Number(contact.birthMonth) } }
+      : {}),
+  }
 }
 
 /** Código que ve la clienta: "DP-000123". Sale del id real, así lo puede dictar en el local. */

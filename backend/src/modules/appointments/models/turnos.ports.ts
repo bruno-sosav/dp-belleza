@@ -75,6 +75,7 @@ export interface ConsultasDeTurnos {
 export type EntradaClienta = {
   nombre: string
   apellido?: string | null
+  dni?: string | null
   telefono: string
   email?: string | null
   cumple?: { dia: number; mes: number } | null
@@ -84,6 +85,7 @@ export type EntradaClienta = {
 export interface ClientesDeTurnos {
   buscarOCrear(datos: EntradaClienta, tx: Transaccion): Promise<number>
   existe(id: number, tx: Transaccion): Promise<boolean>
+  porDni(dni: string, tx?: Transaccion): Promise<{ id: number; nombre: string } | null>
   normalizarTelefono(texto: string): Promise<string | null>
   separarNombreCompleto(texto: string): { nombre: string; apellido: string | null }
 }

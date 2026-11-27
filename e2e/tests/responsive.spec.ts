@@ -15,6 +15,14 @@ async function captura(page: Page, nombre: string) {
 }
 
 test.describe("Web pública en el celular", () => {
+  // Las fotos de ejemplo vienen de picsum.photos: si ese sitio no contesta, "networkidle" no llega nunca.
+  // Se responden con una imagen vacía para no depender de él.
+  test.beforeEach(({ page }) =>
+    page.route("https://picsum.photos/**", (r) =>
+      r.fulfill({ contentType: "image/svg+xml", body: '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000"/>' }),
+    ),
+  )
+
   test("las páginas entran en la pantalla", async ({ page, request }) => {
     const servicios = (await (await request.get("http://localhost:3000/api/turnos/servicios")).json()) as { id: number }[]
     const rutas = ["/", "/servicios", `/servicios/${servicios[0].id}`, `/reservar/${servicios[0].id}`, "/mi-turno", "/tienda", "/carrito", "/contacto"]

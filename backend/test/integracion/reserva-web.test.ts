@@ -69,6 +69,29 @@ describe("reserva web", () => {
     expect((await reservar(horas[3], 5, { cumple: { dia: 30, mes: 2 } })).status).toBe(400)
   })
 
+  it("con DNI: la primera vez se registra, después la saluda y reserva sin pedirle los datos", async () => {
+    const dni = "99559906"
+    expect((await api().post("/api/turnos/clienta").send({ dni })).body).toEqual({ nombre: null })
+    const primera = await api()
+      .post("/api/turnos")
+      .send({ servicioId: servicio.id, fecha: dia, hora: horas[3], dni, pago: "efectivo", contacto: { nombreCompleto: "Test Reserva", telefono: telefonoEscrito(6) } })
+    expect(primera.status, JSON.stringify(primera.body)).toBe(201)
+    await api().post("/api/turnos/mi-turno/cancelar").send({ codigo: String(primera.body.id), telefono: telefonoEscrito(6) })
+
+    expect((await api().post("/api/turnos/clienta").send({ dni })).body).toEqual({ nombre: "Test" })
+    const segunda = await api().post("/api/turnos").send({ servicioId: servicio.id, fecha: dia, hora: horas[3], dni, pago: "efectivo" })
+    expect(segunda.status, JSON.stringify(segunda.body)).toBe(201)
+    expect(segunda.body.sena).toBeUndefined()
+    // Libera el horario para el test del teléfono.
+    await api().post("/api/turnos/mi-turno/cancelar").send({ codigo: String(segunda.body.id), telefono: telefonoEscrito(6) })
+  })
+
+  it("sin datos y con un DNI que no es de nadie, pide completarlos (400); un DNI mal escrito, también", async () => {
+    const r = await api().post("/api/turnos").send({ servicioId: servicio.id, fecha: dia, hora: horas[3], dni: "99559907", pago: "efectivo" })
+    expect(r.status).toBe(400)
+    expect((await api().post("/api/turnos/clienta").send({ dni: "12.345" })).status).toBe(400)
+  })
+
   it("rechaza un teléfono con un dígito de más", async () => {
     const r = await api().post("/api/turnos").send({ servicioId: servicio.id, fecha: dia, hora: horas[3], contacto: { nombreCompleto: "Test", telefono: "22355599011" } })
     expect(r.status).toBe(400)

@@ -6,13 +6,14 @@ import { ejecutor } from "../../../core/database/unidadDeTrabajo.database.js"
 import type { CambiosCliente, Cliente, DatosCliente } from "../models/cliente.model.js"
 import type { ClienteRepository } from "../models/clientes.ports.js"
 
-const COLUMNAS = "id, nombre, apellido, telefono, email, cumple_dia, cumple_mes, notas, created_at"
+const COLUMNAS = "id, nombre, apellido, dni, telefono, email, cumple_dia, cumple_mes, notas, created_at"
 
 function aCliente(r: RowDataPacket): Cliente {
   return {
     id: r.id,
     nombre: r.nombre,
     apellido: r.apellido,
+    dni: r.dni,
     telefono: r.telefono,
     email: r.email,
     cumple: r.cumple_dia ? { dia: r.cumple_dia, mes: r.cumple_mes } : null,
@@ -26,6 +27,7 @@ function aColumnas(d: CambiosCliente): Record<string, unknown> {
   const c: Record<string, unknown> = {}
   if (d.nombre !== undefined) c.nombre = d.nombre
   if (d.apellido !== undefined) c.apellido = d.apellido || null
+  if (d.dni !== undefined) c.dni = d.dni || null
   if (d.telefono !== undefined) c.telefono = d.telefono
   if (d.email !== undefined) c.email = d.email || null
   if (d.notas !== undefined) c.notas = d.notas || null
@@ -36,12 +38,13 @@ function aColumnas(d: CambiosCliente): Record<string, unknown> {
   return c
 }
 
-/** El choque con uq_clientes_telefono, en palabras de la dueña. */
+/** El choque con uq_clientes_telefono o uq_clientes_dni, en palabras de la dueña. */
 async function escribir<T>(accion: () => Promise<T>): Promise<T> {
   try {
     return await accion()
   } catch (err) {
-    if ((err as { code?: string }).code === "ER_DUP_ENTRY") throw conflicto("Ese teléfono ya lo tiene otra clienta.")
+    const e = err as { code?: string; message?: string }
+    if (e.code === "ER_DUP_ENTRY") throw conflicto(e.message?.includes("uq_clientes_dni") ? "Ese DNI ya lo tiene otra clienta." : "Ese teléfono ya lo tiene otra clienta.")
     throw err
   }
 }
@@ -59,6 +62,14 @@ export class MySqlClienteRepository implements ClienteRepository {
     const [rows] = await ejecutor(tx).query<RowDataPacket[]>(
       `SELECT ${COLUMNAS} FROM clientes WHERE telefono = ? ${bloquear ? "FOR UPDATE" : ""}`,
       [telefono],
+    )
+    return rows[0] ? aCliente(rows[0]) : null
+  }
+
+  async porDni(dni: string, tx?: Transaccion, { bloquear = false } = {}) {
+    const [rows] = await ejecutor(tx).query<RowDataPacket[]>(
+      `SELECT ${COLUMNAS} FROM clientes WHERE dni = ? ${bloquear ? "FOR UPDATE" : ""}`,
+      [dni],
     )
     return rows[0] ? aCliente(rows[0]) : null
   }

@@ -1,4 +1,4 @@
-const steps = ["Servicio", "Día y hora", "Tus datos", "Listo"]
+const steps = ["Tus datos", "Pago", "Día y hora", "Confirmación", "Listo"]
 
 export default function Stepper({ current }: { current: number }) {
   return (
