@@ -29,14 +29,30 @@ function Alert({ children }: { children: React.ReactNode }) {
   )
 }
 
-function PaymentOption({ checked, onSelect, title, detail }: { checked: boolean; onSelect: () => void; title: string; detail: string }) {
+function PaymentOption({
+  checked,
+  onSelect,
+  title,
+  detail,
+  disabled = false,
+}: {
+  checked: boolean
+  onSelect: () => void
+  title: string
+  detail: string
+  disabled?: boolean
+}) {
   return (
     <label
-      className={`flex cursor-pointer items-start gap-3 rounded border p-5 transition ${
-        checked ? "border-forest bg-forest/5 ring-2 ring-forest/20" : "border-ink/15 bg-surface hover:border-forest/50"
+      className={`flex items-start gap-3 rounded border p-5 transition ${
+        disabled
+          ? "cursor-not-allowed border-ink/10 bg-cream-dark/30 opacity-60"
+          : checked
+            ? "cursor-pointer border-forest bg-forest/5 ring-2 ring-forest/20"
+            : "cursor-pointer border-ink/15 bg-surface hover:border-forest/50"
       }`}
     >
-      <input type="radio" name="pago" checked={checked} onChange={onSelect} className="mt-1 accent-forest" />
+      <input type="radio" name="pago" checked={checked} disabled={disabled} onChange={onSelect} className="mt-1 accent-forest" />
       <span>
         <span className="block font-medium text-ink">{title}</span>
         <span className="mt-0.5 block text-sm text-ink-soft">{detail}</span>
@@ -88,9 +104,9 @@ export default function BookingPage() {
   const current = service.data
   const senaPorcentaje = negocio?.senaPorcentaje ?? 0
   const senaMonto = Math.max(1, Math.round((current.price * senaPorcentaje) / 100))
-  // Sin seña configurada (o sin Mercado Pago) la única opción es efectivo: el paso se saltea.
-  const afterIdentity = (): Step => (senaPorcentaje > 0 ? "pago" : "fecha")
-  const chosenPayment: PaymentChoice = senaPorcentaje > 0 ? (payment ?? "efectivo") : "efectivo"
+  // Sin seña configurada (o sin Mercado Pago) la seña se muestra deshabilitada: queda solo efectivo.
+  const senaDisponible = senaPorcentaje > 0
+  const chosenPayment: PaymentChoice = senaDisponible ? (payment ?? "efectivo") : "efectivo"
   const problem = contactProblem(contact)
 
   const checkDni = async () => {
@@ -103,7 +119,9 @@ export default function BookingPage() {
     try {
       const nombre = await recognizeClient(dni)
       setKnownName(nombre)
-      setStep(nombre ? afterIdentity() : "registro")
+      // El pago se elige en cada reserva: no se arrastra de otro DNI ni de una vuelta atrás.
+      setPayment(null)
+      setStep(nombre ? "pago" : "registro")
     } catch (err) {
       setDniError(err instanceof Error ? err.message : "No pudimos verificar el DNI. Probá de nuevo.")
     } finally {
@@ -240,7 +258,7 @@ export default function BookingPage() {
                 <form
                   onSubmit={(e) => {
                     e.preventDefault()
-                    if (!problem) setStep(afterIdentity())
+                    if (!problem) setStep("pago")
                   }}
                   className="mt-6"
                 >
@@ -251,7 +269,7 @@ export default function BookingPage() {
                 <button type="button" onClick={() => setStep("dni")} className={secondaryButtonClass}>
                   Volver
                 </button>
-                <button type="button" disabled={problem !== null} onClick={() => setStep(afterIdentity())} className={`${primaryButtonClass} flex-1`}>
+                <button type="button" disabled={problem !== null} onClick={() => setStep("pago")} className={`${primaryButtonClass} flex-1`}>
                   Continuar
                   {nextIcon}
                 </button>
@@ -275,12 +293,24 @@ export default function BookingPage() {
                     checked={payment === "sena"}
                     onSelect={() => setPayment("sena")}
                     title="Seña con Mercado Pago"
-                    detail={`Pagás ${formatPrice(senaMonto)} (${senaPorcentaje} %) ahora y el resto en el local.`}
+                    detail={
+                      senaDisponible
+                        ? `Pagás ${formatPrice(senaMonto)} (${senaPorcentaje} %) ahora y el resto en el local.`
+                        : "No disponible por el momento."
+                    }
+                    disabled={!senaDisponible}
                   />
                 </div>
               </section>
               <div className="flex flex-col gap-3 sm:flex-row">
-                <button type="button" onClick={() => setStep(knownName ? "dni" : "registro")} className={secondaryButtonClass}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPayment(null)
+                    setStep(knownName ? "dni" : "registro")
+                  }}
+                  className={secondaryButtonClass}
+                >
                   Volver
                 </button>
                 <button type="button" disabled={payment === null} onClick={() => setStep("fecha")} className={`${primaryButtonClass} flex-1`}>
@@ -329,7 +359,7 @@ export default function BookingPage() {
               <div className="flex flex-col gap-3 sm:flex-row">
                 <button
                   type="button"
-                  onClick={() => setStep(senaPorcentaje > 0 ? "pago" : knownName ? "dni" : "registro")}
+                  onClick={() => setStep("pago")}
                   className={secondaryButtonClass}
                 >
                   Volver
