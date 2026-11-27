@@ -28,9 +28,10 @@ describe("dominio de clientas", () => {
   })
 
   it("al fusionar, gana lo que tiene la que queda y las notas se juntan", () => {
-    const otra: Cliente = { ...ana, id: 2, apellido: "Pérez", email: "x@y.com", notas: "B", telefono: "5492235552222" }
+    const otra: Cliente = { ...ana, id: 2, apellido: "Pérez", dni: "30111222", email: "x@y.com", notas: "B", telefono: "5492235552222" }
     expect(fusionarFichas({ ...ana, notas: "A" }, otra, "esta")).toEqual({
       apellido: "Pérez",
+      dni: "30111222",
       email: "x@y.com",
       cumple: null,
       notas: "A\n\nB",

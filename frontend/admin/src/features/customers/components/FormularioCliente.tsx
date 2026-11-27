@@ -19,6 +19,7 @@ export default function FormularioCliente({
 }) {
   const [nombre, setNombre] = useState(cliente?.nombre ?? "")
   const [apellido, setApellido] = useState(cliente?.apellido ?? "")
+  const [dni, setDni] = useState(cliente?.dni ?? "")
   const [telefono, setTelefono] = useState(cliente ? formatTelefono(cliente.telefono) : "")
   const [email, setEmail] = useState(cliente?.email ?? "")
   // Día y mes por separado, como dos desplegables: nada de escribir fechas.
@@ -40,6 +41,7 @@ export default function FormularioCliente({
       const datos = {
         nombre: nombre.trim(),
         apellido: apellido.trim() || null,
+        dni: dni.trim() || null,
         telefono: telefono.trim(),
         email: email.trim() || null,
         cumple: cumpleDia && cumpleMes ? { dia: Number(cumpleDia), mes: Number(cumpleMes) } : null,
@@ -68,6 +70,10 @@ export default function FormularioCliente({
         <div>
           <label htmlFor="cli-telefono" className={`${labelClass} text-base`}>Teléfono (WhatsApp)</label>
           <input id="cli-telefono" required type="tel" inputMode="tel" placeholder="Ej: 223 555-1234" value={telefono} onChange={(e) => setTelefono(e.target.value)} className={campo} />
+        </div>
+        <div>
+          <label htmlFor="cli-dni" className={`${labelClass} text-base`}>DNI <span className="font-normal text-ink-soft">(opcional, con él la reconoce la reserva web)</span></label>
+          <input id="cli-dni" inputMode="numeric" maxLength={12} placeholder="Ej: 30111222" value={dni} onChange={(e) => setDni(e.target.value)} className={campo} />
         </div>
         <div>
           <label htmlFor="cli-email" className={`${labelClass} text-base`}>Email <span className="font-normal text-ink-soft">(opcional)</span></label>
@@ -120,7 +126,7 @@ export default function FormularioCliente({
 function mensajeDeError(err: ApiError) {
   const detalle = err.detalle as { campo: string; mensaje: string }[] | undefined
   if (Array.isArray(detalle) && detalle[0]) {
-    const campos: Record<string, string> = { nombre: "el nombre", telefono: "el teléfono", email: "el email", apellido: "el apellido", cumple: "el cumpleaños" }
+    const campos: Record<string, string> = { nombre: "el nombre", telefono: "el teléfono", email: "el email", apellido: "el apellido", dni: "el DNI", cumple: "el cumpleaños" }
     return `Revisá ${campos[detalle[0].campo] ?? "los datos"}: ${detalle[0].mensaje.toLowerCase()}.`
   }
   return err.message

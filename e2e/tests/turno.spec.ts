@@ -73,11 +73,13 @@ test.describe.serial("Turno de punta a punta", () => {
     await expect(page.getByText("Sesión de")).toBeVisible()
 
     await page.getByRole("link", { name: "Clientas" }).click()
-    await page.getByPlaceholder(/Buscar por nombre o teléfono/).fill("E2E")
+    await page.getByPlaceholder(/Buscar por nombre/).fill("E2E")
     await page.getByRole("link", { name: new RegExp(CLIENTA.nombre) }).first().click()
 
     await expect(page.getByRole("heading", { name: CLIENTA.nombre })).toBeVisible()
     await expect(page.getByText("Próximo turno")).toBeVisible()
+    // El DNI con el que reservó en la web.
+    await expect(page.getByText("DNI 99.559.801")).toBeVisible()
   })
 
   test("la clienta cancela su turno desde Mi turno", async ({ page }) => {

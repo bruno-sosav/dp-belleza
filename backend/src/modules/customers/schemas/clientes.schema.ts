@@ -10,6 +10,12 @@ const cumple = z.object({ dia: z.number().int().min(1).max(31), mes: z.number().
 const datosCliente = z.object({
   nombre: z.string().trim().min(1).max(100),
   apellido: z.string().trim().max(100).nullable(),
+  // Se acepta con puntos o espacios ("30.111.222"); se guarda solo con números.
+  dni: z
+    .string()
+    .transform((s) => s.replace(/[\s.-]/g, ""))
+    .pipe(z.string().regex(/^\d{7,8}$/, "El DNI tiene que tener 7 u 8 números"))
+    .nullable(),
   telefono: z.string().trim().min(6).max(30),
   email: z.email().max(150).nullable(),
   // Notas internas de la dueña: la clienta no las ve.

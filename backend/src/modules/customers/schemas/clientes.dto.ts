@@ -8,6 +8,7 @@ export function aClienteEnLista(c: ClienteConActividad) {
     id: c.id,
     nombre: c.nombre,
     apellido: c.apellido,
+    dni: c.dni,
     telefono: c.telefono,
     visitas: c.visitas,
     ultimaVisita: c.ultimaVisita,
@@ -21,6 +22,7 @@ export function aCliente(c: Cliente) {
     id: c.id,
     nombre: c.nombre,
     apellido: c.apellido,
+    dni: c.dni,
     telefono: c.telefono,
     email: c.email,
     cumple: c.cumple,
@@ -45,7 +47,7 @@ export function aFicha(f: Ficha) {
 
 /** Una ficha que podría ser la misma persona (al unir). */
 export function aFichaCorta(c: Cliente) {
-  return { id: c.id, nombre: c.nombre, apellido: c.apellido, telefono: c.telefono }
+  return { id: c.id, nombre: c.nombre, apellido: c.apellido, dni: c.dni, telefono: c.telefono }
 }
 
 /** Unir dos fichas: la que queda y cuánto se le pasó. */

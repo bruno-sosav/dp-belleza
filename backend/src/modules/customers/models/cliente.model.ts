@@ -99,6 +99,8 @@ export function motivoParaNoEliminar(nombre: string, uso: { turnos: number; pedi
 export function fusionarFichas(queda: Cliente, otra: Cliente, telefonoDe: "esta" | "otra"): CambiosCliente {
   return {
     apellido: queda.apellido ?? otra.apellido,
+    // La otra se borra antes de actualizar: su DNI queda libre para esta.
+    dni: queda.dni ?? otra.dni,
     email: queda.email ?? otra.email,
     cumple: queda.cumple ?? otra.cumple,
     notas: [queda.notas, otra.notas].filter(Boolean).join("\n\n") || null,

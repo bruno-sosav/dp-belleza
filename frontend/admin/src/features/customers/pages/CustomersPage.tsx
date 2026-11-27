@@ -69,7 +69,7 @@ export default function CustomersPage() {
           type="search"
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
-          placeholder="Buscar por nombre o teléfono"
+          placeholder="Buscar por nombre, teléfono o DNI"
           autoComplete="off"
           className={`${inputClass} py-4 pl-13 text-lg`}
         />

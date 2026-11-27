@@ -11,6 +11,8 @@ export type Cliente = {
   id: number
   nombre: string
   apellido: string | null
+  /** Solo números. Con él la reconoce la reserva web. */
+  dni: string | null
   telefono: string
   email: string | null
   /** Solo día y mes (el año no hace falta para saludarla). null si no se sabe. */
@@ -59,9 +61,9 @@ export type FichaCliente = Cliente & {
   pedidos: PedidoDeCliente[]
 }
 
-export type CambiosCliente = Partial<Pick<Cliente, "nombre" | "apellido" | "telefono" | "email" | "cumple" | "notas">>
+export type CambiosCliente = Partial<Pick<Cliente, "nombre" | "apellido" | "dni" | "telefono" | "email" | "cumple" | "notas">>
 
-/** Lista, filtrada por nombre o teléfono. `q` vacío trae todas. */
+/** Lista, filtrada por nombre, teléfono o DNI. `q` vacío trae todas. */
 export function useClientes(q: string) {
   const pedir = useCallback(
     () => api<ClienteEnLista[]>("/api/admin/clientes", { query: { q: q || undefined } }),

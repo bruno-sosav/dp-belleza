@@ -56,7 +56,7 @@ export default function UnirCliente({ cliente, onUnida }: { cliente: FichaCorta;
           <p>
             Los turnos y compras de <strong>{nombreCompleto(otra)}</strong> ({formatTelefono(otra.telefono)}) se pasan a esta ficha, y esa ficha se borra.
           </p>
-          <p className="mt-1 text-sm text-ink-soft">Los datos que le falten a esta ficha (email, cumpleaños) se completan con los de la otra, y las notas se juntan. No se puede deshacer.</p>
+          <p className="mt-1 text-sm text-ink-soft">Los datos que le falten a esta ficha (DNI, email, cumpleaños) se completan con los de la otra, y las notas se juntan. No se puede deshacer.</p>
         </div>
         <fieldset>
           <legend className="mb-2 text-base font-medium text-ink">¿Con qué teléfono se queda?</legend>

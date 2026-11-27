@@ -78,14 +78,14 @@ export class MySqlClienteRepository implements ClienteRepository {
     const condiciones: string[] = []
     const params: unknown[] = []
     // Cada palabra tiene que aparecer en algún campo: "ana pe" encuentra "Ana Pérez".
-    // El teléfono se compara solo por dígitos: "223 555" encuentra "5492235550001".
+    // El teléfono y el DNI se comparan solo por dígitos: "223 555" encuentra "5492235550001".
     for (const palabra of texto?.trim().split(/\s+/).filter(Boolean) ?? []) {
       const campos = ["nombre LIKE ?", "apellido LIKE ?"]
       params.push(`%${palabra}%`, `%${palabra}%`)
       const digitos = palabra.replace(/\D/g, "")
       if (digitos.length >= 3) {
-        campos.push("telefono LIKE ?")
-        params.push(`%${digitos}%`)
+        campos.push("telefono LIKE ?", "dni LIKE ?")
+        params.push(`%${digitos}%`, `%${digitos}%`)
       }
       condiciones.push(`(${campos.join(" OR ")})`)
     }

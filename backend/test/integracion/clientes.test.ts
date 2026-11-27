@@ -29,6 +29,17 @@ describe("clientas", () => {
     expect(r.status).toBe(400)
   })
 
+  it("guarda el DNI sin puntos, lo encuentra al buscar y no deja repetirlo", async () => {
+    const r = await api().post("/api/admin/clientes").set(auth).send({ nombre: "Test", telefono: "223 555 9944", dni: "99.559.944" })
+    expect(r.status, JSON.stringify(r.body)).toBe(201)
+    expect(r.body.dni).toBe("99559944")
+    expect((await api().get("/api/admin/clientes?q=99559944").set(auth)).body.map((c: { id: number }) => c.id)).toContain(r.body.id)
+    const otra = await api().post("/api/admin/clientes").set(auth).send({ nombre: "Otra", telefono: "223 555 9945", dni: "99559944" })
+    expect(otra.status).toBe(409)
+    expect(otra.body.error).toMatch(/DNI/)
+    expect((await api().patch(`/api/admin/clientes/${r.body.id}`).set(auth).send({ dni: "123" })).status).toBe(400)
+  })
+
   it("une dos fichas: pasa los turnos, completa datos y se queda con el teléfono elegido", async () => {
     const a = await api().post("/api/admin/clientes").set(auth).send({ nombre: "Test", apellido: "Unir", telefono: "223 555 9942", notas: "nota A" })
     const b = await api()

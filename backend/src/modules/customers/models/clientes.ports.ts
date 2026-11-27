@@ -8,7 +8,7 @@ export interface ClienteRepository {
   /** `bloquear`: que nadie más la cree o cambie hasta que termine la transacción. */
   porTelefono(telefono: string, tx?: Transaccion, opciones?: { bloquear?: boolean }): Promise<Cliente | null>
   porDni(dni: string, tx?: Transaccion, opciones?: { bloquear?: boolean }): Promise<Cliente | null>
-  /** Por nombre, apellido o teléfono; cada palabra tiene que aparecer en algún campo. Vacío = todas. */
+  /** Por nombre, apellido, teléfono o DNI; cada palabra tiene que aparecer en algún campo. Vacío = todas. */
   buscar(texto?: string): Promise<Cliente[]>
   /** Devuelve el id. Lanza `conflicto` si el teléfono o el DNI ya lo tiene otra. */
   crear(datos: DatosCliente, tx?: Transaccion): Promise<number>

@@ -94,6 +94,7 @@ function Ficha({ cliente, recargar }: { cliente: FichaCliente; recargar: () => v
             <div className="min-w-0">
               <h1 className="font-display text-3xl font-semibold text-ink">{nombre}</h1>
               <p className="mt-2 text-xl text-ink">{formatTelefono(cliente.telefono)}</p>
+              {cliente.dni && <p className="mt-1 text-base text-ink-soft">DNI {Number(cliente.dni).toLocaleString("es-AR")}</p>}
               {cliente.email && <p className="mt-1 text-base text-ink-soft">{cliente.email}</p>}
               {cliente.cumple && (
                 <p className="mt-1 flex items-center gap-2 text-base text-ink">
